@@ -1,4 +1,6 @@
 import { DateTimeToDate } from "../../../utils/dateFormatter";
+import ButtonAcciones from "../../Table/ButtonAcciones";
+import { creditosAceptadosAcciones } from "../../Table/Credito/CreditoTableDefinitions";
 
 export const CreditosAceptadosCard = ({row}) => {
     if (!row) return;

@@ -260,6 +260,28 @@
   color: var(--color-contrast);
   background-color: var(--color-neutral);
 }
+.btn-accion, .accion{
+  width: 100%;
+  display: flex;
+
+  text-align: left;
+  justify-content: left;
+  align-items: center;
+  
+  padding: var(--space-sm);
+  padding-inline: var(--space-md);
+  
+  background-color: transparent;
+}
+.accion{
+  margin: 0;
+}
+.a-accion{
+  padding: 0;
+}
+.btn-accion:hover{
+  background-color: var(--background-secondary);
+}
 
 .btn-navigation{
   font-weight: bold;
@@ -279,31 +301,40 @@
 
   cursor: not-allowed;
 }
+
+.button-switch-container{
+  display: flex;
+
+  gap: var(--space-sm);
+}
 .btn-switch{
+  position: relative;
   width: 40px;
   height: 20px;
+
   border-radius: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-input);
+
   cursor: pointer;
-  position: relative;
-  padding: 0;
 }
 .btn-switch.active{
   background-color: var(--color-accent-light);
 }
 .btn-switch-bubble{
   position: absolute;
-  top: 2px;
   left: 2px;
   width: 16px;
   height: 16px;
+
   border-radius: 50%;
-  background-color: white;
+
+  background-color: var(--background-secondary);
   transition: left 0.2s;
 }
 .btn-switch.active .btn-switch-bubble{
   left: 20px
 }
+
 /* --- Inputs --- */
 .input-container{
   display: flex;
@@ -626,9 +657,30 @@
   font-size: var(--font-md);
 }
 
-
-
 /* --- Extras --- */
+.dropdown{
+  width: 225px;
+  position: absolute;
+  top: 100%;
+  right: 0;
+
+  padding: var(--space-sm);
+  padding-inline: var(--space-xs);
+
+  border: 1px solid var(--border-primary);
+  border-radius: var(--border-md);
+
+  background-color: var(--background-secondary);
+
+  z-index: 100;
+}
+
+.dropdown.drop-up {
+  top: auto;
+  bottom: 100%;
+}
+
+
 .empty{
   font-weight: 550;
   color: var(--color-secondary);

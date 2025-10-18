@@ -1,16 +1,23 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function ButtonAcciones({ acciones, row }) {
   const [open, setOpen] = useState(false);
+  const [dropUp, setDropUp] = useState(false); // new state
   const dropdownRef = useRef(null);
+  const buttonRef = useRef(null);
 
   const toggleDropdown = () => setOpen(!open);
   const closeDropdown = () => setOpen(false);
 
-  // --- Cerrar dropdown al clickear fuera ---
+  // --- Detect click outside ---
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(event.target)
+      ) {
         closeDropdown();
       }
     };
@@ -19,35 +26,40 @@ export default function ButtonAcciones({ acciones, row }) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
-    // Mini optimización
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [open]);
 
+  // --- Check if dropdown fits below, otherwise flip ---
+  useEffect(() => {
+    if (open && buttonRef.current && dropdownRef.current) {
+      const buttonRect = buttonRef.current.getBoundingClientRect();
+      const dropdownHeight = dropdownRef.current.offsetHeight;
+      const spaceBelow = window.innerHeight - buttonRect.bottom;
+
+      setDropUp(spaceBelow < dropdownHeight);
+    }
+  }, [open]);
+
   return (
-    <div ref={dropdownRef} style={{ position: 'relative', display: 'inline-block' }}>
-      <button className="btn-acciones" onClick={toggleDropdown} aria-label="Más acciones">
+    <div style={{ position: "relative", display: "inline-block" }}>
+      <button
+        ref={buttonRef}
+        className="btn-acciones"
+        onClick={toggleDropdown}
+        aria-label="Más acciones"
+      >
         ACCIONES <i className="fas fa-sort-down"></i>
       </button>
 
-      {/* Dropdown menu */}
       {open && (
         <div
-          style={{
-            position: 'absolute',
-            top: '100%',
-            right: 0,
-            backgroundColor: 'white',
-            border: '1px solid #ccc',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.15)',
-            zIndex: 1,
-          }}
+          ref={dropdownRef}
+          className={`dropdown ${dropUp ? "drop-up" : ""}`}
         >
           {acciones.map((Btn, index) => (
-            <div key={index} style={{ padding: '5px 10px' }}>
-              <Btn row={row} />
-            </div>
+            <Btn key={index} row={row} />
           ))}
         </div>
       )}

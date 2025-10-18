@@ -116,6 +116,19 @@ export default function BaseTable({
                 React.createElement(activeTab.card ?? card, {row, key: row.id})
             ))}
 
+            {/* --- Estado de carga durante fetch --- */}
+            {loading && (
+                <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
+                    <div className="spinner"></div>
+                </div>
+            )}
+
+            {/* --- Estado vacío --- */}
+            {!loading && (data < 1 || activeTab?.data < 1) && (
+                <div style={{width: '100%', textAlign: 'center'}}>
+                    <h3>ESTA TABLA ESTÁ VACÍA.</h3>
+                </div>
+            )}
 
             {/* Controles de navgeación */}
             <div className="pagination">
@@ -202,7 +215,7 @@ export default function BaseTable({
             {!loading && (data < 1 || activeTab?.data < 1) && (
                 <div className="tr">
                     <div className="td" style={{width: table.getTotalSize(), justifyContent: 'center', flex: 1}}>
-                        <h3>Esta tabla está vacía.</h3>
+                        <h3>ESTA TABLA ESTÁ VACÍA.</h3>
                     </div>
                 </div>
             )}
