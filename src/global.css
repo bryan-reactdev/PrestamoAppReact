@@ -1,0 +1,204 @@
+@import url('https://fonts.googleapis.com/css?family=Poppins:100,100i,200,200i,300,300i,400,400i,500,500i,600,600i,700,700i,800,800i,900,900i');
+
+:root {
+  line-height: 1.5;
+  font-weight: 400;
+
+  /* Vars */
+  --color-primary: #000;
+  --color-accent: #2d5aa0;
+  --color-accent-light: #2369db;
+  --color-secondary-light: #94a3b8;
+  --color-secondary: #424242;
+  --color-contrast: #fff;
+  --color-neutral: #6c757d;
+  --color-success: #198754;
+  --color-warning: #fbc02d;
+  --color-orange: #ff9800;
+  --color-danger: #e9273a;
+
+  --background-primary: #f0f2f5;
+  --background-secondary: white;
+  --background-accent: #f0f2f4;
+  --background-contrast: #192336;
+
+  --input-background: #fcfcfc;
+  --input-background-primary: #f8f9fa;
+  --input-background-disabled: transparent;
+
+  --table-background-primary: #fff;
+  --table-background-secondary: #f8f9fa;
+
+  --border-strong: #303030;
+  --border-primary: #858585;
+  --border-input: #cccccc;
+
+  --font-xs: 0.75rem;    /* 12px */
+  --font-sm: 0.875rem;   /* 14px */
+  --font-md: 1rem;       /* 16px */
+  --font-lg: 1.125rem;   /* 18px */
+  --font-xl: 1.25rem;    /* 20px */
+  --font-2xl: 1.5rem;    /* 24px */
+  --font-3xl: 2rem;      /* 32px */
+  --font-4xl: 2.5rem;    /* 40px */
+  --font-5xl: 3rem;      /* 48px */
+  --font-6xl: 3.75rem;   /* 60px */
+  --font-7xl: 4.5rem;    /* 72px */
+  --font-8xl: 6rem;      /* 96px */
+
+  --space-xs: 0.25rem;     /* 4px */
+  --space-sm: 0.5rem;      /* 8px */
+  --space-md: 1rem;        /* 16px */
+  --space-lg: 1.5rem;      /* 24px */
+  --space-xl: 2rem;        /* 32px */
+  --space-2xl: 2.5rem;     /* 40px */
+  --space-3xl: 3rem;       
+
+  --border-xs: 0.125rem;
+  --border-sm: 0.25rem;
+  --border-md: 0.375rem;
+  --border-lg: 0.5rem;
+  --border-xl: 1rem;
+
+  --border-width-xs: 1px;
+  --border-width-sm: 2px;
+  --border-width-md: 4px;
+  --border-width-lg: 8px;
+}
+
+/* --- General --- */
+*{
+  font-family: 'Poppins', sans-serif;  
+}
+
+body{
+  margin: 0;
+}
+
+a{
+  text-decoration: none;
+  color: inherit;
+}
+
+strong{
+  font-weight: 600;
+}
+
+.badge{
+  padding-top: var(--space-xs);
+  padding-bottom: var(--space-xs);
+  padding-inline: var(--space-sm);
+
+  font-size: var(--font-xs);
+  font-weight: bold;
+
+  border: 0;
+  border-radius: var(--border-sm);  
+
+  color: var(--color-contrast);
+  background-color: var(--color-primary);
+
+  transition: background-color 0.35s ease, color 0.35s ease;
+}
+
+/* --- Inputs --- */
+input {
+  outline: none;
+}
+
+button, a, select, option {
+  cursor: pointer;
+}
+
+i{
+  font-size: var(--font-sm);
+}
+
+/* --- Buttons --- */
+button, a {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  padding-inline: var(--space-md);
+  padding-top: var(--space-sm);
+  padding-bottom: var(--space-sm);
+  gap: var(--space-sm);
+
+  font-size: var(--font-sm);
+
+  border-radius: var(--border-lg);
+  border: 0;
+
+  transition: transform 0.15s ease;
+}
+button:hover, a:hover{
+  filter: brightness(0.9);
+}
+button:active, a:active{
+  transform: scale(0.975);
+  z-index: 10;
+}
+
+/* --- Extras --- */
+.accent{
+  background-color: var(--color-accent);
+}
+.accent-light{
+  background-color: var(--color-accent-light);
+}
+.success{
+  background-color: var(--color-success);
+}
+.danger{
+  background-color: var(--color-danger);
+}
+.orange{
+  background-color: var(--color-orange);
+}
+.warning{
+  background-color: var(--color-warning);
+}
+
+.color-accent{
+  color: var(--color-accent);
+}
+.color-accent-light{
+  color: var(--color-accent-light);
+}
+.color-success{
+  color: var(--color-success);
+}
+.color-danger{
+  color: var(--color-danger);
+}
+.color-orange{
+  color: var(--color-orange);
+}
+.color-warning{
+  color: var(--color-warning);
+}
+
+.username{
+  font-weight: 500;
+  color: var(--color-contrast);
+}
+
+/* --- Spinner --- */
+.spinner {
+  width: 40px;
+  height: 40px;
+
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  
+  animation: spin 1s linear infinite;
+}
+
+/* --- Animations --- */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

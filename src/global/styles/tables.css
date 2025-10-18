@@ -1,0 +1,153 @@
+/* --- Table Container --- */
+.table {
+  display: flex;
+
+  flex-direction: column;
+  
+  margin-inline: auto;
+
+  border: var(--border-width-xs) solid var(--border-strong);
+  border-bottom-left-radius: var(--border-lg);
+  border-bottom-right-radius: var(--border-lg);
+
+  background-color: var(--table-background-primary);
+
+  box-sizing: border-box;
+}
+
+/* --- Table Rows --- */
+.tr {
+  display: flex;
+  width: 100%;
+}
+.tr:hover{
+  box-shadow: inset 0 0 0 var(--border-width-sm) var(--color-accent);
+}
+.header{
+  background-color: var(--table-background-secondary);
+}
+
+/* --- Table Cells --- */
+.th,
+.td {
+  box-shadow: inset 0 0 0 0.5px #cccccc;
+}
+.centered{
+  display: flex !important;
+
+  text-align: center;
+  justify-content: center !important;
+}
+
+.flex-grow {
+  flex: 1;
+}
+
+/* --- Table Header Cells --- */
+.th, .td {
+  position: relative;
+  display: flex;
+
+  align-items: center;
+
+  padding-inline: var(--space-md);
+
+  font-size: var(--font-sm);
+  font-family: 'Poppins', sans-serif;  
+  
+  text-transform: uppercase;
+  
+  box-sizing: border-box;
+}
+
+.th {
+  display: flex;
+  justify-content: left;
+
+  padding-top: var(--space-xs);
+  padding-bottom: var(--space-xs);
+  gap: var(--space-xs);
+
+  font-weight: 600;
+}
+.th i{
+  font-size: var(--font-xs);
+
+  cursor: pointer;
+}
+
+/* --- Pagination --- */
+.pagination {
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  padding: var(--space-sm);
+  gap: var(--space-sm);
+  
+  font-size: var(--font-sm);
+
+  color: var(--color-secondary);
+}
+
+/* --- Tabs --- */
+.tabs-container{
+  display: flex;
+
+  gap: var(--space-xs);
+}
+.inactive-tab {
+  color: var(--color-primary);
+  border: var(--border-width-xs) solid var(--border-primary);
+}
+.active-tab{
+  color: var(--color-contrast);
+  background-color: var(--color-accent-light);
+}
+
+/* --- General --- */
+.A_PLUS,
+.A,
+.B,
+.C,
+.D,
+.Pendiente,
+.Vencido,
+.Rechazado,
+.Pagado,
+.Aceptado,
+.EnRevision,
+.Finalizado {
+  font-weight: 600;
+}
+
+.A_PLUS {
+  color: var(--color-accent);
+}
+.A {
+  color: var(--color-success);
+}
+.B {
+  color: var(--color-warning);
+}
+.C {
+  color: var(--color-orange);
+}
+.D {
+  color: var(--color-danger);
+}
+
+.badge.Pendiente {
+  background-color: var(--color-warning);
+  color: var(--color-primary);
+}
+.badge.Realizado, .badge.Pagado, .badge.Aceptado{
+  background-color: var(--color-success); 
+}
+.badge.Vencido, .badge.Rechazado{
+  background-color: var(--color-danger); 
+}
+.badge.EnRevision, .badge.Finalizado{
+  background-color: var(--color-accent);
+}

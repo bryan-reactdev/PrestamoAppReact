@@ -1,0 +1,145 @@
+.cards-container{
+  height: 50vh;
+  display: flex;
+
+  flex-direction: column;
+
+  gap: var(--space-sm);
+
+  overflow-y: scroll;
+}
+
+.card {
+  display: flex;
+
+  padding: var(--space-sm);
+  padding-inline: var(--space-md);
+
+  justify-content: space-between;
+
+  border: var(--border-width-xs) solid var(--border-primary);
+  border-radius: var(--border-lg);
+
+  border-left: 6px solid var(--color-danger);
+
+  background-color: var(--table-background-primary);
+
+  box-sizing: border-box;
+}
+.card-header{
+  display: flex;
+  
+  flex-direction: column;
+  justify-content: center;
+}
+.card-user{
+  margin-bottom: var(--space-sm);
+
+  font-size: var(--font-sm);
+}
+.card-user strong{
+  font-weight: 00;
+}
+.card-date{
+  display: flex;
+
+  align-items: center;
+  gap: var(--space-xs);
+  
+  font-size: var(--font-xs);
+  color: var(--color-neutral);
+}
+.card-frecuencia{
+  display: flex;
+
+  align-items: center;
+  gap: var(--space-xs);
+
+  font-size: var(--font-xs);
+  color: var(--color-neutral);
+}
+.card-content{
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+  text-align: right;
+}
+.card-monto{
+  display: flex;
+
+  align-items: center;
+  justify-content: right;
+  
+  font-size: var(--font-lg);
+  font-weight: 600;
+  color: var(--color-success);
+}
+.card-desembolso{
+  display: flex;
+
+  flex-direction: column;
+  text-align: center;
+
+  font-size: var(--font-sm);
+}
+.card-desembolso .badge{
+  margin: 0;
+  color: var(--color-secondary) !important;
+
+}
+
+.card-desembolso .badge.Realizado{
+  margin: 0;
+  color: var(--color-contrast) !important;
+}
+
+/* --- Pagination --- */
+.pagination {
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  margin-bottom: var(--space-md);
+  padding: var(--space-sm);
+  gap: var(--space-sm);
+  
+  font-size: var(--font-sm);
+
+  color: var(--color-secondary);
+}
+
+/* --- Tabs --- */
+.tabs-container{
+  display: flex;
+
+  gap: var(--space-xs);
+}
+.inactive-tab {
+  font-size: var(--font-xs);
+
+  color: var(--color-primary);
+  border: var(--border-width-xs) solid var(--border-primary);
+}
+.active-tab{
+  font-size: var(--font-xs);
+
+  color: var(--color-contrast);
+  background-color: var(--color-accent-light);
+}
+
+.Pendiente {
+  border-left-color: var(--color-warning);
+}
+.Realizado, .Pagado, .Aceptado{
+  border-left-color: var(--color-success); 
+}
+.Vencido, .Rechazado{
+  border-left-color: var(--color-danger); 
+}
+.EnRevision, .Finalizado{
+  border-left-color: var(--color-accent);
+}
+
