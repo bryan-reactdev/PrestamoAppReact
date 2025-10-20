@@ -4,6 +4,9 @@ import { descargarPDFConPrint } from '../utils/generalUtil';
 import toast from 'react-hot-toast';
 
 const estadoInicial = {
+    currentUsuario: {rol: 'ROLE_ADMIN'},
+    isAuthenticating: false,
+
     usuario: null,
     isFetchingUsuario: false,
 

@@ -10,17 +10,18 @@ import CreditoModalDesembolsar from '../../components/Modal/Credito/CreditoModal
 import CreditoModalAceptar from '../../components/Modal/Credito/CreditoModalAceptar'
 import { CreditosAceptadosCard, CreditosRechazadosCard } from '../../components/Card/Credito/CreditoCardDefinitions'
 import CreditoModalGenerarDocumentos from '../../components/Modal/Credito/CreditoModalGenerarDocumentos'
+import ModalAcciones from '../../components/Card/ModalAcciones'
+import CreditoModalRechazar from '../../components/Modal/Credito/CreditoModalRechazar'
+import { useParams } from 'react-router-dom'
 
 export default function AdminCreditos(){
+  const { usuarioId } = useParams();
   const {creditos, creditosPendientes, creditosAceptados, creditosRechazados, creditosFinalizados, isFetchingCreditos, getCreditos } = useCreditoStore();
-
   const [currentTab, setCurrentTab] = useState('Todos'); // Default to 'Todos'
 
   useEffect(() => {
-    if (creditos === null || creditos.length === 0) {
-      getCreditos();
-    }
-  }, [getCreditos]);
+    getCreditos(usuarioId ?? null);
+  }, [getCreditos, usuarioId]);
 
   const centered = ['estado', 'calificacion', 'monto', 'montoDesembolsar', 'frecuencia', 'fechaAceptado', 'desembolsado', 'accion', ]
 
@@ -37,12 +38,28 @@ export default function AdminCreditos(){
       <CreditoModalGenerarDocumentos/>      
       <CreditoModalDesembolsar/>
       <CreditoModalAceptar/>      
+      <CreditoModalRechazar/>      
+
+      {/* Mobile */}
+      <ModalAcciones/>
 
       <Navbar/>
       <Sidebar activePage={'creditos'}/>
 
       <div className="content">
-        <ContentTitle title={'Créditos'} subtitle={'Gestión de Creditos'}/>
+        <ContentTitle
+          title={
+            !usuarioId
+              ? 'Créditos'
+              : (
+                  <div>
+                    {'Créditos de '}
+                    {creditos[0]?.usuario ?? 'Usuario'}
+                  </div>
+                )
+          }
+          subtitle={'Gestión de Creditos'}
+        />
         
         <BaseTable 
           data={creditos} 

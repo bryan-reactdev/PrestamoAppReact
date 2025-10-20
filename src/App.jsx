@@ -8,7 +8,8 @@ import AdminUsuarios from './pages/Admin/AdminUsuarios';
 import AdminCrearCredito from './pages/Admin/AdminCrearCredito';
 import AdminHistorial from './pages/Admin/AdminHistorial';
 import AdminCajaChica from './pages/Admin/AdminCajaChica';
-import AdminCreditoCuotas from './pages/Admin/AdminCreditoCuotas';
+import LandingPage from './pages/Landing/LandingPage';
+import AdminIngresos from './pages/Admin/AdminIngresos';
 
 export default function App(){
     // const {authUser, checkAuth, isCheckingAuth} = useAuthStore();
@@ -32,14 +33,20 @@ export default function App(){
         <Router>
             <Routes>
                 {/* Main */}
-                <Route path="/" element={<Navigate to={'/admin/'}/>} />
+                <Route path="/" element={<LandingPage/>} />
                 <Route path="/admin/" element={<AdminDashboard />} />
+
                 <Route path='/admin/creditos' element={<AdminCreditos/>}/>
-                <Route path='/admin/creditos/:id/cuotas' element={<AdminCreditoCuotas/>}/>
+                <Route path='/admin/creditos/:id/cuotas' element={<AdminCobros/>}/>
                 <Route path="/admin/cobros" element={<AdminCobros />} />
+
                 <Route path="/admin/caja" element={<AdminCajaChica />} />
+                <Route path="/admin/caja/ingresos" element={<AdminIngresos />} />
+
                 <Route path="/admin/usuarios" element={<AdminUsuarios />} />
                 <Route path="/admin/usuarios/:id/crear" element={<AdminCrearCredito />} />
+                <Route path="/admin/usuarios/:usuarioId/creditos" element={<AdminCreditos />} />
+
                 <Route path="/admin/historial" element={<AdminHistorial />} />
 
                 {/* Auth */}

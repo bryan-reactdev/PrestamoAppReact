@@ -4,31 +4,27 @@ import { useCuotaStore } from '../../../stores/useCuotaStore'
 import { useCuotaModalStore } from '../../../stores/Modal/useCuotaModalStore'
 
 export default function CuotaModalMarcarPagado() {
-  const { openMarcarPagado, row, closeMarcarPagadoModal } = useCuotaModalStore()
+  const { marcarPagado, closeModal, row } = useCuotaModalStore()
   const { pagarCuota } = useCuotaStore()
 
-  const id = row?.id
-  const currentEstado = row?.estado
-  const usuario = row?.original?.usuario
-
   const handlePagar = () => {
-    pagarCuota(id, currentEstado);
-    closeMarcarPagadoModal();
+    pagarCuota(row.id, row);
+    closeModal('marcarPagado')
   }
 
   return (
     <BaseModal
-      isOpen={openMarcarPagado}
+      isOpen={marcarPagado}
       onConfirm={handlePagar}
-      onClose={closeMarcarPagadoModal}
+      onClose={() => closeModal('marcarPagado')}
       customWidth={500}
       title='Confirmar Pago'
-      confirmText='Si, pagar'
+      confirmText='SÍ, PAGAR'
       icon={'fas fa-question'}
     >
       <div className="modal-content">
         <span>
-          ¿Estás seguro de que deseas marcar como pagada esta cuota de <strong>{usuario}</strong>?
+          ¿Estás seguro de que deseas marcar como pagada esta cuota de <strong>{row?.original?.usuario}</strong>?
         </span>
       </div>
     </BaseModal>

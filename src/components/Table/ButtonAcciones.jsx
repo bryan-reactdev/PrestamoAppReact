@@ -1,7 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import { useUsuarioStore } from "../../stores/useUsuarioStore";
 
-export default function ButtonAcciones({ acciones, row }) {
-  const [open, setOpen] = useState(false);
+export default function ButtonAcciones({ acciones, row, open: controlledOpen, setOpen: setControlledOpen, hideButton}) {
+  const {currentUsuario} = useUsuarioStore();
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+  const setOpen = setControlledOpen ?? setUncontrolledOpen;
+  
   const [dropUp, setDropUp] = useState(false); // new state
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
@@ -42,6 +47,12 @@ export default function ButtonAcciones({ acciones, row }) {
     }
   }, [open]);
 
+  const filteredAcciones = acciones.filter((Btn) => {
+    const roleOk = !Btn.allowedRoles || Btn.allowedRoles.includes(currentUsuario.rol);
+    const visibleOk = !Btn.visibleIf || Btn.visibleIf(row, currentUsuario.rol);
+    return roleOk && visibleOk;
+  });
+
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
       <button
@@ -49,6 +60,7 @@ export default function ButtonAcciones({ acciones, row }) {
         className="btn-acciones"
         onClick={toggleDropdown}
         aria-label="Más acciones"
+        style={{display: hideButton ? 'none' : ''}}
       >
         ACCIONES <i className="fas fa-sort-down"></i>
       </button>
@@ -58,7 +70,7 @@ export default function ButtonAcciones({ acciones, row }) {
           ref={dropdownRef}
           className={`dropdown ${dropUp ? "drop-up" : ""}`}
         >
-          {acciones.map((Btn, index) => (
+          {filteredAcciones.map((Btn, index) => (
             <Btn key={index} row={row} />
           ))}
         </div>

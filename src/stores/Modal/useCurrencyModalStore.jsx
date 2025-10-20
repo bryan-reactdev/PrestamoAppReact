@@ -1,38 +1,38 @@
 import { create } from 'zustand';
 
 const estadoInicial = {
-    marcarPagado: false,
-    abonar: false,
-    row: []
-}
+    ingreso: false,
+    egreso: false,
+  
+    row: null,
+};
 
-// --- Definición de Store --- //
-export const useCuotaModalStore = create((set, get) => ({
+export const useCurrencyModalStore = create((set) => ({
     ...estadoInicial,
 
     // --- Setter de modal genérico ---
     setModal: (key, { open, row = null }) => {
         set((state) => ({
-        ...state,
-        [key]: open,
-        row,
+            ...state,
+            [key]: open,
+            row,
         }));
     },
 
     // --- Helpers genéricos. Uso: openModal('aceptar') ---
     openModal: (key, row) => {
         set((state) => ({
-        ...state,
-        [key]: true,
-        row,
+            ...state,
+            [key]: true,
+            row,
         }));
     },
 
     closeModal: (key) => {
         set((state) => ({
-        ...state,
-        [key]: false,
-        row: null,
+            ...state,
+            [key]: false,
+            row: null,
         }));
     },
-}))
+}));

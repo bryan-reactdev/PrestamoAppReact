@@ -1,12 +1,13 @@
-import { DateTimeToDate } from "../../../utils/dateFormatter";
-import ButtonAcciones from "../../Table/ButtonAcciones";
+import { useModalStore } from "../../../stores/Modal/useModalStore";
+import { DateTimeToDate } from "../../../utils/dateUtils";
 import { creditosAceptadosAcciones } from "../../Table/Credito/CreditoTableDefinitions";
 
 export const CreditosAceptadosCard = ({row}) => {
     if (!row) return;
+    const { openAccionesModal } = useModalStore();
 
     return (
-        <div className={`card ${row.original.estado}`}>
+        <div className={`card ${row.original.estado}`} onClick={() => openAccionesModal(row, creditosAceptadosAcciones)}>
             <div className="card-header">
                 <div className="card-user">
                     <strong>{row.original.nombres} <br /> {row.original.apellidos}</strong> 

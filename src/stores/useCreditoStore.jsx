@@ -13,6 +13,7 @@ const estadoInicial = {
 
     isDesembolsandoCredito: false,
     isAceptandoCredito: false,
+    isRechazandoCredito: false,
 
     isSubmittingCredito: false,
 
@@ -20,29 +21,31 @@ const estadoInicial = {
 
     isSettingCreditoEditable: false,
     isSettingCreditoDescargable: false,
+
+    wasGlobalFetch: false,
 }
 
 // --- Definición de Store --- //
 export const useCreditoStore = create((set, get) => ({
     ...estadoInicial,
 
-    // Helper para actualizar el desembolso de manera optimistica
-    updateBoolean: (id, key, newBoolean) => {
+    // Helper para actualizar valores de manera optimistica
+    updateKey: (id, key, value) => {
         set((state) => ({
             creditos: state.creditos.map((credito) =>
-                credito.id === id ? { ...credito, [key]: newBoolean } : credito
+                credito.id === id ? { ...credito, [key]: value } : credito
             ),
             creditosPendientes: state.creditosPendientes.map((credito) =>
-                credito.id === id ? { ...credito, [key]: newBoolean } : credito
+                credito.id === id ? { ...credito, [key]: value } : credito
             ),
             creditosAceptados: state.creditosAceptados.map((credito) =>
-                credito.id === id ? { ...credito, [key]: newBoolean } : credito
+                credito.id === id ? { ...credito, [key]: value } : credito
             ),
             creditosRechazados: state.creditosRechazados.map((credito) =>
-                credito.id === id ? { ...credito, [key]: newBoolean } : credito
+                credito.id === id ? { ...credito, [key]: value } : credito
             ),
             creditosFinalizados: state.creditosFinalizados.map((credito) =>
-                credito.id === id ? { ...credito, [key]: newBoolean } : credito
+                credito.id === id ? { ...credito, [key]: value } : credito
             ),
         }));
     },
@@ -63,11 +66,31 @@ export const useCreditoStore = create((set, get) => ({
     },
 
     // --- GET ---
+    getCreditos: async (usuarioId = null) =>{
+        const isCurrentGlobal = (usuarioId == null || usuarioId == 0);
+        const {wasGlobalFetch, creditos} = get();
 
-    getCreditos: async () =>{
-      set({isFetchingCreditos: true});
-      
-        const res = await axiosData("/creditoTest/", { method: "GET" });
+        if (isCurrentGlobal && wasGlobalFetch && creditos.length !== 0) return;
+        
+        set({isFetchingCreditos: true});
+
+        set({
+            creditos: [],
+            creditosPendientes: [],
+            creditosAceptados: [],
+            creditosRechazados: [],
+            creditosFinalizados: [],
+        })
+        let res = null;
+
+        if (isCurrentGlobal){
+            res = await axiosData("/creditoTest/", { method: "GET" });
+            set({wasGlobalFetch: true})
+        }
+        else{
+            res = await axiosData(`/usuarioTest/${usuarioId}/creditos`, { method: "GET" });
+            set({wasGlobalFetch: false})
+        }
         
         const creditoGroups = res?.data;
         const todos = creditoGroups?.find(group => group.estado === "Todos")?.data;
@@ -76,11 +99,14 @@ export const useCreditoStore = create((set, get) => ({
         const rechazados = creditoGroups?.find(group => group.estado === "Rechazados")?.data;
         const finalizados = creditoGroups?.find(group => group.estado === "Finalizados")?.data;
 
-        set({ creditos: todos ?? [] });
-        set({ creditosPendientes: pendientes ?? [] });
-        set({ creditosAceptados: aceptados ?? [] });
-        set({ creditosRechazados: rechazados ?? [] });
-        set({ creditosFinalizados: finalizados ?? [] });
+        set({ 
+            creditos: todos ?? [],
+            creditosPendientes: pendientes ?? [],
+            creditosAceptados: aceptados ?? [],
+            creditosRechazados: rechazados ?? [],
+            creditosFinalizados: finalizados ?? []
+         });
+
         set({ isFetchingCreditos: false });
     },
 
@@ -114,18 +140,36 @@ export const useCreditoStore = create((set, get) => ({
         set({isAceptandoCredito: false})
     },
 
-    setCreditoDesembolsado: async (id, desembolso) => {
+    rechazarCredito: async (id, originalEstado) => {
+        set({isRechazandoCredito: true})
+        const toastId = toast.loading("Rechazando Crédito...");
+        
+        const res = await axiosData(`/creditoTest/rechazar/${id}`, { method: "POST"});
+        // Update optimistica
+        get().updateEstado(id, 'Rechazado');
+        
+        // En caso de error
+        if (res === null) {
+            get().updateEstado(id, originalEstado);
+        }
+
+        toast.dismiss(toastId);
+        set({isRechazandoCredito: false})
+    },
+
+    setCreditoDesembolsado: async (id, desembolso, formData) => {
         set({isDesembolsandoCredito: true})
-        get().updateBoolean(id, 'desembolsado', !desembolso);
+        get().updateKey(id, 'desembolsado', !desembolso);
+        get().updateKey(id, 'fechaDesembolsado', formData.fechaDesembolso ?? null);
 
         const res = await axiosData(`/creditoTest/desembolsar/${id}`, {
             method: "POST",
-            data: { desembolsar: !desembolso }
+            data: { desembolsar: !desembolso, ...formData }
         });
 
         // En caso de error
         if (res === null) {
-            get().updateBoolean(id, 'desembolsado', desembolso);
+            get().updateKey(id, 'desembolsado', desembolso);
         }
 
         set({isDesembolsandoCredito: false})
@@ -133,8 +177,8 @@ export const useCreditoStore = create((set, get) => ({
 
     toggleCreditoEditable: async (id, editable) => {
         set({isSettingCreditoEditable: true})
-        get().updateBoolean(id, 'editable', !editable)
-        
+        get().updateKey(id, 'editable', !editable)
+
         const res = await axiosData(`/creditoTest/editable/${id}`, {
             method: 'POST',
             data: { editable: !editable}
@@ -142,7 +186,7 @@ export const useCreditoStore = create((set, get) => ({
 
         // Error
         if (res === null){
-            get().updateBoolean(id, 'editable', editable)
+            get().updateKey(id, 'editable', editable)
         }
 
         set({isSettingCreditoEditable: false})
@@ -150,8 +194,8 @@ export const useCreditoStore = create((set, get) => ({
 
     toggleCreditoDescargable: async (id, descargable) => {
         set({isSettingCreditoDescargable: true})
-        get().updateBoolean(id, 'descargable', !descargable)
-        
+        get().updateKey(id, 'descargable', !descargable)
+
         const res = await axiosData(`/creditoTest/descargable/${id}`, {
             method: 'POST',
             data: { descargable: !descargable}
@@ -159,10 +203,24 @@ export const useCreditoStore = create((set, get) => ({
 
         // Error
         if (res === null){
-            get().updateBoolean(id, 'descargable', descargable)
+            get().updateKey(id, 'descargable', descargable)
         }
 
         set({isSettingCreditoDescargable: false})
+    },
+
+    toggleCreditoDesembolsable: async (id, desembolsable) => {
+        get().updateKey(id, 'desembolsable', !desembolsable)
+
+        const res = await axiosData(`/creditoTest/desembolsable/${id}`, {
+            method: 'POST',
+            data: { desembolsable: !desembolsable}
+        }) 
+
+        // Error
+        if (res === null){
+            get().updateKey(id, 'desembolsable', desembolsable)
+        }
     },
 
     descargarCreditoPDF: async (id, tipo) => {

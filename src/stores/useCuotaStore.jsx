@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { axiosData } from "../utils/axiosWrapper";
+import toast from 'react-hot-toast';
 
 const estadoInicial = {
     cuotas: [],
@@ -18,50 +19,51 @@ const estadoInicial = {
 export const useCuotaStore = create((set, get) => ({
     ...estadoInicial,
 
-    // Helper para actualizar el estado de manera optimistica
-    updateEstado: (id, newEstado) => {
+    // Helper para actualizar valores de manera optimistica
+    updateKey: (id, key, value) => {
         set((state) => ({
             cuotas: state.cuotas.map((cuota) =>
-                cuota.id === id ? { ...cuota, estado: newEstado } : cuota
+                cuota.id === id ? { ...cuota, [key]: value } : cuota
             ),
             cuotasPendientes: state.cuotasPendientes.map((cuota) =>
-                cuota.id === id ? { ...cuota, estado: newEstado } : cuota
+                cuota.id === id ? { ...cuota, [key]: value } : cuota
+            ),
+            cuotasPagadas: state.cuotasPagadas.map((cuota) =>
+                cuota.id === id ? { ...cuota, [key]: value } : cuota
+            ),
+            cuotasVencidas: state.cuotasVencidas.map((cuota) =>
+                cuota.id === id ? { ...cuota, [key]: value } : cuota
+            ),
+            cuotasEnRevision: state.cuotasEnRevision.map((cuota) =>
+                cuota.id === id ? { ...cuota, [key]: value } : cuota
             ),
         }));
     },
-    
+
     getCuotas: async (creditoId = null) =>{
         const isCurrentGlobal = (creditoId === null || creditoId === 0)
+        const {wasGlobalFetch, cuotas} = get();
 
-        if (isCurrentGlobal && get().wasGlobalFetch && get().cuotas.length !== 0){
+        if (isCurrentGlobal && wasGlobalFetch && cuotas.length !== 0){
             return
         }
 
         set({isFetchingCuotas: true});
         
+        set({
+            cuotas: [],
+            cuotasPendientes: [],
+            cuotasPagadas: [],
+            cuotasVencidas: [],
+            cuotasEnRevision: [],
+        })
         let res = null;
         
         if (isCurrentGlobal){
-            set({
-                cuotas: [],
-                cuotasPendientes: [],
-                cuotasPagadas: [],
-                cuotasVencidas: [],
-                cuotasEnRevision: [],
-            })
-            
             res = await axiosData("/cuotaTest/", { method: "GET" });
             set({wasGlobalFetch: true})
         }
         else if (!isCurrentGlobal){
-            set({
-                cuotas: [],
-                cuotasPendientes: [],
-                cuotasPagadas: [],
-                cuotasVencidas: [],
-                cuotasEnRevision: [],
-            })
-            
             res = await axiosData(`/creditoTest/${creditoId}/cuotas`, { method: "GET" });
             set({wasGlobalFetch: false})
         }
@@ -81,17 +83,36 @@ export const useCuotaStore = create((set, get) => ({
         set({ isFetchingCuotas: false });
     },
 
-    pagarCuota: async (id, currentEstado) => {
+    pagarCuota: async (id, row) => {
+        const previousEstado = row.original.estado;
+
         set({isPagandoCuota: true});
-        get().updateEstado(id, 'Pagado');
+        get().updateKey(id, 'estado', 'Pagado');
 
         const res = await axiosData(`/cuotaTest/pagar/${id}`, {method: 'POST'});
 
         // En caso de error
         if (res === null){
-            get().updateDesembolsado(id, currentEstado); 
+            get().updateKey(id, 'estado', previousEstado); 
         }
 
         set({isPagandoCuota: false});
+    },
+
+    abonarCuota: async (id, row, formData) => {
+        const montoOriginal = Number(row.original.abono) || 0
+        const nuevoMonto = Number(formData.monto) || 0
+
+        get().updateKey(id, 'abono', Number(row.original.abono) + nuevoMonto)
+        get().updateKey(id, 'total', Number(row.original.total) - nuevoMonto)
+
+        const res = await axiosData(`/cuotaTest/abonar/${id}`, {
+            method: 'POST',
+            data: formData,
+        })
+
+        if (res === null) {
+            get().updateKey(id, 'abono', montoOriginal)
+        }
     }
 }))

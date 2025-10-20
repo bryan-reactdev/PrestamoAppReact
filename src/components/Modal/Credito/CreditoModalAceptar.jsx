@@ -7,7 +7,12 @@ import FormSelect from '../../Form/FormSelect'
 
 export default function CreditoModalAceptar() {
   const { aceptar, row, closeModal } = useCreditoModalStore()
-  const { aceptarCredito } = useCreditoStore()
+  const { aceptarCredito, descargarCreditoPDF } = useCreditoStore()
+
+  const handleDescargarPDF = (tipo) => {
+    descargarCreditoPDF(row.id, tipo);
+  }
+  
   const [formData, setFormData] = useState({
     montoAprobado: '',
     cuotaMensual: '',
@@ -51,7 +56,7 @@ export default function CreditoModalAceptar() {
       onClose={() => closeModal('aceptar')}
       title={'Configurar Cargos Financieros'}
       customWidth={800}
-      confirmText={`Aceptar`}
+      confirmText={`ACEPTAR`}
       // icon={'fas fa-cog'}
     >
       <div className="modal-content">
@@ -100,11 +105,14 @@ export default function CreditoModalAceptar() {
 
             <div className="form-section-content">
               <div className="form-field half">
-                <button className='btn-primary'><i className='fas fa-download'/>Documento de Evaluación</button>
+                <button className='btn-primary' onClick={() => handleDescargarPDF('PDFInfoPersonal')}>
+                  <i className='fas fa-download'/>
+                  DOCUMENTO DE EVALUACIÓN
+                </button>
               </div>
 
               <div className="form-field half">
-                <button className='btn-success'><i className='fas fa-dollar-sign'/>Refinanciar</button>
+                <button className='btn-success'><i className='fas fa-dollar-sign'/>REFINANCIAR</button>
               </div>
             </div>
           </div>

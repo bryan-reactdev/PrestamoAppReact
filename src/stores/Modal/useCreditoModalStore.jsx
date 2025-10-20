@@ -3,7 +3,9 @@ import { create } from 'zustand';
 const estadoInicial = {
   desembolsar: false,
   aceptar: false,
+  rechazar: false,
   generarDocumentos: false,
+  
   row: null,
 };
 

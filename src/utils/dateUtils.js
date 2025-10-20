@@ -1,3 +1,7 @@
+export function getCurrentDate(){
+  return new Date().toLocaleDateString('sv-ES').split('-').join('-');
+}
+
 export function DateTimeToDateAndTime(fecha) {
   const date = new Date(fecha);
 

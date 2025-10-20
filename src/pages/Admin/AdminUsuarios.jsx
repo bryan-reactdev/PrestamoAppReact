@@ -17,7 +17,6 @@ export default function AdminUsuarios(){
       getUsuarios();
     }
   }, [getUsuarios]);
-
   
   // Definición de las columnas que estarán centradas
   const centered = ['calificacion', 'dui', 'celular', 'accion']

@@ -8,7 +8,11 @@ export default function FormField({classNames, label, type='text', ...props}) {
                 {isMoney &&
                     <i className="fas fa-dollar-sign"></i>
                 }
-                <input type={isMoney ? 'number' : type} step={isMoney ? 0.01 : 1} {...props}/>
+
+                {type === 'textarea' 
+                    ? <textarea {...props}></textarea>
+                    : <input type={isMoney ? 'number' : type} step={isMoney ? 0.01 : 1} {...props}/>
+                }
             </div>
         </div>
     )

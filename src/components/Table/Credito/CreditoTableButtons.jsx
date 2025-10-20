@@ -13,6 +13,9 @@ export const ButtonDesembolsarCredito = ({row}) => {
     </button>
   )
 }
+ButtonDesembolsarCredito.visibleIf = (row, role) => { 
+  return role.includes('ADMIN') || row.original.desembolsable; 
+};
 
 export const ButtonVerCuotasCredito = ({row}) => {
   return (
@@ -30,15 +33,20 @@ export const ButtonAceptarCredito = ({row}) => {
 
   return (
     <button className="btn-accion" onClick={() => openModal('aceptar', row)}>
-      <i className="fas fa-checkmark"/>
+      <i className="fas fa-check"/>
       Aceptar
     </button>
   )
 }
 
 export const ButtonRechazarCredito = ({row}) => {
+  const { openModal } = useCreditoModalStore();
+
   return (
-    <button className="btn-accion" onClick={() => console.log(`Rechazado: ${row.id} `)}>Rechazar</button>
+    <button className="btn-accion" onClick={() => openModal('rechazar', row)}>
+      <i className="fas fa-times"/>
+      Rechazar
+    </button>
   )
 }
 
@@ -52,6 +60,9 @@ export const ButtonGenerarDocumentosCredito = ({row}) => {
     </button>
   )
 }
+ButtonGenerarDocumentosCredito.visibleIf = (row, role) => { 
+  return role.includes('ADMIN') || row.original.descargable; 
+};
 
 export const ButtonEditarCredito = ({row}) => {
   return (
@@ -61,6 +72,9 @@ export const ButtonEditarCredito = ({row}) => {
     </button>
   )
 }
+ButtonEditarCredito.visibleIf = (row, role) => { 
+  return role.includes('ADMIN') || row.original.editable; 
+};
 
 export const ButtonEditableCredito = ({row}) => {
   const { toggleCreditoEditable } = useCreditoStore();
@@ -73,7 +87,9 @@ export const ButtonEditableCredito = ({row}) => {
     />
   )
 }
-
+ButtonEditableCredito.visibleIf = (row, role) => { 
+  return role.includes('ADMIN'); 
+};
 
 export const ButtonDescargableCredito = ({row}) => {
   const { toggleCreditoDescargable } = useCreditoStore();
@@ -85,3 +101,20 @@ export const ButtonDescargableCredito = ({row}) => {
       onClick={() => toggleCreditoDescargable(row.original.id, row.original.descargable)}/>
   )
 }
+ButtonDescargableCredito.visibleIf = (row, role) => { 
+  return role.includes('ADMIN'); 
+};
+
+export const ButtonDesembolsableCredito = ({row}) => {
+  const { toggleCreditoDesembolsable } = useCreditoStore();
+
+  return (
+    <Switch 
+      title={'Desembolsable'} 
+      checked={row.original.desembolsable} 
+      onClick={() => toggleCreditoDesembolsable(row.original.id, row.original.desembolsable)}/>
+  )
+}
+ButtonDesembolsableCredito.visibleIf = (row, role) => { 
+  return role.includes('ADMIN');
+};

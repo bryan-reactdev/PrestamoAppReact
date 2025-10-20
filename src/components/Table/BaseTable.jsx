@@ -4,6 +4,7 @@ import SearchBar from './SearchBar';
 import Tabs from './Tabs';
 import { useSearchParams } from 'react-router-dom';
 import { isMobile } from 'react-device-detect';
+import TabsTotals from './TabsTotals';
  
 export default function BaseTable({
   searchBarPlaceholder = !isMobile ? 'Buscar en tabla...' : 'Buscar...', 
@@ -17,7 +18,9 @@ export default function BaseTable({
   customHeaderHeight, 
   children,
   currentTab,
-  onTabChange
+  onTabChange,
+  isCardTabs,
+
 }) {
     const [searchParams] = useSearchParams();
     const initialTab = searchParams.get('tab');
@@ -101,6 +104,14 @@ export default function BaseTable({
             <SearchBar placeholder={searchBarPlaceholder} globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}/>
 
             {tabs.length > 0 &&
+                isCardTabs
+                ?
+                <TabsTotals
+                    tabs={tabs}
+                    currentTab={currentTab} 
+                    setCurrentTab={(tab) => onTabChange(tab.label)} 
+                />
+                :
                 <Tabs 
                     tabs={tabs}
                     currentTab={currentTab} 
@@ -124,7 +135,7 @@ export default function BaseTable({
             )}
 
             {/* --- Estado vacío --- */}
-            {!loading && (data < 1 || activeTab?.data < 1) && (
+            {!loading && (activeTab?.data?.length <= 0 || !activeTab?.data && data?.length <= 0) && (
                 <div style={{width: '100%', textAlign: 'center'}}>
                     <h3>ESTA TABLA ESTÁ VACÍA.</h3>
                 </div>
@@ -159,7 +170,7 @@ export default function BaseTable({
                 <div className="tr header" key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
                         <div 
-                            className={`th ${centered.includes(header.column.id) ? 'centered' : ''}`}
+                            className={`th ${centered.includes(header.column.id) ? 'column-centered' : ''}`}
                             style={{
                             ...(flexable.includes(header.column.id)
                                 ? { flex: 1 }
@@ -191,7 +202,7 @@ export default function BaseTable({
                 <div className="tr" key={row.id}>
                     {row.getVisibleCells().map((cell) =>(
                         <div 
-                            className={`td ${centered.includes(cell.column.id) ? 'centered' : ''}`}
+                            className={`td ${centered.includes(cell.column.id) ? 'column-centered' : ''}`}
                             style={flexable.includes(cell.column.id) 
                                 ? {flex: 1} 
                                 : {width: cell.column.getSize()}} key={cell.id}
@@ -212,7 +223,7 @@ export default function BaseTable({
             )}
 
             {/* --- Estado vacío --- */}
-            {!loading && (data < 1 || activeTab?.data < 1) && (
+            {!loading && (activeTab?.data?.length <= 0 || !activeTab?.data && data?.length <= 0) && (
                 <div className="tr">
                     <div className="td" style={{width: table.getTotalSize(), justifyContent: 'center', flex: 1}}>
                         <h3>ESTA TABLA ESTÁ VACÍA.</h3>

@@ -124,9 +124,16 @@ export const creditosAceptadosColumns = [
     size: 115,
     enableSorting: false,
     cell: (props) => {
-      const estado = props.getValue() === true ? 'Realizado' : 'Pendiente'
+      const value = props.getValue();
 
-      return <p className={`badge ${estado}`}>{estado}</p>
+      if (value === null) return <p>???</p>;
+
+      if (value === true){
+        const [y, m, d] = props?.row?.original?.fechaDesembolsado?.split('T')[0].split('-');
+        return <p className="badge Realizado">{`${d}/${m}/${y.slice(-2)}`}</p>;
+      }
+
+      return <p className={`badge Pendiente`}>Pendiente</p>
     }  
   },
   {
@@ -145,7 +152,8 @@ export const creditosAceptadosAcciones = [
   CreditoTableAccionTipos.GENERAR_DOCUMENTOS, 
   CreditoTableAccionTipos.EDITAR,
   CreditoTableAccionTipos.EDITABLE,
-  CreditoTableAccionTipos.DESCARGABLE
+  CreditoTableAccionTipos.DESCARGABLE,
+  CreditoTableAccionTipos.DESEMBOLSABLE,
 ]
 
 // --- Créditos Pendientes ---
@@ -250,6 +258,19 @@ export const creditosRechazadosColumns = [
   {
     accessorKey: 'fechaSolicitud',
     header: "Fecha Solicitud",
+    size: 125,
+    cell: (props) => {
+      const value = props.getValue();
+
+      if (!value) return <p>N/A</p>;
+
+      const [y, m, d] = value.split('T')[0].split('-');
+      return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
+    }
+  },
+  {
+    accessorKey: 'fechaRechazado',
+    header: "Fecha Rechazado",
     size: 125,
     cell: (props) => {
       const value = props.getValue();

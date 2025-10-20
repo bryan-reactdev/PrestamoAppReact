@@ -33,10 +33,11 @@ export function BaseModal({
   title,
   icon,
   confirmText = "Confirmar",
-  cancelText = "Cancelar",
+  cancelText = "CANCELAR",
   confirmColor = 'primary',
-  cancelColor = 'danger',
+  cancelColor = 'secondary',
   children,
+  style={},
 }) {
   const modalRef = useRef(null)
   const modalContainerRef = useRef(null)
@@ -59,7 +60,7 @@ export function BaseModal({
   if (!isOpen) return null
 
   return (
-    <div className='modal-backdrop' ref={modalRef}>
+    <div className='modal-backdrop' ref={modalRef} style={style}>
       <div className={`modal-container`} style={{width: customWidth}} ref={modalContainerRef}>
         {/* --- Titulo & Icono --- */}
         <div className="modal-header">

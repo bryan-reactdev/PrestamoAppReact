@@ -1,4 +1,4 @@
-import { DateTimeToDate } from "../../../utils/dateFormatter";
+import { DateTimeToDate } from "../../../utils/dateUtils";
 
 export const CuotasPendientesCard = ({row}) => {
     if (!row) return;
