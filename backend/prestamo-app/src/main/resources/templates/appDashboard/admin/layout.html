@@ -1,0 +1,1934 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(pageTitle, pageSubtitle, activePage, content, pageCss, pageScripts)">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${pageTitle}">Admin Dashboard</title>
+    <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+
+    <!-- Common CSS files -->
+         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css" />
+    <link href="/appDashboard/shared/css/layout.css" rel="stylesheet" type="text/css" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/iCheck/1.0.2/skins/flat/blue.css" rel="stylesheet" type="text/css" />
+
+    <link href="/appDashboard/shared/css/tables.css" rel="stylesheet" type="text/css" />
+    <link href="/appDashboard/shared/css/modals.css" rel="stylesheet" type="text/css" />
+
+    <!-- Page-specific CSS -->
+    <th:block th:replace="${pageCss} ?: ~{}"></th:block>
+</head>
+<body class="modern-admin">
+<div class="wrapper">
+
+    <!-- Header -->
+    <header class="main-header">
+        <div class="header-container">
+            <!-- Mobile sidebar toggle button -->
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <a href="/admin/panel" class="logo" style="font-family: Arial, sans-serif;"><b>Multipréstamos&nbsp;</b>ATLAS</a>
+
+            <div class="header-user-menu">
+                <div class="nav-item dropdown user user-menu">
+                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+                        <img th:src="${usuario?.foto != null ? usuario?.foto : '/appDashboard/shared/img/defaultPfp.png'}"
+                             class="rounded-circle me-2" alt="User Image" style="width: 30px; height: 30px;"/>
+                        <span class="d-none d-md-inline" th:text="${usuario?.nombre != null ? usuario?.nombre : 'Usuario'}">user1ander Pierce</span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li class="dropdown-header">
+                            <img th:src="${usuario?.foto != null ? usuario?.foto : '/appDashboard/shared/img/defaultPfp.png'}"
+                                 class="rounded-circle mb-2" alt="User Image" style="width: 90px; height: 90px;" />
+                            <p th:text="${usuario?.nombre != null ? usuario?.nombre : 'Usuario'} + ' - Usuario'">user1ander Pierce - Web Developer<small>Member since Nov. 2012</small></p>
+                        </li>
+                        <li class="dropdown-footer">
+                            <a href="#" class="btn btn-default btn-flat">Profile</a>
+                            <a href="/auth/logout" class="btn btn-default btn-flat">Sign out</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar overlay for mobile -->
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- Sidebar -->
+    <aside class="main-sidebar">
+        <section class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="header">NAVEGACIÓN PRINCIPAL</li>
+
+                <li th:classappend="${activePage == 'dashboard'} ? 'active' : ''">
+                    <a href="/admin/panel" class="nav-link"><i class="fas fa-tachometer-alt"></i> <span>Panel de Control</span></a>
+                </li>
+
+                <!-- Créditos -->
+                <li th:classappend="${activePage == 'creditos'} ? 'active' : ''">
+                    <a th:href="${#authorization.expression('hasRole(''ROLE_ADMIN'') or hasRole(''ROLE_SECRETARIA'') or hasRole(''ROLE_GERENTE'')')} ? '/admin/creditos' : '#'"
+                       th:classappend="${#authorization.expression('hasRole(''ROLE_ADMIN'') or hasRole(''ROLE_SECRETARIA'') or hasRole(''ROLE_GERENTE'')')} ? '' : 'disabled-link'"
+                       class="nav-link">
+                        <i class="fas fa-credit-card"></i> <span>Créditos</span>
+                    </a>
+                </li>
+
+
+                <!-- Cobros -->
+                <li th:classappend="${activePage == 'cobros'} ? 'active' : ''">
+                    <a href="/admin/creditos/cobros"
+                       class="nav-link">
+                        <i class="fas fa-money-bill"></i> <span>Cobros</span>
+                    </a>
+                </li>
+
+                <!-- Usuarios -->
+                <li th:classappend="${activePage == 'usuarios'} ? 'active' : ''">
+                    <a th:href="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'',''ROLE_SECRETARIA'',''ROLE_GERENTE'')')} ? '/admin/usuarios' : '#'"
+                       th:classappend="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'',''ROLE_SECRETARIA'',''ROLE_GERENTE'')')} ? '' : 'disabled-link'"
+                       class="nav-link">
+                        <i class="fas fa-users"></i> <span>Usuarios</span>
+                    </a>
+                </li>
+                
+                <!-- Mensajes -->
+
+                <li th:classappend="${activePage == 'cajaChica'} ? 'active' : ''">
+                    <a th:href="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'',''ROLE_SECRETARIA'',''ROLE_GERENTE'')')} ? '/CajaChica' : '#'"
+                       th:classappend="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'',''ROLE_SECRETARIA'',''ROLE_GERENTE'')')} ? '' : 'disabled-link'"
+                       class="nav-link">
+                        <i class="fas fa-cash-register"></i>
+                        <span>Caja Chica</span>
+                    </a>
+                </li>
+
+
+                <!-- Historial -->
+                <li th:classappend="${activePage == 'historial'} ? 'active' : ''">
+                    <a th:href="${#authorization.expression('hasRole(''ROLE_ADMIN'') or hasRole(''ROLE_GERENTE'')')} ? '/admin/historial' : '#'"
+                       th:classappend="${#authorization.expression('hasRole(''ROLE_ADMIN'') or hasRole(''ROLE_GERENTE'')')} ? '' : 'disabled-link'"
+                       class="nav-link">
+                        <i class="fas fa-history"></i> <span>Historial</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
+    </aside>
+
+    <!-- Content Wrapper -->
+    <div class="content-wrapper">
+        <section class="content-header">
+            <h1 th:text="${pageTitle}"></h1>
+            <small th:text="${pageSubtitle}"></small>
+        </section>
+        <section class="content" th:replace="${content}"></section>
+    </div>
+</div>
+
+<!-- Common Scripts -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js" type="text/javascript"></script>
+<script>$.widget.bridge('uibutton', $.ui.button);</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" type="text/javascript"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- Global function for showing credit details with SweetAlert2 -->
+<script>
+    function toggleDesembolso(link) {
+    const creditoId = link.getAttribute('data-id');
+    const userFullName = link.getAttribute('data-user-full-name');
+    const userRole = link.getAttribute('data-user-role');
+    const isAdmin = userRole === 'ROLE_ADMIN';
+
+    const row = link.closest('tr');
+    const desembolsadoCell = row.children[6];
+    const esDesembolsado = !desembolsadoCell.textContent.includes('Pendiente');
+    const actionText = esDesembolsado ? 'revertir el desembolso' : 'desembolsar';
+    const confirmButtonText = esDesembolsado ? 'Sí, revertir' : 'Sí, desembolsar';
+    const successText = esDesembolsado
+        ? 'El desembolso ha sido revertido.'
+        : 'El crédito ha sido desembolsado correctamente.';
+
+    const today = new Date().toISOString().split('T')[0]; // yyyy-mm-dd
+
+    Swal.fire({
+        title: `¿${actionText.charAt(0).toUpperCase() + actionText.slice(1)}?`,
+        html: `
+            <p>¿Estás seguro de que deseas ${actionText} este crédito de <strong>${userFullName}</strong>?</p>
+            ${!esDesembolsado ? `
+                <label for="fechaInput">Fecha de desembolso:</label>
+                <input type="date" id="fechaInput" class="swal2-input" value="${today}" ${isAdmin ? '' : 'readonly'}>
+                <label for="fechaPrimerInput">Fecha de Primer Cobro:</label>
+                <input type="date" id="fechaPrimerInput" class="swal2-input" value="${today}" ${isAdmin ? '' : 'readonly'}>
+            ` : ''}
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: confirmButtonText,
+        cancelButtonText: 'Cancelar',
+        preConfirm: () => {
+            if (!esDesembolsado) {
+                const fecha = document.getElementById('fechaInput').value;
+                const fechaPrimer = document.getElementById('fechaPrimerInput').value;
+                if (!fecha) {
+                    Swal.showValidationMessage('La fecha de desembolso es obligatoria');
+                    return false;
+                }
+                return { fecha, fechaPrimer };
+            }
+            return null; // No dates when reverting
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const selectedDates = result.value;
+
+            link.disabled = true;
+            row.style.opacity = '0.5';
+
+            fetch('/credito/desembolsar/' + creditoId, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    desembolsar: !esDesembolsado,
+                    ...(selectedDates && {
+                        fecha: selectedDates.fecha,
+                        fechaPrimer: selectedDates.fechaPrimer
+                    })
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    Swal.fire('¡Listo!', successText, 'success').then(() => {
+                        const today = new Date();
+                        const formattedDate = today.toLocaleDateString('es-ES', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                        });
+
+                        desembolsadoCell.innerHTML = esDesembolsado
+                            ? '<span class="badge bg-danger"> Pendiente</span>'
+                            : `<span>${formattedDate}</span>`;
+
+                        const span = link.querySelector('span');
+                        if (span)
+                            span.textContent = esDesembolsado ? 'Desembolsar' : 'Revertir Desembolso';
+
+                        link.disabled = false;
+                        row.style.opacity = '1';
+                    });
+                } else {
+                    throw new Error('Error del servidor');
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                Swal.fire('Error', 'Hubo un problema al procesar la acción.', 'error');
+                link.disabled = false;
+                row.style.opacity = '1';
+            });
+        }
+    });
+}
+
+function showCuotaClienteDetails(
+    cuotaId,
+    nombres,
+    apellidos,
+    celular,
+    direccion,
+    nombresCodeudor,
+    direccionCodeudor,
+    direccionNegocio
+) {
+    let html = `
+        <div style="text-align:left;">
+            <h5>Información del Cliente</h5>
+            <table class="table table-sm table-bordered">
+                <tr>
+                    <th>Nombres</th>
+                    <td>${nombres || '-'}</td>
+                </tr>
+                <tr>
+                    <th>Apellidos</th>
+                    <td>${apellidos || '-'}</td>
+                </tr>
+                <tr>
+                    <th>Celular</th>
+                    <td>${celular || '-'}</td>
+                </tr>
+                <tr>
+                    <th>Dirección</th>
+                    <td>${direccion || '-'}</td>
+                </tr>
+                <tr>
+                    <th>Nombres de Codeudor</th>
+                    <td>${nombresCodeudor || '-'}</td>
+                </tr>
+                <tr>
+                    <th>Dirección de Codeudor</th>
+                    <td>${direccionCodeudor || '-'}</td>
+                </tr>
+                ${direccionNegocio && direccionNegocio.trim() !== '' ? `
+                <tr>
+                    <th>Dirección de Negocio</th>
+                    <td>${direccionNegocio}</td>
+                </tr>
+                ` : ''}
+            </table>
+        </div>
+    `;
+
+    Swal.fire({
+                title: 'Detalles de la Cuota',
+                html: html,
+                width: '600px',
+                showCloseButton: true,
+                confirmButtonText: 'Cerrar'
+            });
+        }
+            function addNota(link) {
+                const cuotaId = link.getAttribute('data-id');
+                const userFullName = link.getAttribute('data-user-full-name');
+
+                const existingMessagesRaw = link.getAttribute('data-cuota-mensajes') || '';
+                // Patch: match NotaEntity blocks across newlines
+                const matches = [...existingMessagesRaw.matchAll(/NotaEntity\{([\s\S]*?)\}/g)];
+
+                const parsedMessages = matches.map(match => {
+                    const fields = {};
+                    // Use a regex to match key='value' pairs, including multiline values
+                    const fieldRegex = /(\w+)=('(?:[^']|\n)*'|[^,}]+)/g;
+                    let fieldMatch;
+                    while ((fieldMatch = fieldRegex.exec(match[1])) !== null) {
+                        let key = fieldMatch[1];
+                        let value = fieldMatch[2];
+                        // Remove surrounding single quotes if present
+                        if (value.startsWith("'")) value = value.slice(1);
+                        if (value.endsWith("'")) value = value.slice(0, -1);
+                        fields[key] = value;
+                    }
+                    return fields;
+                });
+                
+                // Build grouped notes: show date only once per day
+                const notesListHtml = (() => {
+                    if (parsedMessages.length === 0) return '';
+                    let lastDateKey = null;
+                    return parsedMessages.map(msg => {
+                        const date = new Date(msg.fecha);
+                        const day = String(date.getDate()).padStart(2, '0');
+                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                        const year = String(date.getFullYear()).slice(-2);
+                        const dateKey = `${day}/${month}/${year}`;
+
+                        const showDate = dateKey !== lastDateKey;
+                        if (showDate) lastDateKey = dateKey;
+
+                        const dateLabel = showDate ? `<small>${dateKey}</small><br>` : '';
+                        return `
+                            <li style="margin-bottom: 8px;">
+                                <span style="font-weight: 500; font-size: 1.25rem; margin-bottom: 1rem;">
+                                    ${dateLabel}
+                                </span>
+                                <textarea 
+                                    data-id="${msg.id}" 
+                                    data-original="${msg.contenido.replace(/"/g, '&quot;')}" 
+                                    class="edited-note-input" 
+                                    style="width: 100%; min-height: 40px; border-radius: 6px; border: 1px solid #ccc; padding: 6px 8px; font-size: 0.98rem; background: #fff; resize: vertical; box-sizing: border-box;">${msg.contenido.replace(/<\/textarea>/g, '&lt;/textarea&gt;')}</textarea>
+                            </li>
+                        `;
+                    }).join('');
+                })();
+                
+                Swal.fire({
+            title: 'Añadir / Editar Notas',
+            html: `
+                <div style="text-align: left; max-height: 200px; overflow-y: auto; margin-bottom: 10px; background: #f9f9f9; border-radius: 8px; border: 1px solid #e0e0e0; padding: 12px 10px 8px 10px;">
+                    <ul id="editableNotesList" style="padding-left: 0; list-style-type: none; margin: 0;">
+                        ${(notesListHtml || '<li><em style="color:#888;">No hay notas previas</em></li>')}
+                    </ul>
+                </div>
+                <textarea id="newNoteInput" class="swal2-textarea" placeholder="Escribe una nueva nota..." style="width: 100%; min-height: 60px; border-radius: 6px; border: 1px solid #ccc; padding: 8px 10px; font-size: 1rem; background: #fff; margin: 0; resize: vertical; outline: none;"></textarea>
+                <style>
+                    #editableNotesList li {
+                        background: #f5f5f5;
+                        margin-bottom: 8px;
+                        padding: 7px 10px;
+                        border-radius: 6px;
+                        font-size: 0.98rem;
+                        color: #333;
+                    }
+                    #editableNotesList li:last-child {
+                        margin-bottom: 0;
+                    }
+                </style>
+            `,
+            showCancelButton: true,
+            cancelButtonText: 'Cerrar',
+            confirmButtonText: 'Añadir nota',
+            confirmButtonColor: '#3085d6',
+            preConfirm: () => {
+                // Append new note to the editable list (but don't save yet)
+                const note = document.getElementById('newNoteInput').value.trim();
+                if (!note) return false; // ignore empty
+                const editableList = document.getElementById('editableNotesList');
+
+                const now = new Date();
+                const day = String(now.getDate()).padStart(2, '0');
+                const month = String(now.getMonth() + 1).padStart(2, '0');
+                const year = String(now.getFullYear()).slice(-2);
+                const dateKey = `${day}/${month}/${year}`;
+
+                const smalls = editableList.querySelectorAll('small');
+                const lastShownDate = smalls.length ? smalls[smalls.length - 1].textContent.trim() : null;
+                const showDate = lastShownDate !== dateKey;
+
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    ${showDate ? `<small>${dateKey}</small><br>` : ''}
+                    <textarea 
+                        data-id="TEMP" 
+                        data-original="${note.replace(/"/g, '&quot;')}" 
+                        class="edited-note-input" 
+                        style="width: 100%; min-height: 40px; border-radius: 6px; border: 1px solid #ccc; padding: 6px 8px; font-size: 0.98rem; background: #fff; resize: vertical; box-sizing: border-box;">${note.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+                `;
+                editableList.appendChild(li);
+                document.getElementById('newNoteInput').value = ''; // clear input
+                return false; // keep modal open
+            },
+            willClose: () => {
+                const editableList = document.getElementById('editableNotesList');
+                const inputs = editableList.querySelectorAll('.edited-note-input');
+
+                const newNotes = [];
+                const editedNotes = [];
+
+                inputs.forEach(input => {
+                    const id = input.dataset.id;
+                    const original = input.dataset.original;
+                    const content = input.value.trim();
+
+                    if (!content) return; // skip empty
+
+                    if (id === 'TEMP') {
+                        newNotes.push(content);
+                    } else if (content !== original) {
+                        editedNotes.push({ id, contenido: content });
+                    }
+                });
+
+                // POST new notes
+                newNotes.forEach(note => {
+                    fetch(`/credito/notas/${cuotaId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ nota: note })
+                    })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Error al guardar nueva nota');
+                    })
+                    .catch(err => console.error(err));
+                });
+
+                // PUT edited notes
+                if (editedNotes.length > 0) {
+                    fetch(`/credito/notas/editar/${cuotaId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(editedNotes)
+                    })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Error al guardar notas editadas');
+                    })
+                    .catch(err => console.error(err));
+                }
+            }
+        });
+    }
+
+    const criterios = [
+        { label: 'Capacidad de pago', options: ['Alta', 'Media', 'Baja'] },
+        { label: 'Estabilidad Laboral', options: ['Alta', 'Media', 'Baja'] },
+        { label: 'Historial Crediticio', options: ['Bueno', 'Regular', 'Malo'] },
+        { label: 'Nivel de Endeudamiento', options: ['Alta', 'Media', 'Baja'] },
+        { label: 'Recomendación', options: ['Aprobar', 'Condicionar', 'Rechazar'] },
+    ];
+
+    function mostrarAnalisisDeRiesgo(button) {
+        const creditoId = button.getAttribute('data-id');
+
+        const existingValues = {
+            'Capacidad de pago': button.getAttribute('data-capacidad-pago')?.trim().toLowerCase(),
+            'Historial Crediticio': button.getAttribute('data-historial-crediticio')?.trim().toLowerCase(),
+            'Estabilidad Laboral': button.getAttribute('data-estabilidad-laboral')?.trim().toLowerCase(),
+            'Nivel de Endeudamiento': button.getAttribute('data-nivel-endeudamiento')?.trim().toLowerCase(),
+            'Recomendación': button.getAttribute('data-recomendacion')?.trim().toLowerCase(),
+        };
+
+        Swal.fire({
+            title: 'Análisis de Riesgo del Crédito',
+            html: `
+                <div style="text-align:left;">
+                ${criterios.map((criterio, i) => `
+                    <div style="margin-bottom: 10px;">
+                        <strong>${criterio.label}</strong><br>
+                        ${criterio.options.map((opt, idx) => {
+                            const value = opt.toLowerCase();
+                            const isChecked = existingValues[criterio.label]?.trim() === value ? 'checked' : '';
+                            return `
+                                <label>
+                                    <input type="radio" name="riesgo${i}" value="${value}" 
+                                        style="${idx === 0 ? '' : 'margin-left: 10px;'}"
+                                        ${isChecked}
+                                    > ${opt}
+                                </label>
+                            `;
+                        }).join('')}
+                    </div>
+                `).join('')}
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Guardar',
+            cancelButtonText: 'Cancelar',
+            focusConfirm: false,
+
+            preConfirm: () => {
+                // Collect selections
+                const resultados = criterios.map((_, i) => {
+                    const selected = document.querySelector(`input[name="riesgo${i}"]:checked`);
+                    return {
+                        criterio: criterios[i].label,
+                        valor: selected ? selected.value : null
+                    };
+                });
+
+                // Basic validation: check all selected
+                const missing = resultados.find(r => !r.valor);
+                if (missing) {
+                    Swal.showValidationMessage(`Por favor selecciona una opción para "${missing.criterio}"`);
+                    return false;
+                }
+
+                // POST to backend, return Promise
+                return fetch(`/admin/credito/riesgo/${creditoId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(resultados)
+                }).then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al guardar el análisis');
+                    }
+                    return resultados;
+                }).catch(error => {
+                    Swal.showValidationMessage(`Error: ${error.message}`);
+                });
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire('Guardado!', 'El análisis de riesgo ha sido guardado.', 'success').then(() => {
+                    const criterioToAttr = {
+                        'Capacidad de pago': 'capacidad-pago',
+                        'Estabilidad Laboral': 'estabilidad-laboral',
+                        'Historial Crediticio': 'historial-crediticio',
+                        'Nivel de Endeudamiento': 'nivel-endeudamiento',
+                        'Recomendación': 'recomendacion'
+                    };
+
+                    result.value.forEach(({ criterio, valor }) => {
+                        const attrName = criterioToAttr[criterio];
+                        if (attrName) {
+                            button.setAttribute(`data-${attrName}`, valor);
+                        }
+                    });
+                });
+            }
+        });
+    }
+
+    window.descargarUsuarioPDF = function descargarUsuarioPDF(id) {
+        fetch(`/usuario/pdf/${id}`, { method: 'POST' })
+            .then(res => {
+                if (!res.ok) throw alert('Error al generar PDF');
+                return res.blob();
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+
+                // Detectar móvil
+                const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                if (isMobile) {
+                    window.open(url, '_blank'); // abre PDF en nueva pestaña
+                } else {
+                    // PC: iframe oculto y print
+                    const iframe = document.createElement('iframe');
+                    iframe.style.display = 'none';
+                    iframe.src = url;
+                    iframe.onload = function () {
+                        iframe.contentWindow.print();
+                        setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+                    };
+                    document.body.appendChild(iframe);
+                }
+            })
+            .catch(console.error);
+    }
+
+    window.showUsuarioDetails = function(usuarioId) {
+        const modalContent = document.getElementById('modal-content-' + usuarioId);
+        if (modalContent) {
+            Swal.fire({
+                title: 'Detalles del usuario',
+                html: modalContent.innerHTML,
+                width: '800px',
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    container: 'swal-usuario-modal'
+                },
+                didOpen: () => {
+                    const container = Swal.getHtmlContainer();
+                    const form = container.querySelector('form');
+                    const editBtn = container.querySelector('.usuario-editar-btn');
+                    const saveBtn = container.querySelector('.usuario-guardar-btn');
+                    const inputs = form.querySelectorAll('input:not([type="hidden"])');
+
+                    // --- Botón Editar ---
+                    editBtn.addEventListener('click', function() {
+                        inputs.forEach(input => input.removeAttribute('disabled'));
+                        editBtn.style.display = 'none';
+                        saveBtn.style.display = 'inline-block';
+                    });
+
+                    // --- Botón Guardar ---
+                    saveBtn.addEventListener('click', function() {
+                        const formData = new FormData(form);
+                        fetch('/usuario/update', {
+                            method: 'POST',
+                            body: formData
+                        })
+                            .then(response => {
+                                if (response.ok) {
+                                    return response.text();
+                                } else if (response.status === 400) {
+                                    return response.text().then(text => { throw new Error(text); });
+                                } else {
+                                    throw new Error('Error al actualizar usuario');
+                                }
+                            })
+                            .then(result => {
+                                if (result.includes('emailChanged=true')) {
+                                    Swal.fire({
+                                        icon: 'info',
+                                        title: 'Email actualizado',
+                                        text: 'Tu email ha sido actualizado. Serás redirigido al login para iniciar sesión con tu nuevo email.',
+                                        confirmButtonText: 'OK'
+                                    }).then(() => {
+                                        window.location.href = '/auth/logout?emailChanged=true';
+                                    });
+                                } else {
+                                    Swal.fire({
+                                        icon: 'success',
+                                        title: 'Éxito',
+                                        text: 'Usuario actualizado correctamente'
+                                    }).then(() => {
+                                        location.reload();
+                                    });
+                                }
+                            })
+                            .catch(error => {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: error.message || 'No se pudo actualizar el usuario'
+                                });
+                            });
+                    });
+
+                    // --- Previsualización de imágenes ---
+                    const fileInputs = form.querySelectorAll('input[type="file"]');
+                    fileInputs.forEach(input => {
+                        input.addEventListener('change', function(event) {
+                            const previewId = this.dataset.previewId;
+                            const preview = form.querySelector(`img[id="${previewId}"]`);
+                            const file = event.target.files[0];
+                            if (file && preview) {
+                                const reader = new FileReader();
+                                reader.onload = () => { preview.src = reader.result; };
+                                reader.readAsDataURL(file);
+                            }
+                        });
+                    });
+
+                    // --- Botón Cambiar contraseña ---
+                    const passBtn = container.querySelector('.usuario-cambiar-contrasena-btn');
+                    const passInput = container.querySelector('input[name="nuevaContrasena"]');
+                    const userId = form.querySelector('input[name="id"]').value;
+
+                    if (passBtn) {
+                        passBtn.addEventListener('click', function() {
+                            const nuevaContrasena = passInput.value;
+                            if (!nuevaContrasena) {
+                                Swal.fire("Error", "Debes ingresar una nueva contraseña", "error");
+                                return;
+                            }
+
+                            fetch('/admin/change-password', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                                body: new URLSearchParams({
+                                    usuarioId: userId,
+                                    nuevaContrasena: nuevaContrasena
+                                })
+                            })
+                                .then(r => r.text())
+                                .then(msg => Swal.fire("Éxito", msg, "success"))
+                                .catch(err => Swal.fire("Error", err, "error"));
+                        });
+                    }
+                }
+            });
+        } else {
+            console.error('Modal content not found for usuario ID:', usuarioId);
+        }
+    };
+
+
+    window.showCreditoDetails = function(creditoId) {
+        const modalContent = document.getElementById('modal-content-' + creditoId);
+        if (modalContent) {
+            Swal.fire({
+                title: 'Detalles del crédito',
+                html: modalContent.innerHTML,
+                width: '800px',
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    container: 'swal-credito-modal'
+                }
+            });
+        } else {
+            console.error('Modal content not found for credito ID:', creditoId);
+        }
+    };
+    
+    // Mostrar detalles de la cuota
+    window.showCuotaDetails = function(link) {
+        const cuotaId = link.getAttribute('data-id');
+
+        const modalContent = document.getElementById('cuota-modal-content-' + cuotaId);
+        if (modalContent) {
+            Swal.fire({
+                title: 'Editar Cuota',
+                html: modalContent.innerHTML,
+                width: '800px',
+                showCloseButton: true,
+                showConfirmButton: false,
+                customClass: {
+                    container: 'swal-cuota-modal'
+                },
+                didOpen: () => {
+                    // Add any initialization code if needed
+                }
+            });
+        } else {
+            console.error('Modal content not found for cuota ID:', cuotaId);
+        }
+    };
+
+    window.saveCuotaChanges = function(cuotaId) {
+        // Get the form from the SweetAlert modal, not the original hidden one
+        const swalModal = document.querySelector('.swal2-container');
+        const form = swalModal.querySelector('#cuota-form-' + cuotaId);
+        
+        if (!form) {
+            Swal.fire({
+                title: 'Error',
+                text: 'No se pudo encontrar el formulario',
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+            });
+            return;
+        }
+        
+        const formData = new FormData(form);
+        
+        // Convert FormData to URLSearchParams for x-www-form-urlencoded
+        const params = new URLSearchParams();
+        for (let [key, value] of formData.entries()) {
+            if (value) params.append(key, value);
+        }
+        
+        // Add debug logging
+        console.log('Sending data:', Object.fromEntries(params.entries()));
+        
+        fetch('/cuota/' + cuotaId, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: params
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            if (!response.ok) {
+                throw new Error('Error saving changes: ' + response.status);
+            }
+            return response.text();
+        })
+        .then(result => {
+            console.log('Save successful');
+            Swal.fire({
+                title: '¡Éxito!',
+                text: 'Los cambios se guardaron correctamente',
+                icon: 'success',
+                confirmButtonText: 'Aceptar'
+            }).then(() => {
+                location.reload();
+            });
+        })
+        .catch(error => {
+            console.error('Save error:', error);
+            Swal.fire({
+                title: 'Error',
+                text: 'No se pudieron guardar los cambios: ' + error.message,
+                icon: 'error',
+                confirmButtonText: 'Aceptar'
+            });
+        });
+    };
+
+    window.aceptarCuota = function(cuotaId) {
+        if (!cuotaId) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo identificar la cuota a aceptar'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Aceptar cuota',
+            text: '¿Está seguro que desea aceptar esta cuota?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, Aceptar',
+            cancelButtonText: 'Cancelar',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                // Send the form data to the controller
+                return fetch('/cuota/aceptar/' + cuotaId, {
+                    method: 'POST',
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al aceptar la cuota');
+                        }
+                        return response.text();
+                    })
+                    .catch(error => {
+                        Swal.showValidationMessage(`Error: ${error.message}`);
+                    });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Cuota aceptada',
+                    text: 'La cuota ha sido aceptada correctamente',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    // Close the modal
+                    Swal.close();
+                    // Optionally reload the page or update the table
+                    window.location.reload();
+                });
+            }
+        });
+    };
+
+    window.rechazarCredito = function(creditoId) {
+        if (!creditoId) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo identificar el crédito a rechazar'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Rechazar crédito',
+            text: '¿Está seguro que desea rechazar este crédito?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, Rechazar',
+            cancelButtonText: 'Cancelar',
+            showLoaderOnConfirm: true,
+            html: `
+                <div>
+                    <div class="mb-3">
+                        <label for="motivo" class="form-label">Motivo</label>
+                        <textarea class="form-control" id="motivo" name="motivo" rows="3" required></textarea>
+                    </div>
+                    <p style="font-size: 0.8em; color: #666; margin-top: 10px;">
+                        Ingresa un motivo por el cual este crédito fue rechazado
+                    </p>
+                </div>
+            `,
+            preConfirm: () => {
+                const motivo = document.getElementById('motivo').value.trim();
+                if (!motivo) {
+                    Swal.showValidationMessage('Por favor ingresa un motivo.');
+                    return false;
+                }
+
+                const formData = new FormData();
+                formData.append('creditoId', creditoId);
+                formData.append('motivo', motivo);
+
+                return fetch('/admin/creditos/' + creditoId + '/rechazar', {
+                    method: 'POST',
+                    body: formData
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al rechazar el crédito');
+                        }
+                        return response.text();
+                    })
+                    .catch(error => {
+                        Swal.showValidationMessage(`Error: ${error.message}`);
+                    });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Crédito rechazado',
+                    text: 'El crédito ha sido rechazado correctamente',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        });
+    };
+
+    window.aceptarCreditoConCargos = function(creditoId) {
+        if (!creditoId) {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo identificar el crédito a aceptar' });
+            return;
+        }
+
+        const modalContent = document.getElementById('financial-charges-modal-content-' + creditoId);
+        if (!modalContent) {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'No se encontró la información del crédito' });
+            return;
+        }
+
+        const nextMonth = new Date();
+        nextMonth.setMonth(nextMonth.getMonth() + 1);
+        const formattedDate = nextMonth.toISOString().split('T')[0];
+
+        Swal.fire({
+            title: 'Configurar Cargos Financieros',
+            html: modalContent.innerHTML,
+            width: '900px',
+            showCloseButton: true,
+            showCancelButton: true,
+            confirmButtonText: 'Sí, Aceptar',
+            cancelButtonText: 'Cancelar',
+            showLoaderOnConfirm: true,
+            didOpen: () => {
+                const modalContainer = document.querySelector('.swal2-html-container');
+                if (modalContainer) {
+                    modalContainer.addEventListener('input', (event) => {
+                        if (event.target.matches('input[type="number"]')) {
+                            calculateFinancialCharges(event);
+                        }
+                    });
+                }
+
+                setTimeout(() => calculateFinancialCharges(), 100);
+
+                // Prefetch refinanciables and cache to avoid double fetch later
+                try {
+                    window.__refiCache = window.__refiCache || {};
+                    fetch(`/credito/refinanciar/${creditoId}`, { method: 'GET' })
+                        .then(async (response) => {
+                            const raw = await response.text();
+                            let dataObj = null;
+                            try { dataObj = raw ? JSON.parse(raw) : null; } catch (_) {}
+                            if (response.ok && dataObj && Array.isArray(dataObj.data)) {
+                                window.__refiCache[creditoId] = dataObj.data;
+                                // Consider only items with cuotas to be truly refinanciables
+                                const eligible = dataObj.data.filter(it => Array.isArray(it?.cuotas) && it.cuotas.length > 0).length;
+                                if (modalContainer && eligible > 0) modalContainer.dataset.hasRefi = '1';
+                            }
+                        })
+                        .catch(() => {});
+                } catch (_) {}
+            },
+
+            preConfirm: async () => {
+                const formData = new FormData();
+                const fields = ['montoAprobado', 'cuotaMensualFinal', 'cuotaCantidad', 'mora'];
+
+                let montoAprobado = null;
+                for (const field of fields) {
+                    const element = document.querySelector('.swal2-html-container #' + field) || document.getElementById(field);
+                    const value = element?.value;
+                    if (!value && field !== 'cuotaCantidad') {
+                        Swal.showValidationMessage('Todos los campos son obligatorios');
+                        return false;
+                    }
+                    formData.append(field, value);
+                    if (field === 'montoAprobado') {
+                        montoAprobado = value;
+                    }
+                }
+
+                // Validaciones cuotaCantidad
+                const cuotaCantidad = parseInt(formData.get('cuotaCantidad'), 10);
+                if (isNaN(cuotaCantidad)) {
+                    Swal.showValidationMessage('La cantidad de cuotas debe ser un número válido');
+                    return false;
+                }
+                if (cuotaCantidad === 0) {
+                    Swal.showValidationMessage('La cantidad de cuotas no puede ser cero');
+                    return false;
+                }
+                if (cuotaCantidad < 0) {
+                    Swal.showValidationMessage('La cantidad de cuotas no puede ser negativa');
+                    return false;
+                }
+
+                // Agregar frecuencia de pago
+                const plazoFrecuencia = document.querySelector('.swal2-html-container #plazoFrecuencia')?.value;
+                if (!plazoFrecuencia) {
+                    Swal.showValidationMessage('Debe seleccionar una frecuencia de pago');
+                    return false;
+                }
+
+                formData.append('plazoFrecuencia', plazoFrecuencia);
+                formData.append('cuotaCantidad', cuotaCantidad);
+                formData.append('creditoId', creditoId);
+
+                // Lowest-priority gate: run after all other validations, before any backend calls
+                try {
+                    const container = document.querySelector('.swal2-html-container');
+                    // Determine refinanciables strictly from cache: must have cuotas available
+                    let hasRefi = false;
+                    if (Array.isArray(window.__refiCache?.[creditoId])) {
+                        hasRefi = window.__refiCache[creditoId].some(it => Array.isArray(it?.cuotas) && it.cuotas.length > 0);
+                    } else {
+                        hasRefi = container && container.dataset && container.dataset.hasRefi === '1';
+                    }
+                    const resultadosContainerProbe = container?.querySelector('#refinanciar-resultados-' + creditoId);
+                    const selectedAnteriorId = resultadosContainerProbe?.dataset?.creditoAnteriorId;
+                    const alreadyWarned = container && container.dataset && container.dataset.refiAck === '1';
+
+                    if (hasRefi && !alreadyWarned && !selectedAnteriorId) {
+                        container.dataset.refiAck = '1';
+                        Swal.showValidationMessage('Este usuario tiene créditos refinanciables. No olvides elegir uno si corresponde. Continúa si un refinanciamiento no aplica.');
+                        return false;
+                    }
+                } catch (_) {}
+
+                try {
+                    const resultadosContainer = document.querySelector('.swal2-html-container #refinanciar-resultados-' + creditoId);
+                    const creditoAnteriorId = resultadosContainer?.dataset?.creditoAnteriorId;
+                    if (creditoAnteriorId) {
+                        // collect cuotas: id, monto, mora
+                        const listContainer = document.querySelector('.swal2-html-container #refinanciar-list-' + creditoId);
+                        const selectedLi = listContainer?.querySelector('li[data-selected="true"]');
+                        const cuotasLis = selectedLi ? Array.from(selectedLi.querySelectorAll('ul > li')) : [];
+                        const cuotasPayload = cuotasLis.map(li => {
+                            const id = li.dataset.cuotaId;
+                            const monto = li.querySelector('input[name="monto"]')?.value;
+                            const mora = li.querySelector('input[name="mora"]')?.value;
+                            return id ? { id, monto, mora } : null;
+                        }).filter(Boolean);
+
+                        // Send refinanciar with payload, and wait it before accept-with-charges to keep server consistent
+                        const refinanciarResp = await fetch(`/credito/refinanciar/${creditoId}/${creditoAnteriorId}`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ cuotas: cuotasPayload, montoAprobado: montoAprobado })
+                        });
+                        if (!refinanciarResp.ok) {
+                            const txt = await refinanciarResp.text();
+                            throw new Error(txt || 'Error al refinanciar');
+                        }
+                    }
+                } catch (e) {
+                    Swal.showValidationMessage(e.message || 'Error al refinanciar');
+                    return false;
+                }
+
+                return fetch('/credito/accept-with-charges', { method: 'POST', body: formData })
+                    .then(async response => {
+                        if (!response.ok) {
+                            const text = await response.text();
+                            throw new Error(text || 'Error al aceptar el crédito');
+                        }
+                        return response.json();
+                    })
+                    .catch(error => {
+                        Swal.showValidationMessage(`Error: ${error.message || error}`);
+                        return false;
+                    });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.close();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Crédito aceptado',
+                    text: 'El crédito ha sido aceptado correctamente',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        });
+    };
+    
+    window.marcarComoPendiente = function(cuotaId){
+        Swal.fire({
+            title: 'Marcar como Pendiente',
+            text: `¿Está seguro que desea marcar la cuota como pendiente?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, marcar',
+            cancelButtonText: 'Cancelar',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                return fetch(`/cuota/marcar-pendiente/${cuotaId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Error al marcar como pendiente');
+                    }
+                    return response.text(); // or .json() if you send JSON
+                })
+                .catch(error => {
+                    Swal.showValidationMessage(`Error: ${error.message}`);
+                });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Marcado Exitosamente',
+                        text: 'Esta cuota ha sido marcada como Pendiente',
+                        confirmButtonText: 'OK'
+                    }).then(() => {
+                        window.location.reload();
+                    });
+                }
+            }); 
+    }
+
+    // Pagar cuota y generar PDF
+    window.payCuota = function(cuotaId) {
+        if (!cuotaId) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se pudo identificar la cuota a pagar'
+            });
+            return;
+        }
+
+        const modalContent = document.getElementById('cuota-pagar-modal-content-' + cuotaId);
+        if (!modalContent) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se encontró la información de la cuota'
+            });
+            
+            return;
+        }
+
+        const montoElement = modalContent.querySelector('#monto-total');
+        let monto = 0;
+        if (montoElement) {
+            const montoText = montoElement.textContent;
+            monto = parseFloat(montoText.replace('$', '').replace(',', ''));
+        }
+
+        const moraElement = modalContent.querySelector('#mora-total');
+        let mora = 0;
+        if (moraElement) {
+            const moraText = moraElement.textContent;
+            mora = parseFloat(moraText.replace('$', '').replace(',', ''));
+        }
+
+        if (isNaN(monto) || monto <= 0) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Monto de pago inválido'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Confirmar Pago',
+            html: mora === 0
+                ? `¿Está seguro que desea marcar la cuota de $${monto.toFixed(2)} como pagada?`
+                : `¿Está seguro que desea marcar la cuota de $${monto.toFixed(2)} con 
+                <span style="color: red;">mora de $${mora.toFixed(2)}</span> como pagada?`,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, marcar',
+            cancelButtonText: 'Cancelar',
+            showLoaderOnConfirm: true,
+            preConfirm: () => {
+                const formData = new URLSearchParams();
+                formData.append('monto', monto);
+                return fetch(`/cuota/pagar/${cuotaId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Accept': 'application/pdf'
+                    },
+                    body: formData
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al realizar el pago');
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `factura_cuota_${cuotaId}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        a.remove();
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch(error => {
+                        Swal.showValidationMessage(`Error: ${error.message}`);
+                    });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Pago Exitoso',
+                    text: 'Factura descargada y cuota marcada como En Revisión',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        });
+    };
+
+
+
+    window.abonarCuota = function(cuotaId) {
+        if (!cuotaId) {
+            Swal.fire({ icon: 'error', title: 'Error', text: 'No se pudo identificar la cuota' });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Abonar a cuota',
+            input: 'number',
+            inputLabel: 'Ingrese el monto a abonar',
+            inputAttributes: { min: 0.01, step: 0.01 },
+            showCancelButton: true,
+            confirmButtonText: 'Abonar',
+            cancelButtonText: 'Cancelar',
+            preConfirm: (monto) => {
+                const abono = parseFloat(monto);
+                if (isNaN(abono) || abono <= 0) {
+                    Swal.showValidationMessage('Monto inválido');
+                    return false;
+                }
+
+                const formData = new URLSearchParams();
+                formData.append('monto', abono);
+
+                return fetch(`/abono/${cuotaId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: formData
+                })
+                    .then(response => {
+                        if (!response.ok) throw new Error('Error al abonar');
+                        return true; // solo confirmamos que funcionó
+                    })
+                    .catch(error => {
+                        Swal.showValidationMessage(`Error: ${error.message}`);
+                    });
+            },
+            allowOutsideClick: () => !Swal.isLoading()
+        }).then((result) => {
+            if (result.isConfirmed) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Abono realizado',
+                    text: 'El abono fue registrado correctamente.',
+                    confirmButtonText: 'OK'
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        });
+    };
+
+
+
+    function previewImage(event, previewId) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById(previewId).src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
+    function expandImage(imageUrl) {
+        // Crear un nuevo Swal pero manteniendo el modal anterior
+        Swal.fire({
+            imageUrl: imageUrl,
+            width: '80%', // Hacer el modal más ancho
+            imageWidth: 'auto',
+            imageHeight: '80vh', // Altura máxima del 80% de la ventana
+            showConfirmButton: false,
+            showCloseButton: true,
+            customClass: {
+                popup: 'image-popup-modal'
+            },
+            allowOutsideClick: true, // Permite cerrar haciendo clic fuera
+            backdrop: `rgba(0,0,0,0.7)`, // Fondo semi-transparente
+            // Importante: esto mantiene el modal anterior
+            didOpen: () => {
+                // Asegurarse que el modal anterior permanezca visible
+                const previousModal = document.querySelector('.swal2-modal:not(.image-popup-modal)');
+                if (previousModal) {
+                    previousModal.style.display = 'block';
+                }
+            }
+        });
+    }
+    function confirmarBloqueo(btn, desbloquear) {
+        Swal.fire({
+            title: `¿Seguro que deseas ${desbloquear ? 'desbloquear' : 'bloquear'} este usuario?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: desbloquear ? '#f1c40f' : '#e74c3c',
+            confirmButtonText: `Sí, ${desbloquear ? 'desbloquear' : 'bloquear'}`,
+        }).then(res => {
+            if (res.isConfirmed) {
+                fetch(btn.getAttribute('data-url')).then(r => r.json()).then(data => {
+                    Swal.fire(data.mensaje ?
+                        {icon:'success',title:'Éxito',text:data.mensaje,timer:1500,showConfirmButton:false} :
+                        {icon:'error',title:'Error',text:data.error || 'Error desconocido'}
+                    );
+
+                    if (data.mensaje) {
+                        // Actualizar el botón sin recargar:
+                        if (desbloquear) {
+                            // Cambiar botón a "Bloquear usuario"
+                            btn.innerHTML = '<i class="fa-solid fa-lock"></i> Bloquear usuario';
+                            btn.setAttribute('onclick', 'confirmarBloqueo(this, false)');
+                            btn.setAttribute('data-url', btn.getAttribute('data-url').replace('bloquear', 'bloquear')); // URL sigue igual
+                            btn.classList.remove('btn-desbloquear-usuario-con-texto');
+                            btn.classList.add('btn-bloquear-usuario-con-texto');
+                        } else {
+                            // Cambiar botón a "Desbloquear usuario"
+                            btn.innerHTML = '<i class="fa-solid fa-lock-open"></i> Desbloquear usuario';
+                            btn.setAttribute('onclick', 'confirmarBloqueo(this, true)');
+                            btn.setAttribute('data-url', btn.getAttribute('data-url').replace('bloquear', 'bloquear')); // URL sigue igual
+                            btn.classList.remove('btn-bloquear-usuario-con-texto');
+                            btn.classList.add('btn-desbloquear-usuario-con-texto');
+                        }
+                    }
+                }).catch(() => Swal.fire('Error', 'No se pudo conectar con el servidor.', 'error'));
+            }
+        });
+    }
+
+
+</script>
+
+<!-- Page-specific Scripts -->
+<th:block th:replace="${pageScripts} ?: ~{}"></th:block>
+
+<script>
+    // Mobile sidebar toggle functions
+    function toggleSidebar() {
+        const sidebar = document.querySelector('.main-sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+
+        if (sidebar.classList.contains('sidebar-open')) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    }
+
+    function openSidebar() {
+        const sidebar = document.querySelector('.main-sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+
+        sidebar.classList.add('sidebar-open');
+        overlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebar() {
+        const sidebar = document.querySelector('.main-sidebar');
+        const overlay = document.querySelector('.sidebar-overlay');
+
+        sidebar.classList.remove('sidebar-open');
+        overlay.classList.remove('show');
+        document.body.style.overflow = '';
+    }
+
+    // Close sidebar when clicking on a menu item (mobile)
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebarLinks = document.querySelectorAll('.sidebar-menu .nav-link');
+        sidebarLinks.forEach(link => {
+            link.addEventListener('click', function() {
+                if (window.innerWidth <= 767) {
+                    closeSidebar();
+                }
+            });
+        });
+    });
+
+
+
+    function toggleCredito(creditoId, isChecked) {
+        fetch('/admin/creditos/toggle/' + creditoId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ editable: isChecked })
+        })
+            .then(response => {
+                if (response.ok) {
+                    if (isChecked) {
+                        // alert("Se ha habilitado la edición del crédito (Se deshabilitará automáticamente después de haber sido editado una vez)");
+                    } else {
+                        // alert("Se ha deshabilitado la edición del crédito");
+                    }
+                } else {
+                    alert("Error al hacer el credito editable");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error al hacer el credito editable: " + err);
+            });
+    }
+
+    function toggleCreditoDescargable(creditoId, isChecked) {
+        fetch('/admin/creditos/toggle-descargable/' + creditoId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ descargable: isChecked })
+        })
+        .then(response => {
+            if (response.ok) {
+                if (isChecked) {
+                    // alert("Se ha habilitado la edición del crédito (Se deshabilitará automáticamente después de haber sido editado una vez)");
+                } else {
+                    // alert("Se ha deshabilitado la edición del crédito");
+                }
+            } else {
+                alert("Error al hacer el credito descargable");
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert("Error al hacer el credito descargable: " + err);
+        });
+    }
+
+    function toggleCreditoDesembolsable(creditoId, isChecked) {
+        fetch('/admin/creditos/toggle-desembolsable/' + creditoId, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ desembolsable: isChecked })
+        })
+            .then(response => {
+                if (response.ok) {
+                    if (isChecked) {
+                        // alert("Se ha habilitado la edición del crédito (Se deshabilitará automáticamente después de haber sido editado una vez)");
+                    } else {
+                        // alert("Se ha deshabilitado la edición del crédito");
+                    }
+                } else {
+                    alert("Error al hacer el credito descargable");
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert("Error al hacer el credito descargable: " + err);
+            });
+    }
+
+    window.refinanciar = function(creditoId) {
+        if (!creditoId) {
+            console.error('refinanciar: créditoId inválido');
+            return;
+        }
+
+        console.log('refinanciar: verificando crédito anterior para', creditoId);
+
+        window.__refiCache = window.__refiCache || {};
+
+        const renderWithData = (dataArray) => {
+            if (Array.isArray(dataArray)) {
+                    const containerId = 'refinanciar-list-' + creditoId;
+                    const modalRoot = document.querySelector('.swal2-html-container');
+                    let listContainer = null;
+
+                    if (modalRoot) {
+                        listContainer = modalRoot.querySelector('#' + containerId);
+                    }
+                    // Fallback to element in original DOM (in case of direct rendering)
+                    if (!listContainer) {
+                        listContainer = document.getElementById(containerId);
+                    }
+
+                    if (listContainer) {
+                        const ul = listContainer.querySelector('ul');
+                        ul.innerHTML = '';
+                        ul.style.listStyle = 'none';
+                        ul.style.paddingLeft = '0';
+                        ul.style.marginTop = '1rem';
+                        let renderedCount = 0;
+                        dataArray.forEach((item) => {
+                            const li = document.createElement('li');
+                            li.style.padding = '8px';
+                            li.style.marginBottom = '1rem';
+                            li.style.border = '1px solid #e9ecef';
+                            li.style.borderRadius = '0.5rem';
+                            li.style.backgroundColor = '#f9fafb'; // softer, lighter background
+                            li.style.cursor = 'pointer';
+
+                            // Minimal hover effect with a nicer color
+                            li.addEventListener('mouseenter', () => {
+                                li.style.backgroundColor = '#e3e9f7'; // soft blue-gray
+                            });
+                            li.addEventListener('mouseleave', () => {
+                                li.style.backgroundColor = '#f9fafb';
+                            });
+
+                            const header = document.createElement('div');
+                            header.style.display = 'flex';
+                            header.style.alignItems = 'center';
+                            header.style.gap = '12px';
+                            header.style.width = '100%';
+                            header.style.cursor = 'pointer';
+
+                            const chevron = document.createElement('span');
+                            chevron.textContent = '▸';
+                            chevron.style.fontSize = '14px';
+                            chevron.style.opacity = '0.7';
+                            chevron.style.transition = 'transform 0.2s ease';
+                            chevron.style.minWidth = '16px';
+
+                            const nombre = item && item.nombreCompleto ? item.nombreCompleto : 'Desconocido';
+                            const monto = (item && item.monto != null) ? `$${Number(item.monto).toFixed(2)}` : 'N/D';
+                            const frecuencia = item && item.plazoFrecuencia ? item.plazoFrecuencia : 'N/D';
+                            const fecha = item && item.fechaSolicitud ? item.fechaSolicitud : 'N/D';
+
+                            // Table-like layout for info
+                            const contentContainer = document.createElement('div');
+                            contentContainer.style.display = 'flex';
+                            contentContainer.style.justifyContent = 'space-between';
+                            contentContainer.style.alignItems = 'center';
+                            contentContainer.style.width = '100%';
+                            contentContainer.style.gap = '16px';
+
+                            const leftSection = document.createElement('div');
+                            leftSection.style.display = 'flex';
+                            leftSection.style.flexDirection = 'column';
+                            leftSection.style.gap = '2px';
+
+                            const nameSpan = document.createElement('span');
+                            nameSpan.textContent = nombre;
+                            nameSpan.style.fontWeight = '600';
+                            nameSpan.style.fontSize = '14px';
+
+                            const detailsSpan = document.createElement('span');
+                            detailsSpan.textContent = `${frecuencia} • ${fecha}`;
+                            detailsSpan.style.fontSize = '12px';
+                            detailsSpan.style.color = '#888';
+
+                            leftSection.appendChild(nameSpan);
+                            leftSection.appendChild(detailsSpan);
+
+                            const rightSection = document.createElement('div');
+                            rightSection.style.display = 'flex';
+                            rightSection.style.alignItems = 'center';
+                            rightSection.style.gap = '8px';
+
+                            const amountSpan = document.createElement('span');
+                            amountSpan.textContent = monto;
+                            amountSpan.style.fontWeight = '600';
+                            amountSpan.style.fontSize = '14px';
+                            amountSpan.style.color = '#228B22';
+
+                            rightSection.appendChild(amountSpan);
+
+                            contentContainer.appendChild(leftSection);
+                            contentContainer.appendChild(rightSection);
+
+                            header.appendChild(chevron);
+                            header.appendChild(contentContainer);
+
+                            const cuotasList = document.createElement('ul');
+                            cuotasList.style.listStyle = 'none';
+                            cuotasList.style.padding = '1rem';
+                            cuotasList.style.margin = '12px 0 0 0';
+                            cuotasList.style.display = 'none';
+                            cuotasList.style.backgroundColor = '#fcfeff';
+                            cuotasList.style.borderRadius = '6px';
+                            cuotasList.style.border = '1px solid #e9ecef';
+
+                            const cuotas = (item && Array.isArray(item.cuotas)) ? item.cuotas : [];
+                            if (cuotas.length === 0) {
+                                return; // skip créditos sin cuotas
+                            } else {
+                                cuotas.forEach((cuota, index) => {
+                                    const cLi = document.createElement('li');
+                                    if (cuota && cuota.id != null) {
+                                        cLi.dataset.cuotaId = String(cuota.id);
+                                    }
+                                    cLi.style.marginBottom = '1.5rem';
+
+                                    const cuotaLabel = document.createElement('div');
+                                    cuotaLabel.style.textAlign = 'left';
+                                    cuotaLabel.style.fontSize = '1rem';
+                                    cuotaLabel.style.fontWeight = '500';
+                                    cuotaLabel.textContent = `${cuota.codigo}`;
+
+                                    const row = document.createElement('div');
+                                    row.style.display = 'grid';
+                                    row.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
+                                    row.style.gap = '8px';
+                                    row.style.alignItems = 'center';
+
+                                    const cMontoVal = (cuota && cuota.monto != null) ? Number(cuota.monto) : null;
+                                    const cTotalVal = (cuota && cuota.total != null) ? Number(cuota.total) : null;
+                                    const cMoraVal = (cuota && cuota.mora != null) ? Number(cuota.mora) : 0;
+                                    const cFechaVal = cuota && (cuota.fechaVencimiento || cuota.fechaPago) ? (cuota.fechaVencimiento || cuota.fechaPago) : '';
+
+                                    const montoWrap = document.createElement('div');
+                                    const montoLabel = document.createElement('label');
+                                    montoLabel.textContent = 'Monto';
+                                    montoLabel.style.fontSize = '12px';
+                                    montoLabel.style.color = '#495057';
+                                    montoLabel.style.fontWeight = '500';
+                                    montoLabel.style.marginBottom = '4px';
+                                    montoLabel.style.display = 'block';
+                                    const montoInput = document.createElement('input');
+                                    montoInput.type = 'number';
+                                    montoInput.step = '0.01';
+                                    montoInput.min = '0';
+                                    montoInput.inputMode = 'decimal';
+                                    montoInput.className = 'form-control';
+                                    montoInput.name = 'monto';
+                                    montoInput.style.fontSize = '13px';
+                                    montoInput.style.padding = '6px 8px';
+                                    montoInput.style.border = '1px solid #ced4da';
+                                    montoInput.style.borderRadius = '4px';
+                                    if (cMontoVal != null) montoInput.value = cMontoVal.toFixed(2);
+                                    montoWrap.appendChild(montoLabel);
+                                    montoWrap.appendChild(montoInput);
+
+                                    const moraWrap = document.createElement('div');
+                                    const moraLabel = document.createElement('label');
+                                    moraLabel.textContent = 'Mora';
+                                    moraLabel.style.fontSize = '12px';
+                                    moraLabel.style.color = '#495057';
+                                    moraLabel.style.fontWeight = '500';
+                                    moraLabel.style.marginBottom = '4px';
+                                    moraLabel.style.display = 'block';
+                                    const moraInput = document.createElement('input');
+                                    moraInput.type = 'number';
+                                    moraInput.step = '0.01';
+                                    moraInput.min = '0';
+                                    moraInput.inputMode = 'decimal';
+                                    moraInput.className = 'form-control';
+                                    moraInput.name = 'mora';
+                                    moraInput.style.fontSize = '13px';
+                                    moraInput.style.padding = '6px 8px';
+                                    moraInput.style.border = '1px solid #ced4da';
+                                    moraInput.style.borderRadius = '4px';
+                                    moraInput.value = (isNaN(cMoraVal) ? 0 : cMoraVal).toFixed(2);
+                                    moraWrap.appendChild(moraLabel);
+                                    moraWrap.appendChild(moraInput);
+
+                                    const totalWrap = document.createElement('div');
+                                    const totalLabel = document.createElement('label');
+                                    totalLabel.textContent = 'Total';
+                                    totalLabel.style.fontSize = '12px';
+                                    totalLabel.style.color = '#495057';
+                                    totalLabel.style.fontWeight = '500';
+                                    totalLabel.style.marginBottom = '4px';
+                                    totalLabel.style.display = 'block';
+                                    const totalInput = document.createElement('input');
+                                    totalInput.type = 'number';
+                                    totalInput.step = '0.01';
+                                    totalInput.min = '0';
+                                    totalInput.inputMode = 'decimal';
+                                    totalInput.className = 'form-control';
+                                    totalInput.name = 'total';
+                                    totalInput.readOnly = true;
+                                    totalInput.style.fontSize = '13px';
+                                    totalInput.style.padding = '6px 8px';
+                                    totalInput.style.border = '1px solid #ced4da';
+                                    totalInput.style.borderRadius = '4px';
+                                    if (cTotalVal != null) totalInput.value = cTotalVal.toFixed(2);
+                                    totalWrap.appendChild(totalLabel);
+                                    totalWrap.appendChild(totalInput);
+
+                                    row.appendChild(montoWrap);
+                                    row.appendChild(moraWrap);
+                                    row.appendChild(totalWrap);
+
+                                    const recalcTotal = () => {
+                                        const montoNum = parseFloat(montoInput.value || '0');
+                                        const moraNum = parseFloat(moraInput.value || '0');
+                                        const sum = (isNaN(montoNum) ? 0 : montoNum) + (isNaN(moraNum) ? 0 : moraNum);
+                                        totalInput.value = sum.toFixed(2);
+                                    };
+
+                                    // initialize total if missing
+                                    if (!totalInput.value) {
+                                        recalcTotal();
+                                    }
+
+                                    montoInput.addEventListener('input', recalcTotal);
+                                    moraInput.addEventListener('input', recalcTotal);
+
+                                    cLi.appendChild(cuotaLabel);
+                                    cLi.appendChild(row);
+                                    cuotasList.appendChild(cLi);
+                                });
+                            }
+
+                            // store references for easier management
+                            li._chevron = chevron;
+                            li._cuotasList = cuotasList;
+
+                            header.addEventListener('click', () => {
+                                // single-selection behavior: collapse others
+                                const rootUl = li.parentElement;
+                                if (rootUl) {
+                                    Array.from(rootUl.children).forEach((sibling) => {
+                                        if (sibling !== li && sibling._cuotasList && sibling._chevron) {
+                                            sibling._cuotasList.style.display = 'none';
+                                            sibling._chevron.textContent = '▸';
+                                            sibling._chevron.style.transform = 'rotate(0deg)';
+                                            sibling.style.backgroundColor = '#ffffff';
+                                            sibling.style.borderColor = '#e9ecef';
+                                            sibling.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+                                            sibling.style.borderRadius = '8px';
+
+                                            delete sibling.dataset.selected;
+                                        }
+                                    });
+                                }
+
+                                li.dataset.selected = 'true';
+
+                                // open current (always select on click)
+                                if (!cuotasList.querySelector('.cuotas-helper-label')) {
+                                    const cuotasHelper = document.createElement('div');
+                                    cuotasHelper.textContent = 'Estas son las cuotas restantes para este crédito. Aquí puedes modificar su información.';
+                                    cuotasHelper.className = 'cuotas-helper-label';
+                                    cuotasHelper.style.fontSize = '13px';
+                                    cuotasHelper.style.color = '#666';
+                                    cuotasHelper.style.marginBottom = '8px';
+                                    cuotasHelper.style.fontStyle = 'italic';
+                                    cuotasList.insertBefore(cuotasHelper, cuotasList.firstChild);
+                                }
+                                cuotasList.style.display = 'block';
+                                chevron.textContent = '▾';
+                                chevron.style.transform = 'rotate(90deg)';
+                                // Enhanced selected state styling
+                                li.style.backgroundColor = '#e3f2fd';
+                                li.style.borderColor = '#2196f3';
+                                li.style.boxShadow = '0 4px 12px rgba(33, 150, 243, 0.2)';
+                                li.style.borderRadius = '8px';
+
+                                // update resultados section
+                                const resultadosContainer = (modalRoot || document).querySelector('#refinanciar-resultados-' + creditoId);
+                                const totalRestanteInput = (modalRoot || document).querySelector('#refinanciar-total-restante-' + creditoId);
+                                const nuevoMontoInput = (modalRoot || document).querySelector('#refinanciar-nuevo-monto-' + creditoId);
+                                // Persist selected creditoAnteriorId for later submission
+                                if (resultadosContainer) {
+                                    resultadosContainer.dataset.creditoAnteriorId = item && item.creditoId ? String(item.creditoId) : '';
+                                }
+                                if (resultadosContainer && totalRestanteInput) {
+                                    resultadosContainer.style.display = 'block';
+
+                                    const recompute = () => {
+                                        let sum = 0;
+                                        Array.from(cuotasList.querySelectorAll('li')).forEach((rowLi) => {
+                                            const montoInput = rowLi.querySelector('input[name="monto"]');
+                                            const moraInput = rowLi.querySelector('input[name="mora"]');
+                                            const totalInput = rowLi.querySelector('input[name="total"]');
+                                            // prefer total when present; else sum monto+mora
+                                            let val = totalInput && totalInput.value ? parseFloat(totalInput.value) : NaN;
+                                            if (isNaN(val)) {
+                                                const m = montoInput ? parseFloat(montoInput.value || '0') : 0;
+                                                const mo = moraInput ? parseFloat(moraInput.value || '0') : 0;
+                                                val = (isNaN(m) ? 0 : m) + (isNaN(mo) ? 0 : mo);
+                                            }
+                                            if (!isNaN(val)) sum += val;
+                                        });
+                                        const totalRestante = sum;
+                                        totalRestanteInput.value = totalRestante.toFixed(2);
+
+                                        // compute nuevo monto: montoAprobado - totalRestante
+                                        const montoAprobadoInput = (modalRoot || document).querySelector('#montoAprobado');
+                                        const montoAprobado = montoAprobadoInput ? parseFloat(montoAprobadoInput.value || '0') : 0;
+                                        if (nuevoMontoInput) {
+                                            const nuevoMonto = (isNaN(montoAprobado) ? 0 : montoAprobado) - (isNaN(totalRestante) ? 0 : totalRestante);
+                                            nuevoMontoInput.value = nuevoMonto.toFixed(2);
+                                            // validation: nuevoMonto must not be negative relative to total restante
+                                            const errorEl = (modalRoot || document).querySelector('#refinanciar-error-' + creditoId);
+                                            const confirmBtn = (typeof Swal !== 'undefined' && Swal.getConfirmButton) ? Swal.getConfirmButton() : null;
+                                            const isInvalid = nuevoMonto < 0;
+                                            if (errorEl) {
+                                                if (isInvalid) {
+                                                    errorEl.textContent = 'La liquidez del nuevo crédito no puede ser menor a 0';
+                                                    errorEl.style.display = 'block';
+                                                } else {
+                                                    errorEl.textContent = '';
+                                                    errorEl.style.display = 'none';
+                                                }
+                                            }
+                                            if (confirmBtn) {
+                                                confirmBtn.disabled = isInvalid;
+                                            }
+                                        }
+                                    };
+
+                                    // initial compute
+                                    recompute();
+
+                                    // listen to changes on monto/mora within this selected item only
+                                    Array.from(cuotasList.querySelectorAll('input[name="monto"], input[name="mora"]')).forEach((inp) => {
+                                        inp.addEventListener('input', recompute);
+                                    });
+
+                                    // listen to changes on montoAprobado as well
+                                    const montoAprobadoInput = (modalRoot || document).querySelector('#montoAprobado');
+                                    if (montoAprobadoInput) {
+                                        montoAprobadoInput.addEventListener('input', recompute);
+                                    }
+                                }
+                            });
+
+
+                            li.appendChild(header);
+                            li.appendChild(cuotasList);
+
+                            ul.appendChild(li);
+                            renderedCount += 1;
+                        });
+                        
+                        if (renderedCount === 0) {
+                            const emptyLi = document.createElement('li');
+                            emptyLi.style.color = '#6c757d';
+                            emptyLi.textContent = 'No hay créditos refinanciables para este usuario';
+                            ul.appendChild(emptyLi);
+                        }
+
+                        listContainer.style.display = 'block';
+                    }
+            } else {
+                    // Mostrar sección con mensaje cuando no hay crédito anterior
+                    const containerId = 'refinanciar-list-' + creditoId;
+                    const modalRoot = document.querySelector('.swal2-html-container');
+                    let listContainer = null;
+                    if (modalRoot) {
+                        listContainer = modalRoot.querySelector('#' + containerId);
+                    }
+                    if (!listContainer) {
+                        listContainer = document.getElementById(containerId);
+                    }
+                    if (listContainer) {
+                        const ul = listContainer.querySelector('ul');
+                        ul.innerHTML = '';
+                        const li = document.createElement('li');
+                        li.style.color = '#6c757d';
+                        li.textContent = 'No se encontró un crédito anterior para este usuario';
+                        ul.appendChild(li);
+                        listContainer.style.display = 'block';
+                    }
+            }
+
+        };
+
+        if (Array.isArray(window.__refiCache[creditoId])) {
+            renderWithData(window.__refiCache[creditoId]);
+        } else {
+            fetch(`/credito/refinanciar/${creditoId}`, { method: 'GET' })
+                .then(async (response) => {
+                    const raw = await response.text();
+                    let dataObj = null;
+                    try { dataObj = raw ? JSON.parse(raw) : null; } catch (e) { console.warn('refinanciar: cuerpo no JSON', raw); }
+                    if (response.ok && dataObj && Array.isArray(dataObj.data)) {
+                        window.__refiCache[creditoId] = dataObj.data;
+                        renderWithData(dataObj.data);
+                    } else if (response.status === 404) {
+                        renderWithData(null);
+                    } else {
+                        renderWithData(null);
+                    }
+                })
+                .catch((error) => {
+                    console.error('refinanciar: error en la solicitud', error);
+                });
+        }
+    };
+</script>
+
+</body>
+</html>

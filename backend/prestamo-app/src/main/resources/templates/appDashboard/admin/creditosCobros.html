@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{appDashboard/admin/layout :: layout(
+          pageTitle='',
+          pageSubtitle='',
+          activePage='cobros',
+          content=~{::content},
+          pageCss=~{::css},
+          pageScripts=~{::scripts}
+      )}" xmlns:sec="http://www.w3.org/1999/xhtml">
+
+<head>    
+    <th:block th:fragment="css">
+        <style>
+            .print-only {
+                display: none;
+            }
+
+            @media print{
+                @page{
+                    margin: 0 !important;
+                    background: none !important;
+                }
+                *, .A_PLUS, .A, .B, .C, .D{
+                    color: black !important;
+                    font-weight: normal !important;
+                    font-family: "Times New Roman", serif !important;
+                    font-size: 12pt !important;
+                    line-height: 1.5 !important;
+                }
+                .content-wrapper, .wrapper, .modern-admin{
+                    background: none !important;
+                }
+                .table-tab-switcher{
+                    display: none !important;
+                }
+                .input-group{
+                    display: none !important;
+                }
+                .btn{
+                    display: none !important;
+                }
+                .pagination-container{
+                    display: none !important;
+                }
+                .table-switchable-table{
+                    box-shadow: none !important;
+                }
+                th{
+                    font-weight: 500 !important;
+                }
+                td, th{
+                    border: 1.5px solid black !important;
+                }
+                tr th:nth-of-type(8) {
+                    display: none !important;
+                }
+                tr td:nth-of-type(8) {
+                    display: none !important;
+                }
+                .print-only {
+                    display: block !important;
+                }
+                .header-container {
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    margin-bottom: 10px;
+                }
+                .logo {
+                    width: 170px;
+                    height: auto;
+                    margin-right: 15px;
+                }
+                .company-header {
+                    flex: 1;
+                    text-align: center;
+                    font-weight: bold !important;
+                    font-size: 14pt;
+                }
+            }
+            
+            /* New styles for date filtering */
+            .filter-controls {
+                display: flex;
+                gap: 15px;
+                align-items: center;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+            }
+            
+            .date-filter-group {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            
+            .date-filter-group label {
+                margin-bottom: 0;
+                font-weight: 500;
+            }
+        </style>
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content">
+    <div class="print-only header-container">
+        <img src="/img/logo.jpg" alt="Logo" class="print-only logo" />
+        <div class="print-only company-header">MULTIPRÉSTAMOS ATLAS</div>
+    </div>
+
+    <!-- Single Date Filter Control -->
+    <div class="filter-controls" id="dateFilterControls">
+        <div class="date-filter-group">
+            <label for="fechaFiltro">Filtrar por fecha:</label>
+            <input type="date" id="fechaFiltro" class="form-control form-control-sm">
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="setToday()">
+            <i class="fas fa-rotate"></i> Hoy
+        </button>
+        <button class="btn btn-secondary btn-sm" onclick="clearDateFilter()">
+            <i class="fas fa-times"></i> Limpiar Filtro
+        </button>
+    </div>
+
+    <div id="totals-cards" class="total-card-container">
+        <div class="total-card" style="display: flex; gap: 1rem;">
+            <div style="display: flex;">
+                <div class="table-tab-icon">
+                    <i class="fas fa-chart-line" style="color: #ea1e17;"></i>
+                </div>
+
+                <div class="table-tab-content">
+                    <span>Total a Cobrar en Cuotas Vencidas</span>
+                    <h4 th:text="' $' + ${totalVencidas}"></h4>
+                </div>
+            </div>
+
+            <div style="display: flex;">
+                <div class="table-tab-icon">
+                    <i class="fas fa-chart-line" style="color: #f2b44a;"></i>
+                </div>
+
+                <div class="table-tab-content">
+                    <span>Total a Cobrar en Cuotas Pendientes</span>
+                    <h4 th:text="' $' + ${totalPendientes}"></h4>
+                </div>
+            </div>
+
+            <div style="display: flex;">
+                <div class="table-tab-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+
+                <div class="table-tab-content">
+                    <span>Total a Cobrar</span>
+                    <h4 th:text="' $' + ${totalACobrar}"></h4>
+                </div>
+            </div>
+
+            <div style="display: flex;">
+                <div class="table-tab-icon">
+                    <i class="fas fa-chart-line" style="color: #34d72b;"></i>
+                </div>
+
+                <div class="table-tab-content">
+                    <span>Total en Cuotas Pagadas</span>
+                    <h4 th:text="' $' + ${totalPagadas}"></h4>
+                </div>
+            </div>
+        </div>
+            
+        <button id="pdfVencidas" class="btn btn-danger btn-generar-pdf" onclick="descargarPDFUsuariosVencidas()">
+            <i class="fas fa-file-pdf"></i> Generar PDF
+        </button>
+
+    </div>
+
+    <!-- Table Tab Switcher -->
+    <div class="table-tab-container">
+        <button type="button" class="table-tab active" data-table-target="#usuariosVencidasTable">
+            <div class="table-tab-icon warning">
+                <i class="fas fa-warning"></i>
+            </div>
+            <div class="table-tab-content">
+                <span>Lista de Vencidos</span>
+                <h4 th:text="${usuarioVencidasDTOs.size()}">10</h4>
+                <small>Clientes con cuotas vencidas</small>
+            </div>
+        </button>
+        <button type="button" class="table-tab" data-table-target="#usuariosCuotasTable">
+            <div class="table-tab-icon info">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="table-tab-content">
+                <span>Mapeo de Cuotas de Cliente</span>
+                <h4 th:text="${usuarioDTOs.size()}">10</h4>
+                <small>Clientes con cuotas</small>
+            </div>
+        </button>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="input-group">
+            <input type="text" id="searchInput" class="form-control" placeholder="Buscar cuotas..." />
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                    <i class="fas fa-times"></i> Limpiar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Containers -->
+    <div th:replace="~{fragments/cuotaTables :: usuarios-vencidas-table-content(usuarios=${usuarioVencidasDTOs})}"></div>     
+    <div th:replace="~{fragments/cuotaTables :: usuarios-cuotas-table-content(usuarios=${usuarioDTOs})}"></div>
+    
+    <!-- Modal content for cuota details -->
+    <div th:replace="~{fragments/cuotaModals :: cuota-modal-content(cuotas=${cuotas})}"></div>
+    <div th:replace="~{fragments/cuotaModals :: cuota-pagar-modal-content(cuotas=${cuotas})}"></div>
+
+    <!-- Table switcher scripts (include only once per page, at the end) -->
+    <div th:replace="~{fragments/tableScripts :: table-switcher-scripts}"></div>
+</div>
+
+<th:block th:fragment="scripts">
+    <script th:inline="javascript">
+        window.usuarioDTOs = /*[[${usuarioDTOs}]]*/ [];
+        window.usuarioVencidasDTOs = /*[[${usuarioVencidasDTOs}]]*/ [];
+
+        // Store original data for filtering
+        document.addEventListener('DOMContentLoaded', function() {
+            // Store references to original data
+            window.originalUsuarioDTOs = [...window.usuarioDTOs];
+            window.originalUsuarioVencidasDTOs = [...window.usuarioVencidasDTOs];
+
+            // Initialize date filter with today as default
+            initializeDateFilter();
+
+            // Tab switcher logic to show/hide date filter controls
+            const tabButtons = document.querySelectorAll('.table-tab');
+            const dateFilterControls = document.getElementById('dateFilterControls');
+            const pdfVencidasButton = document.getElementById('pdfVencidas');
+            tabButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // If this tab is for 'Mapeo de Cuotas de Cliente', show the filter
+                    if (btn.dataset.tableTarget === '#usuariosCuotasTable') {
+                        dateFilterControls.style.display = '';
+                        pdfVencidasButton.style.display = 'none';
+                    } else {
+                        dateFilterControls.style.display = 'none';
+                        pdfVencidasButton.style.display = '';
+                    }
+                });
+            });
+            // On load, show only if 'Mapeo de Cuotas de Cliente' is active
+            const activeTab = document.querySelector('.table-tab.active');
+            if (activeTab && activeTab.dataset.tableTarget === '#usuariosCuotasTable') {
+                dateFilterControls.style.display = '';
+            } else {
+                dateFilterControls.style.display = 'none';
+            }
+        });
+
+        function initializeDateFilter() {
+            const fechaFiltro = document.getElementById('fechaFiltro');
+            
+            if (fechaFiltro) {
+                fechaFiltro.addEventListener('change', applyDateFilter);
+            }
+        }
+
+        function setToday() {
+            const today = new Date();
+            const todayString = today.toISOString().split('T')[0];
+            document.getElementById('fechaFiltro').value = todayString;
+            applyDateFilter();
+        }
+
+        function applyDateFilter() {
+            const fechaFiltro = document.getElementById('fechaFiltro').value;
+            
+            if (!fechaFiltro) {
+                // If no date selected, show all data
+                resetTablesToOriginal();
+                return;
+            }
+            
+            // Get current visible table
+            const visibleTable = document.querySelector('.table-switchable-table[style*=""]') || 
+                                document.querySelector('.table-switchable-table:not([style*="none"])');
+            
+            if (!visibleTable) return;
+            
+            const tableId = visibleTable.id;
+            
+            if (tableId === 'usuariosVencidasTable') {
+                filterVencidasTable(fechaFiltro);
+            } else if (tableId === 'usuariosCuotasTable') {
+                filterCuotasTable(fechaFiltro);
+            }
+        }
+
+        function filterVencidasTable(fechaFiltro) {
+            let filteredData = [...window.originalUsuarioVencidasDTOs];
+            
+            if (fechaFiltro) {
+                // Convert selected date to UTC for comparison with backend dates
+                const selectedDate = new Date(fechaFiltro);
+                const selectedDateUTC = new Date(selectedDate.getTime() + (selectedDate.getTimezoneOffset() * 60000));
+                
+                // Add one day to account for UTC to CST conversion (CST is UTC-6)
+                // This handles the "one day earlier" issue
+                const comparisonDate = new Date(selectedDateUTC);
+                comparisonDate.setDate(comparisonDate.getDate());
+                
+                filteredData = filteredData.filter(usuarioDTO => {
+                    if (!usuarioDTO.oldestCuota?.fechaVencimiento) return false;
+                    
+                    // Convert backend UTC date to local date for comparison
+                    const cuotaDate = new Date(usuarioDTO.oldestCuota.fechaVencimiento);
+                    const cuotaLocalDate = new Date(cuotaDate.getTime() - (cuotaDate.getTimezoneOffset() * 60000));
+                    
+                    // Compare dates (ignoring time)
+                    return cuotaLocalDate.toISOString().split('T')[0] === comparisonDate.toISOString().split('T')[0];
+                });
+            }
+            
+            // Update the table with filtered data
+            updateVencidasTable(filteredData);
+        }
+
+        function filterCuotasTable(fechaFiltro) {
+            let filteredData = [...window.originalUsuarioDTOs];
+            
+            if (fechaFiltro) {
+                // Convert selected date to UTC for comparison with backend dates
+                const selectedDate = new Date(fechaFiltro);
+                const selectedDateUTC = new Date(selectedDate.getTime() + (selectedDate.getTimezoneOffset() * 60000));
+                
+                // Add one day to account for UTC to CST conversion (CST is UTC-6)
+                // This handles the "one day earlier" issue
+                const comparisonDate = new Date(selectedDateUTC);
+                comparisonDate.setDate(comparisonDate.getDate());
+                
+                filteredData = filteredData.filter(usuarioDTO => {
+                    if (!usuarioDTO.oldestCuota?.fechaVencimiento) return false;
+                    
+                    // Convert backend UTC date to local date for comparison
+                    const cuotaDate = new Date(usuarioDTO.oldestCuota.fechaVencimiento);
+                    const cuotaLocalDate = new Date(cuotaDate.getTime() - (cuotaDate.getTimezoneOffset() * 60000));
+                    
+                    // Compare dates (ignoring time)
+                    return cuotaLocalDate.toISOString().split('T')[0] === comparisonDate.toISOString().split('T')[0];
+                });
+            }
+            
+            // Update the table with filtered data
+            updateCuotasTable(filteredData);
+        }
+
+        function resetTablesToOriginal() {
+            // Reset both tables to show all original data
+            updateVencidasTable([...window.originalUsuarioVencidasDTOs]);
+            updateCuotasTable([...window.originalUsuarioDTOs]);
+        }
+
+        function updateVencidasTable(filteredData) {
+            const table = document.getElementById('usuariosVencidasTable');
+            const tbody = table.querySelector('tbody');
+            
+            // Clear existing rows (except empty state and filler rows)
+            const existingRows = tbody.querySelectorAll('tr');
+            existingRows.forEach(row => {
+                if (!row.querySelector('td[colspan]') && !row.textContent.includes('No hay cuotas')) {
+                    row.remove();
+                }
+            });
+            
+            // Add filtered rows
+            filteredData.forEach(usuarioDTO => {
+                const row = document.createElement('tr');
+                row.onclick = () => mostrarMontosCuotas(usuarioDTO.usuario.id, usuarioDTO.usuario.direccion, usuarioDTO.usuario.celular);
+                
+                const fechaVencimiento = usuarioDTO.oldestCuota?.fechaVencimiento ? 
+                    new Date(usuarioDTO.oldestCuota.fechaVencimiento).toLocaleDateString('es-ES') : 'N/A';
+                
+                row.innerHTML = `
+                    <td>${usuarioDTO.usuario.nombre} ${usuarioDTO.usuario.apellido}</td>
+                    <td>${usuarioDTO.usuario.celular}</td>
+                    <td style="max-width: 115px !important;">${fechaVencimiento}</td>
+                    <td style="max-width: 115px !important;">$${parseFloat(usuarioDTO.oldestCuota?.monto || 0).toFixed(2)}</td>
+                    <td style="max-width: 115px !important;">$${parseFloat(usuarioDTO.oldestCuota?.pagoMora || 0).toFixed(2)}</td>
+                    <td style="max-width: 115px !important;">$${parseFloat(usuarioDTO.oldestCuota?.total || 0).toFixed(2)}</td>
+                    <td style="max-width: 115px !important;">
+                        <div class="dropdown">
+                            <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" onclick="mostrarMontosCuotas(${usuarioDTO.usuario.id, usuarioDTO.usuario.direccion, usuarioDTO.usuario.celular})">
+                                Ver Información
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.insertBefore(row, tbody.querySelector('tr[th\\:if]') || tbody.lastElementChild);
+            });
+            
+            // Update empty state
+            const emptyState = tbody.querySelector('tr[th\\:if]');
+            if (emptyState) {
+                emptyState.style.display = filteredData.length === 0 ? '' : 'none';
+            }
+            
+            // Trigger pagination update
+            if (window.setupPagination) {
+                window.setupPagination(table, 'usuariosVencidasTable');
+            }
+        }
+
+        function updateCuotasTable(filteredData) {
+            const table = document.getElementById('usuariosCuotasTable');
+            const tbody = table.querySelector('tbody');
+            
+            // Clear existing rows (except empty state and filler rows)
+            const existingRows = tbody.querySelectorAll('tr');
+            existingRows.forEach(row => {
+                if (!row.querySelector('td[colspan]') && !row.textContent.includes('No hay cuotas')) {
+                    row.remove();
+                }
+            });
+            
+            // Add filtered rows
+            filteredData.forEach(usuarioDTO => {
+                const row = document.createElement('tr');
+                row.onclick = () => mostrarMontosCuotas(usuarioDTO.usuario.id, usuarioDTO.usuario.direccion, usuarioDTO.usuario.celular);
+                
+                const fechaVencimiento = usuarioDTO.oldestCuota?.fechaVencimiento ? 
+                    new Date(usuarioDTO.oldestCuota.fechaVencimiento).toLocaleDateString('es-ES') : 'N/A';
+                
+                row.innerHTML = `
+                    <td>${usuarioDTO.usuario.nombre} ${usuarioDTO.usuario.apellido}</td>
+                    <td>${usuarioDTO.usuario.celular}</td>
+                    <td style="max-width: 115px !important;">${fechaVencimiento}</td>
+                    <td style="max-width: 115px !important;">$${parseFloat(usuarioDTO.totalPendiente || 0).toFixed(2)}</td>
+                    <td style="max-width: 115px !important;">
+                        <div class="dropdown">
+                            <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" onclick="mostrarMontosCuotas(${usuarioDTO.usuario.id, usuarioDTO.usuario.direccion, usuarioDTO.usuario.celular})">
+                                Ver Información
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tbody.insertBefore(row, tbody.querySelector('tr[th\\:if]') || tbody.lastElementChild);
+            });
+            
+            // Update empty state
+            const emptyState = tbody.querySelector('tr[th\\:if]');
+            if (emptyState) {
+                emptyState.style.display = filteredData.length === 0 ? '' : 'none';
+            }
+            
+            // Trigger pagination update
+            if (window.setupPagination) {
+                window.setupPagination(table, 'usuariosCuotasTable');
+            }
+        }
+
+        function clearDateFilter() {
+            document.getElementById('fechaFiltro').value = '';
+            resetTablesToOriginal();
+        }
+
+        function mostrarMontosCuotas(usuarioId, direccion, telefono, row = null) {
+            if (row != null){
+                console.log(usuarioId);
+                usuarioId = Number(row.dataset.id);
+                direccion = row.dataset.direccion;
+                telefono = row.dataset.celular;
+            }
+            
+            const usuarioDTO = window.usuarioDTOs?.find(u => u.usuario.id === usuarioId);
+            if (!usuarioDTO || !usuarioDTO.usuario || !Array.isArray(usuarioDTO.creditos)) {
+                Swal.fire('Sin datos', 'No se encontraron cuotas para este usuario.', 'info');
+                return;
+            }
+                
+            let htmlContent = `
+                <div class="user-info" style="
+                    padding: 12px 16px;
+                    margin-bottom: 20px;
+                    border-radius: 6px;
+                    border: 1px solid #ddd;
+                    background: #fff;
+                    font-family: 'Arial', sans-serif;
+                ">
+                    <h5 style="
+                        margin-bottom: 8px;
+                        font-size: 1.2rem;
+                        font-weight: 600;
+                        color: #333;
+                    ">Información del Usuario</h5>
+
+                    <p style="margin: 2px 0; color: #555;"><strong>Dirección:</strong> ${direccion}</p>
+                    <p style="margin: 2px 0; color: #555;"><strong>Teléfono:</strong> ${telefono}</p>
+                </div>
+            `;
+
+            usuarioDTO.creditos.forEach((credito, creditoIdx) => {
+                if (!Array.isArray(credito.cuotas) || credito.cuotas.length === 0) return;
+
+                // Filter cuotas by estado
+                const filteredCuotas = credito.cuotas.filter(cuota => 
+                    cuota.estado === 'Pendiente' || cuota.estado === 'Vencido'
+                );
+
+                if (filteredCuotas.length === 0) return;
+
+                htmlContent += `
+                    <h4 style="margin-bottom:15px; font-size:1.25rem;">Crédito #${creditoIdx + 1} (Monto: $${parseFloat(credito.monto).toFixed(2)})</h4>
+                    <div class="table-wrapper">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="max-width: 110px !important;">Estado</th>
+                                    <th>Notas</th>
+                                    <th style="max-width: 115px !important;">Fecha Vencimiento</th>
+                                    <th style="max-width: 115px !important;">Monto</th>
+                                    <th style="max-width: 115px !important;">Mora</th>
+                                    <th style="max-width: 115px !important;">Abono</th>
+                                    <th style="max-width: 115px !important;">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                `;
+
+                filteredCuotas.forEach((cuota, cuotaIdx) => {
+                    const notas = Array.isArray(cuota.notas) && cuota.notas.length > 0
+                        ? cuota.notas[cuota.notas.length - 1].contenido
+                        : '';
+
+                    // Format date as dd/MM/yyyy, matching Thymeleaf's behavior (no timezone conversion for yyyy-MM-dd)
+                    let fechaVencidoFormatted = '-';
+                    if (cuota.fechaVencido) {
+                        // If the date is in yyyy-MM-dd format, split and reformat directly (no UTC conversion)
+                        const match = /^\d{4}-\d{2}-\d{2}$/.test(cuota.fechaVencido);
+                        if (match) {
+                            const [year, month, day] = cuota.fechaVencido.split('-');
+                            fechaVencidoFormatted = `${day}/${month}/${year}`;
+                        } else {
+                            // Fallback: try to parse as Date
+                            const dateObj = new Date(cuota.fechaVencido);
+                            if (!isNaN(dateObj.getTime())) {
+                                const day = String(dateObj.getDate()).padStart(2, '0');
+                                const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                                const year = dateObj.getFullYear();
+                                fechaVencidoFormatted = `${day}/${month}/${year}`;
+                            } else {
+                                fechaVencidoFormatted = cuota.fechaVencido;
+                            }
+                        }
+                    }
+                    htmlContent += `
+                        <tr>
+                            <td style="max-width: 110px !important;">
+                                <span class="badge ${cuota.estado}">
+                                    ${cuota.estado}
+                                </span>
+                            </td>
+                            <td>${notas}</td>
+                            <td style="max-width: 115px !important;">${fechaVencidoFormatted}</td>
+                            <td style="max-width: 115px !important;">$${parseFloat(cuota.monto).toFixed(2)}</td>
+                            <td style="max-width: 115px !important;">$${parseFloat(cuota.mora).toFixed(2)}</td>
+                            <td style="max-width: 115px !important;">$${parseFloat(cuota.abono).toFixed(2)}</td>
+                            <td style="max-width: 115px !important;">$${parseFloat(cuota.total).toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+
+                htmlContent += `</tbody></table></div>`;
+            });
+
+            if (!htmlContent) {
+                htmlContent = '<p class="text-center text-muted" style="margin-top: 20px;">No hay cuotas</p>';
+            }
+
+            Swal.fire({
+                title: 'Montos de las Cuotas',
+                html: htmlContent,
+                confirmButtonText: 'Cerrar',
+                width: 1000
+            });
+        }
+
+        function descargarPDFUsuariosVencidas() {
+            fetch(`/admin/creditos/cobros/pdf`, { method: 'POST' })
+                .then(res => {
+                    if (!res.ok) throw new Error('Error al generar PDF');
+                    return res.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+                    if (isMobile) {
+                        window.open(url, '_blank');
+                    } else {
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = url;
+                        iframe.onload = function() {
+                            iframe.contentWindow.print();
+                            setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+                        };
+                        document.body.appendChild(iframe);
+                    }
+                })
+                .catch(error => {
+                    console.error('PDF generation error:', error);
+                    alert('Error al generar PDF');
+                });
+        }
+    </script>
+</th:block>
+
+</body>
+</html>

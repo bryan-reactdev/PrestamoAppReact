@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            margin: 1cm;
+            text-align: justify;
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .logo {
+            width: 170px;
+            height: auto;
+            margin-right: 15px;
+        }
+        .company-header {
+            font-weight: bold;
+            font-size: 14pt;
+            text-align: center;
+            flex: 1;
+        }
+        .pdf-title {
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 12pt;
+            margin: 15px 0;
+        }
+        .pdf-section {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 15px 0 10px;
+            text-align: left;
+        }
+        .pdf-field {
+            margin-bottom: 10px;
+            text-align: justify;
+            display: flex;
+            align-items: center;
+        }
+        .pdf-field > * {
+            margin: 0 0.25rem;
+        }
+        .underline {
+            display: inline-block;
+            border-bottom: 1px solid black;
+            min-width: 50px;
+            width: auto;
+            white-space: nowrap;   /* evita saltos de línea */
+            text-align: left;      /* anula el justify heredado */
+        }
+
+        .page-break {
+            page-break-before: always;
+        }
+        .spacer {
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header con logo -->
+<div class="header-container">
+    <img th:src="${logoUrl}" alt="Logo" class="logo" />
+    <div class="company-header">
+        MULTIPRÉSTAMOS ATLAS<br/>
+        Ciudad Real, Colonia Madrid, Polígono 12, Casa 24<br/>
+        Teléfono: 6978 9803
+    </div>
+</div>
+
+<div class="pdf-title">CUESTIONARIO DE ANTECEDENTES DE PAGO</div>
+
+<div class="pdf-section">Información del Cliente</div>
+
+<div class="pdf-field">
+    <p><strong>Nombre completo:</strong> <span class="underline" th:text="${usuarioSolicitud.nombres + ' ' + usuarioSolicitud.apellidos}"></span></p>
+</div>
+
+<div class="pdf-field">
+    <p><strong>DUI / NIT:</strong> <span class="underline" th:text="${usuarioSolicitud.dui != null ? usuarioSolicitud.dui : usuarioSolicitud.nit}"></span></p>
+</div>
+
+<div class="pdf-field">
+    <p><strong>Dirección actual:</strong> <span class="underline" th:text="${usuarioSolicitud.direccion}"></span></p>
+</div>
+
+<div class="pdf-field">
+    <p><strong>Teléfono:</strong> <span class="underline" th:text="${usuarioSolicitud.telefono}"></span></p>
+</div>
+
+<div class="pdf-field">
+    <p><strong>Correo electrónico:</strong> <span class="underline" th:text="${usuarioSolicitud.email}"></span></p>
+</div>
+
+<div class="spacer"></div>
+
+<div class="pdf-section">Sección 1: Historial Crediticio</div>
+
+<div class="pdf-field">
+    <p><strong>1. ¿Ha solicitado créditos en los últimos 2 años?</strong></p>
+</div>
+<div class="pdf-field">
+    <p class="underline" th:if="${usuarioSolicitud.solicitado}">Sí</p>
+    <p class="underline" th:if="${!usuarioSolicitud.solicitado}">No</p>
+</div>
+
+<div class="pdf-field">
+    <p>Si su respuesta es Sí, indique:</p>
+</div>
+<div class="pdf-field">
+    <p>Entidad financiera: <span class="underline" th:text="${usuarioSolicitud.solicitadoEntidad}"></span></p>
+</div>
+<div class="pdf-field">
+    <p>Monto: <span class="underline" th:text="${usuarioSolicitud.solicitadoMonto}"></span></p>
+</div>
+<div class="pdf-field" th:if="${usuarioSolicitud.solicitadoEstado != null}">
+    <p>Estado actual:
+        <span class="underline" th:if="${usuarioSolicitud.solicitadoEstado.name() == 'en_curso'}">En curso</span>
+        <span class="underline" th:if="${usuarioSolicitud.solicitadoEstado.name() == 'incumplido'}">Incumplido</span>
+        <span class="underline" th:if="${usuarioSolicitud.solicitadoEstado.name() == 'pagado'}">Pagado</span>
+    </p>
+</div>
+
+<div class="pdf-field">
+    <p><strong>2. ¿Ha tenido atrasos en pagos de créditos, tarjetas u obligaciones financieras en los últimos 24 meses?</strong></p>
+</div>
+<!-- <div class="pdf-field">
+    <p class="underline" th:if="${!usuarioSolicitud.atrasos}">Nunca</p>
+    <p class="underline" th:if="${usuarioSolicitud.atrasos}">1 a 2 veces</p>
+</div> -->
+
+<div class="pdf-field" th:if="${usuarioSolicitud.atrasos != null}">
+        <span class="underline" th:if="${usuarioSolicitud.atrasos.name() == 'nunca'}">Nunca</span>
+        <span class="underline" th:if="${usuarioSolicitud.atrasos.name() == 'uno_a_dos'}">1 a 2 veces</span>
+        <span class="underline" th:if="${usuarioSolicitud.atrasos.name() == 'dos_o_mas'}">Más de 2 veces</span>
+</div>
+
+<div class="spacer"></div>
+
+
+<div class="pdf-field">
+    <p><strong>3. ¿Alguna entidad financiera lo ha reportado como moroso en los últimos 2 años?</strong></p>
+</div>
+<div class="pdf-field">
+    <p class="underline" th:if="${usuarioSolicitud.reportado}">Sí</p>
+    <p class="underline" th:if="${!usuarioSolicitud.reportado}">No</p>
+</div>
+
+
+<div class="pdf-field">
+    <p><strong>4. ¿Ha sido objeto de cobros judiciales o procesos legales por deudas en este período?</strong></p>
+</div>
+<div class="pdf-field">
+    <p class="underline" th:if="${usuarioSolicitud.deudas}">Sí</p>
+    <p class="underline" th:if="${!usuarioSolicitud.deudas}">No</p>
+</div>
+
+<div class="spacer"></div>
+
+<div class="pdf-section">Sección 2: Estabilidad Económica</div>
+
+<div class="pdf-field">
+    <p><strong>5. ¿Actualmente cuenta con un empleo fijo o negocio propio?</strong></p>
+</div>
+<div class="pdf-field">
+    <p class="underline" th:if="${usuarioSolicitud.empleado?.name() == 'empleo_fijo'}">Empleo fijo</p>
+    <p class="underline" th:if="${usuarioSolicitud.empleado?.name() == 'negocio_propio'}">Negocio Propio</p>
+    <p class="underline" th:if="${usuarioSolicitud.empleado?.name() == 'ninguno'}">Ninguno</p>
+
+</div>
+
+<div class="spacer"></div>
+
+<div class="pdf-field">
+    <p><strong>6. ¿Tiene otras deudas activas actualmente?</strong></p>
+</div>
+<div class="pdf-field">
+    <p class="underline" th:if="${usuarioSolicitud.otrasDeudas}">Sí</p>
+    <p class="underline" th:if="${!usuarioSolicitud.otrasDeudas}">No</p>
+</div>
+<div class="pdf-field">
+    <p>Si su respuesta es Sí, indique:</p>
+</div>
+<div>
+    <div class="pdf-field">
+        <p>Entidad: <span class="underline" th:text="${usuarioSolicitud.otrasDeudasEntidad}"></span></p>
+    </div>
+    <div class="pdf-field">
+        <p>Monto mensual: <span class="underline" th:text="${usuarioSolicitud.otrasDeudasMonto}"></span></p>
+    </div>
+</div>
+
+<div class="spacer"></div>
+
+<div class="pdf-section">Sección 3: Referencias de Pago</div>
+
+<div class="pdf-field">
+    <p><strong>7. Proporcione al menos 2 referencias personales o comerciales que puedan validar su comportamiento de pago:</strong></p>
+</div>
+<div class="pdf-field">
+    <p>Nombre: <span class="underline" th:text="${usuarioSolicitud.referencia1}"></span> Tel: <span class="underline" th:text="${usuarioSolicitud.telefonoReferencia1}"></span></p>
+</div>
+<div class="pdf-field">
+    <p>Nombre: <span class="underline" th:text="${usuarioSolicitud.referencia2}"></span> Tel: <span class="underline" th:text="${usuarioSolicitud.telefonoReferencia2}"></span></p>
+</div>
+
+<div class="spacer"></div>
+
+<div class="pdf-section">Declaración del Cliente</div>
+
+<div class="pdf-field">
+    <p>Declaro bajo juramento que la información brindada en este cuestionario es veraz y comprobable. Autorizo a MULTIPRÉSTAMOS ATLAS a verificar mi historial crediticio y referencias para fines de evaluación.</p>
+</div>
+
+<div class="pdf-field">
+    <p><strong>Fecha:</strong>
+        <span class="underline" th:text="${#temporals.format(#temporals.createToday(), 'dd')}"></span> /
+        <span class="underline" th:text="${#temporals.format(#temporals.createToday(), 'MM')}"></span> /
+        <span class="underline" th:text="${#temporals.format(#temporals.createToday(), 'yyyy')}"></span>
+    </p>
+</div>
+
+<div class="pdf-field">
+    <p><strong>Firma del solicitante:</strong> _____________________</p>
+</div>
+
+</body>
+</html>

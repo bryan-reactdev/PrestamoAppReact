@@ -1,0 +1,519 @@
+/* layout.css - Estilo Empresarial Mejorado para Dashboard Multipréstamos ATLAS */
+
+/* ===== VARIABLES Y CONFIGURACIÓN GENERAL ===== */
+:root {
+    --primary-color: #1a365d;
+    --secondary-color: #2d5aa0;
+    --accent-color: #0d9488;
+    --light-color: #f8fafc;
+    --dark-color: #1e293b;
+    --success-color: #10b981;
+    --warning-color: #f59e0b;
+    --danger-color: #ef4444;
+    --gray-light: #e2e8f0;
+    --gray-medium: #94a3b8;
+    --gray-dark: #475569;
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 70px;
+    --header-height: 60px;
+    --border-radius: 8px;
+    --box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --transition: all 0.3s ease;
+
+    /* Nuevas variables para el sidebar */
+    --sidebar-bg: #1e293b;
+    --sidebar-text: #e2e8f0;
+    --sidebar-hover: #334155;
+    --sidebar-active: #2d5aa0;
+    --sidebar-border: #334155;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+
+    font-family: 'Poppins', sans-serif;
+
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f1f5f9;
+    color: var(--dark-color);
+    line-height: 1.6;
+    overflow-x: visible;
+}
+
+/* ===== LAYOUT PRINCIPAL ===== */
+.wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* ===== HEADER ===== */
+.main-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--header-height);
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+    z-index: 1030;
+    box-shadow: var(--box-shadow);
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    padding: 0 20px;
+}
+
+.sidebar-toggle {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+    display: none; /* Oculto por defecto en desktop */
+}
+
+.sidebar-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.logo b {
+    color: #fff;
+    font-weight: 800;
+}
+
+.header-user-menu {
+    display: flex;
+    align-items: center;
+}
+
+.user-menu .dropdown-toggle {
+    display: flex;
+    align-items: center;
+    color: white;
+    text-decoration: none;
+    padding: 8px 12px;
+    border-radius: var(--border-radius);
+    transition: var(--transition);
+}
+
+.user-menu .dropdown-toggle:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.user-menu .dropdown-toggle img {
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    transition: var(--transition);
+}
+
+.user-menu .dropdown-toggle:hover img {
+    border-color: rgba(255, 255, 255, 0.6);
+}
+
+.user-menu .dropdown-menu {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 0;
+    overflow: hidden;
+    margin-top: 10px;
+    animation: fadeIn 0.2s ease;
+}
+
+.user-menu .dropdown-header {
+    text-align: center;
+    padding: 20px;
+    background-color: var(--light-color);
+    color: var(--dark-color);
+}
+
+.user-menu .dropdown-header img {
+    border: 3px solid var(--primary-color);
+}
+
+.user-menu .dropdown-header p {
+    margin: 10px 0 0;
+    font-weight: 600;
+}
+
+.user-menu .dropdown-header small {
+    display: block;
+    margin-top: 5px;
+    color: var(--gray-medium);
+    font-size: 0.85rem;
+}
+
+.user-menu .dropdown-footer {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--light-color);
+}
+
+.user-menu .dropdown-footer .btn {
+    flex: 1;
+    margin: 0 5px;
+    padding: 8px 12px;
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.user-menu .dropdown-footer .btn-default {
+    background-color: white;
+    border: 1px solid var(--gray-light);
+    color: var(--dark-color);
+}
+
+.user-menu .dropdown-footer .btn-default:hover {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+/* ===== SIDEBAR ===== */
+.main-sidebar {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    bottom: 0;
+    width: var(--sidebar-width);
+    background: linear-gradient(180deg, var(--sidebar-bg) 0%, #1a202c 100%);
+    box-shadow: var(--box-shadow);
+    z-index: 1020;
+    transition: var(--transition);
+    overflow-y: auto;
+    transform: translateX(0); /* Estado normal en desktop */
+}
+
+.sidebar {
+    padding: 20px 0;
+}
+
+.sidebar-menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-menu .header {
+    padding: 10px 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--gray-medium);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--sidebar-border);
+    margin-bottom: 10px;
+}
+
+.sidebar-menu li {
+    position: relative;
+    margin: 0;
+}
+
+.sidebar-menu li a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--sidebar-text);
+    text-decoration: none;
+    transition: var(--transition);
+    border-left: 3px solid transparent;
+}
+
+.sidebar-menu li a:hover {
+    background-color: var(--sidebar-hover);
+    color: white;
+    border-left-color: var(--accent-color);
+}
+
+.sidebar-menu li.active > a {
+    background-color: var(--sidebar-active);
+    color: white;
+    border-left-color: var(--accent-color);
+    font-weight: 600;
+}
+
+.sidebar-menu li a i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+    font-size: 1.1rem;
+    color: var(--gray-medium);
+    transition: var(--transition);
+}
+
+.sidebar-menu li.active > a i,
+.sidebar-menu li a:hover i {
+    color: white;
+}
+
+.sidebar-menu .disabled-link {
+    opacity: 0.5;
+    pointer-events: none;
+    cursor: not-allowed;
+}
+
+/* Notificación de mensajes */
+.dot-notification {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--danger-color);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.7rem;
+    min-width: 18px;
+    height: 18px;
+    margin-left: 8px;
+    font-weight: 600;
+}
+
+/* ===== OVERLAY PARA MÓVIL ===== */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1015;
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.sidebar-overlay.show {
+    display: block;
+    opacity: 1;
+}
+
+/* ===== CONTENIDO PRINCIPAL ===== */
+.content-wrapper {
+    flex: 1;
+    margin-top: var(--header-height);
+    margin-left: var(--sidebar-width);
+    padding: 20px;
+    transition: var(--transition);
+    min-height: calc(100vh - var(--header-height));
+}
+
+.content-header {
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+.content-header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    margin-bottom: 5px;
+}
+
+.content-header small {
+    color: var(--gray-medium);
+    font-size: 1rem;
+}
+
+.content {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
+}
+
+/* ===== ESTADOS DEL SIDEBAR ===== */
+/* Sidebar abierto en móvil */
+.main-sidebar.sidebar-open {
+    transform: translateX(0);
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .sidebar-toggle {
+        display: block; /* Mostrar botón en móvil */
+    }
+
+    .main-sidebar {
+        transform: translateX(-100%); /* Oculto por defecto en móvil */
+        width: 280px; /* Ancho suficiente para ver los botones */
+    }
+
+    .content-wrapper {
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .header-container {
+        padding: 0 15px;
+    }
+
+    .logo {
+        font-size: 1.2rem;
+    }
+
+    .user-menu .dropdown-toggle span {
+        display: none;
+    }
+
+    /* Cuando el sidebar está abierto, prevenir scroll del body */
+    body.sidebar-open {
+        overflow: hidden;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-sidebar {
+        width: 280px; /* Mantener el mismo ancho en móviles pequeños */
+    }
+
+    .content-wrapper {
+        padding: 15px;
+    }
+
+    .content-header h1 {
+        font-size: 1.5rem;
+    }
+}
+
+/* ===== ESTILOS ADICIONALES PARA COMPONENTES ===== */
+.btn {
+    border-radius: var(--border-radius);
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.btn-primary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.card {
+    border: none;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    transition: var(--transition);
+}
+
+.card:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.table th {
+    background-color: var(--light-color);
+    color: var(--primary-color);
+    font-weight: 600;
+    border-top: none;
+}
+
+/* ===== ANIMACIONES SUAVES ===== */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.content {
+    animation: fadeIn 0.3s ease;
+}
+
+/* ===== ESTILOS PARA SCROLLBAR ===== */
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gray-medium);
+    border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gray-dark);
+}
+
+/* Scrollbar personalizado para el sidebar */
+.main-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.main-sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.main-sidebar::-webkit-scrollbar-thumb {
+    background: var(--sidebar-active);
+    border-radius: 2px;
+}
+
+.main-sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color);
+}
+
+/* ===== MEJORAS DE ACCESIBILIDAD ===== */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Focus styles para mejor accesibilidad */
+.sidebar-toggle:focus,
+.sidebar-menu li a:focus,
+.user-menu .dropdown-toggle:focus {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+/* High contrast support */
+@media (prefers-contrast: high) {
+    :root {
+        --sidebar-bg: #000000;
+        --sidebar-text: #ffffff;
+        --sidebar-hover: #333333;
+        --sidebar-active: #0000ff;
+    }
+}

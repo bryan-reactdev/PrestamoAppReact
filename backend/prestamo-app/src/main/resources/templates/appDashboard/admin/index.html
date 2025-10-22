@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{appDashboard/admin/layout :: layout(
+          pageTitle='',
+          pageSubtitle='',
+          activePage='dashboard',
+          content=~{::content},
+          pageCss=~{::css},
+          pageScripts=~{::scripts}
+      )}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:fragment="css">
+        <link rel="stylesheet" type="text/css" th:href="@{/css/indexAdmin.css}" />
+    </th:block>
+</head>
+<body>
+<div th:fragment="content">
+    <!-- Seccione de botones -->
+    <div class="dashboard-stats">
+        <div class="stats-grid">
+            <!-- Usuarios -->
+            <a class="stat-card stat-card-info"
+               th:classappend="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'',''ROLE_SECRETARIA'', ''ROLE_GERENTE'')')} ? '' : 'disabled-link'"
+               th:href="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'',''ROLE_SECRETARIA'', ''ROLE_GERENTE'')')} ? '/admin/usuarios' : '#'">
+                <div class="stat-content">
+                    <div class="stat-icon"><i class="fas fa-users"></i></div>
+                    <div class="stat-details">
+                        <h3>Usuarios</h3>
+                        <p>Usuarios registrados</p>
+                    </div>
+                </div>
+                <div class="stat-footer">
+                    <span>Mostrar tabla de usuarios</span>
+                    <i class="fas fa-arrow-circle-right"></i>
+                </div>
+            </a>
+
+            <!-- Créditos -->
+            <a class="stat-card stat-card-danger"
+               th:classappend="${#authorization.expression('hasRole(''ROLE_ADMIN'') or hasRole(''ROLE_SECRETARIA'') or hasRole(''ROLE_GERENTE'')')} ? '' : 'disabled-link'"
+               th:href="${#authorization.expression('hasRole(''ROLE_ADMIN'') or hasRole(''ROLE_SECRETARIA'') or hasRole(''ROLE_GERENTE'')')} ? '/admin/creditos' : '#'">
+                <div class="stat-content">
+                    <div class="stat-icon"><i class="fas fa-credit-card"></i></div>
+                    <div class="stat-details">
+                        <h3>Créditos</h3>
+                        <p>Administra los créditos</p>
+                    </div>
+                </div>
+                <div class="stat-footer">
+                    <span>Mostrar tabla de créditos</span>
+                    <i class="fas fa-arrow-circle-right"></i>
+                </div>
+            </a>
+
+            <!-- Cobros -->
+            <a class="stat-card stat-card-danger" href="/admin/creditos/cobros">
+                <div class="stat-content">
+                    <div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div>
+                    <div class="stat-details">
+                        <h3>Cobros</h3>
+                        <p>Cobros pendientes</p>
+                    </div>
+                </div>
+                <div class="stat-footer">
+                    <span>Mostrar tabla de cobros</span>
+                    <i class="fas fa-arrow-circle-right"></i>
+                </div>
+            </a>
+
+            <!-- Mensajes -->
+<!--            <a class="stat-card stat-card-info"-->
+<!--               th:classappend="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'',''ROLE_SECRETARIA'')')} ? '' : 'disabled-link'"-->
+<!--               th:href="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'',''ROLE_SECRETARIA'')')} ? '/admin/mensajes' : '#'">-->
+<!--                <div class="stat-content">-->
+<!--                    <div class="stat-icon"><i class="fas fa-message"></i></div>-->
+<!--                    <div class="stat-details">-->
+<!--                        <h3 class="message-text-notification">-->
+<!--                            Mensajes-->
+<!--                            <span th:if="${mensajesLength != 0}" class="dot-notification" th:text="${mensajesLength}">100</span>-->
+<!--                        </h3>-->
+<!--                        <p>Administra los Mensajes</p>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="stat-footer">-->
+<!--                    <span>Mostrar tabla de mensajes</span>-->
+<!--                    <i class="fas fa-arrow-circle-right"></i>-->
+<!--                </div>-->
+<!--            </a>-->
+
+            <!-- Historial de eventos -->
+            <a class="stat-card stat-card-success"
+               th:classappend="${#authorization.expression('hasRole(''ROLE_ADMIN'') or hasRole(''ROLE_GERENTE'')')} ? '' : 'disabled-link'"
+               th:href="${#authorization.expression('hasRole(''ROLE_ADMIN'') or hasRole(''ROLE_GERENTE'')')} ? '/admin/historial' : '#'">
+                <div class="stat-content">
+                    <div class="stat-icon"><i class="fas fa-history"></i></div>
+                    <div class="stat-details">
+                        <h3>Historial de eventos</h3>
+                        <p>Auditoria de acciones</p>
+                    </div>
+                </div>
+                <div class="stat-footer">
+                    <span>Mostrar tabla de eventos</span>
+                    <i class="fas fa-arrow-circle-right"></i>
+                </div>
+            </a>
+
+            <!-- Caja Chica -->
+<!--            <a class="stat-card stat-card-warning"-->
+<!--                th:classappend="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'',''ROLE_SECRETARIA'')')} ? '' : 'disabled-link'"-->
+<!--                th:href="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'',''ROLE_SECRETARIA'')')} ? '/caja-chica' : '#'">-->
+<!--                <div class="stat-content">-->
+<!--                    <div class="stat-icon"><i class="fas fa-cash-register"></i></div>-->
+<!--                    <div class="stat-details">-->
+<!--                        <h3>Administrar caja chica</h3>-->
+<!--                        <p>Administra la caja chica</p>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="stat-footer">-->
+<!--                    <span>Ir a caja chica</span>-->
+<!--                    <i class="fas fa-arrow-circle-right"></i>-->
+<!--                </div>-->
+<!--            </a>-->
+
+            <!-- Caja Chica -->
+            <a class="stat-card stat-card-danger"
+               th:classappend="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'',''ROLE_SECRETARIA'', ''ROLE_GERENTE'')')} ? '' : 'disabled-link'"
+               th:href="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'',''ROLE_SECRETARIA'', ''ROLE_GERENTE'')')} ? '/CajaChica' : '#'">
+                <div class="stat-content">
+                    <div class="stat-icon"><i class="fas fa-cash-register"></i></div>
+                    <div class="stat-details">
+                        <h3>Caja Chica</h3>
+                        <p>Administra la Caja Chica</p>
+                    </div>
+                </div>
+                <div class="stat-footer">
+                    <span>Mostrar Caja Chica</span>
+                    <i class="fas fa-arrow-circle-right"></i>
+                </div>
+            </a>
+
+            <!-- Editar Cuenta -->
+            <a class="stat-card stat-card-warning"
+               th:classappend="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'',''ROLE_SECRETARIA'', ''ROLE_GERENTE'')')} ? '' : 'disabled-link'"
+               th:onclick="${#authorization.expression('hasAnyRole(''ROLE_ADMIN'',''ROLE_SECRETARIA'',''ROLE_COBRADOR'', ''ROLE_GERENTE'')')} ? 'showUsuarioDetails(' + ${usuario.id} + ')' : ''"
+               href="#">
+                <div class="stat-content">
+                    <div class="stat-icon"><i class="fas fa-user-edit"></i></div>
+                    <div class="stat-details">
+                        <h3>Editar Cuenta</h3>
+                        <p>Actualiza tu información</p>
+                    </div>
+                </div>
+                <div class="stat-footer">
+                    <span>Editar cuenta</span>
+                    <i class="fas fa-arrow-circle-right"></i>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/usuarioModals :: modal-content(usuarios=${[usuario]})}"></div>
+</div>
+
+
+
+<th:block th:fragment="scripts">
+
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const btn = document.getElementById('toggleReportesBtn');
+            const cont = document.getElementById('reportesContainer');
+
+            function checkViewport() {
+                if (window.innerWidth <= 768) {
+                    btn.style.display = 'block';
+                    // solo setea display si no fue abierto manualmente
+                    if (!cont.dataset.opened) cont.style.display = 'none';
+                } else {
+                    btn.style.display = 'none';
+                    cont.style.display = 'block';
+                }
+            }
+
+            function toggleReportes() {
+                const currentDisplay = window.getComputedStyle(cont).display;
+                if (currentDisplay === 'none') {
+                    cont.style.display = 'block';
+                    btn.innerText = '📉 Ocultar sección de reportes diarios';
+                    cont.dataset.opened = 'true';
+                } else {
+                    cont.style.display = 'none';
+                    btn.innerText = '📊 Desplegar sección de reportes diarios';
+                    cont.dataset.opened = '';
+                }
+            }
+
+
+            btn.addEventListener('click', toggleReportes);
+            window.addEventListener('resize', checkViewport);
+            checkViewport();
+        });
+    </script>
+
+
+    <script>
+        // Initialize Bootstrap tooltips
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.map(function(tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl);
+            });
+        });
+    </script>
+</script>
+
+</th:block>
+
+</body>
+</html>

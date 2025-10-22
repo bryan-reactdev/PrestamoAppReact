@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        @page {
+            size: landscape;
+        }
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            margin: 1cm;
+            text-align: justify;
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .logo {
+            width: 170px;
+            height: auto;
+            margin-right: 15px;
+        }
+        .company-header {
+            font-weight: bold;
+            font-size: 14pt;
+            text-align: center;
+            flex: 1;
+        }
+        .pdf-title {
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 12pt;
+            margin: 15px 0;
+        }
+        .pdf-section {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 15px 0 10px;
+            text-align: left;
+        }
+        .pdf-field {
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+        .underline {
+            display: inline-block;
+            border-bottom: 1px solid black;
+            min-width: 50px;
+            width: auto;
+            white-space: nowrap;
+            text-align: left;
+        }
+
+        .spacer {
+            margin-top: 25px;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1.5px solid black;
+        }
+        table {
+            page-break-inside: auto;
+        }
+
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+
+        thead {
+            display: table-header-group;
+        }
+
+        tfoot {
+            display: table-footer-group;
+        }
+        
+        .credito-section {
+            margin-bottom: 30px;
+            page-break-inside: avoid;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header-container">
+   <img th:src="${logoUrl}" alt="Logo" class="logo" />
+    <div class="company-header">MULTIPRÉSTAMOS ATLAS</div>
+</div>
+
+<div class="pdf-title" th:text="'Informe del Usuario: ' + ${usuario?.nombre} + ' ' + ${usuario?.apellido}"></div>
+
+<!-- 1. INFORMACIÓN PERSONAL -->
+<div class="pdf-section">1. INFORMACIÓN PERSONAL</div>
+
+<div class="pdf-field">
+    <strong>Nombre completo:</strong> <span class="underline" th:text="${usuario?.nombre + ' ' + usuario?.apellido}"></span>
+</div>
+<div class="pdf-field">
+    <strong>DUI:</strong> <span class="underline" th:text="${usuario?.dui}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Correo electrónico:</strong> <span class="underline" th:text="${usuario?.email}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Teléfono celular:</strong> <span class="underline" th:text="${usuario?.celular}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Fecha de nacimiento:</strong> <span class="underline" th:text="${usuario?.fechaNacimiento}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Estado civil:</strong> <span class="underline" th:text="${#strings.capitalize(usuario?.estadoCivil)}"></span>
+</div>
+
+<!-- 2. INFORMACIÓN DE CONTACTO Y RESIDENCIA -->
+<div class="pdf-section">2. INFORMACIÓN DE CONTACTO Y RESIDENCIA</div>
+
+<div class="pdf-field">
+    <strong>Dirección:</strong> <span class="underline" th:text="${usuario?.direccion}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Tiempo de residencia:</strong> <span class="underline" th:text="${usuario?.tiempoResidencia}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Perfil de red social:</strong> <span class="underline" th:text="${usuario?.perfilRedSocial}"></span>
+</div>
+
+<!-- 3. INFORMACIÓN LABORAL Y FINANCIERA -->
+<div class="pdf-section">3. INFORMACIÓN LABORAL Y FINANCIERA</div>
+
+<div class="pdf-field">
+    <strong>Empresa donde trabaja:</strong> <span class="underline" th:text="${usuarioSolicitud?.empresaTrabajo}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Ocupación:</strong> <span class="underline" th:text="${usuario?.ocupacion}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Tipo de contrato:</strong> <span class="underline" th:text="${usuarioSolicitud?.tipoContrato}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Ingreso mensual:</strong> US$ <span class="underline" th:text="${usuarioSolicitud?.ingresoMensual}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Gastos mensuales aproximados:</strong> US$ <span class="underline" th:text="${usuario?.gastosMensuales}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Antigüedad laboral:</strong> <span class="underline" th:text="${usuarioSolicitud?.antiguedadLaboral}"></span>
+</div>
+
+<!-- 4. INFORMACIÓN DE NEGOCIO (si aplica) -->
+<div class="pdf-field" th:if="${usuarioSolicitud?.actividadEmprendedor}">
+    <strong>Actividad de negocio:</strong> <span class="underline" th:text="${usuarioSolicitud?.actividadEmprendedor}"></span>
+</div>
+<div class="pdf-field" th:if="${usuarioSolicitud?.antiguedadNegocio}">
+    <strong>Antigüedad del negocio:</strong> <span class="underline" th:text="${usuarioSolicitud?.antiguedadNegocio}"></span>
+</div>
+<div class="pdf-field" th:if="${usuarioSolicitud?.direccionNegocio}">
+    <strong>Dirección del negocio:</strong> <span class="underline" th:text="${usuarioSolicitud?.direccionNegocio}"></span>
+</div>
+
+<!-- 5. HISTORIAL CREDITICIO -->
+<div class="pdf-section">5. HISTORIAL CREDITICIO</div>
+
+<div class="pdf-field">
+    <strong>¿Ha solicitado crédito anteriormente?:</strong> 
+    <span class="underline" th:text="${usuarioSolicitud?.solicitado != null ? (usuarioSolicitud?.solicitado ? 'Sí' : 'No') : 'No especificado'}"></span>
+</div>
+
+<div class="pdf-field" th:if="${usuarioSolicitud?.solicitado != null && usuarioSolicitud?.solicitado}">
+    <strong>Entidad donde solicitó:</strong> <span class="underline" th:text="${usuarioSolicitud?.solicitadoEntidad}"></span>
+    <strong>Monto solicitado:</strong> US$ <span class="underline" th:text="${usuarioSolicitud?.solicitadoMonto}"></span>
+    <strong>Estado:</strong> <span class="underline" th:text="${#strings.capitalize(usuarioSolicitud?.solicitadoEstado?.name()?.replace('_', ' '))}"></span>
+</div>
+
+<div class="pdf-field">
+    <strong>Historial de atrasos:</strong> <span class="underline" th:text="${#strings.capitalize(usuarioSolicitud?.atrasos?.name()?.replace('_', ' '))}"></span>
+</div>
+
+<div class="pdf-field">
+    <strong>¿Tiene otras deudas?:</strong> 
+    <span class="underline" th:text="${usuarioSolicitud?.otrasDeudas != null ? (usuarioSolicitud?.otrasDeudas ? 'Sí' : 'No') : 'No especificado'}"></span>
+</div>
+
+<div class="pdf-field" th:if="${usuarioSolicitud?.otrasDeudas != null && usuarioSolicitud?.otrasDeudas}">
+    <strong>Entidad de otras deudas:</strong> <span class="underline" th:text="${usuarioSolicitud?.otrasDeudasEntidad}"></span>
+    <strong>Monto de otras deudas:</strong> US$ <span class="underline" th:text="${usuarioSolicitud?.otrasDeudasMonto}"></span>
+</div>
+
+<div class="pdf-field">
+    <strong>¿Ha sido reportado?:</strong> 
+    <span class="underline" th:text="${usuarioSolicitud?.reportado != null ? (usuarioSolicitud?.reportado ? 'Sí' : 'No') : 'No especificado'}"></span>
+</div>
+
+<!-- 6. REFERENCIAS PERSONALES -->
+<div class="pdf-section">6. REFERENCIAS PERSONALES</div>
+
+<div class="pdf-field">
+    <strong>Fuente de conocimiento:</strong> <span class="underline" th:text="${usuario?.fuenteConocimiento}"></span>
+</div>
+<div class="pdf-field">
+    <strong>¿Conoce a alguien con crédito en Multipréstamos ATLAS?:</strong> 
+    <span class="underline" th:text="${usuario?.conoceAlguien != null ? (usuario?.conoceAlguien ? 'Sí' : 'No') : 'No especificado'}"></span>
+</div>
+
+<div class="pdf-field" th:if="${usuario?.conoceAlguien != null && usuario?.conoceAlguien}">
+    <strong>Nombre de persona conocida:</strong> <span class="underline" th:text="${usuario?.nombrePersonaConocida}"></span>
+    <strong>Teléfono de persona conocida:</strong> <span class="underline" th:text="${usuario?.telefonoPersonaConocida}"></span>
+</div>
+
+<div class="pdf-field" th:if="${usuarioSolicitud?.referencia1}">
+    <strong>Referencia personal 1:</strong> 
+    <span class="underline" th:text="${usuarioSolicitud?.referencia1}"></span>
+    <strong>Teléfono:</strong> <span class="underline" th:text="${usuarioSolicitud?.telefonoReferencia1}"></span>
+    <strong>Parentesco:</strong> <span class="underline" th:text="${usuarioSolicitud?.parentesco1}"></span>
+</div>
+
+<div class="pdf-field" th:if="${usuarioSolicitud?.referencia2}">
+    <strong>Referencia personal 2:</strong> 
+    <span class="underline" th:text="${usuarioSolicitud?.referencia2}"></span>
+    <strong>Teléfono:</strong> <span class="underline" th:text="${usuarioSolicitud?.telefonoReferencia2}"></span>
+    <strong>Parentesco:</strong> <span class="underline" th:text="${usuarioSolicitud?.parentesco2}"></span>
+</div>
+
+<!-- 7. INFORMACIÓN DEL CODEUDOR (si aplica) -->
+<div class="pdf-field" th:if="${usuarioSolicitud?.codeudorNombre}">
+    <div class="pdf-section">7. INFORMACIÓN DEL CODEUDOR</div>
+    <div class="pdf-field">
+        <strong>Nombre del codeudor:</strong> <span class="underline" th:text="${usuarioSolicitud?.codeudorNombre}"></span>
+    </div>
+    <div class="pdf-field">
+        <strong>DUI del codeudor:</strong> <span class="underline" th:text="${usuarioSolicitud?.codeudorDui}"></span>
+    </div>
+    <div class="pdf-field">
+        <strong>Dirección del codeudor:</strong> <span class="underline" th:text="${usuarioSolicitud?.codeudorDireccion}"></span>
+    </div>
+    <div class="pdf-field">
+        <strong>Ingreso mensual del codeudor:</strong> US$ <span class="underline" th:text="${usuarioSolicitud?.ingresoMensualCodeudor}"></span>
+    </div>
+</div>
+
+<div style="page-break-inside: avoid;"></div>
+
+<!-- 8. CRÉDITOS ACTUALES -->
+<div class="pdf-section" th:if="${not #lists.isEmpty(creditos)}">8. CRÉDITOS ACTUALES</div>
+
+<div th:if="${not #lists.isEmpty(creditos)}" th:each="credito : ${creditos}" class="credito-section">
+    <!-- Table for the credito -->
+    <div class="pdf-field">
+        <strong>Crédito:</strong>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Estado</th>
+                <th>Usuario</th>
+                <th>DUI</th>
+                <th>Monto</th>
+                <th>Monto A Dar</th>
+                <th>Frecuencia de Pago</th>
+                <th>Refinanciado</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td
+                    th:text="${credito.estado}"
+                    th:style="${'Rechazado'.equalsIgnoreCase(credito.estado) ? 
+                        'background-color: #ffcccc;' : 
+                        ('Pendiente'.equalsIgnoreCase(credito.estado) ? 
+                            'background-color: #ffffcc;' : 
+                            ('Aceptado'.equalsIgnoreCase(credito.estado) ? 
+                                'background-color: #ccffcc;' : 
+                                ('Finalizado'.equalsIgnoreCase(credito.estado) ? 
+                                    'background-color: #f2f2f2;' : 
+                                    '')
+                            )
+                        )
+                    }"
+
+                ></td>
+                <td>
+                    <span th:text="${credito.usuario?.nombre + ' ' + credito.usuario?.apellido}"></span>
+                </td>
+                <td th:text="${credito.usuario?.dui}"></td>
+                <td th:text="${'$' + credito.monto}"></td>
+                <td th:text="${credito.montoDado != null ? '$' + credito.montoDado : '$' + credito.monto}"></td>
+                <td th:text="${credito.plazoFrecuencia}"></td>
+                <td th:style="${credito.refinanciado ? 
+                            'background-color: #d4edda; color: #155724;' : 
+                            'background-color: #f8d7da; color: #721c24;'}">
+                    <span th:text="${credito.refinanciado ? 'Sí' : 'No'}">
+                    </span>
+                </td>
+
+            </tr>
+        </tbody>    
+    </table>
+
+    <div style="page-break-inside: avoid;">
+        <!-- Table for the credito's cuotas -->
+        <div class="pdf-field">
+            <strong>Cuotas del Crédito:</strong>
+        </div>
+
+        <table th:if="${not #lists.isEmpty(credito.cuotas)}">
+            <thead>
+                <tr>
+                    <th style="width: 10%;">Estado</th>
+                    <th style="width: 15%;">Observaciones</th>
+                    <th style="width: 15%;">Fecha Vencimiento</th> 
+                    <th style="width: 10%;">Monto</th>
+                    <th style="width: 10%;">Mora</th>
+                    <th style="width: 10%;">Total</th>
+                    <th style="width: 30%;">Firma</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="cuota : ${credito.cuotas}">
+                    <td
+                        th:text="${cuota.estado}"
+                        th:style="${'Vencido'.equalsIgnoreCase(cuota.estado) ? 'background-color: #ffcccc;' : ('Pendiente'.equalsIgnoreCase(cuota.estado) ? 'background-color: #ffffcc;' : ('Pagado'.equalsIgnoreCase(cuota.estado) ? 'background-color: #ccffcc;' : ''))}"
+                    ></td>
+                    
+                    <td th:text="${cuota.observaciones}"></td>
+                    
+                    <td th:text="${#temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy')}">20/01/2024</td>
+                    
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.total, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    
+                    <td></td> 
+                </tr>
+            </tbody>    
+        </table>
+        
+        <div th:if="${#lists.isEmpty(credito.cuotas)}" class="pdf-field">
+            <em>No hay cuotas registradas para este crédito.</em>
+        </div>
+    </div>
+
+    <div class="spacer"></div>
+</div>
+
+<!-- Firma y fecha -->
+<!-- <div class="pdf-field">
+    <strong>Fecha de generación:</strong> <span class="underline" th:text="${#temporals.format(#temporals.createToday(), 'dd-MM-yyyy')}"></span>
+</div>
+
+<div class="pdf-field">
+    <strong>Generado por:</strong> ____________________
+</div> -->
+
+</body>
+</html>

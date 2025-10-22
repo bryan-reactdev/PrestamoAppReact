@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            margin: 1cm;
+            text-align: justify;
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .logo {
+            width: 170px;
+            height: auto;
+            margin-right: 15px;
+        }
+        .company-header {
+            font-weight: bold;
+            font-size: 14pt;
+            text-align: center;
+            flex: 1;
+        }
+        .pdf-title {
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 12pt;
+            margin: 15px 0;
+        }
+        .pdf-section {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 15px 0 10px;
+            text-align: left;
+        }
+        .pdf-field {
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+        .underline {
+            display: inline-block;
+            border-bottom: 1px solid black;
+            min-width: 50px;
+            width: auto;
+            white-space: nowrap;   /* evita saltos de línea */
+            text-align: left;      /* anula el justify heredado */
+        }
+        .signatures {
+            display: flex;
+            justify-content: space-between;
+        }
+        .signature-block {
+            text-align: left;
+            margin-top: 20px;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        .spacer {
+            margin-top: 25px;
+        }
+    </style>
+</head>
+<body>
+<!-- Header con logo -->
+<div class="header-container">
+    <img th:src="${logoUrl}" alt="Logo" class="logo" />
+    <div class="company-header">MULTIPRÉSTAMOS ATLAS</div>
+</div>
+
+<div class="pdf-title">CONTRATO INTEGRAL DE PRÉSTAMO Y PAGARÉ SOLIDARIO</div>
+
+<div class="pdf-field" style="margin-top:0;">
+    <p>SANTA ANA,
+        <span class="underline" th:text="${#temporals.day(#temporals.createNow())}"></span> de
+        <span class="underline" th:text="${#temporals.monthName(#temporals.createNow())}"></span> de
+        <span class="underline" th:text="${#temporals.year(#temporals.createNow())}"></span>
+    </p>
+</div>
+
+
+<div class="pdf-field">
+    <p>Entre MULTIPRÉSTAMOS ATLAS, en adelante "El Acreedor", y el señor(a)
+        <span class="underline" th:text="${usuarioSolicitud.nombres + ' ' + usuarioSolicitud.apellidos}"></span>,
+        con Documento Único de Identidad (DUI) N° <span class="underline" th:text="${usuarioSolicitud.dui}"></span>,
+        en adelante "El Deudor Principal", se celebra el presente Contrato Integral de Préstamo, con la intervención del señor(a)
+        <span class="underline" th:text="${usuarioSolicitud.codeudorNombre}"></span>,
+        con DUI N° <span class="underline" th:text="${usuarioSolicitud.codeudorDui}"></span>,
+        en calidad de "Co-deudor Solidario o Fiador".</p>
+</div>
+
+<div class="pdf-section">CLÁUSULAS</div>
+
+<div class="pdf-field">
+    <p><strong>Primera: Objeto del Contrato.</strong><br />
+        El Acreedor concede al Deudor Principal un préstamo por la cantidad de $<span class="underline" th:text="${credito.monto}"></span>
+        DÓLARES DE LOS ESTADOS UNIDOS DE AMÉRICA,
+        suma que el Deudor Principal reconoce haber recibido a su entera satisfacción.</p>
+</div>
+
+
+<div class="pdf-field">
+    <p><strong>Segunda: Plan de Pagos.</strong><br />
+        El Deudor Principal se obliga a pagar la suma prestada en cuotas de $<span class="underline" th:text="${credito.cuotaMensual}"></span> dólares cada una,
+        hasta completar el total del préstamo más los intereses pactados, de conformidad al calendario que se adjunta como Anexo 1.</p>
+</div>
+
+<div class="pdf-field">
+    <p><strong>Tercera: Intereses y Gastos Administrativos.</strong><br />
+        El préstamo devengará un interés mensual del 6% sobre el saldo,
+        más $14.00 dólares en concepto de gastos administrativos.
+        Todo pago se aplicará en primer lugar a intereses y comisiones, y luego a capital.</p>
+
+</div>
+
+<div class="pdf-field">
+    <p><strong>Cuarta: Mora y Penalidades.</strong><br />
+        En caso de incumplimiento en los plazos acordados, el Deudor Principal y el Co-deudor Solidario deberán pagar un cargo moratorio de
+        $3.50 por cada tres cuotas vencidas, sin perjuicio de los intereses adicionales
+        y de las acciones legales correspondientes.</p>
+</div>
+
+<br/>
+
+<div class="pdf-field">
+    <p><strong>Quinta: Obligación Solidaria del Co-deudor.</strong><br />
+        El Co-deudor Solidario acepta y reconoce que su responsabilidad es mancomunada, solidaria e irrevocable, conforme al artículo 1468 del Código Civil de El Salvador,
+        obligándose a responder en los mismos términos que el Deudor Principal. MULTIPRÉSTAMOS ATLAS podrá exigir el pago total de la deuda, intereses, penalidades y gastos legales
+        directamente al Co-deudor, sin necesidad de agotar primero las acciones contra el Deudor Principal.</p>
+</div>
+
+<div class="pdf-field">
+    <p><strong>Sexta: Difamación y Excusas de Incumplimiento.</strong><br />
+        El Deudor Principal y el Co-deudor reconocen que la obligación de pago es estrictamente económica y no podrá evadirse mediante excusas, quejas o reclamos.
+        En caso de difamación, calumnia o actos que atenten contra la reputación de MULTIPRÉSTAMOS ATLAS como medio de evasión de pago, el responsable incurrirá en responsabilidad
+        civil y penal conforme a los artículos 177 y 178 del Código Penal de El Salvador, además de mantenerse obligado al cumplimiento íntegro del pago.</p>
+</div>
+
+<div class="pdf-field">
+    <p><strong>Séptima: Beneficios por Cumplimiento.</strong><br />
+        MULTIPRÉSTAMOS ATLAS reconoce que, en caso de cumplimiento puntual del préstamo y de todas sus condiciones, tanto el Deudor como el Co-deudor podrán acceder a créditos
+        futuros mayores y en condiciones más favorables, como estímulo a su buena conducta crediticia.</p>
+</div>
+
+<div class="pdf-field">
+    <p><strong>Octava: Jurisdicción.</strong><br />
+        Para todos los efectos legales derivados del presente contrato, las partes se someten expresamente a la competencia de los tribunales de Santa Ana, El Salvador,
+        renunciando a cualquier otro fuero.</p>
+</div>
+
+<div class="page-break"></div>
+
+<div class="pdf-section">PAGARÉ A LA VISTA SIN PROTESTO</div>
+
+<div class="pdf-field">
+    <p>Por medio del presente instrumento, el Deudor Principal y el Co-deudor Solidario se obligan a pagar incondicionalmente a la orden de MULTIPRÉSTAMOS ATLAS,
+        la suma de $<span class="underline" th:text="${credito.monto}"></span>
+         DÓLARES DE LOS ESTADOS UNIDOS DE AMÉRICA más los intereses y cargos estipulados, el día que sean requeridos.</p>
+</div>
+
+<div class="pdf-field">
+    <p>Este pagaré es a la vista y sin protesto, siendo exigible su pago con la sola presentación del mismo, conforme al artículo 734 del Código de Comercio de El Salvador.</p>
+</div>
+
+<div class="pdf-section">FIRMAS</div>
+
+<div class="signatures" style="text-align: left;">
+    <div class="signature-block">
+        <strong>El Deudor Principal</strong><br />
+        Nombre: <span class="underline" th:text="${usuarioSolicitud.nombres + ' ' + usuarioSolicitud.apellidos}"></span><br />
+        DUI: <span class="underline" th:text="${usuarioSolicitud.dui}"></span><br />
+        Dirección: <span class="underline" th:text="${usuarioSolicitud.direccion}"></span><br />
+        Firma: _______________________________
+    </div>
+
+    <div class="signature-block">
+        <strong>El Co-deudor Solidario / Fiador</strong><br />
+        Nombre: <span class="underline" th:text="${usuarioSolicitud.codeudorNombre}"></span><br />
+        DUI: <span class="underline" th:text="${usuarioSolicitud.codeudorDui}"></span><br />
+        Dirección: <span class="underline" th:text="${usuarioSolicitud.codeudorDireccion}"></span><br />
+        Firma: _______________________________
+    </div>
+</div>
+
+<div class="signature-block" style="text-align: left;">
+    <strong>MULTIPRÉSTAMOS ATLAS</strong><br />
+    Representante Legal: _______________________________<br />
+    Firma: _______________________________
+</div>
+
+</body>
+</html>

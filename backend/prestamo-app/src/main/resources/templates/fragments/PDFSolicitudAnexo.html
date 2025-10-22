@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            margin: 1cm;
+            text-align: justify;
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .logo {
+            width: 170px;
+            height: auto;
+            margin-right: 15px;
+        }
+        .company-header {
+            font-weight: bold;
+            font-size: 14pt;
+            text-align: center;
+            flex: 1;
+        }
+        .pdf-title {
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 12pt;
+            margin: 15px 0;
+        }
+        .pdf-section {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 15px 0 10px;
+            text-align: left;
+        }
+        .pdf-field {
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+        .underline {
+            display: inline-block;
+            border-bottom: 1px solid black;
+            min-width: 50px;
+            width: auto;
+            white-space: nowrap;   /* evita saltos de línea */
+            text-align: left;      /* anula el justify heredado */
+        }
+
+        .signatures {
+            margin-top: 40px;
+        }
+        .signature-block {
+            margin-top: 40px;
+        }
+        .signature-label {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        .spacer {
+            margin-top: 25px; /* o 15px */
+        }
+    </style>
+</head>
+<body>
+<!-- Header con logo -->
+<div class="header-container">
+    <img th:src="${logoUrl}" alt="Logo" class="logo" />
+    <div class="company-header">MULTIPRÉSTAMOS ATLAS</div>
+</div>
+
+<div class="pdf-title">ANEXO DE RESPETO, NO DIFAMACIÓN Y BUENA FE COMERCIAL</div>
+
+<div class="pdf-field">
+    Entre Multipréstamos ATLAS, representada por su propietario y representante legal
+    Edgar Addrual Cerna Hernández, en adelante “LA EMPRESA”,
+    y
+    <span class="underline" th:text="${usuarioSolicitud.nombres + ' ' + usuarioSolicitud.apellidos}"></span>,
+    identificado con DUI No. <span class="underline" th:text="${usuarioSolicitud.dui}"></span>
+    y NIT No. <span class="underline" th:text="${usuarioSolicitud.nit}"></span>,
+    en adelante “EL CLIENTE”.
+</div>
+
+<div class="spacer"></div>
+
+<div class="pdf-field">
+    Se acuerda el presente ANEXO, que forma parte integral del contrato de préstamo suscrito entre ambas partes, bajo las siguientes disposiciones:
+</div>
+<div class="spacer"></div>
+<div class="pdf-section">1. OBLIGACIÓN DE RESPETO Y BUENA FE</div>
+
+<div class="pdf-field">
+    EL CLIENTE se compromete a mantener una relación de respeto, honestidad y buena fe con LA EMPRESA, absteniéndose de cualquier conducta que atente contra su imagen, reputación o intereses comerciales.
+</div>
+<div class="spacer"></div>
+<div class="pdf-section">2. CLÁUSULA DE NO DIFAMACIÓN</div>
+
+<div class="pdf-field">
+    EL CLIENTE se compromete expresamente a no realizar, directa ni indirectamente, comentarios, publicaciones o manifestaciones verbales o escritas que:
+</div>
+
+
+<div class="pdf-field">• Sean falsas, calumniosas o malintencionadas.</div>
+<div class="pdf-field">• Perjudiquen la reputación, prestigio o credibilidad de Multipréstamos ATLAS o de su representante legal Edgar Addrual Cerna Hernández.</div>
+<div class="pdf-field">• Sean difundidas por medios físicos, digitales, redes sociales, mensajería o cualquier otro canal público o privado.</div>
+<div class="spacer"></div>
+
+<!-- Primera ruptura de página -->
+<div class="page-break"></div>
+
+<div class="pdf-section">3. CONSECUENCIAS DEL INCUMPLIMIENTO</div>
+
+<div class="pdf-field">En caso de incumplimiento de esta obligación:</div>
+<div class="pdf-field">1. EL CLIENTE será responsable de todos los daños y perjuicios ocasionados a LA EMPRESA, incluyendo daño moral, pérdida de clientes, lucro cesante y afectación a la reputación comercial.</div>
+<div class="pdf-field">2. EL CLIENTE se obliga a indemnizar a LA EMPRESA por un monto no menor a US$ <span class="underline">5,000</span> en concepto de cláusula penal, sin perjuicio de las acciones legales adicionales que correspondan.</div>
+<div class="pdf-field">3. LA EMPRESA se reserva el derecho de iniciar las acciones judiciales civiles y/o penales que considere necesarias en defensa de sus derechos.</div>
+
+
+
+<div class="pdf-section">4. VIGENCIA</div>
+
+<div class="pdf-field">
+    Este anexo entrará en vigor desde la firma del contrato de préstamo entre las partes y permanecerá vigente hasta cinco (5) años después de la cancelación total del préstamo otorgado.
+</div>
+
+
+<div class="spacer"></div>
+<div class="pdf-section">5. JURISDICCIÓN</div>
+
+<div class="pdf-field">
+    Para cualquier controversia, ambas partes se someten a los tribunales competentes de la ciudad de Santa Ana, El Salvador, renunciando a cualquier otro fuero que pudiera corresponderles.
+</div>
+
+<div class="spacer"></div>
+<div class="pdf-field">FIRMAS</div>
+<div class="pdf-field"><strong>POR LA EMPRESA</strong></div>
+
+<div class="pdf-field">Edgar Addrual Cerna Hernández</div>
+<div class="pdf-field">Propietario / Representante Legal</div>
+<div class="pdf-field">Multipréstamos ATLAS</div>
+
+<div class="pdf-field"><strong>EL CLIENTE</strong></div>
+
+<div class="pdf-field">Nombre: <span class="underline" th:text="${usuarioSolicitud.nombres + ' ' + usuarioSolicitud.apellidos}"></span></div>
+<div class="pdf-field">DUI: <span class="underline" th:text="${usuarioSolicitud.dui}"></span></div>
+<div class="pdf-field">Firma: ______________________________</div>
+<div class="pdf-field">
+    <b>Fecha:</b>
+    <span class="underline"
+          th:text="${usuarioSolicitud.fechaSolicitud != null ? #temporals.format(usuarioSolicitud.fechaSolicitud, 'dd/MM/yyyy') : ''}"></span>
+</div>
+</body>
+</html>

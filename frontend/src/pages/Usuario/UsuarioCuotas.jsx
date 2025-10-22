@@ -1,0 +1,65 @@
+import Sidebar from '../../components/Sidebar/Sidebar'
+import Navbar from '../../components/Navbar/Navbar'
+import ContentTitle from '../../components/Content/ContentTitle'
+import BaseTable from '../../components/Table/BaseTable'
+
+import { useEffect, useState } from 'react'
+import { useCuotaStore } from '../../stores/useCuotaStore'
+import { cuotasPendientesColumns, cuotasTodosColumns } from '../../components/Table/Cuota/CuotaTableDefinitions'
+import { CuotasPendientesCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
+import AccionesModal from '../../components/Card/AccionesModal'
+import { useParams } from 'react-router-dom'
+import UsuarioSidebar from '../../components/Sidebar/UsuarioSidebar'
+
+export default function UsuarioCuotas(){
+  const {id} = useParams();
+  const {cuotas, cuotasPendientes, cuotasPagadas, cuotasVencidas, cuotasEnRevision, isFetchingCuotas, getCuotas} = useCuotaStore();
+  const [currentTab, setCurrentTab] = useState('Todos'); // Default to 'Todos'
+
+  // --- Get de los créditos la PRIMERA vez que se inicializa esta página ---
+  useEffect(() => {
+    getCuotas(id, true);
+  }, [getCuotas]);
+  
+  // Definición de las columnas que estarán centradas
+  const centered = ['estado', 'codigo', 'fechaVencimiento', 'fechaPagado', 'monto', 'mora', 'total', 'accion']
+
+  // -- Definición de las pestañas --
+  const tabs = [
+    { label: 'Todos'},
+    { label: 'Pendientes', columnDefinitions: cuotasPendientesColumns, data: cuotasPendientes},
+    { label: 'Pagadas', data: cuotasPagadas},
+    { label: 'Vencidas', data: cuotasVencidas},
+    { label: 'En Revisión', data: cuotasEnRevision},
+  ];
+
+  return(
+    <div className="page">
+      {/* Mobile */}
+      <AccionesModal/>
+      
+      <Navbar/>
+      <UsuarioSidebar activePage={'creditos'}/>
+
+      <div className="content">
+        <ContentTitle
+          title={`Cuotas del Crédito de $${cuotas[0]?.credito}`}
+          subtitle={'Gestión de cuotas del crédito'}
+        />
+
+        <BaseTable 
+          data={cuotas} 
+          columns={cuotasTodosColumns} 
+          card={CuotasPendientesCard}
+          centered={centered} 
+          flexable='usuario' 
+          loading={isFetchingCuotas}
+          tabs={tabs}
+          currentTab={currentTab}
+          onTabChange={setCurrentTab}
+        />
+      </div>
+      
+    </div>
+  )
+}

@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Todos las cuotas Table Fragment (scalable) -->
+<div th:fragment="todos-cuotas-table-content(cuotas)">
+    <div id="todosCuotasTable" class="table-switchable-table">
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th style="max-width: 110px !important;" >Estado</th>
+                    <th th:if="${showUsuario != null and showUsuario}">Usuario</th>
+                    <th>Notas</th>
+                    <th style="max-width: 115px !important;" >Fecha Vencimiento</th>
+                    <th style="max-width: 115px !important;" >Fecha Pago</th>
+                    <th>Monto</th>
+                    <th>Mora</th>
+                    <th>Abono</th>
+                    <th>Total</th>
+                    <th>Acción</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                <!-- Filas con datos -->
+                <tr th:each="cuota : ${cuotas}">
+                    <td style="max-width: 110px !important;" >
+                        <span th:class="'badge ' + ${cuota.estado}" th:text="${cuota.estado}">Estado</span>
+                    </td>
+                    <td th:if="${showUsuario != null and showUsuario}">
+                        <img th:if="${cuota.credito.usuario?.foto != null}" th:src="${cuota.credito.usuario?.foto}" class="table-user-avatar" alt="User Image"/>
+                        <span th:text="${cuota.credito.usuario?.nombre + ' ' + cuota.credito.usuario?.apellido}"></span>
+                    </td>
+                    <td th:text="${#lists.isEmpty(cuota.notas) ? '' : cuota.notas[cuota.notas.size() - 1].contenido}"></td>
+                    <td style="max-width: 115px !important;" th:text="${cuota.fechaVencimiento != null ? #temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy') : 'N/A'}">15/01/2024</td>
+                    <td style="max-width: 115px !important;" th:text="${cuota.fechaPago != null ? #temporals.format(cuota.fechaPago, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')}">$0.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.abono, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.total, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td style="max-width: 115px !important;" >
+                        <div class="dropdown">
+                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+                                    id="dropdownAcciones${cuota.id}"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                Acciones
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownAcciones${cuota.id}">
+                                <!-- <li>
+                                    <a class="dropdown-item" href="#" th:onclick="|showCuotaClienteDetails('${cuota.id}')|">
+                                        <i class="fa fa-eye me-2"></i> Ver Detalles
+                                    </a>
+                                </li> -->
+                                <li th:if="${(cuota.estado == 'Pendiente' or cuota.estado == 'Vencido') and (usuario.rol == 'ROLE_ADMIN' or usuario.rol == 'ROLE_SECRETARIA' or usuario.rol == 'ROLE_GERENTE')}">
+                                    <a class="dropdown-item" href="#" th:onclick="'abonarCuota(' + ${cuota.id} + ')'">
+                                        <i class="fas fa-credit-card me-2"></i> Abonar
+                                    </a>
+                                </li>
+                                <li th:if="${(cuota.estado == 'Pendiente' or cuota.estado == 'Vencido') and (usuario.rol == 'ROLE_ADMIN' or usuario.rol == 'ROLE_SECRETARIA' or usuario.rol == 'ROLE_GERENTE')}">
+                                    <a class="dropdown-item" href="#" th:onclick="'payCuota(' + ${cuota.id} + ')'">
+                                        <i class="fas fa-credit-card me-2"></i> Marcar como Pagado
+                                    </a>
+                                </li>
+                                <li th:if="${(usuario.rol == 'ROLE_ADMIN' or usuario.rol == 'ROLE_SECRETARIA' or usuario.rol == 'ROLE_GERENTE')}">
+                                    <a class="dropdown-item" href="#" th:data-id="${cuota.id}" th:data-user-full-name="${cuota.credito.usuario.nombre + ' ' + cuota.credito.usuario.apellido}" th:data-cuota-mensajes="${cuota.notas}" onclick="addNota(this)">
+                                        <i class="fas fa-note-sticky me-2"></i> Notas
+                                    </a>
+                                </li>
+                                <li th:if="${(usuario.rol == 'ROLE_ADMIN')}">
+                                    <a class="dropdown-item" href="#" th:data-id="${cuota.id}" th:data-user-full-name="${cuota.credito.usuario.nombre + ' ' + cuota.credito.usuario.apellido}" onclick="showCuotaDetails(this)">
+                                        <i class="fas fa-edit me-2"></i> Editar Cuota
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" th:href="'https://wa.me/' + ${#strings.replace(cuota.credito.usuario?.celular, ' ', '')} + '?text=' + ${'Hola ' + cuota.credito.usuario?.nombre + ''}" target="_blank">
+                                        <i class="fab fa-whatsapp me-2" style="color:#25D366;"></i> WhatsApp
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Filas vacías para completar 10 por página -->
+                <th:block th:with="ROWS_PER_PAGE=10,
+                                   COLUMNS=9,
+                                   totalSize=${cuotas.size()},
+                                   remainder=${totalSize % ROWS_PER_PAGE},
+                                   fillerRowsNeeded=${(remainder == 0 and totalSize > 0) ? 0 : ROWS_PER_PAGE - remainder}">
+                    <tr th:each="i : ${#numbers.sequence(1, fillerRowsNeeded)}" style="height:55px;">
+                        <th:block th:each="j : ${#numbers.sequence(1, COLUMNS)}">
+                            <td style="border-top:none;">&nbsp;</td>
+                        </th:block>
+                    </tr>
+                </th:block>
+
+                <!-- Empty state -->
+                <tr th:if="${#lists.isEmpty(cuotas)}">
+                    <td th:colspan="9" class="text-center text-muted" style="height: 550px;">No hay cuotas registradas</td>
+                </tr>
+
+                </tbody>
+            </table>
+            <div class="pagination-container"></div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="usuarios-vencidas-table-content(usuarios)">
+    <div id="usuariosVencidasTable" class="table-switchable-table">
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Celular</th>
+                        <th style="max-width: 115px !important;">Fecha Vencimiento</th>
+                        <th style="max-width: 115px !important;">Monto</th>
+                        <th style="max-width: 115px !important;">Mora</th>
+                        <th style="max-width: 115px !important;">Abono</th>
+                        <th style="max-width: 115px !important;">Total</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                <!-- Filas con datos -->
+                <tr th:each="usuarioDTO : ${usuarios}"
+                    th:attr="data-id=${usuarioDTO.usuario.id},
+                            data-direccion=${usuarioDTO.usuario.direccion},
+                            data-celular=${usuarioDTO.usuario.celular}"
+                    onclick="mostrarMontosCuotas(null, null, null, this)"> 
+                    <td th:text="${usuarioDTO.usuario.nombre + ' ' + usuarioDTO.usuario.apellido}"></td>
+                    <td th:text="${usuarioDTO.usuario.celular}"></td>
+                    <td style="max-width: 115px !important;" th:text="${usuarioDTO.oldestCuota?.fechaVencimiento != null ? #temporals.format(usuarioDTO.oldestCuota?.fechaVencimiento, 'dd/MM/yyyy') : 'N/A'}">15/01/2024</td>
+                    <td style="max-width: 115px !important;" th:text="${'$' + #numbers.formatDecimal(usuarioDTO.oldestCuota?.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td style="max-width: 115px !important;" th:text="${'$' + #numbers.formatDecimal(usuarioDTO.oldestCuota?.pagoMora, 1, 'COMMA', 2, 'POINT')}">$0.00</td>
+                    <td style="max-width: 115px !important;" th:text="${'$' + #numbers.formatDecimal(usuarioDTO.oldestCuota?.abono, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td style="max-width: 115px !important;" th:text="${'$' + #numbers.formatDecimal(usuarioDTO.oldestCuota?.total, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td style="max-width: 115px !important;" >
+                        <div class="dropdown">
+                            <button
+                                type="button"
+                                class="btn btn-secondary btn-sm dropdown-toggle"
+                                th:attr="data-id=${usuarioDTO.usuario.id},
+                                        data-direccion=${usuarioDTO.usuario.direccion},
+                                        data-celular=${usuarioDTO.usuario.celular}"
+                                onclick="mostrarMontosCuotas(null, null, null, this)"> 
+                                Ver Información
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Filas vacías para completar 10 por página -->
+                <th:block th:with="ROWS_PER_PAGE=10,
+                                   COLUMNS=9,
+                                   totalSize=${cuotas.size()},
+                                   remainder=${totalSize % ROWS_PER_PAGE},
+                                   fillerRowsNeeded=${(remainder == 0 and totalSize > 0) ? 0 : ROWS_PER_PAGE - remainder}">
+                    <tr th:each="i : ${#numbers.sequence(1, fillerRowsNeeded)}" style="height:55px;">
+                        <th:block th:each="j : ${#numbers.sequence(1, COLUMNS)}">
+                            <td style="border-top:none;">&nbsp;</td>
+                        </th:block>
+                    </tr>
+                </th:block>
+
+                <!-- Empty state -->
+                <tr th:if="${#lists.isEmpty(cuotas)}">
+                    <td th:colspan="9" class="text-center text-muted" style="height: 550px;">No hay cuotas registradas</td>
+                </tr>
+
+                </tbody>
+            </table>
+            <div class="pagination-container"></div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="usuarios-cuotas-table-content(usuarios)">
+    <div id="usuariosCuotasTable" class="table-switchable-table">
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Celular</th>
+                        <th style="max-width: 115px !important;">Próxima Fecha Vencimiento</th>
+                        <th style="max-width: 115px !important;">Total Pendiente</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                <!-- Filas con datos -->
+                <tr th:each="usuarioDTO : ${usuarios}"
+                    th:attr="data-id=${usuarioDTO.usuario.id},
+                            data-direccion=${usuarioDTO.usuario.direccion},
+                            data-celular=${usuarioDTO.usuario.celular}"
+                    onclick="mostrarMontosCuotas(null, null, null, this)"> 
+                    <td th:text="${usuarioDTO.usuario.nombre + ' ' + usuarioDTO.usuario.apellido}"></td>
+                    <td th:text="${usuarioDTO.usuario.celular}"></td>
+                    <td style="max-width: 115px !important;" th:text="${usuarioDTO.oldestCuota?.fechaVencimiento != null ? #temporals.format(usuarioDTO.oldestCuota?.fechaVencimiento, 'dd/MM/yyyy') : 'N/A'}">15/01/2024</td>
+                    <td style="max-width: 115px !important;" th:text="${'$' + #numbers.formatDecimal(usuarioDTO.totalPendiente, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td style="max-width: 115px !important;" >
+                        <div class="dropdown">
+                            <button
+                                type="button"
+                                class="btn btn-secondary btn-sm dropdown-toggle"
+                                id="dropdownAcciones${usuarioDTO.usuario.id}"
+                                th:attr="data-id=${usuarioDTO.usuario.id},
+                                        data-direccion=${usuarioDTO.usuario.direccion},
+                                        data-celular=${usuarioDTO.usuario.celular}"
+                                onclick="mostrarMontosCuotas(null, null, null, this)"> 
+                                Ver Información
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+
+                <!-- Filas vacías para completar 10 por página -->
+                <th:block th:with="ROWS_PER_PAGE=10,
+                                   COLUMNS=9,
+                                   totalSize=${cuotas.size()},
+                                   remainder=${totalSize % ROWS_PER_PAGE},
+                                   fillerRowsNeeded=${(remainder == 0 and totalSize > 0) ? 0 : ROWS_PER_PAGE - remainder}">
+                    <tr th:each="i : ${#numbers.sequence(1, fillerRowsNeeded)}" style="height:55px;">
+                        <th:block th:each="j : ${#numbers.sequence(1, COLUMNS)}">
+                            <td style="border-top:none;">&nbsp;</td>
+                        </th:block>
+                    </tr>
+                </th:block>
+
+                <!-- Empty state -->
+                <tr th:if="${#lists.isEmpty(cuotas)}">
+                    <td th:colspan="9" class="text-center text-muted" style="height: 550px;">No hay cuotas registradas</td>
+                </tr>
+
+                </tbody>
+            </table>
+            <div class="pagination-container"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Cuotas pendientes Table Fragment (scalable) -->
+<div th:fragment="pendientes-cuotas-table-content(cuotas)">
+    <div id="pendientesCuotasTable" class="table-switchable-table">
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th th:if="${showUsuario != null and showUsuario} ">Usuario</th>
+                    <th>Notas</th>
+                    <th style="max-width: 115px !important;" >Fecha Vencimiento</th>
+                    <th>Monto</th>
+                    <th>Mora</th>
+                    <th>Abono</th>
+                    <th>Total</th>
+                    <th>Acción</th>
+                </tr>
+                </thead>
+                <tbody th:if="${not #lists.isEmpty(cuotas)}" th:each="cuota : ${cuotas}">
+                <tr>
+                    <td th:if="${showUsuario != null and showUsuario} ">
+                        <img th:if="${cuota.credito.usuario?.foto != null}" th:src="${cuota.credito.usuario?.foto}" class="table-user-avatar" alt="User Image"/>
+                        <span th:text="${cuota.credito.usuario?.nombre + ' ' + cuota.credito.usuario?.apellido}"></span>
+                    </td>
+                    <td th:text="${#lists.isEmpty(cuota.notas) ? '' : cuota.notas[cuota.notas.size() - 1].contenido}"></td>
+                    <td style="max-width: 115px !important;" th:text="${cuota.fechaVencimiento != null ? #temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy') : 'N/A'}">15/01/2024</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.abono, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.total, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td style="max-width: 115px !important;" >
+                        <div class="dropdown">
+                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+                                    id="dropdownAcciones${cuota.id}"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                Acciones
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownAcciones${cuota.id}">
+                                <li th:if="${(cuota.estado == 'Pendiente' or cuota.estado == 'Vencido') and (usuario.rol == 'ROLE_ADMIN' or usuario.rol == 'ROLE_SECRETARIA' or usuario.rol == 'ROLE_GERENTE')}">
+                                    <a class="dropdown-item" href="#" th:onclick="'payCuota(' + ${cuota.id} + ')'">
+                                        <i class="fas fa-credit-card me-2"></i> Marcar como Pagado
+                                    </a>
+                                </li>
+                                <li th:if="${(usuario.rol == 'ROLE_ADMIN' or usuario.rol == 'ROLE_SECRETARIA' or usuario.rol == 'ROLE_GERENTE')}">
+                                    <a class="dropdown-item" href="#" th:data-id="${cuota.id}" th:data-user-full-name="${cuota.credito.usuario.nombre + ' ' + cuota.credito.usuario.apellido}" th:data-cuota-mensajes="${cuota.notas}" onclick="addNota(this)">
+                                        <i class="fas fa-note-sticky me-2"></i> Notas
+                                    </a>
+                                </li>
+                                <li th:if="${(usuario.rol == 'ROLE_ADMIN')}">
+                                    <a class="dropdown-item" href="#" th:data-id="${cuota.id}" th:data-user-full-name="${cuota.credito.usuario.nombre + ' ' + cuota.credito.usuario.apellido}" onclick="showCuotaDetails(this)">
+                                        <i class="fas fa-edit me-2"></i> Editar Cuota
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" th:href="'https://wa.me/' + ${#strings.replace(cuota.credito.usuario?.celular, ' ', '')} + '?text=' + ${'Hola ' + cuota.credito.usuario?.nombre + ''}" target="_blank">
+                                        <i class="fab fa-whatsapp me-2" style="color:#25D366;"></i> WhatsApp
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+                <tbody th:if="${#lists.isEmpty(cuotas)}">
+                <tr>
+                    <td colspan="5" class="text-center text-muted">No hay cuotas pendientes</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-container"></div>
+    </div>
+</div>
+
+<!-- Cuotas en revisión Table Fragment (scalable) -->
+<div th:fragment="enrevision-cuotas-table-content(cuotas)">
+    <div id="enrevisionCuotasTable" class="table-switchable-table">
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th th:if="${showUsuario != null and showUsuario} ">Usuario</th>
+                    <th>Notas</th>
+                    <th style="max-width: 115px !important;" >Fecha Vencimiento</th>
+                    <th style="max-width: 115px !important;" >Fecha Pago</th>
+                    <th>Monto</th>
+                    <th>Mora</th>
+                    <th>Abono</th>
+                    <th>Total</th>
+                    <th>Acción</th>
+                </tr>
+                </thead>
+                <tbody th:if="${not #lists.isEmpty(cuotas)}" th:each="cuota : ${cuotas}">
+                <tr>
+                    <td th:if="${showUsuario != null and showUsuario} ">
+                        <img th:if="${cuota.credito.usuario?.foto != null}" th:src="${cuota.credito.usuario?.foto}" class="table-user-avatar" alt="User Image"/>
+                        <span th:text="${cuota.credito.usuario?.nombre + ' ' + cuota.credito.usuario?.apellido}"></span>
+                    </td>
+                    <th>Fecha Vencimiento</th>
+                    <td style="max-width: 115px !important;" th:text="${cuota.fechaPago != null ? #temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+                    <td style="max-width: 115px !important;" th:text="${cuota.fechaPago != null ? #temporals.format(cuota.fechaPago, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.abono, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.total, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td style="max-width: 115px !important;" >
+                        <div class="dropdown">
+                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+                                    id="dropdownAcciones${cuota.id}"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                Acciones
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownAcciones${cuota.id}">
+                                <li th:if="${usuario.rol == 'ROLE_ADMIN' || usuario.rol == 'ROLE_SECRETARIA'}">
+                                    <a class="dropdown-item" href="#" th:onclick="'aceptarCuota(' + ${cuota.id} + ')'">
+                                        <i class="fas fa-check me-2"></i> Aceptar
+                                    </a>
+                                </li>
+                                <li th:if="${(usuario.rol == 'ROLE_ADMIN' or usuario.rol == 'ROLE_SECRETARIA' or usuario.rol == 'ROLE_GERENTE')}">
+                                    <a class="dropdown-item" href="#" th:data-id="${cuota.id}" th:data-user-full-name="${cuota.credito.usuario.nombre + ' ' + cuota.credito.usuario.apellido}" th:data-cuota-mensajes="${cuota.notas}" onclick="addNota(this)">
+                                        <i class="fas fa-note-sticky me-2"></i> Notas
+                                    </a>
+                                </li>
+                                <li th:if="${(usuario.rol == 'ROLE_ADMIN')}">
+                                    <a class="dropdown-item" href="#" th:data-id="${cuota.id}" th:data-user-full-name="${cuota.credito.usuario.nombre + ' ' + cuota.credito.usuario.apellido}" onclick="showCuotaDetails(this)">
+                                        <i class="fas fa-edit me-2"></i> Editar Cuota
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" th:href="'https://wa.me/' + ${#strings.replace(cuota.credito.usuario?.celular, ' ', '')} + '?text=' + ${'Hola ' + cuota.credito.usuario?.nombre + ''}" target="_blank">
+                                        <i class="fab fa-whatsapp me-2" style="color:#25D366;"></i> WhatsApp
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+                <tbody th:if="${#lists.isEmpty(cuotas)}">
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No hay cuotas en revisión</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-container"></div>
+    </div>
+</div>
+
+<!-- Cuotas pagadas Table Fragment (scalable) -->
+<div th:fragment="pagadas-cuotas-table-content(cuotas)">
+    <div id="pagadasCuotasTable" class="table-switchable-table">
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th th:if="${showUsuario != null and showUsuario} ">Usuario</th>
+                    <th>Notas</th>
+                    <th>Fecha Vencimiento</th>
+                    <th>Fecha Pago</th>
+                    <th>Monto</th>
+                    <th>Mora</th>
+                    <th>Abono</th>
+                    <th>Total</th>
+                    <th>Acción</th>
+                </tr>
+                </thead>
+                <tbody th:if="${not #lists.isEmpty(cuotas)}" th:each="cuota : ${cuotas}">
+                <tr>
+                    <td th:if="${showUsuario != null and showUsuario} ">
+                        <img th:if="${cuota.credito.usuario?.foto != null}" th:src="${cuota.credito.usuario?.foto}" class="table-user-avatar" alt="User Image"/>
+                        <span th:text="${cuota.credito.usuario?.nombre + ' ' + cuota.credito.usuario?.apellido}"></span>
+                    </td>
+                    <td th:text="${#lists.isEmpty(cuota.notas) ? '' : cuota.notas[cuota.notas.size() - 1].contenido}"></td>
+                    <td th:text="${cuota.fechaPago != null ? #temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+                    <td th:text="${cuota.fechaPago != null ? #temporals.format(cuota.fechaPago, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.abono, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.total, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td style="max-width: 115px !important;" >
+                        <div class="dropdown">
+                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+                                    id="dropdownAcciones${cuota.id}"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                Acciones
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownAcciones${cuota.id}">
+                                <li th:if="${(cuota.estado == 'Pendiente' or cuota.estado == 'Vencido') and (usuario.rol == 'ROLE_ADMIN' or usuario.rol == 'ROLE_SECRETARIA' or usuario.rol == 'ROLE_GERENTE')}">
+                                    <a class="dropdown-item" href="#" th:onclick="'payCuota(' + ${cuota.id} + ')'">
+                                        <i class="fas fa-credit-card me-2"></i> Marcar como Pagado
+                                    </a>
+                                </li>
+                                <li th:if="${(usuario.rol == 'ROLE_ADMIN' or usuario.rol == 'ROLE_SECRETARIA' or usuario.rol == 'ROLE_GERENTE')}">
+                                    <a class="dropdown-item" href="#" th:data-id="${cuota.id}" th:data-user-full-name="${cuota.credito.usuario.nombre + ' ' + cuota.credito.usuario.apellido}" th:data-cuota-mensajes="${cuota.notas}" onclick="addNota(this)">
+                                        <i class="fas fa-note-sticky me-2"></i> Notas
+                                    </a>
+                                </li>
+                                <li th:if="${(usuario.rol == 'ROLE_ADMIN')}">
+                                    <a class="dropdown-item" href="#" th:data-id="${cuota.id}" th:data-user-full-name="${cuota.credito.usuario.nombre + ' ' + cuota.credito.usuario.apellido}" onclick="showCuotaDetails(this)">
+                                        <i class="fas fa-edit me-2"></i> Editar Cuota
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" th:href="'https://wa.me/' + ${#strings.replace(cuota.credito.usuario?.celular, ' ', '')} + '?text=' + ${'Hola ' + cuota.credito.usuario?.nombre + ''}" target="_blank">
+                                        <i class="fab fa-whatsapp me-2" style="color:#25D366;"></i> WhatsApp
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+                <tbody th:if="${#lists.isEmpty(cuotas)}">
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No hay cuotas pagadas</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-container"></div>
+    </div>
+</div>
+
+<!-- Cuotas vencidas Table Fragment (scalable) -->
+<div th:fragment="vencidas-cuotas-table-content(cuotas)">
+    <div id="vencidasCuotasTable" class="table-switchable-table">
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th style="max-width: 110px;">Estado</th>
+                    <th th:if="${showUsuario != null and showUsuario} ">Usuario</th>
+                    <th>Notas</th>
+                    <th style="max-width: 115px !important;" >Fecha Vencimiento</th>
+                    <th>Monto</th>
+                    <th>Mora</th>
+                    <th>Abono</th>
+                    <th>Total</th>
+                    <th>Acción</th>
+                </tr>
+                </thead>
+                <tbody th:if="${not #lists.isEmpty(cuotas)}" th:each="cuota : ${cuotas}">
+                <tr>
+                    <td style="max-width: 110px !important;" >
+                        <span th:class="'badge ' + ${cuota.estado}" th:text="${cuota.estado}">Estado</span>
+                    </td>
+                    <td th:if="${showUsuario != null and showUsuario} ">
+                        <img th:if="${cuota.credito.usuario?.foto != null}" th:src="${cuota.credito.usuario?.foto}" class="table-user-avatar" alt="User Image"/>
+                        <span th:text="${cuota.credito.usuario?.nombre + ' ' + cuota.credito.usuario?.apellido}"></span>
+                    </td>
+                    <td th:text="${#lists.isEmpty(cuota.notas) ? '' : cuota.notas[cuota.notas.size() - 1].contenido}"></td>
+                    <td style="max-width: 115px !important;" th:text="${cuota.fechaVencimiento != null ? #temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy') : 'N/A'}">15/01/2024</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.abono, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td th:text="${'$' + #numbers.formatDecimal(cuota.total, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+                    <td style="max-width: 115px !important;" >
+                        <div class="dropdown">
+                            <button class="btn btn-secondary btn-sm dropdown-toggle" type="button"
+                                    id="dropdownAcciones${cuota.id}"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                Acciones
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="dropdownAcciones${cuota.id}">
+                                <li th:if="${(cuota.estado == 'Pendiente' or cuota.estado == 'Vencido') and (usuario.rol == 'ROLE_ADMIN' or usuario.rol == 'ROLE_SECRETARIA' or usuario.rol == 'ROLE_GERENTE')}">
+                                    <a class="dropdown-item" href="#" th:onclick="'payCuota(' + ${cuota.id} + ')'">
+                                        <i class="fas fa-credit-card me-2"></i> Marcar como Pagado
+                                    </a>
+                                </li>
+                                <li th:if="${(usuario.rol == 'ROLE_ADMIN' or usuario.rol == 'ROLE_SECRETARIA' or usuario.rol == 'ROLE_GERENTE')}">
+                                    <a class="dropdown-item" href="#" th:data-id="${cuota.id}" th:data-user-full-name="${cuota.credito.usuario.nombre + ' ' + cuota.credito.usuario.apellido}" th:data-cuota-mensajes="${cuota.notas}" onclick="addNota(this)">
+                                        <i class="fas fa-note-sticky me-2"></i> Notas
+                                    </a>
+                                </li>
+                                <li th:if="${(usuario.rol == 'ROLE_ADMIN')}">
+                                    <a class="dropdown-item" href="#" th:data-id="${cuota.id}" th:data-user-full-name="${cuota.credito.usuario.nombre + ' ' + cuota.credito.usuario.apellido}" onclick="showCuotaDetails(this)">
+                                        <i class="fas fa-edit me-2"></i> Editar Cuota
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" th:href="'https://wa.me/' + ${#strings.replace(cuota.credito.usuario?.celular, ' ', '')} + '?text=' + ${'Hola ' + cuota.credito.usuario?.nombre + ''}" target="_blank">
+                                        <i class="fab fa-whatsapp me-2" style="color:#25D366;"></i> WhatsApp
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+                <tbody th:if="${#lists.isEmpty(cuotas)}">
+                <tr>
+                    <td colspan="6" class="text-center text-muted">No hay cuotas vencidas</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-container"></div>
+    </div>
+</div>
+
+</html>

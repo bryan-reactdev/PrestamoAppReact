@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{appDashboard/admin/layout :: layout(
+          pageTitle=${onlyAceptados} ? 'Créditos aceptados en la fecha: ' + ${fecha} : 'Créditos',
+          pageSubtitle='Gestión de créditos',
+          activePage='creditos',
+          content=~{::content},
+          pageCss=~{::css},
+          pageScripts=~{::scripts}
+      )}">
+
+<head>
+    <th:block th:fragment="css">
+        <style>
+            .print-only {
+                display: none;
+            }
+
+            @media print{
+                @page{
+                    margin: 0 !important;
+                    background: none !important;
+                }
+                *, .A_PLUS, .A, .B, .C, .D{
+                    color: black !important;
+                    font-weight: normal !important;
+                    font-family: 'Poppins', sans-serif !important;
+                }
+                .content-wrapper, .wrapper, .modern-admin{
+                    background: none !important;
+                }
+                .table-tab-switcher{
+                    display: none !important;
+                }
+                .input-group{
+                    display: none !important;
+                }
+                .btn{
+                    display: none !important;
+                }
+                .pagination-container{
+                    display: none !important;
+                }
+                .table-switchable-table{
+                    box-shadow: none !important;
+                }
+                th{
+                    font-weight: 500 !important;
+                }
+                td, th{
+                    border: 1.5px solid black !important;
+                }
+                tr th:nth-of-type(7) {
+                    display: none;
+                }
+                tr td:nth-of-type(7) {
+                    display: none;
+                }
+                .print-only {
+                    display: block;
+                }
+            }
+        </style>
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content">
+    <!-- Table Tab Switcher -->
+    <div class="table-tab-switcher">
+        <div th:if="${!(onlyAceptados ?: false)}">
+            <button type="button" class="table-switcher active" data-table-target="#pendientesTable">
+                Pendientes
+            </button>
+            <button type="button" class="table-switcher" data-table-target="#aceptadosTable"> 
+                Aceptados
+            </button>
+            <button type="button" class="table-switcher" data-table-target="#rechazadosTable">
+                Rechazados
+            </button>
+            <button type="button" class="table-switcher" data-table-target="#finalizadosTable">
+                Finalizados
+            </button>
+        </div>
+        
+        <div th:if="${onlyAceptados}">
+            <button class="btn btn-sm btn-danger" onclick="window.print()"> <i class="fas fa-print"></i> Generar PDF</button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <div class="input-group">
+                <input type="text" id="searchInput" class="form-control" placeholder="Buscar créditos..." />
+                <div class="input-group-append">
+                    <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                        <i class="fas fa-times"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:if="${!(onlyAceptados ?: false)}">
+        <div th:replace="~{fragments/creditoTables :: pendientes-table-content(creditos=${creditosPendientes})}"></div>
+        <div th:replace="~{fragments/creditoTables :: aceptados-table-content(creditos=${creditosAceptados})}"></div>
+        <div th:replace="~{fragments/creditoTables :: rechazados-table-content(creditos=${creditosRechazados})}"></div>
+        <div th:replace="~{fragments/creditoTables :: finalizados-table-content(creditos=${creditosFinalizados})}"></div>
+    </div>
+    <div th:if="${onlyAceptados}">
+        <div th:replace="~{fragments/creditoTables :: aceptados-table-content(creditos=${creditosAceptados})}"></div>
+    </div>
+
+    <div th:replace="~{fragments/tableScripts :: table-switcher-scripts}"></div>
+
+    <div th:replace="~{fragments/creditoModals :: modal-content(creditos=${creditos})}"></div>
+    <div th:replace="~{fragments/creditoModals :: financial-charges-modal-content(creditos=${creditos})}"></div>
+</div>
+    
+    <th:block th:fragment="scripts">
+        <script>
+
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            })
+
+
+            function mostrarPDFModal(creditoId) {
+                Swal.fire({
+                    title: 'Descargar Documentos',
+                    showCancelButton: true,
+                    cancelButtonText: '<i class="fas fa-times"></i> Cerrar',
+
+                    customClass: {
+                        cancelButton: 'btn btn-secondary swal2-cancel'
+                    },
+                    showConfirmButton: false,
+                    html: `
+                        <div class="pdf-header">Selecciona los documentos que deseas descargar</div>
+                        <div class="pdf-buttons-container">
+                            <button id="btnSolicitud" class="btn btn-primary btn-sm"> <i class="fas fa-download" style="margin-right: 5px;"></i> Formulario de solicitud de crédito</button>
+                            <button id="btnContrato" class="btn btn-primary btn-sm"> <i class="fas fa-download" style="margin-right: 5px;"></i> Contrato integral de préstamo y pagaré Solidario</button>
+                            <button id="btnCuestionario" class="btn btn-primary btn-sm"> <i class="fas fa-download" style="margin-right: 5px;"></i> Cuestionario de antecedentes de pago</button>
+                            <button id="btnAnexo" class="btn btn-primary btn-sm"> <i class="fas fa-download" style="margin-right: 5px;"></i> Anexo de respeto, no difamación y buena fe comercial</button>
+                            <button id="btnDocumentos" class="btn btn-primary btn-sm"> <i class="fas fa-download" style="margin-right: 5px;"></i> Fotos de los documentos personales</button>
+
+                        </div>
+                    `
+                });
+
+                document.getElementById('btnSolicitud').addEventListener('click', () => descargarPDF(creditoId, 'PDFSolicitud'));
+                document.getElementById('btnAnexo').addEventListener('click', () => descargarPDF(creditoId, 'PDFSolicitudAnexo'));
+                document.getElementById('btnContrato').addEventListener('click', () => descargarPDF(creditoId, 'PDFSolicitudContrato'));
+                document.getElementById('btnCuestionario').addEventListener('click', () => descargarPDF(creditoId, 'PDFSolicitudCuestionario'));
+                document.getElementById('btnDocumentos').addEventListener('click', () => descargarPDF(creditoId, 'PDFDocumentosPersonales'));
+            }
+
+            function descargarPDF(creditoId, nombre) {
+                fetch(`/solicitud/pdf/${creditoId}/${nombre}`, { method: 'POST' })
+                    .then(res => {
+                        if (!res.ok) throw alert('Error al generar PDF');
+                        return res.blob();
+                    })
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+
+                        // Detectar móvil
+                        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                        if (isMobile) {
+                            window.open(url, '_blank'); // abre PDF en nueva pestaña
+                        } else {
+                            // PC: iframe oculto y print
+                            const iframe = document.createElement('iframe');
+                            iframe.style.display = 'none';
+                            iframe.src = url;
+                            iframe.onload = function () {
+                                iframe.contentWindow.print();
+                                setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+                            };
+                            document.body.appendChild(iframe);
+                        }
+                    })
+                    .catch(console.error);
+            }
+
+        </script>
+    </th:block>
+</div>
+
+</body>
+</html> 

@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        @page {
+            size: landscape;
+        }
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            margin: 1cm;
+            text-align: justify;
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .logo {
+            width: 170px;
+            height: auto;
+            margin-right: 15px;
+        }
+        .company-header {
+            font-weight: bold;
+            font-size: 14pt;
+            text-align: center;
+            flex: 1;
+        }
+        .pdf-title {
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 12pt;
+            margin: 15px 0;
+        }
+        .pdf-section {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 15px 0 10px;
+            text-align: left;
+        }
+        .pdf-field {
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+        .underline {
+            display: inline-block;
+            border-bottom: 1px solid black;
+            min-width: 50px;
+            width: auto;
+            white-space: nowrap;   /* evita saltos de línea */
+            text-align: left;      /* anula el justify heredado */
+        }
+
+        .spacer {
+            margin-top: 25px;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            table-layout: fixed;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1.5px solid black;
+            word-wrap: break-word;
+        }
+        table {
+            page-break-inside: auto;
+        }
+
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+
+        thead {
+            display: table-header-group;
+        }
+
+        tfoot {
+            display: table-footer-group;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header-container">
+<!--    <img th:src="${logoUrl}" alt="Logo" class="logo" />-->
+    <div class="company-header">MULTIPRÉSTAMOS ATLAS</div>
+</div>
+
+<div class="pdf-title" th:text="'CUOTAS DEL CREDITO DE: ' + ${usuario.nombre} + ' ' + ${usuario.apellido}"></div>
+
+<div class="pdf-section">1. CUOTAS</div>
+<table>
+    <thead>
+        <tr>
+            <th th:if="${mostrarEstado}" style="width: 10%;">Estado</th>
+            <th th:if="${mostrarObservaciones}" style="width: 15%;">Observaciones</th>
+            <th style="width: 15%;">Fecha Vencimiento</th> 
+            <th style="width: 10%;">Monto</th>
+            <th style="width: 10%;">Mora</th>
+            <th style="width: 10%;">Total</th>
+            <th style="width: 30%;">Firma</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:if="${not #lists.isEmpty(cuotas)}" th:each="cuota : ${cuotas}">
+           <td
+                th:if="${mostrarEstado}"
+                th:text="${cuota.estado}"
+                th:style="${'Vencido'.equalsIgnoreCase(cuota.estado) ? 'background-color: #ffcccc;' : ('Pendiente'.equalsIgnoreCase(cuota.estado) ? 'background-color: #ffffcc;' : ('Pagado'.equalsIgnoreCase(cuota.estado) ? 'background-color: #ccffcc;' : ''))}"
+           ></td>
+           
+           <td th:if="${mostrarObservaciones}" th:text="${cuota.observaciones}"></td>
+           
+           <td th:text="${#temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy')}">20/01/2024</td>
+            
+            <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+            
+            <td th:text="${cuota.pagoMora != null and cuota.pagoMora != 0
+                ? '$' + #numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')
+                : ''}">
+            </td>           
+             
+            <td th:text="${'$' + #numbers.formatDecimal(cuota.total, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+            
+            <td></td> 
+        </tr>
+    </tbody>
+</table>
+
+<div class="pdf-section">2. AUTORIZACION</div>
+
+<div style="width: 100%; margin-top: 20px;">
+    <div style="width: 45%; float: left;">
+        <div><strong>Recibido Por:</strong> <span class="underline"> </span></div>
+        <div style="margin-top: 20px;">Firma: ____________________</div>
+    </div>
+</div>
+
+</body>
+</html>

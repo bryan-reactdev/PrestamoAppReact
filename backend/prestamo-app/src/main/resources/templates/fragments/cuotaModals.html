@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Cuota Details Modal Content Fragment - Reusable across pages -->
+<div th:fragment="cuota-modal-content(cuotas)">
+    <div style="display:none;">
+        <div th:each="cuota : ${cuotas}" th:id="'cuota-modal-content-' + ${cuota.id}">
+            <div class="credito-detail">
+                <!-- Cuota Summary -->
+                <div class="section-card full-width">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-calendar-check"></i>
+                            Editar Cuota
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <form th:id="'cuota-form-' + ${cuota.id}" class="cuota-form">
+                            <input type="hidden" name="id" th:value="${cuota.id}">
+                            <div class="summary-grid">
+                                <div class="summary-item">
+                                    <div class="summary-label">Código</div>
+                                    <div class="summary-value" th:text="${cuota.codigo}">CUOTA-001</div>
+                                </div>
+                                <div class="summary-item financial-field monto-highlight">
+                                    <div class="summary-label">Monto de la Cuota</div>
+                                    <input type="number" step="0.01" class="editable-field" name="monto" 
+                                           th:value="${#numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}" 
+                                           placeholder="Monto de la cuota">
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">Estado</div>
+                                    <select class="editable-field" name="estado">
+                                        <option th:if="${cuota.estado == 'Pagado'}" th:selected="${cuota.estado == 'Pagado'}" value="">Pagado</option>
+                                        <option th:if="${cuota.estado == 'EnRevision'}" th:selected="${cuota.estado == 'EnRevision'}" value="">En Revisión</option>
+                                        <option th:selected="${cuota.estado == 'Pendiente'}" value="Pendiente">Pendiente</option>
+                                        <option th:selected="${cuota.estado == 'Vencido'}" value="Vencido">Vencido</option>
+                                    </select>
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">Fecha de Vencimiento</div>
+                                    <input type="date" class="editable-field" name="fechaVencimiento" 
+                                           th:value="${cuota.fechaVencimiento != null ? #temporals.format(cuota.fechaVencimiento, 'yyyy-MM-dd') : ''}">
+                                </div>
+                                <div class="summary-item">
+                                    <div class="summary-label">Fecha de Pago</div>
+                                    <input type="date" class="editable-field" name="fechaPago" 
+                                           th:value="${#temporals.format(cuota.fechaPago, 'yyyy-MM-dd')}">
+                                </div>
+                                <div class="summary-item financial-field monto-highlight">
+                                    <div class="summary-label">Mora</div>
+                                    <input type="number" step="0.01" class="editable-field" name="pagoMora" 
+                                           th:value="${#numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')}" 
+                                           placeholder="Monto de mora">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="Swal.close()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" th:onclick="'saveCuotaChanges(' + ${cuota.id} + ')'">
+                        <i class="fas fa-save"></i> Guardar Cambios
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cuota Pagar Modal Content -->
+<div th:fragment="cuota-pagar-modal-content(cuotas)">
+    <div style="display:none;">
+        <div th:each="cuota : ${cuotas}" th:id="'cuota-pagar-modal-content-' + ${cuota.id}">
+            <div class="credito-detail">
+                <!-- Cuota Pagar Summary -->
+                <div class="section-card full-width">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-calendar-check"></i>
+                            Detalle de Cuota
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="summary-grid">
+                            <div class="summary-item financial-field monto-highlight">
+                                <div class="summary-label">Monto de la Cuota</div>
+                                <div class="summary-value" th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</div>
+                            </div>
+                            <div class="summary-item financial-field" th:if="${cuota.pagoMora != null && cuota.pagoMora > 0}">
+                                <div class="summary-label">Mora</div>
+                                <div id="mora-total" class="summary-value" th:text="${'$' + #numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')}">$0.00</div>
+                            </div>
+                            <div class="summary-item financial-field monto-highlight">
+                                <div class="summary-label">Monto Total</div>
+                                <div id="monto-total" class="summary-value" th:text="${'$' + #numbers.formatDecimal(cuota.total, 1, 'COMMA', 2, 'POINT')}">$100.00</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- User Information -->
+                <div class="section-card full-width" th:if="${cuota.credito != null && cuota.credito.usuario != null}">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-user"></i>
+                            Medio de Pago
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="info-grid">
+                            <div class="info-item important-field">
+                                <img src="/images/qrDePago.svg" alt="QR Code para Pago" style="max-width: 300px; height: auto;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="Swal.close()">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
+
+                    <!-- <button type="button" class="btn btn-primary" onclick="payCuota()">
+                        <i class="fas fa-credit-card"></i> Pagar
+                    </button> -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html> 

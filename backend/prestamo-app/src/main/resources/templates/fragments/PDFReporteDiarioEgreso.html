@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        @page {
+            size: landscape;
+        }
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            margin: 1cm;
+            text-align: justify;
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .logo {
+            width: 170px;
+            height: auto;
+            margin-right: 15px;
+        }
+        .company-header {
+            font-weight: bold;
+            font-size: 14pt;
+            text-align: center;
+            flex: 1;
+        }
+        .pdf-title {
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 12pt;
+            margin: 15px 0;
+        }
+        .pdf-section {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 15px 0 10px;
+            text-align: left;
+        }
+        .pdf-field {
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+        .underline {
+            display: inline-block;
+            border-bottom: 1px solid black;
+            min-width: 50px;
+            width: auto;
+            white-space: nowrap;
+            text-align: left;
+        }
+
+        .spacer {
+            margin-top: 25px;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1.5px solid black;
+        }
+        table {
+            page-break-inside: auto;
+        }
+
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+
+        thead {
+            display: table-header-group;
+        }
+
+        tfoot {
+            display: table-footer-group;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header-container">
+<!--    <img th:src="${logoUrl}" alt="Logo" class="logo" />-->
+    <div class="company-header">MULTIPRÉSTAMOS ATLAS</div>
+</div>
+
+<div class="pdf-title" th:text="'REPORTE DIARIO DE EGRESOS EN LA FECHA: ' + ${fecha}"></div>
+
+<div class="pdf-section">1. CREDITOS DESEMBOLSADOS</div>
+<table>
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>DUI</th>
+            <th>Monto</th>
+            <th>Monto A Dar</th>
+            <th>Frecuencia de Pago</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:if="${not #lists.isEmpty(creditos)}" th:each="credito : ${creditos}">
+            <td>
+                <span th:text="${credito.usuario?.nombre + ' ' + credito.usuario?.apellido}"></span>
+            </td>
+            <td th:text="${credito.usuario?.dui}"></td>
+            <td th:text="${'$' + credito.monto}"></td>
+            <td th:text="${credito.montoDado != null ? '$' + credito.montoDado : ''}"></td>
+
+            <td th:text="${credito.plazoFrecuencia}"></td>
+        </tr>
+    </tbody>    
+</table>
+
+<div style="page-break-inside: avoid;"></div>
+
+<div class="pdf-section">2. GASTOS DE LA EMPRESA</div>
+<table>
+    <thead>
+        <tr>
+            <th>Monto</th>
+            <th>Motivo</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:if="${not #lists.isEmpty(gastosEmpresa)}" th:each="gasto : ${gastosEmpresa}">
+            <td th:text="${'$' + #numbers.formatDecimal(gasto.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+            <td th:text="${gasto.motivo}"></td>
+            <td th:text="${gasto.fecha != null ? #temporals.format(gasto.fecha, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+        </tr>
+    </tbody>    
+</table>
+
+<div style="page-break-inside: avoid;"></div>
+
+<div class="pdf-section">3. GASTOS VARIOS</div>
+<table>
+    <thead>
+        <tr>
+            <th>Monto</th>
+            <th>Motivo</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:if="${not #lists.isEmpty(gastosVarios)}" th:each="gastos : ${gastosVarios}">
+            <td th:text="${'$' + #numbers.formatDecimal(gastos.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+            <td th:text="${gastos.motivo}"></td>
+            <td th:text="${gastos.fecha != null ? #temporals.format(gastos.fecha, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+        </tr>
+    </tbody>    
+</table>
+
+<div style="page-break-inside: avoid;"></div>
+
+<div class="pdf-section">4. RETIROS DE CUOTAS</div>
+<table>
+    <thead>
+        <tr>
+            <th>Monto</th>
+            <th>Motivo</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:if="${not #lists.isEmpty(retiros)}" th:each="gastos : ${retiros}">
+            <td th:text="${'$' + #numbers.formatDecimal(gastos.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+            <td th:text="${gastos.motivo}"></td>
+            <td th:text="${gastos.fecha != null ? #temporals.format(gastos.fecha, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+        </tr>
+    </tbody>    
+</table>
+
+<!-- Contenedor que evita que se separen -->
+<div style="page-break-inside: avoid;">
+
+    <div class="pdf-section">5. TOTALES</div>
+    <table style="width: 75%;">
+        <thead>
+        <tr>
+            <th>Total en Créditos Desembolsados</th>
+            <th>Total en Gastos de la Empresa</th>
+            <th>Balance General</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td th:text="${'$' + totalCreditos}"></td>
+            <td th:text="${'$' + totalGastos}"></td>
+            <td th:text="${'$' + saldo}"></td>
+        </tr>
+        </tbody>
+    </table>
+    
+    <div class="pdf-section">4. AUTORIZACION</div>
+
+    <div style="width: 100%; margin-top: 20px;">
+        <div style="width: 45%; float: left;">
+            <div><strong>Autorizado por:</strong> Edgar Addrual Cerna Hernandez</div>
+            <div style="margin-top: 20px;">Firma: ____________________</div>
+        </div>
+
+        <div style="width: 45%; float: right; text-align: right;">
+            <div><strong>Dado Por:</strong> <span class="underline"> </span></div>
+            <div style="margin-top: 20px;">Firma: ____________________</div>
+        </div>
+        <div style="clear: both;"></div>
+    </div>
+
+</div>
+
+
+</body>
+</html>

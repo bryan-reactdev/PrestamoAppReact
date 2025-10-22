@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{appDashboard/admin/layout :: layout(
+          pageTitle='Créditos del usuario ' + ${creditoUsuario.nombre},
+          pageSubtitle='Gestión de créditos del usuario',
+          activePage='usuarios',
+          content=~{::content},
+          pageCss=~{::css},
+          pageScripts=~{::scripts}
+      )}">
+
+<head>
+    <th:block th:fragment="css">
+    </th:block>
+</head>
+
+<body>
+
+<div th:fragment="content">
+   
+    <!-- Table Tab Switcher -->
+    <div class="table-tab-switcher">
+        <div>
+            <button type="button" class="table-switcher active" data-table-target="#pendientesTable">
+                Pendientes
+            </button>
+            <button type="button" class="table-switcher" data-table-target="#aceptadosTable"> 
+                Aceptados
+            </button>
+            <button type="button" class="table-switcher" data-table-target="#rechazadosTable">
+                Rechazados
+            </button>
+            <button type="button" class="table-switcher" data-table-target="#finalizadosTable">
+                Finalizados
+            </button>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container mb-3">
+        <div class="input-group">
+            <input type="text" id="searchInput" class="form-control" placeholder="Buscar créditos..." />
+            <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                    <i class="fas fa-times"></i> Limpiar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/creditoTables :: pendientes-table-content(creditos=${creditosPendientes})}"></div>
+    <div th:replace="~{fragments/creditoTables :: aceptados-table-content(creditos=${creditosAceptados})}"></div>
+    <div th:replace="~{fragments/creditoTables :: rechazados-table-content(creditos=${creditosRechazados})}"></div>
+    <div th:replace="~{fragments/creditoTables :: finalizados-table-content(creditos=${creditosFinalizados})}"></div>
+    
+    <div th:replace="~{fragments/tableScripts :: table-switcher-scripts}"></div>
+
+    <div th:replace="~{fragments/creditoModals :: modal-content(creditos=${creditos})}"></div>
+    <div th:replace="~{fragments/creditoModals :: financial-charges-modal-content(creditos=${creditos})}"></div>
+</div>
+
+<th:block th:fragment="scripts">
+    <script>
+        function mostrarPDFModal(creditoId, rol) {
+            Swal.fire({
+                title: 'Descargar Documentos',
+                showCancelButton: true,
+                cancelButtonText: '<i class="fas fa-times"></i> Cerrar',
+                customClass: {
+                    cancelButton: 'btn btn-secondary swal2-cancel'
+                },
+                showConfirmButton: false,
+                html: `
+                        <div class="pdf-header">Selecciona los documentos que deseas descargar</div>
+                        <div class="pdf-buttons-container">
+                            ${rol === 'ROLE_ADMIN' ? '<button id="btnevaluacion" class="btn btn-primary btn-sm"><i class="fas fa-download" style="margin-right: 5px;"></i> Documento de evaluacion</button>' : ''}
+                            <button id="btnSolicitud" class="btn btn-primary btn-sm"><i class="fas fa-download" style="margin-right: 5px;"></i> Formulario de solicitud de crédito</button>
+                            <button id="btnContrato" class="btn btn-primary btn-sm"><i class="fas fa-download" style="margin-right: 5px;"></i> Contrato integral de préstamo y pagaré Solidario</button>
+                            <button id="btnCuestionario" class="btn btn-primary btn-sm"><i class="fas fa-download" style="margin-right: 5px;"></i> Cuestionario de antecedentes de pago</button>
+                            <button id="btnAnexo" class="btn btn-primary btn-sm"><i class="fas fa-download" style="margin-right: 5px;"></i> Anexo de respeto, no difamación y buena fe comercial</button>
+                            <button id="btnDocumentos" class="btn btn-primary btn-sm"><i class="fas fa-download" style="margin-right: 5px;"></i> Fotos de los documentos personales</button>
+                        </div>
+                    `
+            });
+
+            if(rol === 'ROLE_ADMIN'){
+                document.getElementById('btnevaluacion').addEventListener('click', () => descargarPDF(creditoId, 'PDFInfoPersonal'));
+            }
+            document.getElementById('btnSolicitud').addEventListener('click', () => descargarPDF(creditoId, 'PDFSolicitud'));
+            document.getElementById('btnAnexo').addEventListener('click', () => descargarPDF(creditoId, 'PDFSolicitudAnexo'));
+            document.getElementById('btnContrato').addEventListener('click', () => descargarPDF(creditoId, 'PDFSolicitudContrato'));
+            document.getElementById('btnCuestionario').addEventListener('click', () => descargarPDF(creditoId, 'PDFSolicitudCuestionario'));
+            document.getElementById('btnDocumentos').addEventListener('click', () => descargarPDF(creditoId, 'PDFDocumentosPersonales'));
+        }
+
+        function descargarPDF(creditoId, nombre) {
+            fetch(`/solicitud/pdf/${creditoId}/${nombre}`, { method: 'POST' })
+                .then(res => {
+                    if (!res.ok) throw alert('Error al generar PDF');
+                    return res.blob();
+                })
+                .then(blob => {
+                    const url = window.URL.createObjectURL(blob);
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+                    if (isMobile) {
+                        window.open(url, '_blank');
+                    } else {
+                        const iframe = document.createElement('iframe');
+                        iframe.style.display = 'none';
+                        iframe.src = url;
+                        iframe.onload = function () {
+                            iframe.contentWindow.print();
+                            setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+                        };
+                        document.body.appendChild(iframe);
+                    }
+                })
+                .catch(console.error);
+        }
+    </script>
+</th:block>
+
+
+</body>
+</html> 

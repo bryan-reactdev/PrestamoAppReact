@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{appDashboard/admin/layout :: layout(
+          pageTitle='',
+          pageSubtitle='',
+          activePage='cajaChica',
+          content=~{::content},
+          pageCss=~{::css},
+          pageScripts=~{::scripts}
+      )}">
+<head>
+    <th:block th:fragment="css">
+        <link rel="stylesheet" type="text/css" th:href="@{/css/RegistroIngresos.css}" />
+        <style>
+            .clickable-card {
+                cursor: pointer;
+                transition: all 0.3s ease;
+                border: 2px solid transparent;
+            }
+            
+            .clickable-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            }
+            
+            .clickable-card.active {
+                border-color: #007bff;
+                background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            }
+            
+            .section-container {
+                display: none;
+            }
+            
+            .section-container.active {
+                display: block;
+            }
+        </style>
+    </th:block>
+</head>
+<body>
+<div th:fragment="content">
+
+    <!-- Cabecera con controles -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <div class="total-card total-general">
+                <div class="total-main-content">
+                    <div class="total-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="total-content">
+                        <div class="total-label">Ingreso Total</div>
+                        <div class="total-amount" id="total-balance">$0.00</div>
+                    </div>
+                </div>
+                <div class="total-controls">
+                    <div class="date-controls">
+                        <div class="date-selector">
+                            <label for="fechaSelector">Fecha:</label>
+                            <input type="date" id="fechaSelector" class="form-control">
+                        </div>
+                        <button class="btn btn-primary btn-hoy">
+                            <i class="fas fa-rotate"></i> Hoy
+                        </button>
+                    </div>
+                    <button class="btn btn-danger btn-generar-pdf">
+                        <i class="fas fa-file-pdf"></i> Generar PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resumen de Totales - Now Clickable Cards -->
+    <div class="totales-section">
+        <div class="totales-grid">
+            <div class="total-card total-cuotas clickable-card active" data-section="cuotas">
+                <div class="total-icon"><i class="fas fa-wallet"></i></div>
+                <div class="total-content">
+                    <div class="total-label">Total Cuotas Pagadas</div>
+                    <div class="total-amount" id="total-cuotas">$0.00</div>
+                </div>
+            </div>
+            <div class="total-card total-abonos clickable-card" data-section="abonos">
+                <div class="total-icon"><i class="fas fa-money-bill-wave"></i></div>
+                <div class="total-content">
+                    <div class="total-label">Total Abonos Cuotas</div>
+                    <div class="total-amount" id="total-abonos">$0.00</div>
+                </div>
+            </div>
+            <div class="total-card total-capital clickable-card" data-section="capital">
+                <div class="total-icon"><i class="fas fa-building"></i></div>
+                <div class="total-content">
+                    <div class="total-label">Total Ingresos Capital</div>
+                    <div class="total-amount" id="total-capital">$0.00</div>
+                </div>
+            </div>
+            <div class="total-card total-varios clickable-card" data-section="varios">
+                <div class="total-icon"><i class="fas fa-coins"></i></div>
+                <div class="total-content">
+                    <div class="total-label">Total Ingresos Varios</div>
+                    <div class="total-amount" id="total-varios">$0.00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section Contents -->
+    <div class="section-container active" id="section-cuotas">
+        <div class="section-header">
+            <h2><i class="fas fa-credit-card"></i> Cuotas Pagadas</h2>
+            <div class="section-actions">
+                <div class="search-box">
+                    <input type="text" id="searchCuotas" placeholder="Buscar en cuotas..." class="form-control">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table" id="tablaCuotas">
+                <thead>
+                <tr>
+                    <th>Usuario</th><th>DUI</th><th>Fecha Pago</th>
+                    <th>Monto</th><th>Mora</th><th>Total</th>
+                </tr>
+                </thead>
+                <tbody id="tbodyCuotas"></tbody>
+            </table>
+        </div>
+        <div class="table-footer">
+            <div class="table-info">
+                Mostrando <span id="cuotasCount">0</span> registros de <span id="totalCuotasCount">0</span>
+            </div>
+            <div class="pagination-controls" id="paginacionCuotas">
+                <button class="btn btn-sm btn-outline-secondary btn-prev-cuotas" disabled>
+                    <i class="fas fa-chevron-left"></i> Anterior
+                </button>
+                <span class="pagination-info">Página <span id="paginaActualCuotas">1</span> de <span id="totalPaginasCuotas">1</span></span>
+                <button class="btn btn-sm btn-outline-secondary btn-next-cuotas" disabled>
+                    Siguiente <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW ABONOS SECTION -->
+    <div class="section-container" id="section-abonos">
+        <div class="section-header">
+            <h2><i class="fas fa-money-bill-wave"></i> Abonos a Cuotas</h2>
+            <div class="section-actions">
+                <div class="search-box">
+                    <input type="text" id="searchAbonos" placeholder="Buscar en abonos..." class="form-control">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table" id="tablaAbonos">
+                <thead>
+                <tr>
+                    <th>Usuario</th>
+                    <th>Monto Abono</th>
+                    <th>Crédito</th>
+                    <th>Fecha de Cuota</th>
+                    <th>Fecha Abono</th>
+                </tr>
+                </thead>
+                <tbody id="tbodyAbonos"></tbody>
+            </table>
+        </div>
+        <div class="table-footer">
+            <div class="table-info">
+                Mostrando <span id="abonosCount">0</span> registros de <span id="totalAbonosCount">0</span>
+            </div>
+            <div class="pagination-controls" id="paginacionAbonos">
+                <button class="btn btn-sm btn-outline-secondary btn-prev-abonos" disabled>
+                    <i class="fas fa-chevron-left"></i> Anterior
+                </button>
+                <span class="pagination-info">Página <span id="paginaActualAbonos">1</span> de <span id="totalPaginasAbonos">1</span></span>
+                <button class="btn btn-sm btn-outline-secondary btn-next-abonos" disabled>
+                    Siguiente <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-container" id="section-capital">
+        <div class="section-header">
+            <h2><i class="fas fa-building"></i> Ingresos a Capital</h2>
+            <div class="section-actions">
+                <div class="search-box">
+                    <input type="text" id="searchCapital" placeholder="Buscar en capital..." class="form-control">
+                    <i class="fas fa-search"></i>
+                </div>
+                <button class="btn btn-success btn-nuevo-capital">
+                    <i class="fas fa-plus"></i> Nuevo Ingreso Capital
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table" id="tablaCapital">
+                <thead>
+                <tr>
+                    <th>Monto</th><th>Motivo</th><th>Fecha</th>
+                </tr>
+                </thead>
+                <tbody id="tbodyCapital"></tbody>
+            </table>
+        </div>
+        <div class="table-footer">
+            <div class="table-info">
+                Mostrando <span id="capitalCount">0</span> registros de <span id="totalCapitalCount">0</span>
+            </div>
+            <div class="pagination-controls" id="paginacionCapital">
+                <button class="btn btn-sm btn-outline-secondary btn-prev-capital" disabled>
+                    <i class="fas fa-chevron-left"></i> Anterior
+                </button>
+                <span class="pagination-info">Página <span id="paginaActualCapital">1</span> de <span id="totalPaginasCapital">1</span></span>
+                <button class="btn btn-sm btn-outline-secondary btn-next-capital" disabled>
+                    Siguiente <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-container" id="section-varios">
+        <div class="section-header">
+            <h2><i class="fas fa-coins"></i> Ingresos Varios</h2>
+            <div class="section-actions">
+                <div class="search-box">
+                    <input type="text" id="searchVarios" placeholder="Buscar en varios..." class="form-control">
+                    <i class="fas fa-search"></i>
+                </div>
+                <button class="btn btn-success btn-nuevo-varios">
+                    <i class="fas fa-plus"></i> Nuevo Ingreso Varios
+                </button>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table class="data-table" id="tablaVarios">
+                <thead>
+                <tr>
+                    <th>Monto</th><th>Motivo</th><th>Fecha</th>
+                </tr>
+                </thead>
+                <tbody id="tbodyVarios"></tbody>
+            </table>
+        </div>
+        <div class="table-footer">
+            <div class="table-info">
+                Mostrando <span id="variosCount">0</span> registros de <span id="totalVariosCount">0</span>
+            </div>
+            <div class="pagination-controls" id="paginacionVarios">
+                <button class="btn btn-sm btn-outline-secondary btn-prev-varios" disabled>
+                    <i class="fas fa-chevron-left"></i> Anterior
+                </button>
+                <span class="pagination-info">Página <span id="paginaActualVarios">1</span> de <span id="totalPaginasVarios">1</span></span>
+                <button class="btn btn-sm btn-outline-secondary btn-next-varios" disabled>
+                    Siguiente <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<th:block th:fragment="scripts">
+    <script th:inline="javascript">
+        // Configuración centralizada
+        const CONFIG = {
+            registrosPorPagina: 10,
+            fechaActual: new Date(),
+            tipos: ['cuotas', 'abonos', 'capital', 'varios']
+        };
+
+        // Estado de la aplicación
+        const estado = {
+            fechaSeleccionada: null,
+            datos: {
+                cuotas: /*[[${cuotasPagadas}]]*/ [],
+                abonos: /*[[${abonosCuotas}]]*/ [],
+                ingresos: /*[[${ingresosCaja}]]*/ []
+            },
+            filtrados: { cuotas: [], abonos: [], capital: [], varios: [] },
+            paginas: { cuotas: 1, abonos: 1, capital: 1, varios: 1 },
+            seccionActiva: 'cuotas'
+        };
+
+        // Helper function for capitalization
+        const capitalize = (str) => str.charAt(0).toUpperCase() + str.slice(1);
+
+        // Section Manager
+        const SectionManager = {
+            inicializar() {
+                this.inicializarEventos();
+            },
+
+            inicializarEventos() {
+                // Card click events
+                document.querySelectorAll('.clickable-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        const sectionId = e.currentTarget.getAttribute('data-section');
+                        this.cambiarSeccion(sectionId);
+                    });
+                });
+            },
+
+            cambiarSeccion(sectionId) {
+                // Update active card
+                document.querySelectorAll('.clickable-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+                document.querySelector(`.clickable-card[data-section="${sectionId}"]`).classList.add('active');
+
+                // Update active section
+                document.querySelectorAll('.section-container').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(`section-${sectionId}`).classList.add('active');
+
+                // Update state
+                estado.seccionActiva = sectionId;
+            }
+        };
+
+        // Utilidades
+        const Utilidades = {
+            formatearFechaParaInput: (fecha) => {
+                if (typeof fecha === 'string' && fecha.match(/^\d{4}-\d{2}-\d{2}$/)) return fecha;
+                const d = new Date(fecha);
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            },
+
+            formatearFecha: (fechaString) => {
+                if (!fechaString) return 'N/A';
+                try { 
+                    // Extract just the date part (YYYY-MM-DD) from the string
+                    const fechaPart = fechaString.split('T')[0];
+                    const [year, month, day] = fechaPart.split('-');
+                    return `${day}/${month}/${year}`;
+                } 
+                catch (e) { return 'N/A'; }
+            },
+
+            formatearMonto: (monto) => parseFloat(monto).toFixed(2)
+        };
+        
+        const Utils = {
+            formatDateForInput: (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            },
+        };
+
+        // Lógica principal
+        const RegistroIngresos = {
+            inicializar() {
+                this.inicializarUI();
+                this.aplicarFiltroFecha();
+                this.cargarTodasTablas();
+                this.actualizarTotales();
+                this.inicializarEventos();
+                SectionManager.inicializar();
+            },
+
+            inicializarUI() {
+                // Configurar fecha
+                const fechaSelector = document.getElementById('fechaSelector');
+                estado.fechaSeleccionada = Utilidades.formatearFechaParaInput(CONFIG.fechaActual);
+                fechaSelector.value = estado.fechaSeleccionada;
+            },
+
+            aplicarFiltroFecha() {
+                const fechaInput = document.getElementById('fechaSelector').value;
+                if (!fechaInput) return;
+                
+                estado.fechaSeleccionada = fechaInput;
+                
+                CONFIG.tipos.forEach(tipo => {
+                    let datos;
+                    if (tipo === 'cuotas') {
+                        datos = estado.datos.cuotas;
+                    } else if (tipo === 'abonos') {
+                        datos = estado.datos.abonos;
+                    } else {
+                        datos = estado.datos.ingresos.filter(i => i.tipo === (tipo === 'capital' ? 'Capital' : 'Varios'));
+                    }
+                    
+                    estado.filtrados[tipo] = datos.filter(item => {
+                        const fechaItem = item.fechaPago || item.fechaAbono || item.fecha;
+                        if (!fechaItem) return false;
+                        
+                        // Extract just the date part (YYYY-MM-DD) for comparison
+                        const fechaItemPart = fechaItem.split('T')[0];
+                        return fechaItemPart === estado.fechaSeleccionada;
+                    });
+                    
+                    estado.paginas[tipo] = 1;
+                });
+            },
+
+            cargarTodasTablas() {
+                CONFIG.tipos.forEach(tipo => this.cargarTabla(tipo));
+            },
+
+            cargarTabla(tipo) {
+                const tbody = document.getElementById(`tbody${capitalize(tipo)}`);
+                if (!tbody) {
+                    console.error(`No se encontró el elemento tbody${capitalize(tipo)}`);
+                    return;
+                }
+
+                const datos = estado.filtrados[tipo];
+
+                if (datos.length === 0) {
+                    const columnas = tipo === 'cuotas' ? 6 : tipo === 'abonos' ? 4 : 3;
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="${columnas}" class="text-center text-muted">
+                                <i class="fas fa-inbox"></i> No hay ${this.obtenerLabelTabla(tipo)} para esta fecha
+                            </td>
+                        </tr>
+                    `;
+                    this.actualizarContadores(tipo, 0, 0);
+                    this.actualizarPaginacion(tipo);
+                    return;
+                }
+
+                const inicio = (estado.paginas[tipo] - 1) * CONFIG.registrosPorPagina;
+                const datosPaginados = datos.slice(inicio, inicio + CONFIG.registrosPorPagina);
+
+                let html = '';
+                datosPaginados.forEach(item => {
+                    if (tipo === 'cuotas') {
+                        html += `
+                            <tr>
+                                <td>${item.credito?.usuario?.nombre || 'N/A'} ${item.credito?.usuario?.apellido || ''}</td>
+                                <td>${item.credito?.usuario?.dui || 'N/A'}</td>
+                                <td>${Utilidades.formatearFecha(item.fechaPago)}</td>
+                                <td>$${Utilidades.formatearMonto(item.monto || 0)}</td>
+                                <td>$${Utilidades.formatearMonto(item.pagoMora || 0)}</td>
+                                <td>$${Utilidades.formatearMonto(item.total || 0)}</td>
+                            </tr>
+                        `;
+                    } else if (tipo === 'abonos') {
+                        html += `
+                            <tr>
+                                <td>${item.creditoCuota?.credito?.usuario?.nombre || 'N/A'} ${item.creditoCuota?.credito?.usuario?.apellido || ''}</td>
+                                <td>$${Utilidades.formatearMonto(item.monto || 0)}</td>
+                                <td>$${Utilidades.formatearMonto(item.creditoCuota.credito.monto || 0)}</td>
+                                <td>${Utilidades.formatearFecha(item.creditoCuota.fechaVencimiento)}</td>
+                                <td>${Utilidades.formatearFecha(item.fechaAbono)}</td>
+                            </tr>
+                        `;
+                    } else {
+                        html += `
+                            <tr>
+                                <td>$${Utilidades.formatearMonto(item.monto || 0)}</td>
+                                <td>${item.motivo || 'N/A'}</td>
+                                <td>${Utilidades.formatearFecha(item.fecha)}</td>
+                            </tr>
+                        `;
+                    }
+                });
+
+                tbody.innerHTML = html;
+                this.actualizarContadores(tipo, datosPaginados.length, datos.length);
+                this.actualizarPaginacion(tipo);
+            },
+
+            obtenerLabelTabla(tipo) {
+                const labels = {
+                    'cuotas': 'cuotas pagadas',
+                    'abonos': 'abonos a cuotas', 
+                    'capital': 'ingresos capital',
+                    'varios': 'ingresos varios'
+                };
+                return labels[tipo] || tipo;
+            },
+
+            actualizarContadores(tipo, mostrados, total) {
+                const countElement = document.getElementById(`${tipo}Count`);
+                const totalCountElement = document.getElementById(`total${capitalize(tipo)}Count`);
+                
+                if (countElement) countElement.textContent = mostrados;
+                if (totalCountElement) totalCountElement.textContent = total;
+            },
+
+            actualizarPaginacion(tipo) {
+                const totalPaginas = Math.ceil(estado.filtrados[tipo].length / CONFIG.registrosPorPagina);
+                const elementos = {
+                    prev: document.querySelector(`.btn-prev-${tipo}`),
+                    next: document.querySelector(`.btn-next-${tipo}`),
+                    actual: document.getElementById(`paginaActual${capitalize(tipo)}`),
+                    total: document.getElementById(`totalPaginas${capitalize(tipo)}`)
+                };
+
+                if (elementos.actual) elementos.actual.textContent = estado.paginas[tipo];
+                if (elementos.total) elementos.total.textContent = totalPaginas;
+                if (elementos.prev) elementos.prev.disabled = estado.paginas[tipo] <= 1;
+                if (elementos.next) elementos.next.disabled = estado.paginas[tipo] >= totalPaginas;
+            },
+
+            actualizarTotales() {
+                const totales = CONFIG.tipos.reduce((acc, tipo) => {
+                    acc[tipo] = estado.filtrados[tipo].reduce((sum, item) => {
+                        if (tipo === 'cuotas') {
+                            return sum + parseFloat(item.total || 0);
+                        } else if (tipo === 'abonos') {
+                            return sum + parseFloat(item.monto || 0);
+                        } else {
+                            return sum + parseFloat(item.monto || 0);
+                        }
+                    }, 0);
+                    return acc;
+                }, {});
+
+                // Update total cards safely
+                const updateTotal = (id, value) => {
+                    const element = document.getElementById(id);
+                    if (element) element.textContent = `$${Utilidades.formatearMonto(value)}`;
+                };
+
+                updateTotal('total-cuotas', totales.cuotas);
+                updateTotal('total-abonos', totales.abonos);
+                updateTotal('total-capital', totales.capital);
+                updateTotal('total-varios', totales.varios);
+                
+                const ingresoTotal = Object.values(totales).reduce((sum, total) => sum + total, 0);
+                updateTotal('total-balance', ingresoTotal);
+            },
+
+            inicializarEventos() {
+                // Eventos de fecha
+                document.getElementById('fechaSelector').addEventListener('change', () => {
+                    this.aplicarFiltroFecha();
+                    this.cargarTodasTablas();
+                    this.actualizarTotales();
+                });
+
+                document.querySelector('.btn-hoy').addEventListener('click', () => {
+                    document.getElementById('fechaSelector').value = Utilidades.formatearFechaParaInput(new Date());
+                    this.aplicarFiltroFecha();
+                    this.cargarTodasTablas();
+                    this.actualizarTotales();
+                });
+
+                // Eventos de paginación
+                CONFIG.tipos.forEach(tipo => {
+                    const prevBtn = document.querySelector(`.btn-prev-${tipo}`);
+                    const nextBtn = document.querySelector(`.btn-next-${tipo}`);
+                    
+                    if (prevBtn) {
+                        prevBtn.addEventListener('click', () => {
+                            if (estado.paginas[tipo] > 1) {
+                                estado.paginas[tipo]--;
+                                this.cargarTabla(tipo);
+                            }
+                        });
+                    }
+
+                    if (nextBtn) {
+                        nextBtn.addEventListener('click', () => {
+                            const totalPaginas = Math.ceil(estado.filtrados[tipo].length / CONFIG.registrosPorPagina);
+                            if (estado.paginas[tipo] < totalPaginas) {
+                                estado.paginas[tipo]++;
+                                this.cargarTabla(tipo);
+                            }
+                        });
+                    }
+                });
+
+                // Búsquedas
+                CONFIG.tipos.forEach(tipo => {
+                    const searchInput = document.getElementById(`search${capitalize(tipo)}`);
+                    if (searchInput) {
+                        searchInput.addEventListener('input', (e) => this.filtrarTabla(tipo, e.target.value));
+                    }
+                });
+
+                // Botones de acción
+                const pdfBtn = document.querySelector('.btn-generar-pdf');
+                if (pdfBtn) {
+                    pdfBtn.addEventListener('click', () => 
+                        this.descargarPDF(document.getElementById('fechaSelector').value));
+                }
+
+                const capitalBtn = document.querySelector('.btn-nuevo-capital');
+                if (capitalBtn) {
+                    capitalBtn.addEventListener('click', () => this.registrarIngreso('Capital'));
+                }
+
+                const variosBtn = document.querySelector('.btn-nuevo-varios');
+                if (variosBtn) {
+                    variosBtn.addEventListener('click', () => this.registrarIngreso('Varios'));
+                }
+            },
+
+            filtrarTabla(tipo, filtro) {
+                if (filtro.trim() === '') {
+                    this.aplicarFiltroFecha();
+                } else {
+                    let datosBase;
+                    if (tipo === 'cuotas') {
+                        datosBase = estado.datos.cuotas;
+                    } else if (tipo === 'abonos') {
+                        datosBase = estado.datos.abonos;
+                    } else {
+                        datosBase = estado.datos.ingresos.filter(i => i.tipo === (tipo === 'capital' ? 'Capital' : 'Varios'));
+                    }
+                    
+                    estado.filtrados[tipo] = datosBase.filter(item => {
+                        const fechaItem = item.fechaPago || item.fechaAbono || item.fecha;
+                        if (!fechaItem) return false;
+                        const fechaFiltrada = Utilidades.formatearFechaParaInput(new Date(fechaItem)) === estado.fechaSeleccionada;
+                        
+                        if (tipo === 'cuotas') {
+                            const nombre = `${item.credito?.usuario?.nombre || ''} ${item.credito?.usuario?.apellido || ''}`.toLowerCase();
+                            return fechaFiltrada && (
+                                nombre.includes(filtro.toLowerCase()) ||
+                                (item.credito?.usuario?.dui && item.credito.usuario.dui.toLowerCase().includes(filtro)) ||
+                                (item.total && item.total.toString().includes(filtro))
+                            );
+                        } else if (tipo === 'abonos') {
+                            const creditoId = item.creditoCuota?.credito?.id?.toString() || '';
+                            const clienteNombre = `${item.creditoCuota?.credito?.cliente?.nombre || ''} ${item.creditoCuota?.credito?.cliente?.apellido || ''}`.toLowerCase();
+                            return fechaFiltrada && (
+                                creditoId.includes(filtro) ||
+                                clienteNombre.includes(filtro.toLowerCase()) ||
+                                (item.monto && item.monto.toString().includes(filtro))
+                            );
+                        } else {
+                            return fechaFiltrada && (
+                                (item.motivo && item.motivo.toLowerCase().includes(filtro.toLowerCase())) ||
+                                (item.monto && item.monto.toString().includes(filtro))
+                            );
+                        }
+                    });
+                }
+
+                estado.paginas[tipo] = 1;
+                this.cargarTabla(tipo);
+                this.actualizarTotales();
+            },
+
+            descargarPDF(fecha) {
+                fetch(`/admin/pdf/reporte/${fecha}/ingresos`, { method: 'POST' })
+                    .then(res => { if (!res.ok) throw new Error('Error al generar PDF'); return res.blob(); })
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `reporte-ingresos-${fecha}.pdf`;
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                    })
+                    .catch(() => Swal.fire('Error', 'No se pudo generar el PDF', 'error'));
+            },
+
+            registrarIngreso(tipo) {
+                Swal.fire({
+                    title: `Registrar Nuevo Ingreso - ${tipo}`,
+                    showConfirmButton: true,
+                    confirmButtonText: '<i class="fas fa-wallet"></i> Registrar Ingreso',
+                    showCancelButton: true,
+                    html: `
+                        <div>
+                            <div class="mb-3">
+                                <label for="monto" class="form-label">Monto del Ingreso</label>
+                                <input type="number" step="0.01" class="form-control" id="monto" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="motivo" class="form-label">Motivo</label>
+                                <textarea class="form-control" id="motivo" rows="3" required></textarea>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fechaIngreso" class="form-label">Fecha de Ingreso</label>
+                                <input type="date" class="form-control" id="fechaIngreso" name="fechaIngreso" value="${Utils.formatDateForInput(new Date)}" required>
+                            </div>
+                            <p style="font-size: 0.8em; color: #666; margin-top: 10px;">
+                                Registrando ingreso como: <strong>${tipo}</strong>
+                            </p>
+                        </div>
+                    `,
+                    preConfirm: () => {
+                        const monto = document.getElementById('monto').value.trim();
+                        const motivo = document.getElementById('motivo').value.trim();
+                        const fechaEl = document.getElementById('fechaIngreso');
+                        const fecha = fechaEl ? fechaEl.value.trim() : '';
+
+                        if (!monto || isNaN(monto) || Number(monto) <= 0) {
+                            Swal.showValidationMessage('Ingrese un monto válido mayor que 0');
+                            return false;
+                        }
+                        if (!motivo) {
+                            Swal.showValidationMessage('Motivo es requerido');
+                            return false;
+                        }
+                        if (!fecha) {
+                            Swal.showValidationMessage('Fecha de ingreso es requerida');
+                            return false;
+                        }
+                        return { monto, motivo, fecha, tipo };
+                    }
+                }).then((result) => {
+                    if (!result.isConfirmed) return;
+                    
+                    Swal.fire({
+                        title: 'Confirmar Ingreso',
+                        text: `¿Estás seguro que quieres registrar un ingreso de $${result.value.monto} como ${tipo} la fecha ${result.value.fecha}?`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, registrar'
+                    }).then(conf => {
+                        if (!conf.isConfirmed) return;
+                        
+                        fetch('/admin/ingreso', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(result.value)
+                        })
+                            .then(res => { if (!res.ok) throw new Error(); return res; })
+                            .then(() => { 
+                                Swal.fire({ icon: 'success', title: 'Ingreso registrado' });
+                                setTimeout(() => location.reload(), 700);
+                            })
+                            .catch(() => Swal.fire({ icon: 'error', title: 'No se pudo registrar el ingreso' }));
+                    });
+                });
+            }
+        };
+
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', () => RegistroIngresos.inicializar());
+    </script>
+</th:block>
+</body>
+</html>

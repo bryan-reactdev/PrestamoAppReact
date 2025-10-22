@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      th:replace="__${isAdmin ? 'appDashboard/admin/layout :: layout' : 'appDashboard/user/layout :: layout'}__(
+          pageTitle='Solicitar Crédito',
+          pageSubtitle='Formulario de solicitud de crédito',
+          activePage='solicitar',
+          content=~{::content},
+          pageCss=~{::css},
+          pageScripts=~{::scripts}
+      )">
+<head>
+    <th:block th:fragment="css">
+        <link href="/appDashboard/user/css/solicitar.css" rel="stylesheet" type="text/css" />
+    </th:block>
+</head>
+<body>
+<div th:fragment="content" class="solicitar-credito-form">
+    <form th:action="@{/credito/save}" th:object="${credito}" method="post" autocomplete="off" enctype="multipart/form-data">
+        <input type="hidden" th:field="*{estado}" th:value="'pendiente'" />
+        <input type="hidden" name="userId" th:if="${usuarioId != null}" th:value="${usuarioId}" />
+        <input type="hidden" th:field="*{usuarioSolicitud.fechaSolicitud}" />
+        
+        <!-- Step 1 -->
+        <div class="form-step" id="step-1">
+
+            <!-- Resumen del Crédito -->
+            <div class="form-grid full-width">
+                <div class="section-card full-width">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            Resumen del Crédito
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="summary-grid">
+                            <div class="summary-item financial-field monto-highlight">
+                                <div class="summary-label">Monto Solicitado</div>
+                                <input type="number" step="0.01" th:field="*{monto}" class="summary-value" placeholder="$0.00" required>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Frecuencia de pagos</div>
+                                <select th:field="*{plazoFrecuencia}" class="summary-value" required>
+                                    <option value="">Seleccionar plazo</option>
+                                    <option value="Diaria">Diaria</option>
+                                    <option value="Semanal">Semanal</option>
+                                    <option value="Quincenal">Quincenal</option>
+                                    <option value="Mensual">Mensual</option>
+                                </select>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Finalidad del crédito</div>
+                                <select th:field="*{destino}" class="summary-value" onchange="toggleOtroDestino(this)" required>
+                                    <option value="">Selecciona...</option>
+                                    <option value="Consumo personal">Consumo personal</option>
+                                    <option value="Negocio">Negocio</option>
+                                    <option value="Compra de bienes">Compra de bienes</option>
+                                    <option value="Pago de deudas">Pago de deudas</option>
+                                    <option value="Emergencia">Emergencia</option>
+                                    <option value="Medicina">Medicina</option>
+                                    <option value="Alimentacion">Alimentacion</option>
+                                    <option value="Pago de alquiler">Pago de alquiler</option>
+                                    <option value="Viaje o vacanciones">Viaje o vacaciones</option>
+                                </select>
+                                <div id="otroDestinoContainer" style="display: none; margin-top: 8px;">
+                                    <input type="text" id="destinoOtro" name="destinoOtro"
+                                           placeholder="Especifique el destino del crédito" class="summary-value">
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Forma de Pago</div>
+                                <select th:field="*{formaDePago}" class="summary-value" onchange="toggleOtroPago(this)" required>
+                                    <option value="">Seleccionar forma de pago</option>
+                                    <option value="efectivo">Efectivo</option>
+                                    <option value="deposito">Depósito</option>
+                                    <option value="bitcoin">Bitcoin</option>
+                                    <option value="otro">Otro</option>
+                                </select>
+                                <div id="otroPagoContainer" style="display: none; margin-top: 8px;">
+                                    <input type="text" id="formaDePagoOtro" name="formaDePagoOtro"
+                                           placeholder="Especifique su forma de pago" class="summary-value">
+                                </div>
+                            </div>
+
+                            <div class="summary-item">
+                                <div class="summary-label">¿Tiene propiedad a su nombre?</div>
+                                <select th:field="*{tienePropiedad}" class="summary-value" id="tienePropiedadSelect" onchange="toggleDireccionPropiedad(this)" required>
+                                    <option value="">Selecciona...</option>
+                                    <option th:value="true">Sí</option>
+                                    <option th:value="false">No</option>
+                                </select>
+                            </div>
+
+                            <div class="summary-item" id="direccionPropiedadDiv" style="display:none;">
+                                <div class="summary-label">Dirección de su propiedad</div>
+                                <input type="text" th:field="*{direccionPropiedad}" class="summary-value" placeholder="Ingrese dirección" >
+                            </div>
+
+
+                            <div class="summary-item">
+                                <div class="summary-label">¿Tiene vehículo a su nombre?</div>
+                                <select th:field="*{tieneVehiculo}" class="summary-value" required>
+                                    <option value="">Selecciona...</option>
+                                    <option th:value="true">Sí</option>
+                                    <option th:value="false">No</option>
+                                </select>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Información Personal - Full Width -->
+            <div class="form-grid full-width">
+                <div class="section-card full-width">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-user"></i>
+                            Información Personal
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="personal-info-grid">
+                            <div class="info-item important-field">
+                                <span class="info-label">Nombres</span>
+                                <input type="text" th:field="*{usuarioSolicitud.nombres}" placeholder="Ej: Juan Carlos" required>
+                            </div>
+                            <div class="info-item important-field">
+                                <span class="info-label">Apellidos</span>
+                                <input type="text" th:field="*{usuarioSolicitud.apellidos}" placeholder="Ej: Pérez González" required>
+                            </div>
+
+                            <div class="summary-item financial-field monto-highlight">
+                                <div class="summary-label">DUI</div>
+                                <input th:if="${credito.usuarioSolicitud.dui != null}"
+                                       type="text" th:field="*{usuarioSolicitud.dui}"
+                                       placeholder="12345678-9">
+                                <input th:if="${credito.usuarioSolicitud.nit != null}"
+                                       type="text" th:field="*{usuarioSolicitud.nit}"
+                                       placeholder="123-45678-9">
+                                <input th:if="${credito.usuarioSolicitud.dui == null && credito.usuarioSolicitud.nit == null}"
+                                       type="text" th:field="*{usuarioSolicitud.dui}"
+                                       placeholder="Ingresa tu número de identificación">
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Fecha de nacimiento</span>
+                                <input type="date" th:field="*{usuarioSolicitud.fechaNacimiento}" required>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Estado Civil</span>
+                                <select th:field="*{usuarioSolicitud.estadoCivil}" required>
+                                    <option value="">Selecciona una opción</option>
+                                    <option value="soltero">Soltero/a</option>
+                                    <option value="casado">Casado/a</option>
+                                    <option value="divorciado">Divorciado/a</option>
+                                    <option value="viudo">Viudo/a</option>
+                                    <option value="union_libre">Unión libre</option>
+                                </select>
+                            </div>
+
+                            <div class="summary-item" style="grid-column: 1 / -1;">
+                                <div class="summary-label">Direccion completa</div>
+                                <input type="text" th:field="*{usuarioSolicitud.direccion}" placeholder="Ingresa tu direccion completa" required>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Tiempo de residencia en la dirección actual</span>
+                                <input type="text" th:field="*{usuario.tiempoResidencia}" placeholder="Ej: 3 años, 6 meses" required>
+                            </div>
+
+
+                            <div class="info-item">
+                                <span class="info-label">Numero de celular (Whatsapp)</span>
+                                <input type="text" th:field="*{usuarioSolicitud.telefono}" placeholder="Ej: 999888777" required>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Email</span>
+                                <input type="email" th:field="*{usuarioSolicitud.email}" placeholder="usuario@email.com">
+                            </div>
+
+                            <!-- Nuevos atributos -->
+                            <div class="info-item">
+                                <span class="info-label">¿Cómo conoció Multipréstamos ATLAS?</span>
+                                <input type="text" th:field="*{usuario.fuenteConocimiento}" placeholder="Ej: Facebook, amigo, publicidad" required>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">¿Conoce a alguien con crédito en Multipréstamos ATLAS?</span>
+                                <select th:field="*{usuario.conoceAlguien}" required>
+                                    <option value="">Selecciona una opción</option>
+                                    <option th:value="true">Sí</option>
+                                    <option th:value="false">No</option>
+                                </select>
+                            </div>
+
+                            <!-- Campos condicionales -->
+                            <div class="info-item" id="nombrePersonaConocidaDiv" style="display:none;">
+                                <span class="info-label">Nombre de la persona conocida</span>
+                                <input type="text" th:field="*{usuario.nombrePersonaConocida}" placeholder="Nombre completo">
+                            </div>
+
+                            <div class="info-item" id="telefonoPersonaConocidaDiv" style="display:none;">
+                                <span class="info-label">Teléfono de la persona conocida</span>
+                                <input type="text" th:field="*{usuario.telefonoPersonaConocida}" placeholder="Teléfono">
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">Coloque el enlace a su Facebook u otra red social que utilice</span>
+                                <input type="text" th:field="*{usuario.perfilRedSocial}" placeholder="Coloca el link a tu perfil" required>
+                            </div>
+
+                            <!-- Nuevos campos añadidos -->
+                            <div class="summary-item">
+                                <div class="summary-label">Gastos mensuales (vivienda, alimentación, transporte, etc.)</div>
+                                <input type="number" step="0.01" th:field="*{gastosMensuales}" class="summary-value" placeholder="$0.00" required>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+            <!-- Información Laboral - Grid Mejorado (2 columnas) -->
+            <div class="form-grid full-width">
+                <div class="section-card full-width">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-briefcase"></i>
+                            Información Laboral
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="laboral-info-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+
+                            <!-- Ocupación/Negocio -->
+                            <div class="info-item" style="grid-column: span 2;">
+                                <span class="info-label">Ocupación/Negocio</span>
+                                <select th:field="*{usuarioSolicitud.puesto}" id="ocupacionSelect" onchange="toggleCamposLaborales(this)" required>
+                                    <option value="">Selecciona...</option>
+                                    <option value="Empleado" th:selected="${usuarioSolicitud != null and usuarioSolicitud.puesto=='Empleado'}">Empleado</option>
+                                    <option value="Emprendedor" th:selected="${usuarioSolicitud != null and usuarioSolicitud.puesto=='Emprendedor'}">Emprendedor</option>
+                                </select>
+                            </div>
+
+                            <!-- Campos Empleado -->
+                            <div id="empleadoCampos" style="display:none; grid-column: span 2; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                                <div class="info-item">
+                                    <span class="info-label">Empresa de Trabajo</span>
+                                    <input type="text" th:field="*{usuarioSolicitud.empresaTrabajo}" placeholder="Nombre de la empresa">
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Dirección de la empresa</span>
+                                    <input type="text" th:field="*{usuarioSolicitud.direccionEmpresa}" placeholder="Dirección de la empresa">
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Número de contacto de la empresa</span>
+                                    <input type="text" th:field="*{usuarioSolicitud.telefonoEmpresa}" placeholder="Teléfono">
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Antigüedad laboral</span>
+                                    <input type="text" th:field="*{usuarioSolicitud.antiguedadLaboral}" placeholder="Ej: 3 años">
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Ingreso mensual aproximado</span>
+                                    <input type="number" step="0.01" th:field="*{usuarioSolicitud.ingresoMensualEmpleado}" placeholder="Ej: 1500.00">
+                                </div>
+                            </div>
+
+                            <!-- Campos Emprendedor -->
+                            <div id="emprendedorCampos" style="display:none; grid-column: span 2; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px;">
+                                <div class="info-item">
+                                    <span class="info-label">A qué se dedica</span>
+                                    <input type="text" th:field="*{usuarioSolicitud.actividadEmprendedor}" placeholder="Ej: venta de ropa, accesorios, tortas">
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Ingreso mensual aproximado</span>
+                                    <input type="number" step="0.01" th:field="*{usuarioSolicitud.ingresoMensualEmprendedor}" placeholder="Ej: 1500.00">
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Otros ingresos (detalle y monto)</span>
+                                    <input type="text" th:field="*{usuarioSolicitud.otrosIngresos}" placeholder="Detalle y monto" />
+                                </div>
+
+                                <div class="info-item">
+                                    <span class="info-label">Número de contacto del negocio</span>
+                                    <input type="text" th:field="*{usuarioSolicitud.telefonoNegocio}" placeholder="Teléfono del negocio">
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Dirección del negocio</span>
+                                    <input type="text" th:field="*{usuarioSolicitud.direccionNegocio}" placeholder="Dirección del negocio">
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Antigüedad del negocio</span>
+                                    <input type="text" th:field="*{usuarioSolicitud.antiguedadNegocio}" placeholder="Ej: 2 años">
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Referencias Personales - Full Width with Grid -->
+            <div class="form-grid full-width">
+                <div class="section-card full-width">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-users"></i>
+                            Referencias Personales
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="referencias-grid">
+                            <div class="info-item">
+                                <span class="info-label">Referencia 1 (Nombre)</span>
+                                <input type="text" th:field="*{usuarioSolicitud.referencia1}" placeholder="Nombre completo" required>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Teléfono Referencia 1</span>
+                                <input type="text" th:field="*{usuarioSolicitud.telefonoReferencia1}" placeholder="Ej: 999888777" required>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Parentesco Referencia 1</span>
+                                <input type="text" th:field="*{usuarioSolicitud.parentesco1}" placeholder="Ej: Familiar, Amigo" required>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Referencia 2 (Nombre)</span>
+                                <input type="text" th:field="*{usuarioSolicitud.referencia2}" placeholder="Nombre completo" required>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Teléfono Referencia 2</span>
+                                <input type="text" th:field="*{usuarioSolicitud.telefonoReferencia2}" placeholder="Ej: 999888777" required>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Parentesco Referencia 2</span>
+                                <input type="text" th:field="*{usuarioSolicitud.parentesco2}" placeholder="Ej: Familiar, Amigo" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Step 2 -->
+        <div class="form-step" id="step-2" style="display: none;">
+
+            <!-- Resumen del Crédito -->
+            <div class="form-grid full-width">
+                <div class="section-card full-width">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            Contrato Integral del Crédito
+                        </div>
+                    </div>
+                    <div class="section-content">
+
+                        <div class="personal-info-grid">
+                            <div class="info-item important-field">
+                                <span class="info-label">Nombre de Co-deudor</span>
+                                <input type="text" th:field="*{usuarioSolicitud.codeudorNombre}" placeholder="Ej: Juan Carlos">
+                            </div>
+                            <div class="info-item important-field">
+                                <span class="info-label">DUI de Co-deudor</span>
+                                <input type="text" th:field="*{usuarioSolicitud.codeudorDui}" placeholder="Ej: Pérez González">
+                            </div>
+                        </div>
+
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Direccion Co-deudor</span>
+                                <input type="text" th:field="*{usuarioSolicitud.codeudorDireccion}" placeholder="Nombre completo">
+                            </div>
+                        </div>
+
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Ingresos mensuales aproximados de Co-deudor</span>
+                                <input type="number" th:field="*{usuarioSolicitud.ingresoMensualCodeudor}" placeholder="ejemplo: 200">
+                            </div>
+                        </div>
+
+                        <div class="info-item important-field">
+                            <span class="info-label">Foto del frente del DUI del Co-Deudor</span>
+                            <input type="file" name="duiDelanteCodeudor" id="duiDelanteCodeudor" accept="image/*" onchange="previewDuiCodeudor(event, 'previewduiDelanteCodeudor')" />
+
+                            <div class="dui-preview-container">
+                                <img id="miniduiDelanteCodeudor" class="dui-preview" alt="Miniatura DUI Delante" />
+                            </div>
+                            <img id="previewduiDelanteCodeudor"
+                                 style="display: none; max-width: 300px; margin-top: 10px;"
+                                 alt="Previsualización duiDelanteCodeudor" />
+                        </div>
+
+                        <div class="info-item important-field">
+                            <span class="info-label">Foto de atras del DUI del Co-Deudor</span>
+                            <input type="file" name="duiAtrasCodeudor" id="duiAtrasCodeudor" accept="image/*" onchange="previewDuiCodeudor(event, 'previewduiAtrasCodeudor')" />
+
+                            <div class="dui-preview-container">
+                                <img id="miniduiAtrasCodeudor" class="dui-preview" alt="Miniatura DUI Atrás" />
+                            </div>
+                            <img id="previewduiAtrasCodeudor"
+                                 style="display: none; max-width: 300px; margin-top: 10px;"
+                                 alt="Previsualización DUI Atrás" />
+                        </div>
+
+                        <div class="info-item important-field">
+                            <span class="info-label">Foto de recibo de agua o luz</span>
+                            <input type="file" name="fotoRecibo" id="fotoRecibo" accept="image/*" onchange="previewDuiCodeudor(event, 'previewfotoRecibo')"  />
+
+                            <div class="dui-preview-container">
+                                <img id="minifotoRecibo" class="dui-preview" alt="Miniatura DUI Atrás" />
+                            </div>
+                            <img id="previewfotoRecibo"
+                                 style="display: none; max-width: 300px; margin-top: 10px;"
+                                 alt="Previsualización DUI Atrás" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="form-step" id="step-3" style="display: none;">
+
+            <div class="form-grid full-width">
+                <div class="section-card full-width">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            Antecedentes de Pago
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="info-grid">
+
+                            <div class="info-item">
+                                <span id="solicitado" class="info-label">¿Has solicitado créditos en los últimos 2 años?</span>
+                                <div>
+                                    <label>
+                                        <input class="si-no-input" type="radio" th:field="*{usuarioSolicitud.solicitado}" th:value="true" style="align-items: center; height: 1.5rem !important;" required />
+                                        Sí
+                                    </label>
+                                    <label>
+                                        <input class="si-no-input" type="radio" th:field="*{usuarioSolicitud.solicitado}" th:value="false" style="align-items: center; height: 1.5rem !important;" required/>
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <span id="atrasado" class="info-label">¿Ha tenido atrasos en pagos de créditos, tarjetas u obligaciones financieras en los últimos 24 meses?</span>
+                                <select th:field="*{usuarioSolicitud.atrasos}" required>
+                                    <option value="">Selecciona una opción</option>
+                                    <option value="nunca">Nunca</option>
+                                    <option value="uno_a_dos">1 a 2 veces</option>
+                                    <option value="dos_o_mas">Más de 2 veces</option>
+                                </select>
+                            </div>
+                            
+                            <div class="info-item anterior-field">
+                                <span class="info-label">Entidad financiera anterior</span>
+                                <input type="text" th:field="*{usuarioSolicitud.solicitadoEntidad}" placeholder="Nombre de la entidad financiera">
+                            </div>
+
+
+                            <div class="info-item anterior-field">
+                                <span class="info-label">Frecuencia de pago en credito anterior</span>
+                                <input type="text" th:field="*{usuarioSolicitud.frecuenciaPagoCreditoAnterior}" placeholder="ejemplo: diario, semanal, quinsenal, mensual">
+                            </div>
+
+                            <div class="info-item financial-field anterior-field">
+                                <span class="info-label">Monto de crédito anterior</span>
+                                <input type="number" step="0.01" th:field="*{usuarioSolicitud.solicitadoMonto}" placeholder="Ej: 500.00">
+                            </div>
+
+                            <div class="info-item anterior-field">
+                                <span class="info-label">Estado del crédito anterior</span>
+                                <select th:field="*{usuarioSolicitud.solicitadoEstado}">
+                                    <option value="">Selecciona una opción</option>
+                                    <option value="pagado">Pagado</option>
+                                    <option value="en_curso">En curso</option>
+                                    <option value="incumplido">Incumplido</option>
+                                </select>
+                            </div>
+                            
+                            <div class="info-item">
+                                <span class="info-label">¿Alguna entidad financiera lo ha reportado como moroso en los últimos 2 años?</span>
+                                <div>
+                                    <label>
+                                        <input class="si-no-input" type="radio" th:field="*{usuarioSolicitud.reportado}" th:value="true" style="align-items: center; height: 1.5rem !important;"  />
+                                        Sí
+                                    </label>
+                                    <label>
+                                        <input class="si-no-input" type="radio" th:field="*{usuarioSolicitud.reportado}" th:value="false" style="align-items: center; height: 1.5rem !important;" />
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <span class="info-label">¿Ha sido objeto de cobros judiciales o procesos legales por deudas en este periodo?</span>
+                                <div>
+                                    <label>
+                                        <input class="si-no-input" type="radio" th:field="*{usuarioSolicitud.deudas}" th:value="true" style="align-items: center; height: 1.5rem !important;"  />
+                                        Sí
+                                    </label>
+                                    <label>
+                                        <input class="si-no-input" type="radio" th:field="*{usuarioSolicitud.deudas}" th:value="false" style="align-items: center; height: 1.5rem !important;" />
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="info-item">
+                                <span class="info-label">¿Actualmente cuenta con un empleo fijo o negocio propio?</span>
+                                <select th:field="*{usuarioSolicitud.empleado}" required>
+                                    <option value="">Selecciona una opción</option>
+                                    <option value="empleo_fijo">Empleo fijo</option>
+                                    <option value="negocio_propio">Negocio propio</option>
+                                    <option value="ninguno">Ninguno</option>
+                                </select>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">¿Tienes otras deudas activas actualmente?</span>
+                                <div>
+                                    <label>
+                                        <input class="si-no-input otras-deudas-radio" type="radio" name="otrasDeudasRadio"  th:field="*{usuarioSolicitud.otrasDeudas}" th:value="true" style="align-items: center; height: 1.5rem !important;" />
+                                        Sí
+                                    </label>
+                                    <label>
+                                        <input class="si-no-input otras-deudas-radio" type="radio" name="otrasDeudasRadio"  th:field="*{usuarioSolicitud.otrasDeudas}" th:value="false" style="align-items: center; height: 1.5rem !important;" />
+                                        No
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="info-item otras-deudas-field">
+                                <span class="info-label">Entidad de estas deudas</span>
+                                <input type="text" th:field="*{usuarioSolicitud.otrasDeudasEntidad}" placeholder="Nombre de la entidad">
+                            </div>
+
+                            <div class="info-item otras-deudas-field">
+                                <span class="info-label">Monto mensual de estas deudas</span>
+                                <input type="number" step="0.01" th:field="*{usuarioSolicitud.otrasDeudasMonto}" placeholder="Ej. 100.00">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="form-navigation" style="text-align: center;">
+            <button type="button" id="prevBtn" class="btn-primary">
+                <i class="fa-solid fa-arrow-left" style="margin-right: 8px;"></i>
+                
+            </button>
+            <button type="button" id="nextBtn" class="btn-primary">
+                <i class="fa-solid fa-arrow-right" style="margin-right: 8px;"></i>
+                Siguiente
+            </button>
+            <button type="submit" id="submitBtn" class="btn-primary" style="display: none;">
+                <i class="fas fa-paper-plane" style="margin-right: 8px;"></i>
+                Enviar Solicitud
+            </button>
+        </div>
+
+        <th:block th:fragment="scripts">
+                <script th:inline="javascript">
+                    let currentStep = 1;
+                    const totalSteps = 3;
+
+                    const showStep = (step) => {
+                        // Hide all steps
+                        document.querySelectorAll('.form-step').forEach((el) => el.style.display = 'none');
+                        // Show the current step
+                        document.getElementById(`step-${step}`).style.display = 'block';
+
+                        // Handle buttons visibility
+                        document.getElementById('prevBtn').style.display = step > 1 ? 'inline-block' : 'none';
+                        document.getElementById('nextBtn').style.display = step < totalSteps ? 'inline-block' : 'none';
+                        document.getElementById('submitBtn').style.display = step === totalSteps ? 'inline-block' : 'none';
+                    };
+
+                    document.getElementById('nextBtn').addEventListener('click', () => {
+                        if (currentStep < totalSteps) {
+                            // Validate current step before proceeding
+                            if (validateStep(currentStep)) {
+                                currentStep++;
+                                showStep(currentStep);
+                            }
+                        }
+                    });
+
+                    document.getElementById('prevBtn').addEventListener('click', () => {
+                        if (currentStep > 1) {
+                            currentStep--;
+                            showStep(currentStep);
+                        }
+                    });
+
+
+                    let formSubmitted = false;
+                    // Add event listener for the submit button
+                    document.getElementById('submitBtn').addEventListener('click', (e) => {
+                        e.preventDefault();
+
+                        if (formSubmitted) return; // evita doble envío
+                        formSubmitted = true;
+
+                        let allStepsValid = true;
+                        for (let step = 1; step <= totalSteps; step++) {
+                            if (!validateStep(step, true)) {
+                                allStepsValid = false;
+                                if (step !== currentStep) {
+                                    currentStep = step;
+                                    showStep(currentStep);
+                                }
+                                break;
+                            }
+                        }
+
+                        if (allStepsValid) {
+                            document.querySelector('form').submit();
+                        } else {
+                            formSubmitted = false; // si falla validación, permite reintento
+                        }
+                    });
+
+                    // Initial display
+                    showStep(currentStep);
+
+                    function validateStep(step, isFinalValidation = false) {
+                        const currentStepElement = document.getElementById(`step-${step}`);
+                        const requiredFields = currentStepElement.querySelectorAll('[required]');
+
+                        let isValid = true;
+                        let firstInvalidField = null;
+
+                        // Reset all field styles first (remove any previous red borders)
+                        requiredFields.forEach(field => {
+                            field.classList.remove('invalid-field');
+                            // Remove any error messages
+                            const errorElement = field.nextElementSibling;
+                            if (errorElement && errorElement.classList.contains('error-message')) {
+                                errorElement.remove();
+                            }
+                        });
+
+                        // Check each field - only mark as invalid if empty
+                        requiredFields.forEach(field => {
+                            if (!field.value.trim()) {
+                                isValid = false;
+
+                                // Add invalid class to highlight missing field
+                                field.classList.add('invalid-field');
+
+                                // Add error message
+                                const errorMessage = document.createElement('div');
+                                errorMessage.classList.add('error-message');
+                                errorMessage.textContent = 'Este campo es requerido';
+                                errorMessage.style.color = '#dc3545';
+                                errorMessage.style.fontSize = '0.875rem';
+                                errorMessage.style.marginTop = '0.25rem';
+
+                                // Insert after the field
+                                field.parentNode.insertBefore(errorMessage, field.nextSibling);
+
+                                // Store the first invalid field for scrolling
+                                if (!firstInvalidField) {
+                                    firstInvalidField = field;
+                                }
+
+                                // Only add the input event listener if it's not the final validation
+                                if (!isFinalValidation) {
+                                    // Remove highlight and error message when user starts typing
+                                    const removeHighlight = function() {
+                                        this.classList.remove('invalid-field');
+                                        const errorElement = this.nextElementSibling;
+                                        if (errorElement && errorElement.classList.contains('error-message')) {
+                                            errorElement.remove();
+                                        }
+                                        this.removeEventListener('input', removeHighlight);
+                                    };
+                                    field.addEventListener('input', removeHighlight);
+                                }
+                            }
+                        });
+
+                        // Scroll to the first invalid field if any
+                        if (firstInvalidField && !isValid) {
+                            firstInvalidField.scrollIntoView({
+                                behavior: 'smooth',
+                                block: 'center',
+                                inline: 'nearest'
+                            });
+
+                            // Focus on the first invalid field
+                            firstInvalidField.focus();
+
+                            // Show an alert for final validation
+                            if (isFinalValidation) {
+                                alert('Por favor, complete todos los campos requeridos antes de enviar la solicitud.');
+                            }
+                        }
+
+                        return isValid;
+                    }
+                    function toggleOtroPago(selectElement) {
+                        const otroContainer = document.getElementById('otroPagoContainer');
+                        if (selectElement.value === 'otro') {
+                            otroContainer.style.display = 'block';
+                        } else {
+                            otroContainer.style.display = 'none';
+                            document.getElementById('formaDePagoOtro').value = '';
+                        }
+                    }
+
+                    function toggleOtroDestino(selectElement) {
+                        const otroContainer = document.getElementById('otroDestinoContainer');
+                        if (selectElement.value === 'otro') {
+                            otroContainer.style.display = 'block';
+                        } else {
+                            otroContainer.style.display = 'none';
+                            document.getElementById('destinoOtro').value = '';
+                        }
+                    }
+
+                    document.addEventListener('DOMContentLoaded', function() {
+                        // First toggle for "solicitado" fields
+                        const solicitadoRadios = document.querySelectorAll('input[name="usuarioSolicitud.solicitado"]');
+                        const anteriorFields = document.querySelectorAll('.anterior-field');
+                        
+                        function toggleAnteriorFields() {
+                            const isYes = document.querySelector('input[name="usuarioSolicitud.solicitado"]:checked')?.value === 'true';
+                            
+                            anteriorFields.forEach(field => {
+                                if (isYes) {
+                                    field.classList.add('show-field');
+                                    field.classList.remove('anterior-field');
+                                } else {
+                                    field.classList.remove('show-field');
+                                    field.classList.add('anterior-field');
+                                }
+                                
+                                const inputs = field.querySelectorAll('input, select');
+                                inputs.forEach(input => {
+                                    if (!isYes) {
+                                        // input.removeAttribute('required');
+                                    } else {
+                                        // // input.setAttribute('required', 'required');
+                                    }
+                                });
+                            });
+                        }
+                        
+                        solicitadoRadios.forEach(radio => {
+                            radio.addEventListener('change', toggleAnteriorFields);
+                        });
+                        toggleAnteriorFields();
+                        
+                        // Second toggle for "otras deudas" fields
+                        const otrasDeudasRadios = document.querySelectorAll('.otras-deudas-radio');
+                        const otrasDeudasFields = document.querySelectorAll('.otras-deudas-field');
+                        
+                        function toggleOtrasDeudasFields() {
+                            const isYes = document.querySelector('.otras-deudas-radio:checked')?.value === 'true';
+                            
+                            otrasDeudasFields.forEach(field => {
+                                if (isYes) {
+                                    field.classList.add('show-field');
+                                    field.classList.remove('otras-deudas-field');
+                                } else {
+                                    field.classList.remove('show-field');
+                                    field.classList.add('otras-deudas-field');
+                                }
+                                
+                                const inputs = field.querySelectorAll('input, select');
+                                inputs.forEach(input => {
+                                    if (!isYes) {
+                                        // input.removeAttribute('required');
+                                    } else {
+                                        // // input.setAttribute('required', 'required');
+                                    }
+                                });
+                            });
+                        }
+                        
+                        otrasDeudasRadios.forEach(radio => {
+                            radio.addEventListener('change', toggleOtrasDeudasFields);
+                        });
+                        toggleOtrasDeudasFields();
+                    });
+
+
+
+                        function togglePersonaConocida() {
+                        const valor = document.querySelector('[name="usuario.conoceAlguien"]').value;
+                        const nombreDiv = document.getElementById("nombrePersonaConocidaDiv");
+                        const telefonoDiv = document.getElementById("telefonoPersonaConocidaDiv");
+
+                        if (valor === "true") {
+                        nombreDiv.style.display = "block";
+                        telefonoDiv.style.display = "block";
+                    } else {
+                        nombreDiv.style.display = "none";
+                        telefonoDiv.style.display = "none";
+                    }
+                    }
+
+                        document.addEventListener("DOMContentLoaded", function () {
+                        const select = document.querySelector('[name="usuario.conoceAlguien"]');
+                        select.addEventListener("change", togglePersonaConocida);
+                        togglePersonaConocida(); // ejecutar al cargar por si ya tiene valor
+                    });
+
+
+
+                    function toggleDireccionPropiedad(select) {
+                        const div = document.getElementById('direccionPropiedadDiv');
+                        if (select.value === 'true') {
+                            div.style.display = 'block';
+                        } else {
+                            div.style.display = 'none';
+                        }
+                    }
+
+                    // Mostrar el campo si el valor ya viene del form
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const select = document.getElementById('tienePropiedadSelect');
+                        toggleDireccionPropiedad(select);
+                    });
+
+                    function toggleCamposLaborales(select) {
+                        const empleadoDiv = document.getElementById('empleadoCampos');
+                        const emprendedorDiv = document.getElementById('emprendedorCampos');
+                        if(select.value === 'Empleado') {
+                            empleadoDiv.style.display = 'block';
+                            emprendedorDiv.style.display = 'none';
+                        } else if(select.value === 'Emprendedor') {
+                            empleadoDiv.style.display = 'none';
+                            emprendedorDiv.style.display = 'block';
+                        } else {
+                            empleadoDiv.style.display = 'none';
+                            emprendedorDiv.style.display = 'none';
+                        }
+                    }
+
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const select = document.getElementById('ocupacionSelect');
+                        toggleCamposLaborales(select);
+                    });
+
+            </script>
+        </th:block>
+
+    </form>
+
+</div>
+
+</body>
+</html>

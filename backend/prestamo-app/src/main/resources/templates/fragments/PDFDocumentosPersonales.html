@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8" />
+  <style>
+    body { font-family: "Times New Roman", serif; font-size: 12pt; line-height: 1.5; margin: 2cm; }
+    .header-container { display: flex; align-items: center; margin-bottom: 10px; }
+    .logo { width: 170px; height: auto; margin-right: 15px; }
+    .company-header { font-weight: bold; font-size: 14pt; text-align: center; flex: 1; }
+    .pdf-title { text-align: center; font-weight: bold; text-decoration: underline; font-size: 12pt; margin: 15px 0; }
+    .pdf-section { font-weight: bold; text-transform: uppercase; margin: 15px 0 10px; text-align: left; }
+    .photo-container { display: flex; flex-wrap: wrap; gap: 20px; margin-bottom: 20px; }
+    .photo-item { flex: 1 1 100%; text-align: center; margin-bottom: 20px; }
+    .photo-item img { max-width: 500px; max-height: 600px; width: auto; height: auto; border: 1px solid #000; }
+    .page-break { page-break-before: always; }
+  </style>
+</head>
+<body>
+
+<!-- Página 1: DUI Cliente -->
+<div class="photo-container">
+  <div class="photo-item">
+    <div>Parte frontal del DUI cliente</div>
+    <img th:if="${usuario.duiDelante != null}" th:src="@{${usuario.duiDelante}}" alt="DUI Delante" />
+    <div th:if="${usuario.duiDelante == null}">No se proporcionó</div>
+  </div>
+  <div class="photo-item">
+    <div>Parte trasera del DUI cliente</div>
+    <img th:if="${usuario.duiAtras != null}" th:src="@{${usuario.duiAtras}}" alt="DUI Atrás" />
+    <div th:if="${usuario.duiAtras == null}">No se proporcionó</div>
+  </div>
+</div>
+
+<!-- Página 2: DUI Codeudor -->
+<div class="photo-container">
+  <div class="photo-item">
+    <div>Parte frontal del DUI Codeudor</div>
+    <img th:if="${usuarioSolicitud.duiDelanteCodeudor != null}" th:src="@{${usuarioSolicitud.duiDelanteCodeudor}}" alt="DUI Delante Codeudor" />
+    <div th:if="${usuarioSolicitud.duiDelanteCodeudor == null}">No se proporcionó</div>
+  </div>
+  <div class="photo-item">
+    <div>Parte trasera del DUI Codeudor</div>
+    <img th:if="${usuarioSolicitud.duiAtrasCodeudor != null}" th:src="@{${usuarioSolicitud.duiAtrasCodeudor}}" alt="DUI Atrás Codeudor" />
+    <div th:if="${usuarioSolicitud.duiAtrasCodeudor == null}">No se proporcionó</div>
+  </div>
+</div>
+
+<!-- Página 3: Recibo -->
+<div class="photo-container">
+  <div class="photo-item">
+    <div>Foto de recibo de agua o luz</div>
+    <img th:if="${usuarioSolicitud.fotoRecibo != null}" th:src="@{${usuarioSolicitud.fotoRecibo}}" alt="Foto Recibo" />
+    <div th:if="${usuarioSolicitud.fotoRecibo == null}">No se proporcionó</div>
+  </div>
+</div>
+</body>
+</html>

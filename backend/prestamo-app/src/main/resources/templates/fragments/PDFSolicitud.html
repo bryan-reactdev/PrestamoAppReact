@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            margin: 1cm;
+            text-align: justify;
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .logo {
+            width: 170px;
+            height: auto;
+            margin-right: 15px;
+        }
+        .company-header {
+            font-weight: bold;
+            font-size: 14pt;
+            text-align: center;
+            flex: 1;
+        }
+        .pdf-title {
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 12pt;
+            margin: 15px 0;
+        }
+        .pdf-section {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 15px 0 10px;
+            text-align: left;
+        }
+        .pdf-field {
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+        .underline {
+            display: inline-block;
+            border-bottom: 1px solid black;
+            min-width: 50px;
+            width: auto;
+            white-space: nowrap;   /* evita saltos de línea */
+            text-align: left;      /* anula el justify heredado */
+        }
+
+        .spacer {
+            margin-top: 25px;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header-container">
+    <img th:src="${logoUrl}" alt="Logo" class="logo" />
+    <div class="company-header">MULTIPRÉSTAMOS ATLAS</div>
+</div>
+
+<div class="pdf-title">FORMULARIO DE SOLICITUD DE CRÉDITO</div>
+
+<!-- 1. Datos del Solicitante -->
+<div class="pdf-section">1. DATOS DEL SOLICITANTE</div>
+
+<div class="pdf-field">
+    <strong>Nombre completo:</strong> <span class="underline" th:text="${usuarioSolicitud.nombres + ' ' + usuarioSolicitud.apellidos}"></span>
+</div>
+<div class="pdf-field">
+    <strong>DUI:</strong> <span class="underline" th:text="${usuarioSolicitud.dui}"></span>
+    <strong>NIT:</strong> <span class="underline" th:text="${usuarioSolicitud.nit}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Fecha de nacimiento:</strong> <span class="underline" th:text="${usuarioSolicitud.fechaNacimiento}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Estado civil:</strong> <span class="underline" th:text="${#strings.capitalize(usuarioSolicitud.estadoCivil)}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Dirección completa:</strong> <span class="underline" th:text="${usuarioSolicitud.direccion}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Teléfono:</strong> <span class="underline" th:text="${usuarioSolicitud.telefono}"></span>
+    <strong>Correo electrónico:</strong> <span class="underline" th:text="${usuarioSolicitud.email}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Ocupación / Negocio:</strong> <span class="underline" th:text="${usuarioSolicitud.puesto}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Ingresos mensuales aproximados:</strong> US$ <span class="underline" th:text="${usuarioSolicitud.ingresoMensual}"></span>
+</div>
+
+<!-- Referencias Personales -->
+<div class="pdf-section">REFERENCIAS PERSONALES</div>
+
+<div class="pdf-field">
+    <strong>Nombre:</strong> <span class="underline" th:text="${usuarioSolicitud.referencia1}"></span>
+    <strong>Teléfono:</strong> <span class="underline" th:text="${usuarioSolicitud.telefonoReferencia1}"></span>
+    <strong>Parentesco:</strong> <span class="underline" th:text="${usuarioSolicitud.parentesco1}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Nombre:</strong> <span class="underline" th:text="${usuarioSolicitud.referencia2}"></span>
+    <strong>Teléfono:</strong> <span class="underline" th:text="${usuarioSolicitud.telefonoReferencia2}"></span>
+    <strong>Parentesco:</strong> <span class="underline" th:text="${usuarioSolicitud.parentesco2}"></span>
+</div>
+
+<!-- 2. Detalles del Crédito -->
+<div class="pdf-section">2. DETALLES DEL CRÉDITO</div>
+
+<div class="pdf-field">
+    <strong>Monto solicitado:</strong> US$ <span class="underline" th:text="${credito.monto}"></span>
+</div>
+
+<div class="pdf-field">
+    <strong>Destino del crédito:</strong> <span class="underline" th:text="${credito.destino}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Forma de pago: </strong> <span class="underline" th:text="${credito.formaDePago}"></span>
+</div>
+
+<div class="pdf-field">
+    <strong>Frecuencia de pago:</strong> <span class="underline" th:text="${credito.plazoFrecuencia}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Cuota establecida:</strong> US$ <span class="underline" th:text="${credito.cuotaMensual}"></span>
+</div>
+
+<div class="pdf-field">
+    <strong>Cantidad de cuotas establecidas:</strong>  <span class="underline" th:text="${credito.cuotaCantidad}"></span>
+</div>
+
+<div class="pdf-field">
+    <strong>Primera fecha de pago:</strong>  <span class="underline" th:text="${credito.proximoPago}"></span>
+</div>
+
+<br/>
+
+<!-- 3. Condiciones Generales -->
+<div class="pdf-section">3. CONDICIONES GENERALES</div>
+
+<div class="pdf-field">
+    1. El solicitante se compromete a pagar puntualmente las cuotas acordadas, incluyendo intereses y cargos establecidos en el contrato.
+</div>
+<div class="pdf-field">
+    2. En caso de incumplimiento, se aplicará un interés moratorio de $ 3 diarios más gastos administrativos y de cobranza.
+</div>
+
+<div class="pdf-field">
+    3. El crédito podrá ejecutarse judicialmente en caso de falta de pago, quedando obligado el solicitante a cubrir capital, intereses, costas procesales y honorarios de abogado.
+</div>
+<div class="pdf-field">
+    4. El cliente autoriza a Multipréstamos ATLAS a verificar su información personal, laboral y crediticia.
+</div>
+<div class="pdf-field">
+    5. El cliente se obliga a mantener actualizados sus datos de contacto mientras dura el crédito.
+</div>
+<div class="pdf-field">
+    6. El solicitante reconoce que este documento constituye un título ejecutivo y se compromete legalmente al cumplimiento íntegro de sus obligaciones.
+</div>
+<div class="pdf-field">
+    7. En caso de incumplimiento reiterado, Multipréstamos ATLAS podrá reportar al cliente a burós de crédito en El Salvador.
+</div>
+
+<br/>
+
+<!-- 4. Declaración del Solicitante -->
+<div class="pdf-section">4. DECLARACIÓN DEL SOLICITANTE</div>
+
+<div class="pdf-field">
+    Declaro bajo juramento que toda la información proporcionada es verídica, que he leído y comprendido las condiciones anteriores, y que me obligo legalmente al cumplimiento íntegro del crédito solicitado.
+</div>
+
+<div class="pdf-field">
+    <strong>Nombre completo:</strong> <span class="underline" th:text="${usuarioSolicitud.nombres + ' ' + usuarioSolicitud.apellidos}"></span>
+</div>
+<div class="pdf-field">
+    <strong>DUI/NIT:</strong> <span class="underline" th:text="${usuarioSolicitud.dui != null ? usuarioSolicitud.dui : usuarioSolicitud.nit}"></span>
+</div>
+<div class="pdf-field">
+    <strong>Fecha:</strong> <span class="underline" th:text="${#temporals.format(#temporals.createToday(), 'dd-MM-yyyy')}"></span>
+</div>
+
+<div class="spacer"></div>
+
+<div class="pdf-field">
+    <strong>Firma del solicitante:</strong> ____________________
+</div>
+
+<div class="pdf-field" style="text-align: left;">
+    <strong>Firma del representante de Multipréstamos ATLAS:</strong> ____________________
+</div>
+
+
+</body>
+</html>

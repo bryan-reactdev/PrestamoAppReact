@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es http://www.thymeleaf.org">
+
+<!-- Todos los usuarios Table Fragment (scalable) -->
+<!-- Usage: <div th:replace="~{fragments/usuarioTables :: todos-usuarios-table-content(usuarios=${usuarios})}"></div> -->
+<div th:fragment="todos-usuarios-table-content(usuarios)">
+    <div id="todosUsuariosTable" class="table-switchable-table">
+        <table class="table">
+            <!-- Table Header -->
+            <thead>
+            <tr>
+                <th></th>
+                <th>Calificación</th>
+                <th>Dui</th>
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>Email</th>
+                <th>Celular</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+            <!-- Table Body -->
+            <tbody th:if="${not #lists.isEmpty(usuarios)}" th:each="usuario : ${usuarios}">
+            <tr>
+                <td>
+                    <img
+                            th:if="${usuario.foto != null}"
+                            th:src="${usuario.foto}"
+                            class="table-user-avatar"
+                            alt="User Image"
+                    />
+                </td>
+                <td th:class="${usuario.calificacion}"
+                    th:text="${usuario.calificacion == 'A_PLUS' ? 'A+' : 
+                            (usuario.calificacion == 'D' ? 'Indeseable' : usuario.calificacion)}">
+                </td>
+                <td th:text="${usuario.dui}">USUARIO-001</td>
+
+                <td th:text="${usuario.nombre}">Nombres</td>
+                <td th:text="${usuario.apellido}">Apellidos</td>
+                <td th:text="${usuario.email}">Email</td>
+                <td th:text="${usuario.celular}">Celular</td>
+                <td>
+                    <!-- Dropdown con acciones -->
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                            Acciones
+                        </button>
+                        <ul class="dropdown-menu p-2">
+                            <li>
+                                <a class="dropdown-item"
+                                   th:onclick="|descargarUsuarioPDF(${usuario.id})|">
+                                    <i class="fas fa-print"></i> Descargar PDF de Informe
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"
+                                   th:onclick="|showUsuarioDetails(${usuario.id})|">
+                                    <i class="fas fa-eye"></i> Ver detalles
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"
+                                   th:onclick="|window.location.href='/admin/usuarios/${usuario.id}/solicitar'|">
+                                    <i class="fas fa-plus"></i> Crear Crédito
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item"
+                                   th:href="@{'/admin/usuarios/' + ${usuario.id} + '/creditos'}">
+                                    <i class="fas fa-credit-card"></i> Ver créditos
+                                </a>
+                            </li>
+                            <li th:if="${usuario.enabled}">
+                                <a class="dropdown-item text-danger"
+                                   href="#"
+                                   th:data-url="@{'/admin/usuarios/' + ${usuario.id} + '/bloquear'}"
+                                   onclick="confirmarBloqueo(this, false)">
+                                    <i class="fa-solid fa-lock"></i> Bloquear usuario
+                                </a>
+                            </li>
+                            <li th:unless="${usuario.enabled}">
+                                <a class="dropdown-item text-success"
+                                   href="#"
+                                   th:data-url="@{'/admin/usuarios/' + ${usuario.id} + '/bloquear'}"
+                                   onclick="confirmarBloqueo(this, true)">
+                                    <i class="fa-solid fa-lock-open"></i> Desbloquear usuario
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+            <!-- Empty State -->
+            <tbody th:if="${#lists.isEmpty(usuarios)}">
+            <tr>
+                <td colspan="8" class="text-center text-muted">No hay usuarios registrados</td>
+            </tr>
+            </tbody>
+        </table>
+        <div class="pagination-container"></div>
+    </div>
+</div>
+
+
+</html>

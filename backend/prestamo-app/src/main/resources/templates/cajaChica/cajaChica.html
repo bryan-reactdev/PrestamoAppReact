@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{appDashboard/admin/layout :: layout(
+          pageTitle='',
+          pageSubtitle='',
+          activePage='cajaChica',
+          content=~{::content},
+          pageCss=~{::css},
+          pageScripts=~{::scripts}
+      )}" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head>
+    <th:block th:fragment="css">
+        <link rel="stylesheet" type="text/css" th:href="@{/css/CajaChica.css}" />
+    </th:block>
+</head>
+<body>
+<div th:fragment="content">
+
+    <!-- CONTENEDOR GENERAL -->
+    <div id="reportesContainer">
+        <!-- Cabecera con controles -->
+        <div class="dashboard-header">
+            <div class="date-controls">
+                <div class="date-selector">
+                    <label for="datePicker">Fecha:</label>
+                    <input type="date" id="datePicker" class="form-control">
+                </div>
+                <button class="btn btn-primary btn-sm btn-today">
+                    <i class="fas fa-rotate"></i> Ir a hoy
+                </button>
+            </div>
+        </div>
+
+        <!-- Tarjetas de Información -->
+        <div class="cards-container">
+            <!-- Cards will be generated dynamically -->
+        </div>
+    </div>
+</div>
+<th:block th:fragment="scripts">
+    <script th:inline="javascript">
+        // Configuration
+        const CONFIG = {
+            timezone: 'America/El_Salvador',
+            maxBarHeight: 30,
+            cards: [
+                {
+                    id: 'balance',
+                    title: 'Balance de Capital',
+                    icon: 'money-bill-trend-up',
+                    type: 'balance',
+                    url: '/CajaChica/historial-caja-chica',
+                    displayType: 'balance',
+                    trendId: 'balance-trend'
+                },
+                {
+                    id: 'income',
+                    title: 'Ingresos',
+                    icon: 'arrow-down',
+                    type: 'income',
+                    url: '/CajaChica/registro-ingresos',
+                    buttons: [
+                        { class: 'btn-pdf-ingresos', icon: 'print', text: 'PDF', style: 'danger' },
+                        { class: 'btn-registrar-ingreso', icon: 'plus', text: 'Ingreso', style: 'success' }
+                    ],
+                    displayType: 'breakdown',
+                    breakdown: [
+                        { id: 'total-pagado', label: 'Pagos de cuotas', icon: 'wallet' },
+                        { id: 'total-abonos-cuotas', label: 'Abonos a Cuotas', icon: 'money-bill-wave' }, // ADD THIS LINE
+                        { id: 'total-ingresos-capital', label: 'Ingresos Capital', icon: 'building' },
+                        { id: 'total-ingresos-varios', label: 'Ingresos Varios', icon: 'coins' }
+                    ],
+                    totalId: 'total-ingresos'
+                },
+                {
+                    id: 'expenses',
+                    title: 'Egresos',
+                    icon: 'arrow-up',
+                    type: 'expenses',
+                    url: '/CajaChica/registro-egresos',
+                    buttons: [
+                        { class: 'btn-pdf-egresos', icon: 'print', text: 'PDF', style: 'danger' },
+                        { class: 'btn-registrar-gasto', icon: 'minus', text: 'Gasto', style: 'warning' }
+                    ],
+                    displayType: 'breakdown',
+                    breakdown: [
+                        { id: 'total-creditos-desembolsados', label: 'Créditos Desembolsados', icon: 'credit-card' },
+                        { id: 'total-gastos-empresa', label: 'Gastos Empresa', icon: 'receipt' },
+                        { id: 'total-gastos-varios', label: 'Gastos Varios', icon: 'coins' },
+                        { id: 'total-retiros-cuotas', label: 'Retiros de Cuotas', icon: 'money-bill-wave' }
+                    ],
+                    totalId: 'total-egresos'
+                }
+            ]
+        };
+
+        // Data from server - ADD ABONOS CUOTAS
+        const cuotasPagadas = /*[[${cuotasPagadas}]]*/ [];
+        const abonosCuotas = /*[[${abonosCuotas}]]*/ []; // ADD THIS LINE
+        const creditosDesembolsados = /*[[${creditosDesembolsados}]]*/ [];
+        const historialIngresosCaja = /*[[${historialIngresosCaja}]]*/ [];
+        const historialGastos = /*[[${historialGastos}]]*/ [];
+        const historialBalances = /*[[${historialBalances}]]*/ [];
+
+        // REMOVE THESE TWO LINES - they don't exist in the controller
+        // const ingresosCaja = /*[[${ingresosCaja}]]*/ [];
+        // const cajaGastos = /*[[${cajaGastos}]]*/ [];
+
+        // Global state
+        let currentDate;
+
+        // Component templates
+        const Templates = {
+            card: (config) => `
+                <div class="info-card ${config.id}-card clickable-card" data-url="${config.url}">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-${config.icon}"></i> ${config.title}
+                        </h3>
+                        <div class="card-actions">
+                            ${config.button ? Templates.singleButton(config.button) : ''}
+                            ${config.buttons ? config.buttons.map(btn => Templates.button(btn)).join('') : ''}
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        ${config.displayType === 'single' ? Templates.singleDisplay(config) : ''}
+                        ${config.displayType === 'balance' ? Templates.balanceDisplay(config) : ''} <!-- ADD THIS -->
+                        ${config.displayType === 'breakdown' ? Templates.breakdownDisplay(config) : ''}
+                    </div>
+                    ${Templates.chart(config)}
+                </div>
+            `,
+
+            singleButton: (btn) => `
+                <button class="btn btn-sm btn-outline-secondary ${btn.class}">
+                    <i class="fas fa-${btn.icon}"></i> ${btn.text}
+                </button>
+            `,
+
+            button: (btn) => `
+                <button class="btn btn-sm btn-${btn.style} ${btn.class}">
+                    <i class="fas fa-${btn.icon}"></i> ${btn.text}
+                </button>
+            `,
+            singleDisplay: (config) => `
+                <div class="main-value">
+                    <span class="currency">$</span>
+                    <span class="amount" id="${config.id === 'balance' ? 'total-balance' : config.totalId}">0.00</span>
+                </div>
+                ${config.trendId ? `<div class="trend-indicator" id="${config.trendId}"></div>` : ''}
+            `,
+
+            // ADD THIS NEW TEMPLATE FUNCTION
+            balanceDisplay: (config) => `
+                <div class="main-value">
+                    <span class="currency">$</span>
+                    <span class="amount" id="total-balance">0.00</span>
+                </div>
+                <div class="balance-breakdown">
+                    <div class="balance-item">
+                        <div class="balance-label">
+                            <i class="fas fa-arrow-down" style="color: #28a745;"></i> Total Ingresos
+                        </div>
+                        <div class="balance-amount income-amount" id="balance-total-ingresos">$0.00</div>
+                    </div>
+                    <div class="balance-item">
+                        <div class="balance-label">
+                            <i class="fas fa-arrow-up" style="color: #dc3545;"></i> Total Egresos
+                        </div>
+                        <div class="balance-amount expense-amount" id="balance-total-egresos">$0.00</div>
+                    </div>
+                </div>
+            `,
+
+            breakdownDisplay: (config) => `
+                <div class="value-group">
+                    ${config.breakdown.map(item => `
+                        <div class="value-item">
+                            <div class="value-label">
+                                <i class="fas fa-${item.icon}"></i> ${item.label}
+                            </div>
+                            <div class="value-amount" id="${item.id}">$0.00</div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="total-value">
+                    <span class="total-label">Total ${config.title}:</span>
+                    <span class="total-amount" id="${config.totalId}">$0.00</span>
+                </div>
+            `,
+
+            chart: (config) => `
+                <div class="card-chart">
+                    <div class="chart-title">Tendencia de ${config.title}</div>
+                    <div class="mini-chart" id="${config.id}Chart">
+                        <div class="chart-day">
+                            <div class="chart-bar ${config.id}-bar" id="prev${capitalize(config.id)}Bar"></div>
+                            <div class="chart-label" id="prev${capitalize(config.id)}Label">Ayer</div>
+                            <div class="chart-amount" id="prev${capitalize(config.id)}Amount">$0.00</div>
+                        </div>
+                        <div class="chart-day">
+                            <div class="chart-bar ${config.id}-bar" id="current${capitalize(config.id)}Bar"></div>
+                            <div class="chart-label current-day" id="current${capitalize(config.id)}Label">Hoy</div>
+                            <div class="chart-amount" id="current${capitalize(config.id)}Amount">$0.00</div>
+                        </div>
+                        <div class="chart-day">
+                            <div class="chart-bar ${config.id}-bar" id="next${capitalize(config.id)}Bar"></div>
+                            <div class="chart-label" id="next${capitalize(config.id)}Label">Mañana</div>
+                            <div class="chart-amount" id="next${capitalize(config.id)}Amount">$0.00</div>
+                        </div>
+                    </div>
+                </div>
+            `
+        };
+
+        // Utility functions
+        const Utils = {
+            capitalize: (str) => str.charAt(0).toUpperCase() + str.slice(1),
+
+            formatDateForInput: (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            },
+
+            formatDateLabel: (date) => {
+                const today = new Date();
+                const tomorrow = new Date(today);
+                tomorrow.setDate(today.getDate() + 1);
+                const yesterday = new Date(today);
+                yesterday.setDate(today.getDate() - 1);
+
+                if (date.toDateString() === today.toDateString()) return 'Hoy';
+                if (date.toDateString() === tomorrow.toDateString()) return 'Mañana';
+                if (date.toDateString() === yesterday.toDateString()) return 'Ayer';
+
+                return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+            },
+
+            parseInputDate: (dateStr) => {
+                if (!dateStr) {
+                    console.warn('Empty date string provided');
+                    return new Date(); // Return current date as fallback
+                }
+                
+                try {
+                    const [year, month, day] = dateStr.split('-').map(Number);
+                    const date = new Date(year, month - 1, day);
+                    
+                    if (isNaN(date.getTime())) {
+                        throw new Error('Invalid date components');
+                    }
+                    
+                    return date;
+                } catch (error) {
+                    console.warn('Error parsing date:', dateStr, error);
+                    return new Date(); // Return current date as fallback
+                }
+            },
+
+            formatMonto: (monto) => parseFloat(monto || 0).toFixed(2)
+        };
+
+        // Data calculation functions
+        const DataCalculators = {
+            calculateBalanceForDate: (date) => {
+                // Add date validation first
+                if (!date || isNaN(date.getTime())) {
+                    console.warn('Invalid date provided to calculateBalanceForDate:', date);
+                    return 0.00;
+                }
+
+                try {
+                    const dateStr = date.toISOString().split('T')[0];
+                    const targetDate = new Date(date);
+                    targetDate.setHours(0, 0, 0, 0);
+
+                    const fixedToday = new Date();
+                    fixedToday.setHours(0, 0, 0, 0);
+
+                    if (targetDate.getTime() === fixedToday.getTime()) {
+                        const todayBalance = /*[[${saldo}]]*/ 0.00;
+                        return parseFloat(todayBalance) || 0.00;
+                    }
+
+                    const balanceRecord = historialBalances?.find(record => {
+                        if (!record || !record.fecha) return false;
+                        
+                        try {
+                            const recordDateStr = record.fecha.split('T')[0];
+                            return recordDateStr === dateStr;
+                        } catch (e) {
+                            console.warn('Invalid record date:', record.fecha);
+                            return false;
+                        }
+                    });
+
+                    const balanceValue = balanceRecord?.monto ?? 0.00;
+                    return parseFloat(balanceValue) || 0.00;
+                } catch (error) {
+                    console.warn('Error calculating balance for date:', date, error);
+                    return 0.00;
+                }
+            },
+
+            calculatePagosForDate: (date) => {
+                const dateStr = date.toISOString().split('T')[0];
+                
+                if (!cuotasPagadas || !Array.isArray(cuotasPagadas)) return 0.00;
+
+                return cuotasPagadas.reduce((total, cuota) => {
+                    if (!cuota || !cuota.fechaPago) return total;
+                    
+                    const fechaPagoStr = cuota.fechaPago.split('T')[0];
+                    if (fechaPagoStr === dateStr) {
+                        const monto = parseFloat(cuota.total || cuota.monto || 0);
+                        return total + monto;
+                    }
+                    return total;
+                }, 0);
+            },
+
+            // Data calculation functions - ADD THIS NEW FUNCTION
+            calculateAbonosCuotasForDate: (date) => {
+                const dateStr = date.toISOString().split('T')[0];
+                
+                if (!abonosCuotas || !Array.isArray(abonosCuotas)) return 0.00;
+
+                return abonosCuotas.reduce((total, abono) => {
+                    if (!abono || !abono.fechaAbono) return total;
+                    
+                    const fechaAbonoStr = abono.fechaAbono.split('T')[0];
+                    if (fechaAbonoStr === dateStr) {
+                        const monto = parseFloat(abono.monto || 0);
+                        return total + monto;
+                    }
+                    return total;
+                }, 0);
+            },
+
+            calculateIngresosForDate: (date) => {
+                const dateStr = date.toISOString().split('T')[0];
+
+                if (!historialIngresosCaja || !Array.isArray(historialIngresosCaja)) return 0.00;
+
+                return historialIngresosCaja.reduce((sum, record) => {
+                    if (!record || !record.fecha) return sum;
+                    
+                    const recordDateStr = record.fecha.split('T')[0];
+                    if (recordDateStr === dateStr) {
+                        return sum + (parseFloat(record.monto) || 0);
+                    }
+                    return sum;
+                }, 0);
+            },
+
+            // Data calculation functions - UPDATE THESE TWO FUNCTIONS
+            calculateIngresosCapitalForDate: (date) => {
+                const dateStr = date.toISOString().split('T')[0];
+                // CHANGE: Use historialIngresosCaja instead of ingresosCaja
+                if (!historialIngresosCaja || !Array.isArray(historialIngresosCaja)) return 0.00;
+
+                return historialIngresosCaja.reduce((sum, ingreso) => {
+                    if (!ingreso || !ingreso.fecha || ingreso.tipo !== 'Capital') return sum;
+                    
+                    const ingresoDateStr = ingreso.fecha.split('T')[0];
+                    if (ingresoDateStr === dateStr) {
+                        return sum + (parseFloat(ingreso.monto) || 0);
+                    }
+                    return sum;
+                }, 0);
+            },
+
+            calculateIngresosVariosForDate: (date) => {
+                const dateStr = date.toISOString().split('T')[0];
+                // CHANGE: Use historialIngresosCaja instead of ingresosCaja
+                if (!historialIngresosCaja || !Array.isArray(historialIngresosCaja)) return 0.00;
+
+                return historialIngresosCaja.reduce((sum, ingreso) => {
+                    if (!ingreso || !ingreso.fecha || ingreso.tipo !== 'Varios') return sum;
+                    
+                    const ingresoDateStr = ingreso.fecha.split('T')[0];
+                    if (ingresoDateStr === dateStr) {
+                        return sum + (parseFloat(ingreso.monto) || 0);
+                    }
+                    return sum;
+                }, 0);
+            },
+
+            calculateCreditosForDate: (date) => {
+                const dateStr = date.toISOString().split('T')[0];
+
+                if (!creditosDesembolsados || !Array.isArray(creditosDesembolsados)) return 0.00;
+
+                return creditosDesembolsados.reduce((sum, credito) => {
+                    if (!credito || !credito.fechaDesembolsado) return sum;
+                    
+                    const fechaDesembolsadoStr = credito.fechaDesembolsado.split('T')[0];
+                    if (fechaDesembolsadoStr === dateStr) {
+                        const amount = parseFloat(credito.montoDado || credito.monto || 0);
+                        return sum + amount;
+                    }
+                    return sum;
+                }, 0);
+            },
+
+            calculateGastosForDate: (date) => {
+                const dateStr = date.toISOString().split('T')[0];
+
+                if (!historialGastos || !Array.isArray(historialGastos)) return 0.00;
+
+                return historialGastos.reduce((sum, record) => {
+                    if (!record || !record.fecha) return sum;
+                    
+                    const recordDateStr = record.fecha.split('T')[0];
+                    if (recordDateStr === dateStr) {
+                        return sum + (parseFloat(record.monto) || 0);
+                    }
+                    return sum;
+                }, 0);
+            },
+
+            calculateGastosEmpresaForDate: (date) => {
+                const dateStr = date.toISOString().split('T')[0];
+                // CHANGE: Use historialGastos instead of cajaGastos
+                if (!historialGastos || !Array.isArray(historialGastos)) return 0.00;
+
+                return historialGastos.reduce((sum, gasto) => {
+                    if (!gasto || !gasto.fecha || gasto.tipo !== 'Empresa') return sum;
+                    
+                    const gastoDateStr = gasto.fecha.split('T')[0];
+                    if (gastoDateStr === dateStr) {
+                        return sum + (parseFloat(gasto.monto) || 0);
+                    }
+                    return sum;
+                }, 0);
+            },
+
+            calculateGastosVariosForDate: (date) => {
+                const dateStr = date.toISOString().split('T')[0];
+                // CHANGE: Use historialGastos instead of cajaGastos
+                if (!historialGastos || !Array.isArray(historialGastos)) return 0.00;
+
+                return historialGastos.reduce((sum, gasto) => {
+                    if (!gasto || !gasto.fecha || gasto.tipo !== 'Varios') return sum;
+                    
+                    const gastoDateStr = gasto.fecha.split('T')[0];
+                    if (gastoDateStr === dateStr) {
+                        return sum + (parseFloat(gasto.monto) || 0);
+                    }
+                    return sum;
+                }, 0);
+            },
+            
+            calculateRetirosCuotasForDate: (date) => {
+                const dateStr = date.toISOString().split('T')[0];
+                if (!historialGastos || !Array.isArray(historialGastos)) return 0.00;
+
+                return historialGastos.reduce((sum, gasto) => {
+                    if (!gasto || !gasto.fecha || gasto.tipo !== 'Retiro de Cuotas') return sum;
+                    
+                    const gastoDateStr = gasto.fecha.split('T')[0];
+                    if (gastoDateStr === dateStr) {
+                        return sum + (parseFloat(gasto.monto) || 0);
+                    }
+                    return sum;
+                }, 0);
+            },
+        };
+
+        // Main application
+        const CajaChicaApp = {
+            initialize() {
+                this.initializeDates();
+                this.renderCards();
+                this.initializeEventListeners();
+                this.updateAllCharts();
+            },
+
+            initializeDates() {
+                const options = {
+                    timeZone: CONFIG.timezone,
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour12: false,
+                };
+
+                const currentDateSV = new Intl.DateTimeFormat('en-US', options).format(new Date());
+                const [month, day, year] = currentDateSV.split('/').map(Number);
+                currentDate = new Date(year, month - 1, day);
+            },
+
+            renderCards() {
+                const container = document.querySelector('.cards-container');
+                container.innerHTML = CONFIG.cards.map(card => Templates.card(card)).join('');
+            },
+
+            initializeEventListeners() {
+                // Date picker
+                const datePicker = document.getElementById('datePicker');
+                datePicker.value = Utils.formatDateForInput(currentDate);
+                datePicker.addEventListener('change', (e) => this.handleDatePickerChange(e.target.value));
+
+                // Today button
+                document.querySelector('.btn-today').addEventListener('click', () => this.resetAllCharts());
+
+                // Action buttons
+                document.querySelector('.btn-pdf-ingresos')?.addEventListener('click', () => this.descargarPDF('ingresos'));
+                document.querySelector('.btn-registrar-ingreso')?.addEventListener('click', this.registrarIngreso);
+                document.querySelector('.btn-pdf-egresos')?.addEventListener('click', () => this.descargarPDF('egresos'));
+                document.querySelector('.btn-registrar-gasto')?.addEventListener('click', this.registrarGasto);
+
+                // Clickable cards
+                document.querySelectorAll('.clickable-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        if (!e.target.closest('button')) {
+                            const url = card.getAttribute('data-url');
+                            window.location.href = url;
+                        }
+                    });
+                });
+            },
+
+            handleDatePickerChange(dateStr) {
+                const selectedDate = Utils.parseInputDate(dateStr);
+                const timeDiff = selectedDate.getTime() - currentDate.getTime();
+                const daysDiff = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+
+                if (daysDiff !== 0) {
+                    this.navigateAllDays(daysDiff);
+                }
+            },
+
+            navigateAllDays(days) {
+                try {
+                    currentDate.setDate(currentDate.getDate() + days);
+                    this.updateAllCharts();
+                    this.updateDatePicker();
+                } catch (error) {
+                    console.error('Error navigating days:', error);
+                    // Reset to current date if navigation fails
+                    this.initializeDates();
+                    this.updateAllCharts();
+                }
+            },
+
+            resetAllCharts() {
+                this.initializeDates();
+                this.updateAllCharts();
+                this.updateDatePicker();
+            },
+
+            updateDatePicker() {
+                const datePicker = document.getElementById('datePicker');
+                if (datePicker) {
+                    datePicker.value = Utils.formatDateForInput(currentDate);
+                }
+            },
+
+            updateAllCharts() {
+                CONFIG.cards.forEach(card => this.updateChart(card));
+                this.updateSummary();
+            },
+
+            updateChart(card) {
+                const prevDate = new Date(currentDate);
+                prevDate.setDate(currentDate.getDate() - 1);
+                const nextDate = new Date(currentDate);
+                nextDate.setDate(currentDate.getDate() + 1);
+
+                let values;
+                switch(card.type) {
+                    case 'balance':
+                        values = {
+                            prev: DataCalculators.calculateBalanceForDate(prevDate),
+                            current: DataCalculators.calculateBalanceForDate(currentDate),
+                            next: DataCalculators.calculateBalanceForDate(nextDate)
+                        };
+                        break;
+                    case 'income':
+                        values = {
+                            prev: DataCalculators.calculatePagosForDate(prevDate) + 
+                                DataCalculators.calculateAbonosCuotasForDate(prevDate) + // ADD THIS
+                                DataCalculators.calculateIngresosCapitalForDate(prevDate) +
+                                DataCalculators.calculateIngresosVariosForDate(prevDate),
+                            current: DataCalculators.calculatePagosForDate(currentDate) + 
+                                    DataCalculators.calculateAbonosCuotasForDate(currentDate) + // ADD THIS
+                                    DataCalculators.calculateIngresosCapitalForDate(currentDate) +
+                                    DataCalculators.calculateIngresosVariosForDate(currentDate),
+                            next: DataCalculators.calculatePagosForDate(nextDate) + 
+                                DataCalculators.calculateAbonosCuotasForDate(nextDate) + // ADD THIS
+                                DataCalculators.calculateIngresosCapitalForDate(nextDate) +
+                                DataCalculators.calculateIngresosVariosForDate(nextDate)
+                        };
+                        break;
+                    case 'expenses':
+                        values = {
+                            prev: DataCalculators.calculateCreditosForDate(prevDate) + 
+                                  DataCalculators.calculateGastosEmpresaForDate(prevDate) +
+                                  DataCalculators.calculateGastosVariosForDate(prevDate) +
+                                  DataCalculators.calculateRetirosCuotasForDate(prevDate), // ADD THIS
+                            current: DataCalculators.calculateCreditosForDate(currentDate) + 
+                                    DataCalculators.calculateGastosEmpresaForDate(currentDate) +
+                                    DataCalculators.calculateGastosVariosForDate(currentDate) +
+                                    DataCalculators.calculateRetirosCuotasForDate(currentDate), // ADD THIS
+                            next: DataCalculators.calculateCreditosForDate(nextDate) + 
+                                  DataCalculators.calculateGastosEmpresaForDate(nextDate) +
+                                  DataCalculators.calculateGastosVariosForDate(nextDate) +
+                                  DataCalculators.calculateRetirosCuotasForDate(nextDate) // ADD THIS
+                        };
+                        break;
+                }
+
+                const maxValue = Math.max(values.prev, values.current, values.next, 1);
+                this.updateChartBars(card, values, maxValue);
+                this.updateChartLabels(card, prevDate, currentDate, nextDate);
+                this.updateChartAmounts(card, values);
+                this.updateCardValues(card, values);
+            },
+
+            updateChartBars(card, values, maxValue) {
+                document.getElementById(`prev${Utils.capitalize(card.id)}Bar`).style.height = 
+                    (values.prev / maxValue * CONFIG.maxBarHeight) + 'px';
+                document.getElementById(`current${Utils.capitalize(card.id)}Bar`).style.height = 
+                    (values.current / maxValue * CONFIG.maxBarHeight) + 'px';
+                document.getElementById(`next${Utils.capitalize(card.id)}Bar`).style.height = 
+                    (values.next / maxValue * CONFIG.maxBarHeight) + 'px';
+            },
+
+            updateChartLabels(card, prevDate, currentDate, nextDate) {
+                document.getElementById(`prev${Utils.capitalize(card.id)}Label`).textContent = 
+                    Utils.formatDateLabel(prevDate);
+                document.getElementById(`current${Utils.capitalize(card.id)}Label`).textContent = 
+                    Utils.formatDateLabel(currentDate);
+                document.getElementById(`next${Utils.capitalize(card.id)}Label`).textContent = 
+                    Utils.formatDateLabel(nextDate);
+            },
+
+            updateChartAmounts(card, values) {
+                document.getElementById(`prev${Utils.capitalize(card.id)}Amount`).textContent = 
+                    `$${Utils.formatMonto(values.prev)}`;
+                document.getElementById(`current${Utils.capitalize(card.id)}Amount`).textContent = 
+                    `$${Utils.formatMonto(values.current)}`;
+                document.getElementById(`next${Utils.capitalize(card.id)}Amount`).textContent = 
+                    `$${Utils.formatMonto(values.next)}`;
+            },
+            
+            updateCardValues(card, values) {
+                switch(card.type) {
+                    case 'balance':
+                        document.getElementById('total-balance').textContent = Utils.formatMonto(values.current);
+                        
+                        // Calculate and display ingresos and egresos totals
+                        const ingresosTotal = DataCalculators.calculatePagosForDate(currentDate) + 
+                                            DataCalculators.calculateAbonosCuotasForDate(currentDate) + // ADD THIS
+                                            DataCalculators.calculateIngresosCapitalForDate(currentDate) +
+                                            DataCalculators.calculateIngresosVariosForDate(currentDate);
+                        
+                        const egresosTotal = DataCalculators.calculateCreditosForDate(currentDate) + 
+                                           DataCalculators.calculateGastosEmpresaForDate(currentDate) +
+                                           DataCalculators.calculateGastosVariosForDate(currentDate) +
+                                           DataCalculators.calculateRetirosCuotasForDate(currentDate);
+                        
+                        document.getElementById('balance-total-ingresos').textContent = `$${Utils.formatMonto(ingresosTotal)}`;
+                        document.getElementById('balance-total-egresos').textContent = `$${Utils.formatMonto(egresosTotal)}`;
+                        break;
+                    case 'income':
+                        const pagos = DataCalculators.calculatePagosForDate(currentDate);
+                        const abonos = DataCalculators.calculateAbonosCuotasForDate(currentDate); // ADD THIS
+                        const ingresosCapital = DataCalculators.calculateIngresosCapitalForDate(currentDate);
+                        const ingresosVarios = DataCalculators.calculateIngresosVariosForDate(currentDate);
+
+                        document.getElementById('total-pagado').textContent = `$${Utils.formatMonto(pagos)}`;
+                        document.getElementById('total-abonos-cuotas').textContent = `$${Utils.formatMonto(abonos)}`; // ADD THIS
+                        document.getElementById('total-ingresos-capital').textContent = `$${Utils.formatMonto(ingresosCapital)}`;
+                        document.getElementById('total-ingresos-varios').textContent = `$${Utils.formatMonto(ingresosVarios)}`;
+                        document.getElementById('total-ingresos').textContent = 
+                            `$${Utils.formatMonto(pagos + abonos + ingresosCapital + ingresosVarios)}`; // UPDATE THIS
+                        break;
+                    case 'expenses':
+                        const creditos = DataCalculators.calculateCreditosForDate(currentDate);
+                        const gastosEmpresa = DataCalculators.calculateGastosEmpresaForDate(currentDate);
+                        const gastosVarios = DataCalculators.calculateGastosVariosForDate(currentDate);
+                        const retirosCuotas = DataCalculators.calculateRetirosCuotasForDate(currentDate);
+
+                        document.getElementById('total-creditos-desembolsados').textContent = `$${Utils.formatMonto(creditos)}`;
+                        document.getElementById('total-gastos-empresa').textContent = `$${Utils.formatMonto(gastosEmpresa)}`;
+                        document.getElementById('total-gastos-varios').textContent = `$${Utils.formatMonto(gastosVarios)}`;
+                        document.getElementById('total-retiros-cuotas').textContent = `$${Utils.formatMonto(retirosCuotas)}`;
+                        document.getElementById('total-egresos').textContent = 
+                            `$${Utils.formatMonto(creditos + gastosEmpresa + gastosVarios + retirosCuotas)}`;
+                        break;
+                }
+            },
+            
+            updateTrendIndicator(elementId, currentValue, previousValue) {
+                const trendElement = document.getElementById(elementId);
+                const difference = currentValue - previousValue;
+
+                if (difference > 0) {
+                    trendElement.className = 'trend-indicator positive';
+                    trendElement.innerHTML = '<span class="trend-icon">↗</span><span class="trend-text">+' + difference.toFixed(2) + '</span>';
+                } else if (difference < 0) {
+                    trendElement.className = 'trend-indicator negative';
+                    trendElement.innerHTML = '<span class="trend-icon">↘</span><span class="trend-text">' + difference.toFixed(2) + '</span>';
+                } else {
+                    trendElement.className = 'trend-indicator';
+                    trendElement.innerHTML = '<span class="trend-icon">→</span><span class="trend-text">Sin cambios</span>';
+                }
+            },
+
+            updateSummary() {
+                const balance = parseFloat(document.getElementById('total-balance').textContent) || 0;
+            },
+
+            descargarPDF(tipo) {
+                const dateStr = currentDate.toISOString().split('T')[0];
+                fetch(`/admin/pdf/reporte/${dateStr}/${tipo}`, { method: 'POST' })
+                    .then(res => {
+                        if (!res.ok) throw new Error('Error al generar PDF');
+                        return res.blob();
+                    })
+                    .then(blob => {
+                        const url = window.URL.createObjectURL(blob);
+                        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+                        if (isMobile) {
+                            window.open(url, '_blank');
+                        } else {
+                            const iframe = document.createElement('iframe');
+                            iframe.style.display = 'none';
+                            iframe.src = url;
+                            iframe.onload = function() {
+                                iframe.contentWindow.print();
+                                setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+                            };
+                            document.body.appendChild(iframe);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('PDF generation error:', error);
+                        alert('Error al generar PDF');
+                    });
+            },
+            
+            registrarIngreso(){
+                Swal.fire({
+                    title: 'Registrar Nuevo Ingreso',
+                    showConfirmButton: true,
+                    confirmButtonText: '<i class="fas fa-wallet"></i> Registrar Ingreso',
+                    showCancelButton: true,
+                    cancelButtonText: '<i class="fas fa-times"></i> Cerrar',
+                    customClass: {
+                        confirmButton: 'btn btn-primary',
+                        cancelButton: 'btn btn-secondary'
+                    },
+                    html: `
+                        <div>
+                            <div class="mb-3">
+                                <label for="monto" class="form-label">Monto del Ingreso</label>
+                                <input type="number" step="0.01" class="form-control" id="monto" name="monto" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="tipo" class="form-label">Tipo de Ingreso</label>
+                                <select class="form-control" id="tipo" name="tipo" required>
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="Capital">Capital</option>
+                                    <option value="Varios">Varios</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fechaIngreso" class="form-label">Fecha de Ingreso</label>
+                                <input type="date" class="form-control" id="fechaIngreso" name="fechaIngreso" value="${Utils.formatDateForInput(currentDate)}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="motivo" class="form-label">Motivo</label>
+                                <textarea class="form-control" id="motivo" name="motivo" rows="3" required></textarea>
+                            </div>
+                            <p style="font-size: 0.8em; color: #666; margin-top: 10px;">
+                                Esta función solo sirve para registrar ingresos generales. Los pagos de cuotas deben registrarse desde el listado de cuotas de cada cliente.
+                            </p>
+                        </div>
+                    `,
+                    preConfirm: () => {
+                        const montoEl = document.getElementById('monto');
+                        const tipoEl = document.getElementById('tipo');
+                        const fechaEl = document.getElementById('fechaIngreso');
+                        const motivoEl = document.getElementById('motivo');
+                        const montoVal = montoEl ? montoEl.value.trim() : '';
+                        const tipoVal = tipoEl ? tipoEl.value.trim() : '';
+                        const fechaVal = fechaEl ? fechaEl.value.trim() : '';
+                        const motivoVal = motivoEl ? motivoEl.value.trim() : '';
+
+                        if (!montoVal || isNaN(montoVal) || Number(montoVal) <= 0) {
+                            Swal.showValidationMessage('Ingrese un monto válido mayor que 0');
+                            return false;
+                        }
+                        if (!tipoVal) {
+                            Swal.showValidationMessage('Tipo de ingreso es requerido');
+                            return false;
+                        }
+                        if (!fechaVal) {
+                            Swal.showValidationMessage('Fecha de ingreso es requerida');
+                            return false;
+                        }
+                        if (!motivoVal) {
+                            Swal.showValidationMessage('Motivo es requerido');
+                            return false;
+                        }
+
+                        return { monto: montoVal, tipo: tipoVal, fecha: fechaVal, motivo: motivoVal };
+                    }
+                }).then((result) => {
+                    if (!result.isConfirmed || !result.value) return;
+
+                    const { monto, tipo, fecha, motivo } = result.value;
+
+                    Swal.fire({
+                        title: 'Confirmar Ingreso',
+                        text: `¿Estás seguro que quieres registrar un ingreso de $${monto} como ${tipo} la fecha ${fecha}?`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, registrar',
+                        cancelButtonText: 'Cancelar',
+                        customClass: { confirmButton: 'btn btn-primary', cancelButton: 'btn btn-secondary' }
+                    }).then(conf => {
+                        if (!conf.isConfirmed) return;
+
+                        fetch('/admin/ingreso', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ monto: monto, tipo: tipo, fecha: fecha, motivo: motivo })
+                        })
+                            .then(res => {
+                                if (!res.ok) throw new Error('Error al registrar ingreso');
+                                Swal.fire({ icon: 'success', title: 'Ingreso registrado' });
+                                setTimeout(() => location.reload(), 700);
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                Swal.fire({ icon: 'error', title: 'No se pudo registrar el ingreso' });
+                            });
+                    });
+                });
+            },
+
+            registrarGasto(){
+                Swal.fire({
+                    title: 'Registrar Nuevo Gasto',
+                    showConfirmButton: true,
+                    confirmButtonText: '<i class="fas fa-minus"></i> Registrar Gasto',
+                    showCancelButton: true,
+                    cancelButtonText: '<i class="fas fa-times"></i> Cerrar',
+                    customClass: {
+                        confirmButton: 'btn btn-warning',
+                        cancelButton: 'btn btn-secondary'
+                    },
+                    html: `
+                        <div>
+                            <div class="mb-3">
+                                <label for="gasto_monto" class="form-label">Monto del Gasto</label>
+                                <input type="number" step="0.01" class="form-control" id="gasto_monto" name="gasto_monto" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="gasto_tipo" class="form-label">Tipo de Gasto</label>
+                                <select class="form-control" id="gasto_tipo" name="gasto_tipo" required>
+                                    <option value="">Seleccionar tipo</option>
+                                    <option value="Empresa">Gastos de Empresa</option>
+                                    <option value="Varios">Egresos Varios</option>
+                                    <option value="Retiro de Cuotas">Retiro de Cuotas</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="fechaEgreso" class="form-label">Fecha de Egreso</label>
+                                <input type="date" class="form-control" id="fechaEgreso" name="fechaEgreso" value="${Utils.formatDateForInput(currentDate)}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="gasto_motivo" class="form-label">Motivo</label>
+                                <textarea class="form-control" id="gasto_motivo" name="gasto_motivo" rows="3" required></textarea>
+                            </div>
+                            <p style="font-size: 0.8em; color: #666; margin-top: 10px;">
+                                Esta función solo sirve para registrar gastos generales de la empresa. Los desembolsos de crédito deben registrarse desde el listado de créditos de cada cliente.
+                            </p>
+                        </div>
+                    `,
+                    preConfirm: () => {
+                        const montoEl = document.getElementById('gasto_monto');
+                        const tipoEl = document.getElementById('gasto_tipo');
+                        const fechaEl = document.getElementById('fechaEgreso');
+                        const motivoEl = document.getElementById('gasto_motivo');
+                        const montoVal = montoEl ? montoEl.value.trim() : '';
+                        const tipoVal = tipoEl ? tipoEl.value.trim() : '';
+                        const fechaVal = fechaEl ? fechaEl.value.trim() : '';
+                        const motivoVal = motivoEl ? motivoEl.value.trim() : '';
+
+                        if (!montoVal || isNaN(montoVal) || Number(montoVal) <= 0) {
+                            Swal.showValidationMessage('Ingrese un monto válido mayor que 0');
+                            return false;
+                        }
+                        if (!tipoVal) {
+                            Swal.showValidationMessage('Tipo de gasto es requerido');
+                            return false;
+                        }
+                        if (!fechaVal) {
+                            Swal.showValidationMessage('Fecha de egreso es requerida');
+                            return false;
+                        }
+                        if (!motivoVal) {
+                            Swal.showValidationMessage('Motivo es requerido');
+                            return false;
+                        }
+
+                        return { monto: montoVal, tipo: tipoVal, fecha: fechaVal, motivo: motivoVal };
+                    }
+                }).then((result) => {
+                    if (!result.isConfirmed || !result.value) return;
+
+                    const { monto, tipo, fecha, motivo } = result.value;
+
+                    Swal.fire({
+                        title: 'Confirmar Gasto',
+                        text: `¿Estás seguro que quieres registrar un egreso de $${monto} como ${tipo} la fecha ${fecha}?`,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, registrar',
+                        cancelButtonText: 'Cancelar',
+                        customClass: { confirmButton: 'btn btn-warning', cancelButton: 'btn btn-secondary' }
+                    }).then(conf => {
+                        if (!conf.isConfirmed) return;
+
+                        fetch('/admin/gasto', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ monto: monto, tipo: tipo, fecha: fecha, motivo: motivo })
+                        })
+                            .then(res => {
+                                if (!res.ok) throw new Error('Error al registrar gasto');
+                                Swal.fire({ icon: 'success', title: 'Gasto registrado' });
+                                setTimeout(() => location.reload(), 700);
+                            })
+                            .catch(err => {
+                                console.error(err);
+                                Swal.fire({ icon: 'error', title: 'No se pudo registrar el gasto' });
+                            });
+                    });
+                });
+            }
+        };
+
+        // Global helper
+        const capitalize = Utils.capitalize;
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', () => CajaChicaApp.initialize());
+    </script>
+</th:block>
+</body>
+</html>

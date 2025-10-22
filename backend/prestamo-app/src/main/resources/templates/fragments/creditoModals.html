@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<!-- Modal Content Fragment - Reusable across pages -->
+<!-- Usage: <div th:replace="~{fragments/creditoModals :: modal-content(creditos=${creditos})}"></div> -->
+<div th:fragment="modal-content(creditos)">
+    <div style="display:none;">
+        <div th:each="credito : ${creditos}" th:id="'modal-content-' + ${credito.id}">
+            <div class="credito-detail">
+                <!-- Credit Summary -->
+                <div class="section-card full-width">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            Resumen del Crédito
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="summary-grid">
+                            <div class="summary-item financial-field monto-highlight">
+                                <div class="summary-label">Monto Solicitado</div>
+                                <div class="summary-value" th:text="${'$' + #numbers.formatDecimal(credito.monto, 1, 'COMMA', 2, 'POINT')}">$1,000.00</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Identificador</div>
+                                <div class="summary-value" th:text="${credito.id}">123</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Estado</div>
+                                <div class="summary-value">
+                                    <span class="status-badge" th:class="${'status-' + credito.estado}" th:text="${credito.estado}">Pendiente</span>
+                                </div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Frecuencia de pago</div>
+                                <div class="summary-value" th:text="${credito.plazoFrecuencia}"></div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Fecha de Solicitud</div>
+                                <div class="summary-value" th:text="${credito.usuarioSolicitud != null ? #temporals.format(credito.usuarioSolicitud.fechaSolicitud, 'dd/MM/yyyy') : 'N/A'}">15/01/2024</div>
+                            </div>
+                            <div th:if="${credito.total != null}" class="summary-item financial-field total-highlight">
+                                <div class="summary-label">Monto Total</div>
+                                <div class="summary-value" th:text="${'$' + #numbers.formatDecimal(credito.total, 1, 'COMMA', 2, 'POINT')}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Sections Grid -->
+                <div class="sections-grid">
+                    <!-- Personal Information -->
+                    <div class="section-card" th:if="${credito.usuarioSolicitud != null}">
+                        <div class="section-header">
+                            <div class="section-header-left">
+                                <i class="fas fa-user"></i>
+                                Información Personal
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="info-grid">
+                                <div class="info-item important-field">
+                                    <span class="info-label">Nombres</span>
+                                    <span class="info-value" th:text="${credito.usuarioSolicitud.nombres}">Juan Carlos</span>
+                                </div>
+                                <div class="info-item important-field">
+                                    <span class="info-label">Apellidos</span>
+                                    <span class="info-value" th:text="${credito.usuarioSolicitud.apellidos}">Pérez González</span>
+                                </div>
+
+                                <!-- DUI Delante con vista previa y expansión -->
+                                <div class="info-item important-field">
+                                    <span class="info-label">Foto del DUI Delante</span>
+                                    <div class="info-value">
+                                        <img th:src="@{${credito.usuarioSolicitud.duiDelante}}"
+                                             th:data-image-url="@{${credito.usuarioSolicitud.duiDelante}}"
+                                             alt="Foto DUI Delante"
+                                             style="max-width: 150px; display: block; cursor: pointer;"
+                                             onclick="expandImage(this.dataset.imageUrl)" />
+                                    </div>
+                                </div>
+
+                                <!-- DUI Atrás con vista previa y expansión -->
+                                <div class="info-item important-field">
+                                    <span class="info-label">Foto del DUI Atrás</span>
+                                    <div class="info-value">
+                                        <img th:src="@{${credito.usuarioSolicitud.duiAtras}}"
+                                             th:data-image-url="@{${credito.usuarioSolicitud.duiAtras}}"
+                                             alt="Foto DUI Atrás"
+                                             style="max-width: 150px; display: block; cursor: pointer;"
+                                             onclick="expandImage(this.dataset.imageUrl)" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- User Account Information -->
+                    <div class="section-card" th:if="${credito.usuario != null}">
+                        <div class="section-header">
+                            <div class="section-header-left">
+                                <i class="fas fa-user-circle"></i>
+                                Información de la Cuenta
+                            </div>
+                        </div>
+                        <div class="section-content">
+                            <div class="info-grid">
+                                <div class="info-item important-field">
+                                    <span class="info-label">Nombre Completo</span>
+                                    <span class="info-value" th:text="${credito.usuario?.nombre != null ? credito.usuario?.nombre : 'N/A'}">Juan Pérez</span>
+                                </div>
+                                <div class="info-item">
+                                    <span class="info-label">Correo Electrónico</span>
+                                    <span class="info-value" th:text="${credito.usuario?.email != null ? credito.usuario?.email : 'N/A'}">juan@email.com</span>
+                                    <div class="contact-info">
+                                        <i class="fas fa-envelope contact-icon"></i>
+                                        <span style="font-size: 12px; color: #6c757d;">Correo principal</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Work Information -->
+                <div class="section-card" th:if="${credito.usuarioSolicitud != null}">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-briefcase"></i>
+                            Información Laboral
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Empresa o Institución</span>
+                                <span class="info-value" th:text="${credito.usuarioSolicitud.empresaTrabajo}">Tech Solutions S.A.</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Cargo o Puesto</span>
+                                <span class="info-value" th:text="${credito.usuarioSolicitud.puesto}">Desarrollador Senior</span>
+                            </div>
+                            <div class="info-item financial-field">
+                                <span class="info-label">Ingreso Mensual</span>
+                                <span class="info-value amount-highlight" th:text="${'$' + credito.usuarioSolicitud.ingresoMensual}">$2,500.00</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Tipo de Contrato</span>
+                                <span class="info-value" th:text="${credito.usuarioSolicitud.tipoContrato}">Indefinido</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Contact Information -->
+                <div class="section-card" th:if="${credito.usuarioSolicitud != null}">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-address-book"></i>
+                            Información de Contacto
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Teléfono de Contacto</span>
+                                <span class="info-value" th:text="${credito.usuarioSolicitud.telefono}">+503 1234-5678</span>
+                                <div class="contact-info">
+                                    <i class="fas fa-phone contact-icon"></i>
+                                    <span style="font-size: 12px; color: #6c757d;">Teléfono de la solicitud</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Correo Electrónico</span>
+                                <span class="info-value" th:text="${credito.usuarioSolicitud.email}">juan@email.com</span>
+                                <div class="contact-info">
+                                    <i class="fas fa-envelope contact-icon"></i>
+                                    <span style="font-size: 12px; color: #6c757d;">Email de la solicitud</span>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Dirección Residencial</span>
+                                <span class="info-value" th:text="${credito.usuarioSolicitud.direccion}">San Salvador, El Salvador</span>
+                                <div class="contact-info">
+                                    <i class="fas fa-map-marker-alt contact-icon"></i>
+                                    <span style="font-size: 12px; color: #6c757d;">Dirección de la solicitud</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Credit Details -->
+                <div class="section-card full-width">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-info-circle"></i>
+                            Detalles del Crédito
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="info-grid" style="grid-template-columns: 1fr 1fr;">
+                            <div class="info-item">
+                                <span class="info-label">Destino del Crédito</span>
+                                <span class="info-value" th:text="${credito.destino != null ? credito.destino : 'No especificado'}">Personal</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Forma de Pago</span>
+                                <span class="info-value" th:text="${credito.formaDePago != null ? credito.formaDePago : 'No especificado'}">Mensual</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" onclick="Swal.close()">
+                        <i class="fas fa-times"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Financial Charges Modal Content Fragment - Reusable across pages -->
+<!-- Usage: <div th:replace="~{fragments/creditoModals :: financial-charges-modal-content(creditos=${creditos})}"></div> -->
+<div th:fragment="financial-charges-modal-content(creditos)">
+    <div style="display:none;">
+        <div th:each="credito : ${creditos}" th:id="'financial-charges-modal-content-' + ${credito.id}">
+            <div class="credito-detail">
+                <!-- Credit Summary -->
+                <div class="section-card full-width">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-file-invoice-dollar"></i>
+                            Configurar Cargos Financieros
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="summary-grid">
+                            <div class="summary-item financial-field monto-highlight">
+                                <div class="summary-label">Monto Solicitado</div>
+                                <div class="summary-value" th:text="${'$' + #numbers.formatDecimal(credito.monto, 1, 'COMMA', 2, 'POINT')}">$1,000.00</div>
+                            </div>
+<!--                            <div class="summary-item">-->
+<!--                                <div class="summary-label">Identificador</div>-->
+<!--                                <div class="summary-value" th:text="${credito.id}">123</div>-->
+<!--                            </div>-->
+                            <div class="summary-item">
+                                <div class="summary-label">Frecuencia de pago</div>
+                                <select class="form-control" id="plazoFrecuencia" name="plazoFrecuencia" style="margin-top: 5px;">
+                                    <option value="Diaria" th:selected="${credito.plazoFrecuencia == 'Diaria'}">Diario</option>
+                                    <option value="Semanal" th:selected="${credito.plazoFrecuencia == 'Semanal'}">Semanal</option>
+                                    <option value="Quincenal" th:selected="${credito.plazoFrecuencia == 'Quincenal'}">Quincenal</option>
+                                    <option value="Mensual" th:selected="${credito.plazoFrecuencia == 'Mensual'}">Mensual</option>
+                                </select>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-label">Solicitante</div>
+                                <div class="summary-value" th:text="${credito.usuario?.nombre + ' ' + credito.usuario?.apellido}">Juan Pérez</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Opciones -->
+                 <div class="section-card full-width">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-calculator"></i>
+                            Opciones
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <button class="btn btn-primary btn-sm" 
+                                th:onclick="'descargarPDF(' + ${credito.id} + ', \'PDFInfoPersonal\')'">
+                            <i class="fas fa-download" style="padding: 10px;"></i>
+                            Documento de evaluación
+                        </button>
+
+                        <button class="btn btn-success btn-sm" 
+                                th:onclick="'refinanciar(' + ${credito.id} + ')'">
+                            <i class="fas fa-dollar-sign" style="padding: 10px;"></i>
+                            Refinanciar
+                        </button>
+                    </div>
+                </div>
+
+
+                <!-- Créditos refinanciables -->
+                <div th:id="'refinanciar-list-' + ${credito.id}" class="section-card full-width" style="display: none;">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-calculator"></i>
+                            Créditos refinanciables
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div style="margin-top: 12px; font-weight: 500;">
+                            <span>Selecciona un crédito a refinanciar</span>
+                            <ul class="list-group"></ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resultados de refinanciamiento -->
+                <div th:id="'refinanciar-resultados-' + ${credito.id}" class="section-card full-width" style="display: none;">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-chart-line"></i>
+                            Resultados de refinanciamiento
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="info-grid" style="grid-template-columns: 1fr 1fr;">
+                            <div class="info-item important-field">
+                                <span class="info-label">Deuda total del crédito a refinanciar</span>
+                                <input type="number" step="0.01" class="form-control" th:id="'refinanciar-total-restante-' + ${credito.id}" readonly style="margin-top: 5px;" />
+                            </div>
+                            <div class="info-item important-field">
+                                <span class="info-label">Liquidez del nuevo crédito</span>
+                                <input type="number" step="0.01" class="form-control" th:id="'refinanciar-nuevo-monto-' + ${credito.id}" readonly style="margin-top: 5px;" />
+                            </div>
+                        </div>
+                        <div th:id="'refinanciar-error-' + ${credito.id}" style="display:none; margin-top:10px; color:#e74c3c; font-weight:600;"></div>
+                    </div>
+                </div>
+
+                <!-- Financial Charges Configuration -->
+                <div class="section-card full-width">
+                    <div class="section-header">
+                        <div class="section-header-left">
+                            <i class="fas fa-calculator"></i>
+                            Cargos Financieros
+                        </div>
+                    </div>
+                    <div class="section-content">
+                        <div class="info-grid" style="grid-template-columns: 1fr 1fr;">
+                            <div class="info-item important-field">
+                                <span class="info-label">Monto Aprobado</span>
+                                <input type="number" class="form-control" id="montoAprobado" name="montoAprobado" step="0.01" required th:value="${credito.monto}" style="margin-top: 5px;">
+                            </div>
+
+                            <div class="info-item important-field">
+                                <span class="info-label">Monto por cada cuota ($USD)</span>
+                                <input type="number" class="form-control" id="cuotaMensualFinal" name="cuotaMensualFinal" step="0.01" required placeholder="Ingresa una cantidad..." style="margin-top: 5px;">
+                            </div>
+                            
+                            <div class="info-item important-field" style="grid-column: 1 / -1;">
+                                <span class="info-label">Mora</span>
+                                <input type="number" step="0.01" class="form-control" id="mora" name="mora" placeholder="Ingresa una cantidad..." required style="margin-top: 5px;">
+                            </div>
+                            <div class="info-item important-field" style="grid-column: 1 / -1;">
+                                <span class="info-label">Cantidad de cuotas</span>
+                                <input type="number" class="form-control" id="cuotaCantidad" name="cuotaCantidad" placeholder="Ingresa una cantidad..." required style="margin-top: 5px;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html> 
