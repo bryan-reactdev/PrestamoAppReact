@@ -3,7 +3,7 @@ export default function TotalCard({icon, className, iconBgColor = 'success', tit
     <div className={`total-card ${className}`} {...props}>
         <i className={`${icon} ${iconBgColor}`}/>
 
-        <div className="total-content">
+        <div className={`total-content`}>
             <h4>{title}</h4>
             <div className="total-children">
               {children}

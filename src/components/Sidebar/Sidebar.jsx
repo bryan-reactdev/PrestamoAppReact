@@ -17,11 +17,11 @@ export default function Sidebar({ activePage }) {
       <Link className={`btn-homebar ${activePage === 'cobros' && 'active'}`} to={'/admin/cobros'}>
         <i className="fas fa-money-bill"/>
       </Link>
-      <Link className={`btn-homebar ${activePage === 'usuarios' && 'active'}`} to={'/admin/usuarios'}>
-        <i className="fas fa-users"/>
-      </Link>
       <Link className={`btn-homebar ${activePage === 'caja' && 'active'}`} to={'/admin/caja'}>
         <i className="fas fa-cash-register"/>
+      </Link>
+      <Link className={`btn-homebar ${activePage === 'usuarios' && 'active'}`} to={'/admin/usuarios'}>
+        <i className="fas fa-users"/>
       </Link>
     </div>
   )
@@ -37,7 +37,7 @@ export default function Sidebar({ activePage }) {
       </SidebarItem>
 
       <SidebarItem icon={'fas fa-credit-card'} active={activePage === 'creditos'} to={'/admin/creditos'}>
-        Creditos
+        Créditos
       </SidebarItem>
 
       <SidebarItem icon={'fas fa-money-bill'} active={activePage === 'cobros'} to={'/admin/cobros'}>

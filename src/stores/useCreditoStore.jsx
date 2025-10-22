@@ -11,6 +11,17 @@ const estadoInicial = {
     creditosFinalizados: [],
     isFetchingCreditos: false,
 
+    filteredCreditos: {
+        creditos: [],
+        creditosPendientes: [],
+        creditosAceptados: [],
+        creditosRechazados: [],
+        creditosFinalizados: [],
+        totalRapicash: null,
+        totalPrendarios: null,
+        totalHipotecarios: null,
+    },
+
     isDesembolsandoCredito: false,
     isAceptandoCredito: false,
     isRechazandoCredito: false,
@@ -70,17 +81,11 @@ export const useCreditoStore = create((set, get) => ({
         const isCurrentGlobal = (usuarioId == null || usuarioId == 0);
         const {wasGlobalFetch, creditos} = get();
 
-        if (isCurrentGlobal && wasGlobalFetch && creditos.length !== 0) return;
+        if (isCurrentGlobal && wasGlobalFetch === true && creditos.length !== 0) return;
         
         set({isFetchingCreditos: true});
 
-        set({
-            creditos: [],
-            creditosPendientes: [],
-            creditosAceptados: [],
-            creditosRechazados: [],
-            creditosFinalizados: [],
-        })
+        get().resetArrays();
         let res = null;
 
         if (isCurrentGlobal){
@@ -89,7 +94,7 @@ export const useCreditoStore = create((set, get) => ({
         }
         else{
             res = await axiosData(`/usuarioTest/${usuarioId}/creditos`, { method: "GET" });
-            set({wasGlobalFetch: false})
+            set({wasGlobalFetch: usuarioId})
         }
         
         const creditoGroups = res?.data;
@@ -105,13 +110,44 @@ export const useCreditoStore = create((set, get) => ({
             creditosAceptados: aceptados ?? [],
             creditosRechazados: rechazados ?? [],
             creditosFinalizados: finalizados ?? []
-         });
+        });
+
+        set((state) => ({
+            filteredCreditos: {
+                ...state.filteredCreditos,
+                totalRapicash: state.getTotalesTipos(state.creditos, 'rapi-cash'),
+                totalPrendarios: state.getTotalesTipos(state.creditos, 'prendario'),
+                totalHipotecarios: state.getTotalesTipos(state.creditos, 'hipotecario'),
+            },
+        }));
+
+        get().filterCreditos('rapi-cash');
 
         set({ isFetchingCreditos: false });
     },
 
-    // --- Acciones ---
+    filterCreditos: async (tipo) => {
+        const {filterByTipo, creditos, creditosPendientes, creditosAceptados, creditosRechazados, creditosFinalizados} = get();
 
+        const filteredAll = filterByTipo(creditos, tipo);
+        const filteredPendientes = filterByTipo(creditosPendientes, tipo);
+        const filteredAceptados = filterByTipo(creditosAceptados, tipo);
+        const filteredRechazados = filterByTipo(creditosRechazados, tipo);
+        const filteredFinalizados = filterByTipo(creditosFinalizados, tipo);
+
+        set((state) => ({
+            filteredCreditos:{
+                ...state.filteredCreditos,
+                creditos: filteredAll,
+                creditosPendientes: filteredPendientes,
+                creditosAceptados: filteredAceptados,
+                creditosRechazados: filteredRechazados,
+                creditosFinalizados: filteredFinalizados,
+            }
+        }))
+    },
+
+    // --- Acciones ---
     submitCredito: async (formData) =>{
         set({ isSubmittingCredito: true });
 
@@ -119,6 +155,7 @@ export const useCreditoStore = create((set, get) => ({
 
         set({ isSubmittingCredito: false });
 
+        get().resetArrays();
         get().getCreditos();
         return res
     },
@@ -128,12 +165,14 @@ export const useCreditoStore = create((set, get) => ({
         const toastId = toast.loading("Aceptando Crédito...");
         
         const res = await axiosData(`/creditoTest/aceptar/${id}`, { method: "POST", data: formData});
-        // Update optimistica
-        get().updateEstado(id, 'Aceptado');
-        
-        // En caso de error
-        if (res === null) {
-            get().updateEstado(id, 'Pendiente');
+
+        if (get().wasGlobalFetch === true){
+            get().resetArrays();
+            
+            get().getCreditos();
+        }
+        else{
+            get().getCreditos(get().wasGlobalFetch)
         }
 
         toast.dismiss(toastId);
@@ -241,5 +280,51 @@ export const useCreditoStore = create((set, get) => ({
             console.error("Error descargando PDF:", err);
             toast.error('Error al generar el PDF del crédito', { id: 'pdf-toast' });
         }
+    },
+
+    resetArrays: () => {
+        set({
+            creditos: [],
+            creditosPendientes: [],
+            creditosAceptados: [],
+            creditosRechazados: [],
+            creditosFinalizados: [],
+
+            filteredCreditos: {
+                creditos: [],
+                creditosPendientes: [],
+                creditosAceptados: [],
+                creditosRechazados: [],
+                creditosFinalizados: [],
+                totalRapicash: null,
+                totalPrendarios: null,
+                totalHipotecarios: null,
+            },
+        })
+    },
+
+    filterByTipo: (objects, tipo) => {
+        if (!Array.isArray(objects)) return;
+
+        const filteredObjects = objects.filter((object) => {
+            if (object.tipo == tipo){
+                return object;
+            }
+
+            return console.warn(tipo, `Object doesn't contain a valid tipo`, object)
+        })
+
+        return filteredObjects;
+    },
+    getTotalesTipos: (objects, tipo) => {
+        if (!Array.isArray(objects)) return;
+
+        return objects.reduce((sum, object) => {
+            if (object.tipo == tipo){
+                return sum + 1;
+            }
+
+            return sum;
+        }, 0)
     },
 }))

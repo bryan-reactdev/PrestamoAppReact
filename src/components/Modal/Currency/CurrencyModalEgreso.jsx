@@ -5,9 +5,9 @@ import FormField from '../../Form/FormField'
 import { useEffect, useState } from 'react'
 import FormSelect from '../../Form/FormSelect'
 
-export default function CurrencyModalEgreso({selectedDate}) {
+export default function CurrencyModalEgreso() {
     const { egreso, row, closeModal } = useCurrencyModalStore()
-    const { realizarEgreso } = useCurrencyStore()
+    const { realizarEgreso, selectedDate } = useCurrencyStore()
     const [formData, setFormData] = useState({
       monto: '',
       motivo: '',
@@ -22,7 +22,6 @@ export default function CurrencyModalEgreso({selectedDate}) {
     formData.monto = '';
     formData.motivo = '';
     formData.tipo = '';
-    formData.fecha = '';
 
     closeModal('egreso')
   }
@@ -53,7 +52,7 @@ export default function CurrencyModalEgreso({selectedDate}) {
       title={'Realizar Egreso'}
       customWidth={500}
       confirmText={`REALIZAR EGRESO`}
-      confirmColor='warning'
+      confirmColor='danger'
       cancelColor='secondary'
     >
       <div className="modal-content">
@@ -61,7 +60,7 @@ export default function CurrencyModalEgreso({selectedDate}) {
           <div className="form-section">
             <div className="form-section-content">
               <FormField
-                classNames={'primary warning'}
+                classNames={'primary danger'}
                 label={'Monto'}
                 name={'monto'}
                 type={'money'}
@@ -79,7 +78,7 @@ export default function CurrencyModalEgreso({selectedDate}) {
                 onChange={handleChange}
                 required
               >
-                <option value={'Capital'}>Capital</option>
+                <option value={'Empresa'}>Empresa</option>
                 <option value={'Varios'}>Varios</option>
                 <option value={'Retiro de Cuotas'}>Retiro de Cuotas</option>
               </FormSelect>

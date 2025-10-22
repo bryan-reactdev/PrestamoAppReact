@@ -2,8 +2,17 @@ import { create } from 'zustand';
 import { axiosData } from "../utils/axiosWrapper";
 import toast from 'react-hot-toast';
 import { getCurrentDate } from '../utils/dateUtils';
+import { descargarPDFConPrint } from '../utils/generalUtil';
 
 const estadoInicial = {
+    cuotasTotales: {
+        totalVencidas: null,
+        totalPendientes: null,
+        totalPagadas: null,
+    },
+
+    isFetchingCuotasTotales: false,
+
     saldo: null,
 
     // Ingresos
@@ -25,7 +34,7 @@ const estadoInicial = {
         cuotasAbonos: null,
         cuotasPagadas: null,
         totalIngresos: null,
-    
+
         // Egresos
         gastosEmpresa: null,
         egresosVarios: null,
@@ -47,12 +56,28 @@ const estadoInicial = {
 export const useCurrencyStore = create((set, get) => ({
     ...estadoInicial,
 
-    getBalance: async () =>{
-        set({isFetchingBalance: true});
-      
+    getCuotasTotales: async () => {
+        set({isFetchingCuotasTotales: true})
+
+        const res = await axiosData("/currency/cuotas", {method: "GET"});
+
+        set({
+            cuotasTotales:{
+                totalVencidas: res?.data?.totalVencidas,
+                totalPendientes: res?.data?.totalPendientes,
+                totalPagadas: res?.data?.totalPagadas,
+            }
+        })
+
+        set({isFetchingCuotasTotales: false})
+    },
+
+    getBalance: async () => {
+        set({ isFetchingBalance: true });
+
         const res = await axiosData("/currency/balance", { method: "GET" });
-        
-        set({ 
+
+        set({
             saldo: res?.data.saldo ?? 0,
 
             // Ingresos
@@ -70,59 +95,80 @@ export const useCurrencyStore = create((set, get) => ({
 
         set({ isFetchingBalance: false });
     },
-    
+
     realizarIngreso: async (formData) => {
-        set({isRealizandoIngreso: true});
-        toast.loading('Realizando Ingreso...', {id: 'realizar-ingreso'});
-      
-        const res = await axiosData("/currency/ingreso", { 
+        set({ isRealizandoIngreso: true });
+        toast.loading('Realizando Ingreso...', { id: 'realizar-ingreso' });
+
+        const res = await axiosData("/currency/ingreso", {
             method: "POST",
             data: formData
         });
 
         toast.dismiss('realizar-ingreso');
 
-        if (res?.data){
+        if (res?.data) {
             get().getBalance();
         }
-                        
+
         set({ isRealizandoIngreso: false });
     },
 
     realizarEgreso: async (formData) => {
-        set({isRealizandoEgreso: true});
-        toast.loading('Realizando Egreso...', {id: 'realizar-egreso'});
-      
-        const res = await axiosData("/currency/egreso", { 
+        set({ isRealizandoEgreso: true });
+        toast.loading('Realizando Egreso...', { id: 'realizar-egreso' });
+
+        const res = await axiosData("/currency/egreso", {
             method: "POST",
             data: formData
         });
 
         toast.dismiss('realizar-egreso');
 
-        if (res?.data){
+        if (res?.data) {
             get().getBalance();
         }
-                        
+
         set({ isRealizandoEgreso: false });
     },
 
+    descargarPDF: async (tipo, fecha) => {
+        try {
+            toast.loading('Generando PDF...', { id: 'pdf-toast' });
+
+            console.log(`/currency/${tipo}/${fecha}/pdf`)
+            const res = await axiosData(`/currency/${tipo}/${fecha}/pdf`, {
+                method: "POST",
+                responseType: "blob",
+            });
+
+            await descargarPDFConPrint(res);
+            
+            toast.success('PDF listo para imprimir', { id: 'pdf-toast' });
+        } catch (err) {
+            console.error("Error descargando PDF:", err);
+            toast.error(`Error al generar el PDF de ${tipo}`, { id: 'pdf-toast' });
+        }
+    },
+
     setSelectedDate: (date) => {
-        set({selectedDate: date});
+        set({ selectedDate: date });
         get().getCurrencyForDate();
     },
 
     // --- Totales Calculations ---
     getCurrencyForDate: () => {
-        const ingresosCapitalesForDate = get().filtrarPorFecha(get().ingresosCapitales, get().selectedDate);
-        const ingresosVariosForDate = get().filtrarPorFecha(get().ingresosVarios, get().selectedDate);
-        const cuotasAbonosForDate = get().filtrarPorFecha(get().cuotasAbonos, get().selectedDate);
-        const cuotasPagadasForDate = get().filtrarPorFecha(get().cuotasPagadas, get().selectedDate);
-        
-        const gastosEmpresaForDate = get().filtrarPorFecha(get().gastosEmpresa, get().selectedDate);
-        const egresosVariosForDate = get().filtrarPorFecha(get().egresosVarios, get().selectedDate);
-        const egresosCuotasRetirosForDate = get().filtrarPorFecha(get().egresosCuotasRetiros, get().selectedDate);
-        const creditosDesembolsadosForDate = get().filtrarPorFecha(get().creditosDesembolsados, get().selectedDate);
+        const { filtrarPorFecha, selectedDate, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados } = get();
+
+        const ingresosCapitalesForDate = filtrarPorFecha(ingresosCapitales, selectedDate);
+        const ingresosVariosForDate = filtrarPorFecha(ingresosVarios, selectedDate);
+        const cuotasAbonosForDate = filtrarPorFecha(cuotasAbonos, selectedDate);
+        const cuotasPagadasForDate = filtrarPorFecha(cuotasPagadas, selectedDate);
+
+        const gastosEmpresaForDate = filtrarPorFecha(gastosEmpresa, selectedDate);
+        const egresosVariosForDate = filtrarPorFecha(egresosVarios, selectedDate);
+        const egresosCuotasRetirosForDate = filtrarPorFecha(egresosCuotasRetiros, selectedDate);
+        const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, selectedDate);
 
         set({
             currencyForDate: {
@@ -153,21 +199,21 @@ export const useCurrencyStore = create((set, get) => ({
         if (!Array.isArray(objects)) return;
 
         const filteredObjects = objects.filter((object) => {
-            if (object?.fecha){
+            if (object?.fecha) {
                 return object.fecha.startsWith(selectedDate)
             }
-            else if (object?.fechaPagado){
+            else if (object?.fechaPagado) {
                 return object.fechaPagado.startsWith(selectedDate)
             }
-            else if (object?.fechaDesembolsado){
+            else if (object?.fechaDesembolsado) {
                 return object.fechaDesembolsado.startsWith(selectedDate);
             }
-            
-            return console.warn(`This object doesn't contain a valid date`, object)
+
+            return console.warn(`Object doesn't contain a valid date`, object)
         })
 
         const total = get().calcularTotal(filteredObjects);
-        return { data: filteredObjects, total: total}
+        return { data: filteredObjects, total: total }
     },
 
     // --- Helpers ---
@@ -175,10 +221,10 @@ export const useCurrencyStore = create((set, get) => ({
         if (!Array.isArray(objects)) return;
 
         return objects.reduce((sum, item) => {
-            if (item?.total){
+            if (item?.total) {
                 return sum + item.total;
             }
-            else if (item?.monto){
+            else if (item?.monto) {
                 return sum + item.monto;
             }
 

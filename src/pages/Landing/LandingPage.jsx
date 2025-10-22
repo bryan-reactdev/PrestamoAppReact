@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import OneTwoCard from "../../components/Cards/OneTwoCard";
 import NavbarLanding from "../../components/Navbar/NavbarLanding";
 
@@ -27,7 +28,7 @@ export default function LandingPage() {
 
                     <div className="button-container">
                         <button className="btn-warning outline lg">CONOCE MÁS</button>
-                        <button className="btn-warning lg">REGÍSTRATE YA</button>
+                        <Link className="btn-warning lg" to={'/register'}>REGÍSTRATE YA</Link>
                     </div>
                 </div>
 
@@ -94,21 +95,21 @@ export default function LandingPage() {
                         </div>
 
                         <div className="landing-section-timeline">
-                            <div class="timeline-container fade-in-up">
-                                <div class="timeline-step">
-                                    <div class="timeline-icon"><i class="fas fa-user-plus"></i></div>
+                            <div className="timeline-container fade-in-up">
+                                <div className="timeline-step">
+                                    <div className="timeline-icon"><i className="fas fa-user-plus"></i></div>
                                     <h3>1. Regístrate</h3>
                                     <p>Crea tu cuenta en menos de 2 minutos con tu email y datos básicos.</p>
                                 </div>
 
-                                <div class="timeline-step">
-                                    <div class="timeline-icon"><i class="fas fa-file-alt"></i></div>
+                                <div className="timeline-step">
+                                    <div className="timeline-icon"><i className="fas fa-file-alt"></i></div>
                                     <h3>2. Completa tu solicitud</h3>
                                     <p>Proporciona la información necesaria para evaluar tu crédito.</p>
                                 </div>
 
-                                <div class="timeline-step">
-                                    <div class="timeline-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                                <div className="timeline-step">
+                                    <div className="timeline-icon"><i className="fas fa-hand-holding-usd"></i></div>
                                     <h3>3. Recibe tu dinero</h3>
                                     <p>Aprobación inmediata y pagos en efectivo o transferencia</p>
                                 </div>
@@ -117,7 +118,7 @@ export default function LandingPage() {
 
                         <div className="button-container">
                             <button className="btn-warning outline lg">REGISTRARSE</button>
-                            <button className="btn-warning lg">INICIAR SESIÓN</button>
+                            <Link className="btn-warning lg" to={'./admin/'}>INICIAR SESIÓN</Link>
                         </div>
                     </div>
                 </div>

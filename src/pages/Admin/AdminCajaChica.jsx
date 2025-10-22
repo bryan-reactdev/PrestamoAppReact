@@ -67,7 +67,7 @@ export default function AdminCajaChica(){
           </StatCard>
 
           {/* Ingresos */}
-          <StatCard title={'Ingresos'} titleIcon={'fas fa-arrow-down'} actions={[<ButtonPDF key={'pdf'}/>, <ButtonIngreso key={'ingreso'}/>]} value={currencyForDate.totalIngresos} color='success' to={'./ingresos'}>
+          <StatCard title={'Ingresos'} titleIcon={'fas fa-arrow-down'} actions={[<ButtonPDF key={'pdf'} tipo={'ingreso'}/>, <ButtonIngreso key={'ingreso'}/>]} value={currencyForDate.totalIngresos} color='success' to={'./ingresos'}>
             <StatSummaryItem value={currencyForDate.ingresosCapitales?.total}>
               <i className='fas fa-building'/>
               Ingresos Capitales
@@ -87,7 +87,7 @@ export default function AdminCajaChica(){
           </StatCard>
 
           {/* Egresos */}
-          <StatCard title={'Engresos'} titleIcon={'fas fa-arrow-up'} actions={[<ButtonPDF key={'pdf'}/>, <ButtonEgreso key={'egreso'}/>]} value={currencyForDate.totalEgresos} color={'danger'}>
+          <StatCard title={'Egresos'} titleIcon={'fas fa-arrow-up'} actions={[<ButtonPDF key={'pdf'} tipo={'egreso'}/>, <ButtonEgreso key={'egreso'}/>]} value={currencyForDate.totalEgresos} color={'danger'} to={'./egresos'}>
             <StatSummaryItem value={currencyForDate.gastosEmpresa?.total}>
               <i className='fas fa-building'/>
               Gastos de Empresa

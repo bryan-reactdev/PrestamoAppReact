@@ -5,7 +5,7 @@
   font-weight: 400;
 
   /* Vars */
-  --color-primary: #000;
+  --color-primary: #001235;
   --color-accent: #2d5aa0;
   --color-accent-light: #2369db;
   --color-secondary-light: #94a3b8;
@@ -170,6 +170,9 @@ button.lg, a.lg{
   display: none !important;
 }
 
+.primary{
+  background-color: var(--color-primary);
+}
 .accent{
   background-color: var(--color-accent);
 }
@@ -192,6 +195,9 @@ button.lg, a.lg{
   background-color: var(--color-warning);
 }
 
+.color-primary{
+  color: var(--color-primary);
+}
 .color-secondary{
   color: var(--color-secondary);
 }
@@ -252,8 +258,8 @@ button.lg, a.lg{
   width: 40px;
   height: 40px;
 
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
+  border: 4px solid #fff;
+  border-top: 4px solid var(--color-accent-light);
   border-radius: 50%;
   
   animation: spin 1s linear infinite;
@@ -261,6 +267,13 @@ button.lg, a.lg{
 .spinner.small{
   width: 20px;
   height: 20px;
+}
+.spinner.large{
+  border: 12px solid #fff;
+  border-top: 12px solid var(--color-accent-light);
+
+  width: 60px;
+  height: 60px;
 }
 
 .two-column-container{

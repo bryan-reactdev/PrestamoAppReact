@@ -1,6 +1,6 @@
 @media only screen and (max-width: 767px) {
     .page{
-        grid-template-rows: 8% 1fr 10%;
+        grid-template-rows: 8% 1fr 8%;
         grid-template-columns: 1fr;
     }
     /* --- Navbar --- */
@@ -15,12 +15,12 @@
         display: flex;
     }
 
-    .contentTitle{
-        margin-bottom: var(--space-sm);
-    }
     .content{
         grid-column: 1;
         grid-row: 2;
+    }
+    .contentTitle{
+        font-size: var(--font-xs);
     }
 
     /* --- Dashboard --- */
@@ -44,8 +44,6 @@
         display: flex;
 
         justify-content: space-between;
-
-        margin-bottom: 4%;
 
         border-top: var(--border-width-xs) solid var(--border-strong);
 
@@ -72,13 +70,88 @@
     
     .tabs-container{
         width: 100%;
-        display: grid !important;
         
-        grid-template-columns: repeat(3, 1fr);
-
-        box-sizing: border-box;
+        overflow-x: auto;
+    }
+    .total-card.tab:hover{
+        filter: brightness(1);
     }
     .inactive-tab, .active-tab{
         grid-column: span 1;
+    }
+
+    /* --- Buttons --- */
+    .btn-accion, .accion{
+        width: 100%;
+        
+        padding: var(--space-md);
+        padding-inline: 0;
+
+        border-bottom: var(--border-width-xs) solid var(--border-input);
+
+        border-radius: 0;
+    }
+
+    /* --- Modals --- */
+    .modal-container{
+        padding: 0;
+
+        overflow: hidden;
+    }
+    .modal-header h1{
+        font-size: var(--font-xl);
+    }
+    .modal-content{
+        width: 80%;
+
+        overflow-x: hidden;
+    }
+
+    /* --- Landing --- */
+    .page.landing{
+        grid-template-rows: 15% 1fr;
+    }
+
+    .page.landing .navbar{
+        height: 15%;
+    }
+
+    .page.landing .logo{
+        width: 200px;
+    }
+
+    .landing-hero{
+        flex-direction: column;
+
+        padding-inline: var(--space-lg);
+
+        margin-top: 0;
+
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+    .landing-left{
+        width: 100%;
+    }
+    .landing-right, .landing-section-image{
+        display: none;
+    }
+    .two-column-container{
+        grid-template-columns: 1fr;
+    }
+    .centered{
+        text-align: center;
+    }
+
+    .timeline-container{
+        flex-direction: column;
+    }
+    .timeline-step{
+        width: 100%;
+        font-size: var(--font-sm);
+    }
+
+    .form-field{
+        grid-column: span 1 !important;
     }
 }

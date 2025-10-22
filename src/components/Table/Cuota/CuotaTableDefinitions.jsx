@@ -33,7 +33,7 @@ export const cuotasTodosColumns = [
     }
   },
   {
-    accessorKey: 'fechaPago',
+    accessorKey: 'fechaPagado',
     header: "Fecha Pagado",
     size: 110,
     cell: (props) => {

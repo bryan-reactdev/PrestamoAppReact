@@ -20,7 +20,7 @@
   border: var(--border-width-xs) solid var(--border-primary);
   border-radius: var(--border-lg);
 
-  border-left: 6px solid var(--color-danger);
+  border-left: 6px solid var(--color-accent);
 
   background-color: var(--table-background-primary);
 

@@ -11,5 +11,7 @@ import './global/styles/modals.css'
 import App from './App'
 
 createRoot(document.getElementById('root')).render(
-    <App />
+    <StrictMode>
+        <App />
+    </StrictMode>
 )

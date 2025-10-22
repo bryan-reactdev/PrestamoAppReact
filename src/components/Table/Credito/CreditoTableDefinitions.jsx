@@ -1,3 +1,4 @@
+import { DateTimeToDate } from "../../../utils/dateUtils";
 import ButtonAcciones from "../ButtonAcciones";
 import CreditoTableAccionTipos from "./CreditoTableAccionTipos";
 
@@ -129,8 +130,7 @@ export const creditosAceptadosColumns = [
       if (value === null) return <p>???</p>;
 
       if (value === true){
-        const [y, m, d] = props?.row?.original?.fechaDesembolsado?.split('T')[0].split('-');
-        return <p className="badge Realizado">{`${d}/${m}/${y.slice(-2)}`}</p>;
+        return <p className="badge Realizado">{DateTimeToDate(props.row.original.fechaDesembolsado)}</p>;
       }
 
       return <p className={`badge Pendiente`}>Pendiente</p>
@@ -287,16 +287,8 @@ export const creditosRechazadosColumns = [
     size: 125,
     enableSorting: false,
     enableGlobalFilter: false,
-    cell: ({ row }) => <ButtonAcciones row={row} acciones={creditosRechazadosAcciones} />,
+    cell: ({ row }) => <ButtonAcciones row={row} acciones={creditosDefaultAcciones} />,
   },
-]
-
-export const creditosRechazadosAcciones = [
-  CreditoTableAccionTipos.DESEMBOLSAR,
-  CreditoTableAccionTipos.ACEPTAR,
-  CreditoTableAccionTipos.RECHAZAR, 
-  CreditoTableAccionTipos.GENERAR_DOCUMENTOS, 
-  CreditoTableAccionTipos.EDITAR
 ]
 
 // --- Créditos Finalizados ---
@@ -346,19 +338,31 @@ export const creditosFinalizadosColumns = [
     }
   },
   {
+    accessorKey: 'fechaAceptado',
+    header: "Fecha Aceptado",
+    size: 125,
+    cell: (props) => {
+      const value = props.getValue();
+
+      if (!value) return <p>N/A</p>;
+
+      const [y, m, d] = value.split('T')[0].split('-');
+      return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
+    }
+  },
+  {
     accessorKey: 'accion',
     header: "Acción",
     size: 125,
     enableSorting: false,
     enableGlobalFilter: false,
-    cell: ({ row }) => <ButtonAcciones row={row} acciones={creditosFinalizadosAcciones} />,
+    cell: ({ row }) => <ButtonAcciones row={row} acciones={creditosDefaultAcciones} />,
   },
 ]
 
-export const creditosFinalizadosAcciones = [
-  CreditoTableAccionTipos.DESEMBOLSAR,
-  CreditoTableAccionTipos.ACEPTAR,
-  CreditoTableAccionTipos.RECHAZAR, 
+export const creditosDefaultAcciones = [
   CreditoTableAccionTipos.GENERAR_DOCUMENTOS, 
-  CreditoTableAccionTipos.EDITAR
+  CreditoTableAccionTipos.EDITAR,
+  CreditoTableAccionTipos.EDITABLE,
+  CreditoTableAccionTipos.DESCARGABLE,
 ]

@@ -12,14 +12,21 @@ const api = axios.create({
 });
 
 api.interceptors.response.use(
-    response => {
-        // Mostrar toast si el servidor devuelve un mensaje
-        if (response?.data?.message) {
-            toast.success(response.data.message);
-        }
+  response => {
+    if (response?.data?.message) {      
+      if (response.data.message.includes("AUTH SUCCESS") ||
+          response.data.message.includes("FETCH")) {
         return response;
+      }      
+      
+      toast.success(response.data.message);
     }
-    // Remove the error handler completely from interceptor
+    return response;
+  },
+  error => {
+    // Let axiosData handle errors; reject so promises catch them
+    return Promise.reject(error);
+  }
 );
 
 export const axiosData = async (url, config = {}) => {
@@ -39,6 +46,10 @@ export const axiosData = async (url, config = {}) => {
       throw err;
     } else {
       // For JSON requests, show toast and return null
+      if (err?.response?.data?.message?.includes("AUTH FAIL")){
+        return null;
+      }
+
       toast.error(err?.response?.data?.message || "Algo salió mal");
       return null;
     }

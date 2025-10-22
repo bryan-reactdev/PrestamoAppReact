@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import TotalCard from "../Cards/TotalCard";
+import { isMobile } from "react-device-detect";
 
 export default function TabsTotals({ tabs, currentTab, setCurrentTab }) {
   const navigate = useNavigate();
@@ -14,13 +15,13 @@ export default function TabsTotals({ tabs, currentTab, setCurrentTab }) {
       },
     );
 
-    if (currentTab != tab.label){
+    if ((currentTab != tab.label) && !isMobile){
       navigate(`?tab=${tab.label}`, { replace: false });
     }
   }
 
   return (
-    <div className="tabs-container">
+    <div className="tabs-container totals">
       {tabs.map((tab) => (
         <TotalCard
           icon={tab.icon}
@@ -32,8 +33,17 @@ export default function TabsTotals({ tabs, currentTab, setCurrentTab }) {
           onClick={() => handleEstadoChange(tab)}
         >
           <div className="color-accent">
-            <i className="fas fa-dollar-sign"/>
-            <span>{tab.value}</span>
+            {tab.text
+            ?
+              <div>
+                <span className={`color-${tab.color}`}>{tab.text}</span>
+              </div>            
+            :
+              <div>
+                <i className={`fas fa-dollar-sign color-${tab.color}`}/>
+                <span className={`color-${tab.color}`}>{tab.value}</span>
+              </div>
+            }
           </div>
         </TotalCard>
       ))}

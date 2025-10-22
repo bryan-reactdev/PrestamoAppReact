@@ -1,8 +1,11 @@
 import { useCurrencyModalStore } from "../../../../stores/Modal/useCurrencyModalStore";
+import { useCurrencyStore } from "../../../../stores/useCurrencyStore";
 
-export const ButtonPDF = () => {
+export const ButtonPDF = ({tipo}) => {
+  const { descargarPDF, selectedDate } = useCurrencyStore();
+
   return (
-    <button className="btn-danger" onClick={(e) => {e.stopPropagation();}}>
+    <button className="btn-danger" onClick={(e) => {e.stopPropagation(); descargarPDF(tipo, selectedDate)}}>
         <i className="fas fa-print"/>
         PDF
     </button>
@@ -34,7 +37,7 @@ export const ButtonEgreso = () => {
   }
 
   return (
-    <button className="btn-warning" onClick={handleOpenModal}>
+    <button className="btn-danger" onClick={handleOpenModal}>
         <i className="fas fa-minus"/>
         Egreso
     </button>

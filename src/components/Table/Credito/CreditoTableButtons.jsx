@@ -19,7 +19,7 @@ ButtonDesembolsarCredito.visibleIf = (row, role) => {
 
 export const ButtonVerCuotasCredito = ({row}) => {
   return (
-    <Link className="a-accion" to={`./${row.id}/cuotas`}>
+    <Link className="a-accion" to={`/admin/creditos/${row.id}/cuotas`}>
       <button className="btn-accion">
         <i className="fas fa-calendar"/>
         Ver Cuotas

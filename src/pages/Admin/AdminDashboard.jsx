@@ -1,12 +1,9 @@
-import { useUsuarioStore } from '../../stores/useUsuarioStore';
 import Sidebar from '../../components/Sidebar/Sidebar'
 import Navbar from '../../components/Navbar/Navbar'
 import ContentTitle from '../../components/Content/ContentTitle'
 import MenuButton from '../../components/Content/Layout/MenuButton'
 
 export default function AdminDashboard(){
-  const {currentUsuario} = useUsuarioStore();
-
   return(
     <div className="page">
       <Navbar/>

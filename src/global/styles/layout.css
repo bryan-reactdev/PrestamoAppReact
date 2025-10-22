@@ -6,6 +6,12 @@
     grid-template-rows: 7.5% 1fr;
     grid-template-columns: 250px 1fr;
 }
+.page.initial{
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+}
 /* --- Navbar --- */
 .navbar{
     grid-column: 1 / span 2;
@@ -132,14 +138,20 @@
 
   align-items: center;
 
+  color: var(--color-primary);
+  gap: var(--space-md);
+
   font-size: var(--font-lg);
   font-family: 'Poppins', sans-serif;
   color: var(--color-primary);
+
+  overflow-x: auto;
 }
 .contentTitle .total-card{
-  margin-left: var(--space-lg);
-
   background-color: transparent;
+}
+.contentTitle .w-bg.total-card{
+  background: var(--background-secondary);
 }
 .contentTitle *{
     margin: 0;
@@ -205,17 +217,21 @@
   
   padding: 0;
 
+  justify-content: center;
+  align-items: center;
+
   color: var(--color-contrast);
   background-color: var(--landing-primary);
 }
 .landing-hero{
-  height: 90%;
   display: flex;
 
   justify-content: center;
   align-items: center;
   
   gap: var(--space-3xl);
+  padding: var(--space-3xl);
+  padding-top: 0;
   padding-inline: 15%;
 
   background-color: var(--landing-primary);
@@ -238,8 +254,10 @@
   display: flex;
   
   flex-direction: column;
-  align-items: center;
+
   justify-content: flex-start;
+  align-items: center;
+  
   text-align: left;
 
   margin-top: var(--space-xl);
@@ -374,7 +392,7 @@
 .search-tabs-container{
   display: flex;
 
-  align-items: flex-start;
+  align-items: flex-end;
 
   margin-bottom: var(--space-sm);
   gap: var(--space-sm);
@@ -413,6 +431,8 @@
 .btn-warning{
   background-color: var(--color-warning);
   color: var(--color-primary);
+
+  transition: all 0.15s ease;
 }
 .btn-warning.outline{
   color: var(--color-warning);
@@ -420,6 +440,11 @@
 
   border: var(--border-width-sm) solid var(--color-warning);
 }
+.btn-warning.active{
+  filter: brightness(0.9);
+  transform: scale(0.9);
+}
+
 .btn-transparent{
   color: var(--color-contrast);
   background-color: transparent;
@@ -430,6 +455,8 @@
   color: var(--color-contrast);
 
   background-color: #ffffff15;
+
+  transition: all 0.15s ease;
 }
 .btn-ghost:hover{
   color: var(--color-warning);
@@ -656,7 +683,8 @@
     display: flex;
     align-items: center;
 
-    padding-inline: var(--space-xs);
+    padding: var(--space-xs);
+    padding-inline: var(--space-sm);
 
     border: var(--border-width-xs) solid var(--border-input);
     border-radius: var(--border-radius-xl);
@@ -705,6 +733,12 @@
     font-size: var(--font-md);
 }
 /* Sizes */
+.form-field.one{
+    grid-column: span 1;
+}
+.form-field.two{
+    grid-column: span 2;
+}
 .form-field.half{
     grid-column: span 3;
 }
@@ -745,6 +779,16 @@
   align-items: center;
 
   padding-bottom: var(--space-md);
+}
+
+.image-preview{
+  max-width: 100%;
+
+  margin-top: var(--space-sm);
+
+  border-radius: var(--border-lg);
+
+  object-fit: cover;
 }
 
 /* ----- Dashboard ----- */
@@ -830,6 +874,7 @@
   gap: var(--space-md);
 }
 .stat-card-container{
+  min-height: 400px;
   display: flex;
 
   flex-direction: column;
@@ -941,7 +986,7 @@
 }
 
 /* --- Cards --- */
-.total-card{
+.total-card, .contentTitle .w-bg.total-card{
   display: flex;
 
   align-items: center;
@@ -949,7 +994,7 @@
   gap: var(--space-sm);
   padding: var(--space-sm);
 
-  border-radius: var(--border-lg);
+  border-radius: var(--border-sm);
   border: var(--border-width-sm) solid transparent;
   
   background-color: var(--background-secondary);
@@ -960,7 +1005,7 @@
   transition: transform 0.15s ease;
 }
 .total-card.tab:hover{
-  filter: brightness(0.95);
+  filter: brightness(0.8);
 }
 .total-card.tab.active{
   transform: scale(0.975);
@@ -969,7 +1014,9 @@
 
   border: var(--border-width-sm) solid var(--color-accent);
 }
-.total-card.tab.active, .total-card.tab.active .total-content .total-children div {
+.total-card.tab.active, .total-card.tab.active .total-content .total-children i, 
+.total-card.tab.active, .total-card.tab.active .total-content .total-children h3, 
+.total-card.tab.active, .total-card.tab.active .total-content .total-children span {
   color: white !important;
 }
 .total-card > i{
@@ -978,7 +1025,7 @@
   color: var(--color-contrast);
   font-size: var(--font-2xl);
 
-  border-radius: var(--border-lg);
+  border-radius: var(--border-md);
 }
 .total-content{
   display: flex;

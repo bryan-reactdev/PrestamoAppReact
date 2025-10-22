@@ -6,7 +6,9 @@ import BaseTable from '../../components/Table/BaseTable'
 import { useEffect } from 'react'
 import { useUsuarioStore } from '../../stores/useUsuarioStore'
 import { usuariosTodosColumns } from '../../components/Table/Usuario/UsuarioTableDefinitions'
-import { CreditosRechazadosCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
+import { UsuariosCard } from '../../components/Card/Usuario/UsuarioCardDefinitions'
+import AccionesModal from '../../components/Card/AccionesModal'
+import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
 
 export default function AdminUsuarios(){
   const {usuarios, isFetchingUsuarios, getUsuarios} = useUsuarioStore();
@@ -26,13 +28,16 @@ export default function AdminUsuarios(){
       <Navbar/>
       <Sidebar activePage={'usuarios'}/>
 
+      <AccionesModal/>
+      <UsuarioModalVerDetalles/>
+
       <div className="content">
         <ContentTitle title={'Usuarios'} subtitle={'Gestión de Usuarios'}/>
 
         <BaseTable 
           data={usuarios} 
           columns={usuariosTodosColumns} 
-          card={CreditosRechazadosCard}
+          card={UsuariosCard}
           centered={centered} 
           flexable='usuario' 
           loading={isFetchingUsuarios}

@@ -64,6 +64,8 @@
   display: flex;
   justify-content: left;
 
+  color: var(--color-primary);
+
   padding-top: var(--space-xs);
   padding-bottom: var(--space-xs);
   gap: var(--space-xs);

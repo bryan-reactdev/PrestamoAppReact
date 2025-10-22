@@ -4,77 +4,75 @@ import ContentTitle from '../../components/Content/ContentTitle'
 import BaseTable from '../../components/Table/BaseTable'
 
 import { useEffect, useState } from 'react'
-import { useCuotaStore } from '../../stores/useCuotaStore'
-import { cuotasPendientesColumns, cuotasTodosColumns } from '../../components/Table/Cuota/CuotaTableDefinitions'
-import CuotaModalMarcarPagado from '../../components/Modal/Cuota/CuotaModalMarcarPagado'
-import { CuotasPendientesCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
-import CuotaModalAbonar from '../../components/Modal/Cuota/CuotaModalAbonar'
-import { useParams } from 'react-router-dom'
+import { useUsuarioStore } from '../../stores/useUsuarioStore'
+import { usuariosConVencidasColumns } from '../../components/Table/Usuario/UsuarioTableDefinitions'
+import { UsuariosCard } from '../../components/Card/Usuario/UsuarioCardDefinitions'
+import AccionesModal from '../../components/Card/AccionesModal'
+import TotalCard from '../../components/Cards/TotalCard'
+import ContentTitleWithInfo from '../../components/Content/ContentTitleWithInfo'
+import { useCurrencyStore } from '../../stores/useCurrencyStore'
 
 export default function AdminCobros(){
-  const {id} = useParams();
-  const {cuotas, cuotasPendientes, cuotasPagadas, cuotasVencidas, cuotasEnRevision, isFetchingCuotas, getCuotas} = useCuotaStore();
-  const [currentTab, setCurrentTab] = useState('Todos'); // Default to 'Todos'
+  const {usuariosConVencidas, usuariosConCuotas, isFetchingUsuariosConVencidas, getUsuariosConVencidas, getUsuariosConCuotas} = useUsuarioStore();
+  const {cuotasTotales, getCuotasTotales} = useCurrencyStore();
+  const [currentTab, setCurrentTab] = useState('');
 
   // --- Get de los créditos la PRIMERA vez que se inicializa esta página ---
   useEffect(() => {
-    if (id == null){
-      getCuotas();
+    if (usuariosConVencidas.length === 0) {
+      getUsuariosConVencidas();
+      getUsuariosConCuotas();
+      getCuotasTotales();
     }
-    else{
-      getCuotas(id);
-    }
-  }, [getCuotas, id]);
+  }, [getUsuariosConVencidas, getUsuariosConCuotas, getCuotasTotales]);
   
   // Definición de las columnas que estarán centradas
-  const centered = ['estado', 'codigo', 'fechaVencimiento', 'fechaPago', 'monto', 'mora', 'total', 'accion']
+  const centered = ['calificacion', 'celular', 'cuotaVencimiento', 'cuotaMonto', 'cuotaMora', 'cuotaAbono', 'cuotaTotal', 'accion']
 
-  // -- Definición de las pestañas --
   const tabs = [
-    { label: 'Todos'},
-    { label: 'Pendientes', columnDefinitions: cuotasPendientesColumns, data: cuotasPendientes},
-    { label: 'Pagadas', data: cuotasPagadas},
-    { label: 'Vencidas', data: cuotasVencidas},
-    { label: 'En Revisión', data: cuotasEnRevision},
+    { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Lista de Usuarios con Cuotas Vencidos', text: usuariosConVencidas.length ?? '0'},
+    { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Clientes con Cuotas', text: usuariosConCuotas.length ?? '0', data: usuariosConCuotas},
   ];
 
   return(
     <div className="page">
-      <CuotaModalMarcarPagado/>
-      <CuotaModalAbonar/>
-
       <Navbar/>
-      <Sidebar activePage={!id ? 'cobros' : 'creditos'}/>
+      <Sidebar activePage={'cobros'}/>
+
+      <AccionesModal/>
 
       <div className="content">
-        <ContentTitle
-          title={
-            !id
-              ? 'Cobros'
-              : (
-                  <div>
-                    {'Cuotas del crédito de '}
-                    {cuotas[0]?.usuario ?? 'Usuario'}
-                  </div>
-                )
-          }
-          subtitle={
-            !id
-              ? 'Gestión de Cobros'
-              : 'Gestión de cuotas del crédito'
-          }
-        />
+        <ContentTitleWithInfo title={''} subtitle={''}>
+          <TotalCard icon={'fas fa-chart-line'} iconBgColor='danger' title={'Vencidas Totales'} style={{padding: 0}}>
+              <i className='fas fa-dollar-sign color-danger'/>
+              <h3 className='color-danger'>{cuotasTotales?.totalVencidas}</h3>
+          </TotalCard>
+          <TotalCard icon={'fas fa-chart-line'} iconBgColor='warning' title={'Pendientes Totales'} style={{padding: 0}}>
+              <i className='fas fa-dollar-sign color-warning'/>
+              <h3 className='color-warning'>{cuotasTotales?.totalPendientes}</h3>
+          </TotalCard>
+          <TotalCard icon={'fas fa-chart-line'} iconBgColor='primary' title={'Total a Cobrar'} style={{padding: 0}}>
+              <i className='fas fa-dollar-sign color-primary'/>
+              <h3 className='color-primary'>{cuotasTotales?.totalVencidas + cuotasTotales.totalPendientes}</h3>
+          </TotalCard>
+          <TotalCard icon={'fas fa-chart-line'} iconBgColor='success' title={'Pagadas Totales'} style={{padding: 0}}>
+              <i className='fas fa-dollar-sign color-success'/>
+              <h3 className='color-success'>{cuotasTotales?.totalPagadas}</h3>
+          </TotalCard>
+        </ContentTitleWithInfo>
 
         <BaseTable 
-          data={cuotas} 
-          columns={cuotasTodosColumns} 
-          card={CuotasPendientesCard}
+          data={usuariosConVencidas} 
+          columns={usuariosConVencidasColumns} 
+          card={UsuariosCard}
           centered={centered} 
           flexable='usuario' 
-          loading={isFetchingCuotas}
-          tabs={tabs}
+          loading={isFetchingUsuariosConVencidas}
+          customHeaderHeight={50}
+          tabs={tabs} 
           currentTab={currentTab}
           onTabChange={setCurrentTab}
+          isCardTabs={true}
         />
       </div>
       

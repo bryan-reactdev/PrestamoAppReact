@@ -1,16 +1,17 @@
 import Sidebar from '../../components/Sidebar/Sidebar'
 import Navbar from '../../components/Navbar/Navbar'
-import ContentTitle from '../../components/Content/ContentTitle'
 import BaseTable from '../../components/Table/BaseTable'
 
 import { useEffect, useState } from 'react'
 import { useCurrencyStore } from '../../stores/useCurrencyStore'
-import { abonosColumns, cuotasPagadasIngresoColumns, ingresoEgresoColumns } from '../../components/Table/Currency/CurrencyTableDefinitions'
-import { CreditosRechazadosCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
+import { abonosColumns, ingresoEgresoColumns } from '../../components/Table/Currency/CurrencyTableDefinitions'
+import { CuotasPendientesCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
 import FormField from '../../components/Form/FormField'
 import { getCurrentDate } from '../../utils/dateUtils'
 import TotalCard from '../../components/Cards/TotalCard'
 import ContentTitleWithInfo from '../../components/Content/ContentTitleWithInfo'
+import { cuotasPagadasColumns } from '../../components/Table/Cuota/CuotaTableDefinitions'
+import { IngresoEgresoCard } from '../../components/Card/Currency/CurrencyCardDefinitions'
 
 export default function AdminIngresos(){
   const {saldo, getBalance, currencyForDate, selectedDate, setSelectedDate, getCurrencyForDate, isFetchingBalance} = useCurrencyStore();
@@ -28,13 +29,13 @@ export default function AdminIngresos(){
   }, [saldo])
 
   // Definición de las columnas que estarán centradas
-  const centered = ['fecha', 'monto', 'credito', 'fechaCuota', 'fechaAbono', 'fechaVencimiento', 'fechaPagado', 'mora', 'abono', 'total']
+  const centered = ['fecha', 'monto', 'credito', 'fechaCuota', 'fechaAbono', 'fechaVencimiento', 'fechaPagado', 'mora', 'abono', 'total', 'accion']
 
   const tabs = [
     { icon: 'fas fa-building', label: 'Ingresos Capitales', iconBgColor: 'accent-light', value: currencyForDate.ingresosCapitales?.total},
     { icon: 'fas fa-coins', label: 'Ingresos Varios', data: currencyForDate.ingresosVarios?.data ?? [], iconBgColor: 'warning', value: currencyForDate.ingresosVarios?.total},
     { icon: 'fas fa-money-bill', label: 'Abonos a Cuotas', columnDefinitions: abonosColumns, data: currencyForDate.cuotasAbonos?.data ?? [], value: currencyForDate.cuotasAbonos?.total},
-    { icon: 'fas fa-wallet', label: 'Cuotas Pagadas', columnDefinitions: cuotasPagadasIngresoColumns, data: currencyForDate.cuotasPagadas?.data ?? [], iconBgColor: 'success-light', value: currencyForDate.cuotasPagadas?.total},
+    { icon: 'fas fa-wallet', label: 'Cuotas Pagadas', columnDefinitions: cuotasPagadasColumns, card: CuotasPendientesCard, data: currencyForDate.cuotasPagadas?.data ?? [], iconBgColor: 'success-light', value: currencyForDate.cuotasPagadas?.total},
   ];
 
   return(
@@ -45,8 +46,8 @@ export default function AdminIngresos(){
       <div className="content">
         <ContentTitleWithInfo title={'Ingresos'} subtitle={'Gestión de Ingresos'}>
           <TotalCard icon={'fas fa-chart-line'} color="accent" title={'Ingresos Totales'} style={{padding: 0}}>
-              <i className='fas fa-dollar-sign color-accent'/>
-              <h3 className='color-accent'>{currencyForDate.totalIngresos}</h3>
+              <i className='fas fa-dollar-sign color-success'/>
+              <h3 className='color-success'>{currencyForDate.totalIngresos}</h3>
           </TotalCard>
         </ContentTitleWithInfo>
         
@@ -71,7 +72,7 @@ export default function AdminIngresos(){
         <BaseTable 
           data={currencyForDate.ingresosCapitales?.data ?? []} 
           columns={ingresoEgresoColumns} 
-          card={CreditosRechazadosCard}
+          card={IngresoEgresoCard}
           centered={centered} 
           flexable={['motivo', 'usuario']}
           loading={isFetchingBalance}

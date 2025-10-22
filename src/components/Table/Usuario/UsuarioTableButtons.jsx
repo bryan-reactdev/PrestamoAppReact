@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom"
 import { useUsuarioStore } from "../../../stores/useUsuarioStore"
+import { useUsuarioModalStore } from "../../../stores/Modal/useUsuarioModalStore";
 
 export const ButtonDescargarPDFInforme = ({row}) => {
   const { descargarPDFInforme} = useUsuarioStore();
@@ -16,10 +17,12 @@ export const ButtonDescargarPDFInforme = ({row}) => {
 }
 
 export const ButtonVerDetallesUsuario = ({row}) => {
+  const { openModal } = useUsuarioModalStore();
+
   return (
     <button 
       className="btn-accion"
-      onClick={() => console.log(`Notas: ${row.id} `)}
+      onClick={() => openModal('verDetalles', row)}
     >
       <i className="fas fa-eye"/>
       Ver Detalles
@@ -29,7 +32,7 @@ export const ButtonVerDetallesUsuario = ({row}) => {
 
 export const ButtonCrearCreditoUsuario = ({row}) => {
   return (
-    <Link className="a-accion" to={`./${row.id}/crear`}>
+    <Link className="a-accion" to={`/admin/usuarios/${row.id}/crear`}>
       <button className="btn-accion">
         <i className="fas fa-hand-holding"/>
         Crear Crédito
@@ -40,7 +43,7 @@ export const ButtonCrearCreditoUsuario = ({row}) => {
 
 export const ButtonVerCreditosUsuario = ({row}) => {
   return (
-    <Link className="a-accion" to={`./${row.id}/creditos`}>
+    <Link className="a-accion" to={`/admin/usuarios/${row.id}/creditos`}>
       <button className="btn-accion">
         <i className="fas fa-credit-card"/>
         Ver Créditos
@@ -60,6 +63,9 @@ export const ButtonBloquearUsuario = ({row}) => {
     </button>
   )
 }
+ButtonBloquearUsuario.visibleIf = (row, role) => {
+  return role.includes("ADMIN")
+}
 
 export const ButtonDesbloquearUsuario = ({row}) => {
   return (
@@ -71,4 +77,7 @@ export const ButtonDesbloquearUsuario = ({row}) => {
       Desbloquear
     </button>
   )
+}
+ButtonDesbloquearUsuario.visibleIf = (row, role) => {
+  return role.includes("ADMIN")
 }

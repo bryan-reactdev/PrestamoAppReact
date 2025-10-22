@@ -1,3 +1,4 @@
+import { isMobile } from "react-device-detect";
 import { useNavigate } from "react-router-dom";
 
 export default function Tabs({ tabs, currentTab, setCurrentTab }) {
@@ -13,7 +14,7 @@ export default function Tabs({ tabs, currentTab, setCurrentTab }) {
       },
     );
 
-    if (currentTab != tab.label){
+    if ((currentTab != tab.label) && !isMobile){
       navigate(`?tab=${tab.label}`, { replace: false });
     }
   }

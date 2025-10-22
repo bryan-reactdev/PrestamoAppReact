@@ -19,7 +19,6 @@ export default function CreditoModalGenerarDocumentos() {
       title={'Generar Documentos'}
       cancelText='CERRAR'
       cancelColor='secondary'
-      style={{zIndex: 110}}
     >
       <div className="modal-content">
         <div className="button-container vertical">
