@@ -8,7 +8,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.CreditoDTO;
 import com.biovizion.prestamo911.entities.AbonoCuotaEntity;
 import com.biovizion.prestamo911.entities.CreditoCuotaEntity;
 import com.biovizion.prestamo911.entities.NotaEntity;
@@ -37,15 +36,20 @@ public class CuotaDTOs {
         private BigDecimal mora;
         private BigDecimal abono;
         private BigDecimal total;
-        
-        @JsonBackReference  // child → parent
-        private List<NotaEntity> notas;
+
+        private List<NotaDTO> notas;
 
         // @JsonBackReference  // child → parent
         // private List<AbonoDTO> abonos;
+    }
 
-        @JsonBackReference  // child → parent
-        private CreditoDTO credito;
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class NotaDTO{
+        private Long id;
+        private String contenido;
+        private LocalDate fecha;
     }
 
     @Data
@@ -112,6 +116,14 @@ public class CuotaDTOs {
         );
     }
 
+    public static NotaDTO mapearANotaDTO(NotaEntity nota){
+        return new NotaDTO(
+            nota.getId(),
+            nota.getContenido(),
+            nota.getFecha() != null ? nota.getFecha().toLocalDate() : null
+        );
+    };
+
     public static CuotaDTO mapearACuotaDTO(CreditoCuotaEntity cuota){
         String usuarioNombre = cuota.getCredito().getUsuario().getNombre().trim() + " " + cuota.getCredito().getUsuario().getApellido().trim();
 
@@ -132,9 +144,14 @@ public class CuotaDTOs {
             cuota.getAbono(),
             cuota.getTotal(),
 
-            cuota.getNotas(),
-            mapearACreditoDTO(cuota.getCredito())
+            mapearANotaDTOs(cuota.getNotas())
         );
+    }
+
+    public static List<NotaDTO> mapearANotaDTOs(List<NotaEntity> notas) {
+        return notas.stream().map(nota -> {
+            return mapearANotaDTO(nota);
+        }).collect(Collectors.toList());
     }
 
     public static List<CuotaTablaDTO> mapearACuotaTablaDTOs(List<CreditoCuotaEntity> cuotas) {

@@ -20,6 +20,10 @@ export default function BaseTable({
   currentTab,
   onTabChange,
   isCardTabs,
+  hideSearchbar,
+  hidePagination,
+    selectedRowId,
+    onRowSelect,
 
 }) {
     const [searchParams] = useSearchParams();
@@ -98,27 +102,29 @@ export default function BaseTable({
 
     return (
         <>
-        <div className="search-tabs-container">
-            {children}
+        {!hideSearchbar &&
+            <div className="search-tabs-container">
+                {children}
 
-            <SearchBar placeholder={searchBarPlaceholder} globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}/>
+                <SearchBar placeholder={searchBarPlaceholder} globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}/>
 
-            {tabs.length > 0 &&
-                isCardTabs
-                ?
-                <TabsTotals
-                    tabs={tabs}
-                    currentTab={currentTab} 
-                    setCurrentTab={(tab) => onTabChange(tab.label)} 
-                />
-                :
-                <Tabs 
-                    tabs={tabs}
-                    currentTab={currentTab} 
-                    setCurrentTab={(tab) => onTabChange(tab.label)} 
-                />
-            }
-        </div>
+                {tabs.length > 0 &&
+                    isCardTabs
+                    ?
+                    <TabsTotals
+                        tabs={tabs}
+                        currentTab={currentTab} 
+                        setCurrentTab={(tab) => onTabChange(tab.label)} 
+                    />
+                    :
+                    <Tabs 
+                        tabs={tabs}
+                        currentTab={currentTab} 
+                        setCurrentTab={(tab) => onTabChange(tab.label)} 
+                    />
+                }
+            </div>
+        }
 
         {isMobile 
         ?
@@ -199,7 +205,12 @@ export default function BaseTable({
             ))}
 
             {table.getRowModel().rows.map((row) =>(
-                <div className="tr" key={row.id}>
+                <div
+                    className={`tr ${row.id === selectedRowId ? 'selected-row' : ''}`}
+                    key={row.id}
+                    onClick={() => onRowSelect?.(row.original)}
+                    style={{ cursor: onRowSelect ? 'pointer' : 'default' }}
+                >
                     {row.getVisibleCells().map((cell) =>(
                         <div 
                             className={`td ${centered.includes(cell.column.id) ? 'column-centered' : ''}`}
@@ -231,7 +242,7 @@ export default function BaseTable({
                 </div>
             )}
 
-            {/* Controles de navgeación */}
+            {!hidePagination &&
             <div className="pagination">
                 <button
                     className='btn-navigation'
@@ -253,6 +264,7 @@ export default function BaseTable({
                     SIGUIENTE &raquo;
                 </button>
             </div>
+            }
         </div>      
         }
 

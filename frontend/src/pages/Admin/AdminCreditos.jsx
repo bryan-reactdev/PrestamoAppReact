@@ -18,7 +18,8 @@ import TotalCard from '../../components/Cards/TotalCard'
 export default function AdminCreditos(){
   const { usuarioId } = useParams();
   const {filterCreditos, filteredCreditos, isFetchingCreditos, getCreditos } = useCreditoStore();
-  const [currentTab, setCurrentTab] = useState('Todos'); // Default to 'Todos'
+  // const [currentTab, setCurrentTab] = useState('Todos'); // Default to 'Todos'
+  const [currentTab, setCurrentTab] = useState('Pendientes'); // Default to 'Todos'
   const [currentTipo, setCurrentTipo] = useState('rapi-cash');
 
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function AdminCreditos(){
   const centered = ['estado', 'calificacion', 'monto', 'montoDesembolsar', 'frecuencia', 'fechaAceptado', 'fechaSolicitud', 'fechaRechazado', 'desembolsado', 'accion', ]
 
   const tabs = [
-    { label: 'Todos'},
+    // { label: 'Todos'},
     { label: 'Pendientes', columnDefinitions: creditosPendientesColumns, card: CreditosPendientesCard, data: filteredCreditos.creditosPendientes},
     { label: 'Aceptados', columnDefinitions: creditosAceptadosColumns, card: CreditosAceptadosCard, data: filteredCreditos.creditosAceptados},
     { label: 'Rechazados', columnDefinitions: creditosRechazadosColumns, data: filteredCreditos.creditosRechazados},

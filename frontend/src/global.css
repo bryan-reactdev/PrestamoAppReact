@@ -148,10 +148,14 @@ button:active, a:active{
   transform: scale(0.975);
   z-index: 10;
 }
-button.disabled, a.disabled {
+button.disabled, a.disabled,
+button.loading, a.loading {
   position: relative;
   pointer-events: none;
   opacity: 0.2;
+}
+button.loading, a.loading {
+  opacity: 0.8;
 }
 
 button.sm, a.sm{

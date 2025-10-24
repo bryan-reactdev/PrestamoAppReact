@@ -1,7 +1,6 @@
 package com.biovizion.prestamo911.service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -9,6 +8,7 @@ import com.biovizion.prestamo911.entities.CreditoCuotaEntity;
 
 public interface CreditoCuotaService {
     CreditoCuotaEntity save(CreditoCuotaEntity creditoCuota);
+    List<CreditoCuotaEntity> saveAll(List<CreditoCuotaEntity> creditoCuotas);
     List<CreditoCuotaEntity> findAll();
     Optional<CreditoCuotaEntity> findById(Long id);
     List<CreditoCuotaEntity> findAllByEstadoAndFechaPago(String estado, LocalDate fecha);

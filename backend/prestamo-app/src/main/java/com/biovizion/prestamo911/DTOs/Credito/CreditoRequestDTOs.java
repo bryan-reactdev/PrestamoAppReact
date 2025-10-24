@@ -2,10 +2,12 @@ package com.biovizion.prestamo911.DTOs.Credito;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaDTO;
 import com.biovizion.prestamo911.entities.CreditoEntity;
 import com.biovizion.prestamo911.entities.UsuarioEntity;
 import com.biovizion.prestamo911.entities.UsuarioSolicitudEntity;
@@ -49,6 +51,9 @@ public class CreditoRequestDTOs{
         private BigDecimal mora;
         private String frecuencia;
         private int cuotaCantidad;
+
+        private Long selectedCreditoId;
+        private List<CuotaDTO> selectedCuotas;
     }
     
     @Data

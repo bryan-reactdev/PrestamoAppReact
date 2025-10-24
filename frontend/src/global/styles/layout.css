@@ -663,6 +663,7 @@
 
 /* Form Fields */
 .form-field{
+  max-width: 100%;
   grid-column: span 2;
   display: flex;
   
@@ -773,6 +774,10 @@
 .form-field.warning label, .form-field.warning i, .form-field.warning input, .form-field.warning select, .form-field.warning textarea{
     font-weight: 600;
     color: var(--color-primary);
+}
+
+.form-field.no-border{
+  border: 0;
 }
 
 .form-button-container {

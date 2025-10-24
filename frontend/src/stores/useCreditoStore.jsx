@@ -7,6 +7,9 @@ const estadoInicial = {
     credito: null,
     isFetchingCredito: false,
 
+    creditosRefinanciables: [],
+    isFetchingCreditosRefinanciables: false,
+
     creditos: [],
     creditosPendientes: [],
     creditosAceptados: [],
@@ -80,6 +83,7 @@ export const useCreditoStore = create((set, get) => ({
     },
 
     getCredito: async (creditoId) =>{
+        set({credito: null})
         set({isFetchingCredito: true})
 
         const res = await axiosData(`/creditoTest/${creditoId}`, { method: "GET" });
@@ -141,6 +145,17 @@ export const useCreditoStore = create((set, get) => ({
         get().filterCreditos('rapi-cash');
 
         set({ isFetchingCreditos: false });
+    },
+
+    getCreditosRefinanciables: async (currentCreditoId) => {
+        set({isFetchingCreditosRefinanciables: true})
+
+        const res = await axiosData(`/creditoTest/${currentCreditoId}/refinanciables`, {method: "GET"})
+
+        set({creditosRefinanciables: res?.data ?? null})
+        set({isFetchingCreditosRefinanciables: false})
+
+        return (res?.data.length > 0);
     },
 
     filterCreditos: async (tipo) => {

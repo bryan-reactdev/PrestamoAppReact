@@ -18,7 +18,8 @@ import UsuarioSidebar from '../../components/Sidebar/UsuarioSidebar'
 export default function UsuarioCreditos(){
   const { usuarioId } = useParams();
   const {creditos, creditosPendientes, creditosAceptados, creditosRechazados, creditosFinalizados, isFetchingCreditos, getCreditos } = useCreditoStore();
-  const [currentTab, setCurrentTab] = useState('Todos');
+  // const [currentTab, setCurrentTab] = useState('Todos');
+  const [currentTab, setCurrentTab] = useState('Pendientes');
 
   useEffect(() => {
     getCreditos(usuarioId ?? null, true);
@@ -27,7 +28,7 @@ export default function UsuarioCreditos(){
   const centered = ['estado', 'calificacion', 'monto', 'montoDesembolsar', 'frecuencia', 'fechaAceptado', 'fechaSolicitud', 'fechaRechazado', 'desembolsado', 'accion', ]
 
   const tabs = [
-    { label: 'Todos'},
+    // { label: 'Todos'},
     { label: 'Pendientes', columnDefinitions: creditosPendientesColumns, card: CreditosPendientesCard, data: creditosPendientes},
     { label: 'Aceptados', columnDefinitions: creditosAceptadosColumns, card: CreditosAceptadosCard, data: creditosAceptados},
     { label: 'Rechazados', columnDefinitions: creditosRechazadosColumns, data: creditosRechazados},

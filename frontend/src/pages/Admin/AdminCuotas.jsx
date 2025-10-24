@@ -15,7 +15,8 @@ import AccionesModal from '../../components/Card/AccionesModal'
 export default function AdminCuotas(){
   const {id} = useParams();
   const {cuotas, cuotasPendientes, cuotasPagadas, cuotasVencidas, cuotasEnRevision, isFetchingCuotas, getCuotas} = useCuotaStore();
-  const [currentTab, setCurrentTab] = useState('Todos'); // Default to 'Todos'
+  // const [currentTab, setCurrentTab] = useState('Todos'); // Default to 'Todos'
+  const [currentTab, setCurrentTab] = useState('Pendientes'); // Default to 'Todos'
 
   // --- Get de los créditos la PRIMERA vez que se inicializa esta página ---
   useEffect(() => {
@@ -32,7 +33,7 @@ export default function AdminCuotas(){
 
   // -- Definición de las pestañas --
   const tabs = [
-    { label: 'Todos'},
+    // { label: 'Todos'},
     { label: 'Pendientes', columnDefinitions: cuotasPendientesColumns, data: cuotasPendientes},
     { label: 'Pagadas', data: cuotasPagadas},
     { label: 'Vencidas', data: cuotasVencidas},

@@ -2,6 +2,7 @@ package com.biovizion.prestamo911.entities;
 
 import java.time.LocalDateTime;
 
+import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaDTO;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
@@ -25,9 +26,4 @@ public class NotaEntity {
     @JoinColumn(name = "cuota_id", nullable = false)
     @JsonBackReference  // child → parent
     private CreditoCuotaEntity cuota;
-
-    @Override
-    public String toString() {
-        return "NotaEntity{id=" + id + ", contenido='" + contenido + "', fecha='" + fecha + "'}";
-    }
 }

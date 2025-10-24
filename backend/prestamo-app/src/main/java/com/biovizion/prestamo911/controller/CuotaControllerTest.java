@@ -2,6 +2,7 @@ package com.biovizion.prestamo911.controller;
 
 import static com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.mapearACuotaTablaDTOs;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
@@ -20,6 +21,8 @@ import com.biovizion.prestamo911.entities.AbonoCuotaEntity;
 import com.biovizion.prestamo911.entities.CreditoCuotaEntity;
 import com.biovizion.prestamo911.service.AbonoCuotaService;
 import com.biovizion.prestamo911.service.CreditoCuotaService;
+import com.biovizion.prestamo911.utils.CuotaUtils;
+import com.biovizion.prestamo911.utils.CurrencyUtils;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,6 +33,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Controller
 @RequestMapping("/cuotaTest")
 public class CuotaControllerTest {
+    @Autowired
+    private CurrencyUtils currencyUtils;
+
+    @Autowired
+    private CuotaUtils cuotaUtils;
+
     @Autowired
     private CreditoCuotaService cuotaService;
 
@@ -77,10 +86,7 @@ public class CuotaControllerTest {
             }
 
             CreditoCuotaEntity cuota = cuotaOpt.get();
-
-            cuota.setEstado("Pagado");
-            cuota.setFechaPago(LocalDateTime.now());
-            cuotaService.save(cuota);
+            cuotaUtils.pagarCuota(cuota);
 
             ApiResponse<CreditoCuotaEntity> response = new ApiResponse<>("Cuota pagada exitosamente", cuota);
             return ResponseEntity.ok(response);
@@ -98,9 +104,21 @@ public class CuotaControllerTest {
                 ApiResponse<String> response = new ApiResponse<>("Cuota no encontrada");
                 return ResponseEntity.status(404).body(response);
             }
+            if (request.getMonto().compareTo(BigDecimal.ZERO) < 0) {
+                throw new IllegalArgumentException(
+                    "No es posible abonar un monto menor a $0 (USD)"
+                );
+            }
+
             CreditoCuotaEntity cuota = cuotaOpt.get();
-            cuota.setAbono(cuota.getAbono().add(request.getMonto()));
+            cuota.setAbono(
+                (cuota.getAbono() != null && cuota.getAbono().compareTo(BigDecimal.ZERO) != 0)
+                    ? cuota.getAbono().add(request.getMonto())
+                    : request.getMonto()
+            );
+
             cuota.setTotal(cuota.getTotal().subtract(request.getMonto()));
+            currencyUtils.addFondos(request.getMonto());
 
             AbonoCuotaEntity abono = new AbonoCuotaEntity();
             abono.setCreditoCuota(cuota);
@@ -113,6 +131,7 @@ public class CuotaControllerTest {
             ApiResponse<CreditoCuotaEntity> response = new ApiResponse<>("Cuota abonada exitosamente", cuota);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            e.printStackTrace();
             ApiResponse<String> response = new ApiResponse<>("Error al abonar la cuota: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }        

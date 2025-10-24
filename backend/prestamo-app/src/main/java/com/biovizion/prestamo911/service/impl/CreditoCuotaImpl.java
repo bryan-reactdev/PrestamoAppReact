@@ -28,6 +28,11 @@ public class CreditoCuotaImpl implements CreditoCuotaService {
     public CreditoCuotaEntity save(CreditoCuotaEntity creditoCuota) {
         return creditoCuotaRepository.save(creditoCuota);
     }
+    
+    @Override
+    public List<CreditoCuotaEntity> saveAll(List<CreditoCuotaEntity> creditoCuotas) {
+        return creditoCuotaRepository.saveAll(creditoCuotas);
+    }
 
     @Override
     public Optional<CreditoCuotaEntity> findById(Long id) {

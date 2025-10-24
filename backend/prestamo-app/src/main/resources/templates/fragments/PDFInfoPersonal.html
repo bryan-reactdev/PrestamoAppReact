@@ -264,9 +264,7 @@
 </div>
 <div class="pdf-field" th:if="${usuarioSolicitud?.solicitadoEstado != null}">
     <p>Estado actual:
-        <span class="underline" th:if="${usuarioSolicitud?.solicitadoEstado.name() == 'en_curso'}">En curso</span>
-        <span class="underline" th:if="${usuarioSolicitud?.solicitadoEstado.name() == 'incumplido'}">Incumplido</span>
-        <span class="underline" th:if="${usuarioSolicitud?.solicitadoEstado.name() == 'pagado'}">Pagado</span>
+        <span class="underline" th:text="${usuarioSolicitud?.solicitadoEstado}">En curso</span>
     </p>
 </div>
 
@@ -274,9 +272,9 @@
     <p><strong>2. ¿Ha tenido atrasos en pagos de créditos, tarjetas u obligaciones financieras en los últimos 24 meses?</strong></p>
 </div>
 <div class="pdf-field" th:if="${usuarioSolicitud?.atrasos != null}">
-        <span class="underline" th:if="${usuarioSolicitud?.atrasos.name() == 'nunca'}">Nunca</span>
-        <span class="underline" th:if="${usuarioSolicitud?.atrasos.name() == 'uno_a_dos'}">1 a 2 veces</span>
-        <span class="underline" th:if="${usuarioSolicitud?.atrasos.name() == 'dos_o_mas'}">Más de 2 veces</span>
+        <span class="underline" th:if="${usuarioSolicitud?.atrasos == 'nunca'}">Nunca</span>
+        <span class="underline" th:if="${usuarioSolicitud?.atrasos == 'uno_a_dos'}">1 a 2 veces</span>
+        <span class="underline" th:if="${usuarioSolicitud?.atrasos == 'dos_o_mas'}">Más de 2 veces</span>
 </div>
 
 <div class="pdf-field">
@@ -302,9 +300,9 @@
 </div>
 
 <div class="pdf-field">
-    <p class="underline" th:if="${usuarioSolicitud?.empleado?.name() == 'empleo_fijo'}">Empleo fijo</p>
-    <p class="underline" th:if="${usuarioSolicitud?.empleado?.name() == 'negocio_propio'}">Negocio Propio</p>
-    <p class="underline" th:if="${usuarioSolicitud?.empleado?.name() == 'ninguno'}">Ninguno</p>
+    <p class="underline" th:if="${usuarioSolicitud?.empleado == 'empleo_fijo'}">Empleo fijo</p>
+    <p class="underline" th:if="${usuarioSolicitud?.empleado == 'negocio_propio'}">Negocio Propio</p>
+    <p class="underline" th:if="${usuarioSolicitud?.empleado == 'ninguno'}">Ninguno</p>
 
 </div>
 

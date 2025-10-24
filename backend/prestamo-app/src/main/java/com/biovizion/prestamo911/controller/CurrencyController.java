@@ -35,6 +35,7 @@ import com.biovizion.prestamo911.service.CreditoService;
 import com.biovizion.prestamo911.service.HistorialGastoService;
 import com.biovizion.prestamo911.service.HistorialSaldoService;
 import com.biovizion.prestamo911.service.PdfService;
+import com.biovizion.prestamo911.utils.CurrencyUtils;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -47,6 +48,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 @Controller
 @RequestMapping("/currency")
 public class CurrencyController {
+    @Autowired
+    private CurrencyUtils currencyUtils;
+
     @Autowired
     private BalanceService balanceService;
 
@@ -126,7 +130,7 @@ public class CurrencyController {
             ingreso.setFecha(request.getFecha().atStartOfDay());
             
             historialSaldoService.save(ingreso);
-            AddFondos(request.getMonto());
+            currencyUtils.addFondos(request.getMonto());
 
             ApiResponse<HistorialSaldoEntity> response = 
                 new ApiResponse<>("Ingreso realizado exitosamente", ingreso);
@@ -148,7 +152,7 @@ public class CurrencyController {
             egreso.setFecha(request.getFecha().atStartOfDay());
             
             gastoService.save(egreso);
-            RemoveFondos(request.getMonto());
+            currencyUtils.removeFondos(request.getMonto());
 
             ApiResponse<HistorialGastoEntity> response = 
                 new ApiResponse<>("Egreso realizado exitosamente", egreso);
@@ -176,19 +180,6 @@ public class CurrencyController {
         List<HistorialGastoEntity> gastos = gastoService.findAllByFecha(fecha);
 
         pdfService.generarReporteDiarioEgreso(GetCurrentCurrency().getSaldo(), creditos, gastos, fecha, response);
-    }
-
-    public void AddFondos(BigDecimal monto){
-        BalanceEntity balance = balanceService.get();
-        balance.setSaldo(balance.getSaldo().add(monto));
-
-        balanceService.save(balance);
-    }
-    public void RemoveFondos(BigDecimal monto){
-        BalanceEntity balance = balanceService.get();
-        balance.setSaldo(balance.getSaldo().subtract(monto));
-
-        balanceService.save(balance);
     }
 
     public AllCurrencyDTO GetCurrentCurrency(){

@@ -52,7 +52,7 @@ export default function FormField({
           <textarea {...props}></textarea>
         ) : (
           <input
-            type={isPassword && showPassword ? 'text' : type}
+            type={isPassword && showPassword ? 'text' : isMoney ? 'number' : type}
             step={isMoney ? 0.01 : 1}
             {...props}
             value={type === 'file' ? '' : props?.value}

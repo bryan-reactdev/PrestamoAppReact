@@ -37,6 +37,7 @@ export default function CreditoModalDesembolsar() {
       title={!row.original.desembolsado ? '¿Desembolsar?' : '¿Revertir desembolso?'}
       confirmText={`SÍ, ${!row.original.desembolsado ? 'DESEMBOLSAR' : 'REVERTIR DESEMBOLSO'}`}
       icon={'fas fa-warning color-orange'}
+      style={{zIndex: 101}}
     >
       <div className="modal-content">
         <span>

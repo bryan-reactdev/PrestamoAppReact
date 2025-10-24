@@ -146,6 +146,80 @@ export const creditosAceptadosColumns = [
   },
 ]
 
+export const creditosRefinanciarColumns = [
+  {
+    accessorKey: 'calificacion',
+    header: "Calificación",
+    size: 115,
+    enableSorting: false,
+    cell: (props) => {
+      const value = props.getValue();
+      let displayValue = value;
+      if (value === 'A_PLUS') displayValue = 'A+';
+      else if (value === 'D') displayValue = 'Indeseable';
+      return <p className={value}>{displayValue}</p>;
+    }
+  },
+  {
+    accessorKey: 'monto',
+    header: "Monto",
+    size: 115,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'montoDesembolsar',
+    header: "Monto a Dar",
+    size: 115,
+    enableSorting: false,
+    cell: (props) => {
+      const value = (props.getValue() === 0 || props.getValue() === null)  ? props.row.original.monto : props.getValue();
+      
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'fechaAceptado',
+    header: "Fecha Aceptado",
+    size: 125,
+    cell: (props) => {
+      const value = props.getValue();
+
+      if (!value) return <p>N/A</p>;
+
+      const [y, m, d] = value.split('T')[0].split('-');
+      return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
+    }
+  },
+  {
+    accessorKey: 'desembolsado',
+    header: "Desembolso",
+    size: 115,
+    enableSorting: false,
+    cell: (props) => {
+      const value = props.getValue();
+
+      if (value === null) return <p>???</p>;
+
+      if (value === true){
+        return <p className="badge Realizado">{DateTimeToDate(props.row.original.fechaDesembolsado)}</p>;
+      }
+
+      return <p className={`badge Pendiente`}>Pendiente</p>
+    }  
+  },
+]
+
 export const creditosAceptadosAcciones = [
   CreditoTableAccionTipos.DESEMBOLSAR,
   CreditoTableAccionTipos.VER_CUOTAS,

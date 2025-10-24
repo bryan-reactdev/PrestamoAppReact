@@ -1,16 +1,18 @@
 package com.biovizion.prestamo911.controller;
 
+import static com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.mapearACreditoDTOs;
 import static com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.mapearACreditoTablaDTOs;
 import static com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.mapearACuotaTablaDTOs;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs;
+import com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.CreditoDTO;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.CreditoTablaDTO;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoAceptarRequest;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoDescargableRequest;
@@ -28,6 +31,7 @@ import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoDesembol
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoFullDTO;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoEditableRequest;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoSolicitudRequest;
+import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaDTO;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaTablaDTO;
 import com.biovizion.prestamo911.DTOs.GlobalDTOs.ApiResponse;
 import com.biovizion.prestamo911.DTOs.GlobalDTOs.GroupDTO;
@@ -40,7 +44,8 @@ import com.biovizion.prestamo911.service.CreditoService;
 import com.biovizion.prestamo911.service.PdfService;
 import com.biovizion.prestamo911.service.UsuarioService;
 import com.biovizion.prestamo911.utils.CreditoUtils;
-import com.biovizion.prestamo911.utils.FileUtils;
+import com.biovizion.prestamo911.utils.CuotaUtils;
+import com.biovizion.prestamo911.utils.CurrencyUtils;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -50,14 +55,18 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-
 
 
 @SuppressWarnings("rawtypes")
 @Controller
 @RequestMapping("/creditoTest")
 public class CreditoControllerTest {
+    @Autowired
+    private CurrencyUtils currencyUtils;
+
+    @Autowired
+    private CuotaUtils cuotaUtils;
+
     @Autowired
     private CreditoService creditoService;
 
@@ -122,6 +131,25 @@ public class CreditoControllerTest {
         }
     }
     
+    @GetMapping("/{id}/refinanciables")
+    public ResponseEntity<ApiResponse> getCreditosRefinanciables(@PathVariable Long id) {
+        try {
+            CreditoEntity credito = creditoService.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Credito no encontrado"));
+
+            List<CreditoEntity> creditos = creditoService.findAceptadosByUsuarioId(credito.getUsuario().getId());
+            // List<CreditoEntity> creditosRefinanciables = creditos.stream()
+            //                                             .map(c -> )
+
+            List<CreditoDTO> creditosRefinanciables = mapearACreditoDTOs(creditos);
+
+            ApiResponse<List<CreditoDTO>> response = new ApiResponse<>("FETCH Créditos refinanciables obtenido exitosamente", creditosRefinanciables);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse<String> response = new ApiResponse<>("Error al obtener los créditos refinanciables: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
     
     @GetMapping("/{id}/cuotas")
     public ResponseEntity<ApiResponse> getCuotasDeCredito(@PathVariable Long id){
@@ -217,6 +245,47 @@ public class CreditoControllerTest {
             credito.setMora(request.getMora());
             credito.setEstado("Aceptado");
             credito.setFechaAceptado(LocalDateTime.now());
+
+            if (request.getSelectedCreditoId() != null){
+                Optional<CreditoEntity> optionalCredito = creditoService.findById(request.getSelectedCreditoId());
+                if (!optionalCredito.isEmpty()) {
+                    CreditoEntity selectedCredito = optionalCredito.get();
+                    List<CuotaDTO> cuotasActualizadas = request.getSelectedCuotas();
+                    BigDecimal aDescontar = BigDecimal.ZERO;
+        
+                    for (CreditoCuotaEntity cuotaEntity : selectedCredito.getCuotas()) {
+                        // Find matching cuota by ID
+                        CuotaDTO cuotaDTO = cuotasActualizadas.stream()
+                            .filter(c -> Objects.equals(c.getId(), cuotaEntity.getId()))
+                            .findFirst()
+                            .orElse(null);
+        
+                        if (cuotaDTO != null) {
+                            // Update only relevant fields
+                            cuotaEntity.setMonto(cuotaDTO.getMonto());
+                            cuotaEntity.setPagoMora(cuotaDTO.getMora());
+                            cuotaEntity.setAbono(cuotaDTO.getAbono());
+                            cuotaEntity.setTotal((cuotaDTO.getMonto().add(cuotaDTO.getMora()).subtract(cuotaDTO.getAbono())));
+    
+                            aDescontar = aDescontar.add(cuotaEntity.getTotal());
+                        }
+                    }
+    
+                    selectedCredito.setRefinanciado(true);
+                    selectedCredito.setEstado("Finalizado");
+                    List<CreditoCuotaEntity> cuotas = selectedCredito.getCuotas().stream()
+                                                    .filter(c -> !"Pagado".equals(c.getEstado())) // only keep non-paid
+                                                    .peek(c -> { 
+                                                        cuotaUtils.pagarCuota(c);
+                                                    })
+                                                    .collect(Collectors.toList());
+    
+                    credito.setMontoDado(credito.getMonto().subtract(aDescontar));
+                    creditoService.save(selectedCredito);
+                    cuotaService.saveAll(cuotas);
+                }
+            }
+
             creditoService.save(credito);
 
             ApiResponse<String> response = new ApiResponse<>("Crédito aceptado exitosamente!");           
@@ -261,9 +330,11 @@ public class CreditoControllerTest {
             credito.setFechaDesembolsado(request.getFechaDesembolso().atStartOfDay());
 
             if (request.isDesembolsar()){
+                currencyUtils.removeFondos((credito.getMontoDado() != null && credito.getMontoDado() != BigDecimal.ZERO) ? credito.getMontoDado() : credito.getMonto());
                 generarCuotas(credito.getCuotaCantidad(), request.getFechaPrimeraComision(), credito);
             }
             else{
+                currencyUtils.addFondos((credito.getMontoDado() != null && credito.getMontoDado() != BigDecimal.ZERO) ? credito.getMontoDado() : credito.getMonto());
                 credito.setFechaDesembolsado(null);
                 List<CreditoCuotaEntity> cuotasExistentes = cuotaService.findByCreditoId(credito.getId());
 

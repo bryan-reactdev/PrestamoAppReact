@@ -1,13 +1,18 @@
 package com.biovizion.prestamo911.DTOs.Credito;
 
+import static com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.mapearACuotaDTOs;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaDTO;
 import com.biovizion.prestamo911.entities.CreditoEntity;
 import com.biovizion.prestamo911.entities.CreditoEntity.Calificacion;
+import com.biovizion.prestamo911.entities.NotaEntity;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -69,6 +74,10 @@ public class CreditoDTOs {
         private Boolean desembolsable;
 
         private String estado;
+        private String tipo;
+
+        @JsonManagedReference  // parent → child
+        private List<CuotaDTO> cuotas;
     }
 
     public static CreditoTablaDTO mapearACreditoTablaDTO(CreditoEntity credito){
@@ -127,7 +136,9 @@ public class CreditoDTOs {
             credito.getDescargable(),
             credito.getDesembolsable(),
 
-            credito.getEstado()
+            credito.getEstado(),
+            credito.getTipo(),
+            mapearACuotaDTOs(credito.getCuotas())
         );
     }
 
