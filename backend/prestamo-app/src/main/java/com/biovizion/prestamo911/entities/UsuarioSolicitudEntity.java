@@ -139,18 +139,15 @@ public class UsuarioSolicitudEntity {
     @Column(name = "solicitado_monto")
     private Double solicitadoMonto;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "solicitado_estado")
-    private SolicitadoEstado solicitadoEstado;
+    private String solicitadoEstado;
 
-    @Enumerated(EnumType.STRING)
-    private Atrasos atrasos;
+    private String atrasos;
 
     private Boolean reportado;
     private Boolean deudas;
 
-    @Enumerated(EnumType.STRING)
-    private Empleado empleado;
+    private String empleado;
 
     @Column(name = "otras_deudas")
     private Boolean otrasDeudas;
@@ -160,22 +157,4 @@ public class UsuarioSolicitudEntity {
     
     @Column(name = "otras_deudas_monto")
     private Double otrasDeudasMonto;
-
-    public enum SolicitadoEstado {
-        pagado,
-        en_curso,
-        incumplido
-    }
-
-    public enum Atrasos {
-        nunca,
-        uno_a_dos,
-        dos_o_mas
-    }
-
-    public enum Empleado {
-        empleo_fijo,
-        negocio_propio,
-        ninguno
-    }
 }

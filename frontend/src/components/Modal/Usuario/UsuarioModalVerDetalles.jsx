@@ -22,58 +22,52 @@ export default function UsuarioModalVerDetalles() {
   useEffect(() => {
     const userId = row?.original?.id
     if (userId) {
-    setFormData({
-      usuarioId: '',
-      nombres: '',
-      apellidos: '',
-      email: '',
-      celular: '',
-      duiDelante: null,
-      duiAtras: null,
-      password: '',
-    })
-
+      setFormData({
+        usuarioId: '',
+        nombres: '',
+        apellidos: '',
+        email: '',
+        celular: '',
+        duiDelante: null,
+        duiAtras: null,
+        password: '',
+      })
       getUsuario(userId)
     }
-  }, [row?.original?.id, currentUsuario.id, getUsuario])
+  }, [row])
 
   useEffect(() => {
-    if (usuario) {
-      setFormData(prev => ({
-        ...prev,
-        usuarioId: (usuario.id || currentUsuario.id )?? '',
-        nombres: (usuario.nombres || currentUsuario.nombres) ?? '',
-        apellidos: (usuario.apellidos || currentUsuario.apellidos) ?? '',
-        email: (usuario.email || currentUsuario.email) ?? '',
-        celular: (usuario.celular || currentUsuario.celular) ?? '',
-        duiDelante: (usuario.duiDelante || currentUsuario.duiDelante) ?? null,
-        duiAtras: (usuario.duiAtras || currentUsuario.duiAtras) ?? null,
-      }))
+    if (row) {
+      if (usuario) {
+        // use the fetched user
+        setFormData({
+          usuarioId: usuario.id ?? '',
+          nombres: usuario.nombres ?? '',
+          apellidos: usuario.apellidos ?? '',
+          email: usuario.email ?? '',
+          celular: usuario.celular ?? '',
+          duiDelante: usuario.duiDelante ?? null,
+          duiAtras: usuario.duiAtras ?? null,
+          password: '',
+        })
+      }
+    } else if (currentUsuario) {
+      // use the logged-in user
+      setFormData({
+        usuarioId: currentUsuario.id ?? '',
+        nombres: currentUsuario.nombres ?? '',
+        apellidos: currentUsuario.apellidos ?? '',
+        email: currentUsuario.email ?? '',
+        celular: currentUsuario.celular ?? '',
+        duiDelante: currentUsuario.duiDelante ?? null,
+        duiAtras: currentUsuario.duiAtras ?? null,
+        password: '',
+      })
     }
-  }, [usuario])
-
-  if (!row || !row.original) return null
+  }, [usuario, currentUsuario, row])
 
   const handleSubmit = async () => {
-    const data = new FormData();
-
-    // Append simple fields
-    data.append('usuarioId', formData.usuarioId);
-    data.append('nombres', formData.nombres);
-    data.append('apellidos', formData.apellidos);
-    data.append('email', formData.email);
-    data.append('celular', formData.celular);
-    data.append('password', formData.password);
-
-    // Append files only if they exist and are File objects
-    if (formData.duiDelante instanceof File)
-      data.append('duiDelante', formData.duiDelante);
-
-    if (formData.duiAtras instanceof File)
-      data.append('duiAtras', formData.duiAtras);
-
-    // Then send it
-    await updateUsuario(data);
+    await updateUsuario(formData);
 
     setFormData({
       usuarioId: '',
@@ -103,7 +97,10 @@ export default function UsuarioModalVerDetalles() {
       onConfirm={handleSubmit}
       onClose={() => closeModal('verDetalles')}
       customWidth={800}
-      title={`Detalles de usuario ${row?.original?.usuario || currentUsuario.nombres + ' ' + currentUsuario.apellidos}`}
+      title={row?.original?.usuario
+        ? 'Detalles de usuario ' + row?.original?.usuario
+        : 'Edita tu cuenta'
+      }
       confirmText="GUARDAR CAMBIOS"
     >
       <div style={{width: '100%'}} className="modal-content">
@@ -174,6 +171,7 @@ export default function UsuarioModalVerDetalles() {
                 <FormField
                   classNames="full"
                   label="Nueva contraseña"
+                  type='password'
                   name="password"
                   value={formData.password}
                   onChange={handleChange}

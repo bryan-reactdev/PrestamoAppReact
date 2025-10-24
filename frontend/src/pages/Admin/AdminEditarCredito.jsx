@@ -12,9 +12,23 @@ import { useCreditoStore } from '../../stores/useCreditoStore'
 export default function AdminEditarCredito(){
   const {id} = useParams();
   const navigate = useNavigate();
-  const {submitCredito, isSubmittingCredito} = useCreditoStore();
+  const {credito, getCredito, isFetchingCredito, editCredito, isSubmittingCredito} = useCreditoStore();
   const [formData, setFormData] = useState({
-    usuarioId: 0,
+    id: 0,
+    calificacion: '',
+    montoDesembolsar: '',
+    fechaSolicitud: '',
+    fechaAceptado: '',
+    fechaDesembolsado: '',
+    fechaRechazado: '',
+    desembolsado: '',
+    editable: '',
+    descargable: '',
+    desembolsable: '',
+    estado: '',
+    duiDelanteCodeudorPreview: '',
+    duiAtrasCodeudorPreview: '',
+    fotoReciboPreview: '',
 
     // --- Sección 1 ---
     monto: '',
@@ -55,7 +69,7 @@ export default function AdminEditarCredito(){
     duiCodeudor: '',
     direccionCodeudor: '',
     ingresosMensualesCodeudor: '',
-    duiFrenteCodeudor: '',
+    duiDelanteCodeudor: '',
     duiAtrasCodeudor: '',
     fotoRecibo: '',
 
@@ -68,39 +82,33 @@ export default function AdminEditarCredito(){
     deudasActualmente: '',
   });
 
-  const {usuario, isFetchingUsuario, getUsuario} = useUsuarioStore();
-
-  // --- Cosas a correr al inicializar la página '''
-  // --- Get de el usuario ---
   useEffect(() => {
-    getUsuario(id);
+    getCredito(id);
   }, [id]);
 
   // --- Asignar los valores default ---
   useEffect(() => {
-    if (usuario !== null){
-      setFormData((prev) => ({
-        ...prev,
-        usuarioId: usuario.id,
-        nombres: usuario.nombres,
-        apellidos: usuario.apellidos,
-        dui: usuario.dui,
-        direccion: usuario.direccion,
-        email: usuario.email,
-        celular: usuario.celular,
-      }));
+    console.log('uh')
+    if (credito !== null){
+      console.log('in')
+      setFormData(credito);
     }
-  }, [usuario])
+  }, [credito])
 
   // --- Handlers ---
-  // -- Handler para el formData --
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, type, value, files } = e.target;
 
-    // Dynamically add/update the field
     setFormData((prev) => ({
       ...prev,
-      [name]: value === 'true' ? true : value === 'false' ? false : value,
+      [name]:
+        type === 'file'
+          ? files[0]                           // handle file uploads
+          : value === 'true'
+          ? true
+          : value === 'false'
+          ? false
+          : value,                             // normal text/select input
     }));
   };
 
@@ -118,21 +126,21 @@ export default function AdminEditarCredito(){
     //   return;
     // }
     
-    const res = await submitCredito(formData);
-    if (res) navigate('/admin/creditos?tab=Pendientes');
+    const success = await editCredito(id, formData);
+    if (success) navigate(-1);
   };
 
   // --- Estado de Carga ---
-  if (isFetchingUsuario || !usuario){
+  if (isFetchingCredito || !credito){
     return(
       <div className="page">
         <Navbar/>
-        <Sidebar activePage={'usuarios'}/>
+        <Sidebar activePage={'creditos'}/>
 
         <div className="content">
           <ContentTitle 
             title={`Cargando...`}
-            subtitle={`Cargando información del usuario...`}
+            subtitle={`Cargando crédito...`}
           />
         </div>
         
@@ -143,12 +151,12 @@ export default function AdminEditarCredito(){
   return(
     <div className="page">
       <Navbar/>
-      <Sidebar activePage={'usuarios'}/>
+      <Sidebar activePage={'creditos'}/>
 
       <div className="content">
         <ContentTitle 
-          title={`Crear Crédito`}
-          subtitle={`Creación de crédito para: ${usuario.nombres + ' ' + usuario.apellidos}`}
+          title={`Editar Crédito`}
+          subtitle={`Edición de crédito`}
         />
 
         {/* Sección 1 */}
@@ -490,8 +498,8 @@ export default function AdminEditarCredito(){
               <FormField
                 classNames={'primary'}
                 label={'Foto del frente del DUI de Co-Deudor'}
-                name='duiFrenteCodeudor'
-                value={formData.duiFrenteCodeudor}
+                name='duiDelanteCodeudor'
+                preview={formData.duiDelanteCodeudorPreview}
                 onChange={handleChange}
                 type='file'
               />
@@ -500,7 +508,7 @@ export default function AdminEditarCredito(){
                 classNames={'primary'}
                 label={'Foto de atrás del DUI de Co-Deudor'}
                 name='duiAtrasCodeudor'
-                value={formData.duiAtrasCodeudor}
+                preview={formData.duiAtrasCodeudorPreview}
                 onChange={handleChange}
                 type='file'
               />
@@ -509,7 +517,7 @@ export default function AdminEditarCredito(){
                 classNames={'primary'}
                 label={'Foto de un recibo de Agua o Luz'}
                 name='fotoRecibo'
-                value={formData.fotoRecibo}
+                preview={formData.fotoReciboPreview}
                 onChange={handleChange}
                 type='file'
               />
@@ -599,7 +607,7 @@ export default function AdminEditarCredito(){
           <div className="form-button-container">
             {isSubmittingCredito
               ? <div className="spinner"></div>
-              : <button className='btn-submit' onClick={handleSubmit}>ENVIAR SOLICITUD<i className='fas fa-paper-plane'/></button>            
+              : <button className='btn-submit' onClick={handleSubmit}><i className='fas fa-save'/>GUARDAR CAMBIOS</button>            
             }
           </div>
         </div>

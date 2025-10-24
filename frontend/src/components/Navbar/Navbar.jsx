@@ -26,7 +26,7 @@ export default function Navbar() {
           <div className="dropdown" style={{display: showDropdown ? '' : 'none'}}>
             <Link className="btn-accion" to={'/'} onClick={() => logout()}>
               <i className="fas fa-right-from-bracket"/>
-              Log Out
+              Cerrar Sesión
             </Link>
           </div>
         </div>

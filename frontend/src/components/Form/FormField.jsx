@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { API_BASE_IP } from '../../utils/axiosWrapper';
 
 export default function FormField({
   classNames,
@@ -9,13 +10,15 @@ export default function FormField({
   ...props
 }) {
   const isMoney = type === 'money';
+  const isPassword = type === 'password';
   const [preview, setPreview] = useState(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   // --- Initialize preview if prop provided ---
   useEffect(() => {
     if (initialPreview) {
       if (typeof initialPreview === 'string') {
-        setPreview(`http://192.168.0.194:8083${initialPreview}`);
+        setPreview(`${API_BASE_IP}${initialPreview}`);
       } else if (initialPreview instanceof File) {
         setPreview(URL.createObjectURL(initialPreview));
       }
@@ -42,17 +45,34 @@ export default function FormField({
     <div className={`form-field ${classNames || ''}`} style={style}>
       {label && <label>{label}</label>}
 
-      <div className="form-field-input-container">
+      <div className="form-field-input-container" style={{ position: 'relative' }}>
         {isMoney && <i className="fas fa-dollar-sign"></i>}
 
         {type === 'textarea' ? (
           <textarea {...props}></textarea>
         ) : (
           <input
-            type={isMoney ? 'number' : type}
+            type={isPassword && showPassword ? 'text' : type}
             step={isMoney ? 0.01 : 1}
             {...props}
+            value={type === 'file' ? '' : props?.value}
             onChange={handleChange}
+          />
+        )}
+
+        {isPassword && (
+          <i
+            className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}
+            onClick={() => setShowPassword(prev => !prev)}
+            style={{
+              position: 'absolute',
+              right: '0.5rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              cursor: 'pointer',
+              color: '#555',
+              fontSize: '0.95rem',
+            }}
           />
         )}
       </div>
@@ -62,12 +82,6 @@ export default function FormField({
           className="image-preview"
           src={preview}
           alt="preview"
-          style={{
-            marginTop: '0.5rem',
-            maxWidth: '100%',
-            borderRadius: '8px',
-            objectFit: 'cover',
-          }}
         />
       )}
     </div>

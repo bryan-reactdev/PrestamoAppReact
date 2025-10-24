@@ -4,6 +4,7 @@ import static com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.mapearACreditoT
 import static com.biovizion.prestamo911.DTOs.Usuario.UsuarioDTOs.mapearAUsuarioDTO;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -13,11 +14,11 @@ import java.util.stream.Collectors;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.biovizion.prestamo911.DTOs.GlobalDTOs.ApiResponse;
 import com.biovizion.prestamo911.DTOs.GlobalDTOs.GroupDTO;
@@ -31,6 +32,7 @@ import com.biovizion.prestamo911.entities.UsuarioEntity;
 import com.biovizion.prestamo911.service.CreditoService;
 import com.biovizion.prestamo911.service.PdfService;
 import com.biovizion.prestamo911.service.UsuarioService;
+import com.biovizion.prestamo911.utils.FileUtils;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -39,7 +41,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 @Controller
 @RequestMapping("/usuarioTest")
@@ -83,19 +84,16 @@ public class UsuarioControllerTest {
     }
     
     @PutMapping(value = "/", consumes = "multipart/form-data")
-    public ResponseEntity<ApiResponse> updateUsuario(
-            @ModelAttribute UsuarioEditRequest request) {
+    public ResponseEntity<ApiResponse> updateUsuario(@ModelAttribute UsuarioEditRequest request) {
         try {
             Optional<UsuarioEntity> usuarioOpt = usuarioService.findById(request.getUsuarioId());
             if (usuarioOpt.isEmpty()) {
-                return ResponseEntity
-                        .status(HttpStatus.NOT_FOUND)
-                        .body(new ApiResponse<>("Usuario no encontrado"));
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                    .body(new ApiResponse<>("Usuario no encontrado"));
             }
 
             UsuarioEntity usuario = usuarioOpt.get();
 
-            // Update basic fields
             usuario.setNombre(request.getNombres());
             usuario.setApellido(request.getApellidos());
             usuario.setEmail(request.getEmail());
@@ -105,28 +103,14 @@ public class UsuarioControllerTest {
                 usuario.setPassword(passwordEncoder.encode(request.getPassword()));
             }
 
-            // --- Handle DUI files ---
-            String rutaFotos = "/opt/prestamo911/fotos-usuarios/";
-
-            if (request.getDuiDelante() != null && !request.getDuiDelante().isEmpty()) {
-                String extension = FilenameUtils.getExtension(request.getDuiDelante().getOriginalFilename());
-                String nombreArchivo = UUID.randomUUID().toString() + "." + extension;
-                File destino = new File(rutaFotos + nombreArchivo);
-                request.getDuiDelante().transferTo(destino);
-                usuario.setDuiDelante("/fotos-usuarios/" + nombreArchivo);
-            }
-
-            if (request.getDuiAtras() != null && !request.getDuiAtras().isEmpty()) {
-                String extension = FilenameUtils.getExtension(request.getDuiAtras().getOriginalFilename());
-                String nombreArchivo = UUID.randomUUID().toString() + "." + extension;
-                File destino = new File(rutaFotos + nombreArchivo);
-                request.getDuiAtras().transferTo(destino);
-                usuario.setDuiAtras("/fotos-usuarios/" + nombreArchivo);
-            }
+            // --- Use helper for file updates ---
+            FileUtils.tryUploadFotoDUI(usuario, "delante", request.getDuiDelante());
+            FileUtils.tryUploadFotoDUI(usuario, "atras", request.getDuiAtras());
 
             usuarioService.update(usuario);
 
             return ResponseEntity.ok(new ApiResponse<>("Usuario editado exitosamente"));
+
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -2,10 +2,16 @@ import Sidebar from '../../components/Sidebar/Sidebar'
 import Navbar from '../../components/Navbar/Navbar'
 import ContentTitle from '../../components/Content/ContentTitle'
 import MenuButton from '../../components/Content/Layout/MenuButton'
+import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
+import { useUsuarioModalStore } from '../../stores/Modal/useUsuarioModalStore'
 
 export default function AdminDashboard(){
+  const {verDetalles, openModal} = useUsuarioModalStore();
+  
   return(
     <div className="page">
+      <UsuarioModalVerDetalles/>
+
       <Navbar/>
 
       <Sidebar activePage={'dashboard'}/>
@@ -64,6 +70,9 @@ export default function AdminDashboard(){
             title={'Editar Cuenta'} 
             subtitle={'Gestiona tu cuenta'} 
             footer={'Edita tu cuenta'}
+            onClick={() => {
+              openModal('verDetalles', null)
+            }}
           />
 
         </div>

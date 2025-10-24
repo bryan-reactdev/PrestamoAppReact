@@ -82,9 +82,11 @@ export function BaseModal({
             {confirmText}
           </button>
           }
+          {onClose &&
           <button className={`btn-${cancelColor}`} onClick={handleCloseModal}>
             {cancelText}
           </button>
+          }
         </div>
       </div>
     </div>

@@ -10,6 +10,10 @@ export const ButtonMarcarPagadoCuota = ({row}) => {
     </button>
   )
 }
+ButtonMarcarPagadoCuota.visibleIf = (row, role) => { 
+  return !role.includes('USER'); 
+};
+
 
 export const ButtonAbonarCuota = ({row}) => {
   const { openModal } = useCuotaModalStore();
@@ -21,6 +25,10 @@ export const ButtonAbonarCuota = ({row}) => {
     </button>
   )
 }
+ButtonAbonarCuota.visibleIf = (row, role) => { 
+  return !role.includes('USER'); 
+};
+
 
 export const ButtonNotasCuota = (row) => {
   return (
@@ -30,6 +38,10 @@ export const ButtonNotasCuota = (row) => {
     </button>
   )
 }
+ButtonNotasCuota.visibleIf = (row, role) => { 
+  return !role.includes('USER'); 
+};
+
 
 export const ButtonEditarCuota = (row) => {
   return (
@@ -39,3 +51,6 @@ export const ButtonEditarCuota = (row) => {
     </button>
   )
 }
+ButtonEditarCuota.visibleIf = (row, role) => { 
+  return !role.includes('USER'); 
+};

@@ -3,10 +3,16 @@ import Navbar from '../../components/Navbar/Navbar'
 import ContentTitle from '../../components/Content/ContentTitle'
 import MenuButton from '../../components/Content/Layout/MenuButton'
 import UsuarioSidebar from '../../components/Sidebar/UsuarioSidebar'
+import { useUsuarioModalStore } from '../../stores/Modal/useUsuarioModalStore'
+import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
 
 export default function UsuarioDashboard(){
+  const {verDetalles, openModal} = useUsuarioModalStore();
+
   return(
     <div className="page">
+      <UsuarioModalVerDetalles/>
+
       <Navbar/>
 
       <UsuarioSidebar activePage={'dashboard'}/>
@@ -38,8 +44,10 @@ export default function UsuarioDashboard(){
             title={'Editar Cuenta'} 
             subtitle={'Gestiona tu cuenta'} 
             footer={'Edita tu cuenta'}
+            onClick={() => {
+              openModal('verDetalles', null)
+            }}
           />
-
         </div>
       </div>
       

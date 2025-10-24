@@ -26,6 +26,8 @@
 
     padding: var(--space-lg);
 
+    border-radius: var(--border-lg);
+
     background-color: white;
     z-index: 200;
     

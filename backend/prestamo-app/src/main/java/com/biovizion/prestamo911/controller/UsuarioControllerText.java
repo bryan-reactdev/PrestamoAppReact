@@ -3,27 +3,40 @@ package com.biovizion.prestamo911.controller;
 import static com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.mapearACreditoTablaDTOs;
 import static com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.mapearACuotaTablaDTOs;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.biovizion.prestamo911.DTOs.GlobalDTOs.ApiResponse;
 import com.biovizion.prestamo911.DTOs.GlobalDTOs.GroupDTO;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.CreditoTablaDTO;
+import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoSolicitudRequest;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaTablaDTO;
 import com.biovizion.prestamo911.entities.CreditoCuotaEntity;
 import com.biovizion.prestamo911.entities.CreditoEntity;
+import com.biovizion.prestamo911.entities.UsuarioEntity;
+import com.biovizion.prestamo911.entities.UsuarioSolicitudEntity;
 import com.biovizion.prestamo911.service.CreditoCuotaService;
 import com.biovizion.prestamo911.service.CreditoService;
 import com.biovizion.prestamo911.service.UsuarioService;
 import com.biovizion.prestamo911.utils.AuthUtils;
+import com.biovizion.prestamo911.utils.CreditoUtils;
+import com.biovizion.prestamo911.utils.FileUtils;
 
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
+@SuppressWarnings("rawtypes")
 @Controller
 @RequestMapping("/usuarioText")
 public class UsuarioControllerText {
@@ -36,6 +49,9 @@ public class UsuarioControllerText {
     @Autowired
     private UsuarioService usuarioService;
 
+    @Autowired
+    private CreditoUtils creditoUtils;
+
     @GetMapping("/creditos")
     public ResponseEntity<ApiResponse> getCreditos(){
         try {
@@ -43,8 +59,6 @@ public class UsuarioControllerText {
             Long userId = usuarioService.findByDui(dui)
                     .map(u -> u.getId())
                     .orElseThrow(() -> new RuntimeException("User not found"));
-
-            System.out.println(dui);
 
             List<CreditoEntity> creditos = creditoService.findByUsuarioId(userId);
             List<CreditoEntity> creditosPendientes = creditoService.findPendientesByUsuarioId(userId);
@@ -106,4 +120,23 @@ public class UsuarioControllerText {
             return ResponseEntity.status(500).body(response);
         }
     }
+
+    // --- POST ---
+    @PostMapping(value = "/solicitar", consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponse> solicitarCredito(@ModelAttribute CreditoSolicitudRequest request) {
+        try {
+            String dui = AuthUtils.getUsername();
+            UsuarioEntity usuario = usuarioService.findByDui(dui)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            creditoUtils.CreateRequestCredito(request, usuario);
+
+            ApiResponse<String> response = new ApiResponse<>("Crédito solicitado exitosamente");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse<String> response = new ApiResponse<>("Error al solicitar crédito");
+            return ResponseEntity.status(500).body(response);
+        }
+    }    
 }

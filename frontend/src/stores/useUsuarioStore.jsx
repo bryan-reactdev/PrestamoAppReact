@@ -48,7 +48,36 @@ export const useUsuarioStore = create((set, get) => ({
 
         if (!res) return false; // stop if login failed
 
-        return true;
+        return get().currentUsuario;
+    },
+
+    register: async (formData) => {
+        set({ isAuthenticating: true });
+        const data = new FormData();
+
+        // Append simple fields
+        data.append('nombres', formData.nombres);
+        data.append('apellidos', formData.apellidos);
+        data.append('email', formData.email);
+        data.append('celular', formData.celular);
+        data.append('dui', formData.dui);
+        data.append('password', formData.password);
+
+        // Append files only if they exist and are File objects
+        if (formData.duiDelante instanceof File)
+        data.append('duiDelante', formData.duiDelante);
+
+        if (formData.duiAtras instanceof File)
+        data.append('duiAtras', formData.duiAtras);
+        
+        const res = await axiosData('/auth/register', { method: "POST", data: data, headers: { 'Content-Type': 'multipart/form-data'}})
+
+        set({ currentUsuario: res?.data ?? null })
+        set({ isAuthenticating: false });
+
+        if (!res) return false;
+
+        return get().currentUsuario;
     },
 
     logout: async () => {
@@ -99,10 +128,32 @@ export const useUsuarioStore = create((set, get) => ({
 
     updateUsuario: async(formData) => {
         set({isUpdatingUsuario: true})
-        
-        const res = await axiosData('/usuarioTest/', { method: "PUT", data: formData, headers: { 'Content-Type': 'multipart/form-data'}})
+        const data = new FormData();
 
+        // Append simple fields
+        data.append('usuarioId', formData.usuarioId);
+        data.append('nombres', formData.nombres);
+        data.append('apellidos', formData.apellidos);
+        data.append('email', formData.email);
+        data.append('celular', formData.celular);
+        data.append('password', formData.password);
+
+        // Append files only if they exist and are File objects
+        if (formData.duiDelante instanceof File)
+        data.append('duiDelante', formData.duiDelante);
+
+        if (formData.duiAtras instanceof File)
+        data.append('duiAtras', formData.duiAtras);
+        
+        const res = await axiosData('/usuarioTest/', { method: "PUT", data: data, headers: { 'Content-Type': 'multipart/form-data'}})
+        
         set({isUpdatingUsuario: false})
+        
+        if (!res) return false; // stop if failed
+
+        get().authenticate();
+
+        return true;
     },
 
     descargarPDFInforme: async (id) => {

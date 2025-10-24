@@ -53,7 +53,7 @@ export default function UsuarioSolicitar(){
     duiCodeudor: '',
     direccionCodeudor: '',
     ingresosMensualesCodeudor: '',
-    duiFrenteCodeudor: '',
+    duiDelanteCodeudor: '',
     duiAtrasCodeudor: '',
     fotoRecibo: '',
 
@@ -74,6 +74,7 @@ export default function UsuarioSolicitar(){
     if (currentUsuario !== null){
       setFormData((prev) => ({
         ...prev,
+        usuarioId: currentUsuario.id,
         nombres: currentUsuario.nombres,
         apellidos: currentUsuario.apellidos,
         dui: currentUsuario.dui,
@@ -84,15 +85,19 @@ export default function UsuarioSolicitar(){
     }
   }, [currentUsuario])
 
-  // --- Handlers ---
-  // -- Handler para el formData --
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, type, value, files } = e.target;
 
-    // Dynamically add/update the field
     setFormData((prev) => ({
       ...prev,
-      [name]: value === 'true' ? true : value === 'false' ? false : value,
+      [name]:
+        type === 'file'
+          ? files[0]                           // handle file uploads
+          : value === 'true'
+          ? true
+          : value === 'false'
+          ? false
+          : value,                             // normal text/select input
     }));
   };
 
@@ -110,7 +115,7 @@ export default function UsuarioSolicitar(){
     //   return;
     // }
     
-    const res = await submitCredito(formData);
+    const res = await submitCredito(formData, true);
     if (res) navigate('/usuario/creditos?tab=Pendientes');
   };
 
@@ -465,8 +470,9 @@ export default function UsuarioSolicitar(){
               <FormField
                 classNames={'primary'}
                 label={'Foto del frente del DUI de Co-Deudor'}
-                name='duiFrenteCodeudor'
-                value={formData.duiFrenteCodeudor}
+                name='duiDelanteCodeudor'
+                preview={formData.duiDelanteCodeudor}
+                value={formData.duiDelanteCodeudor}
                 onChange={handleChange}
                 type='file'
               />
@@ -475,6 +481,7 @@ export default function UsuarioSolicitar(){
                 classNames={'primary'}
                 label={'Foto de atrás del DUI de Co-Deudor'}
                 name='duiAtrasCodeudor'
+                preview={formData.duiAtrasCodeudor}
                 value={formData.duiAtrasCodeudor}
                 onChange={handleChange}
                 type='file'
@@ -484,6 +491,7 @@ export default function UsuarioSolicitar(){
                 classNames={'primary'}
                 label={'Foto de un recibo de Agua o Luz'}
                 name='fotoRecibo'
+                preview={formData.fotoRecibo}
                 value={formData.fotoRecibo}
                 onChange={handleChange}
                 type='file'

@@ -5,7 +5,7 @@ import { useUsuarioStore } from "../../stores/useUsuarioStore";
 import { useState } from "react";
 
 export default function Login() {
-    const { login, isAuthenticating } = useUsuarioStore();
+    const { login, isAuthenticating, currentUsuario } = useUsuarioStore();
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: '',
@@ -15,10 +15,11 @@ export default function Login() {
     const onSubmit = async (e) => {
         e.preventDefault();
 
-        const success = await login(formData);
-
-        if (success) {
-            navigate("/admin/");
+        const user = await login(formData);
+        
+        if (user) {
+            const isAdmin = !user.rol?.includes("USER");
+            navigate(isAdmin ? "/admin/" : "/usuario/");
         }
     };
 

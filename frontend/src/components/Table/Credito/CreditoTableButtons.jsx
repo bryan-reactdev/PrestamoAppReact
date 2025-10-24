@@ -19,7 +19,7 @@ ButtonDesembolsarCredito.visibleIf = (row, role) => {
 
 export const ButtonVerCuotasCredito = ({row}) => {
   return (
-    <Link className="a-accion" to={`./${row.id}/cuotas`}>
+    <Link className={`a-accion ${!row.original.desembolsado ? 'disabled' : ''}`} to={`./${row.id}/cuotas`}>
       <button className="btn-accion">
         <i className="fas fa-calendar"/>
         Ver Cuotas
@@ -27,6 +27,7 @@ export const ButtonVerCuotasCredito = ({row}) => {
     </Link>
   )
 }
+
 
 export const ButtonAceptarCredito = ({row}) => {
   const { openModal } = useCreditoModalStore();
@@ -38,6 +39,10 @@ export const ButtonAceptarCredito = ({row}) => {
     </button>
   )
 }
+ButtonAceptarCredito.visibleIf = (row, role) => { 
+  return role.includes('ADMIN'); 
+};
+
 
 export const ButtonRechazarCredito = ({row}) => {
   const { openModal } = useCreditoModalStore();
@@ -49,6 +54,9 @@ export const ButtonRechazarCredito = ({row}) => {
     </button>
   )
 }
+ButtonRechazarCredito.visibleIf = (row, role) => { 
+  return role.includes('ADMIN'); 
+};
 
 export const ButtonGenerarDocumentosCredito = ({row}) => {
   const { openModal } = useCreditoModalStore();
@@ -66,10 +74,12 @@ ButtonGenerarDocumentosCredito.visibleIf = (row, role) => {
 
 export const ButtonEditarCredito = ({row}) => {
   return (
-    <button className="btn-accion" onClick={() => console.log(`Editado: ${row.id} `)}>
-      <i className="fas fa-edit"/>
-      Editar
-    </button>
+    <Link className={`a-accion`} to={`./${row.id}/editar`}>
+      <button className="btn-accion">
+        <i className="fas fa-edit"/>
+        Editar
+      </button>
+    </Link>
   )
 }
 ButtonEditarCredito.visibleIf = (row, role) => { 

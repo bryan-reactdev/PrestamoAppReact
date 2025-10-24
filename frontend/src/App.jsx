@@ -20,6 +20,7 @@ import UsuarioDashboard from './pages/Usuario/UsuarioDashboard';
 import UsuarioCreditos from './pages/Usuario/UsuarioCreditos';
 import UsuarioSolicitar from './pages/Usuario/UsuarioSolicitar';
 import UsuarioCuotas from './pages/Usuario/UsuarioCuotas';
+import AdminEditarCredito from './pages/Admin/AdminEditarCredito';
 
 export default function App(){
     const {authenticate } = useUsuarioStore();
@@ -48,6 +49,7 @@ export default function App(){
                     <Route path="/admin/" element={<AdminDashboard />} />
                     <Route path="/admin/creditos" element={<AdminCreditos />} />
                     <Route path="/admin/creditos/:id/cuotas" element={<AdminCuotas />} />
+                    <Route path="/admin/creditos/:id/editar" element={<AdminEditarCredito />} />
                     <Route path="/admin/cobros" element={<AdminCobros />} />
                     <Route path="/admin/caja" element={<AdminCajaChica />} />
                     <Route path="/admin/caja/ingresos" element={<AdminIngresos />} />

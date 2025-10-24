@@ -4,6 +4,9 @@ import { descargarPDFConPrint } from '../utils/generalUtil';
 import toast from 'react-hot-toast';
 
 const estadoInicial = {
+    credito: null,
+    isFetchingCredito: false,
+
     creditos: [],
     creditosPendientes: [],
     creditosAceptados: [],
@@ -74,6 +77,15 @@ export const useCreditoStore = create((set, get) => ({
                 credito.id === id ? { ...credito, estado: newEstado } : credito
             ),
         }));
+    },
+
+    getCredito: async (creditoId) =>{
+        set({isFetchingCredito: true})
+
+        const res = await axiosData(`/creditoTest/${creditoId}`, { method: "GET" });
+
+        set({credito: res?.data ?? null})
+        set({isFetchingCredito: false})
     },
 
     // --- GET ---
@@ -153,16 +165,159 @@ export const useCreditoStore = create((set, get) => ({
     },
 
     // --- Acciones ---
-    submitCredito: async (formData) =>{
-        set({ isSubmittingCredito: true });
+    submitCredito: async (formData, isUser = false) =>{
+        set({ isSubmittingCredito: true });        
+        const data = new FormData();
 
-        const res = await axiosData("/creditoTest/crear", { method: "POST", data: formData});
+        // --- Info del crédito ---
+        data.append('usuarioId', formData.usuarioId);
+        data.append('monto', formData.monto);
+        data.append('frecuenciaPago', formData.frecuenciaPago);
+        data.append('finalidadCredito', formData.finalidadCredito);
+        data.append('formaPago', formData.formaPago);
+        data.append('propiedadANombre', formData.propiedadANombre);
+        data.append('vehiculoANombre', formData.vehiculoANombre);
+
+        // --- Info personal ---
+        data.append('dui', formData.dui);
+        data.append('nombres', formData.nombres);
+        data.append('apellidos', formData.apellidos);
+        data.append('email', formData.email);
+        data.append('celular', formData.celular);
+        data.append('direccion', formData.direccion);
+        data.append('tiempoResidencia', formData.tiempoResidencia);
+        data.append('estadoCivil', formData.estadoCivil);
+        data.append('fechaNacimiento', formData.fechaNacimiento);
+        data.append('gastosMensuales', formData.gastosMensuales);
+        data.append('comoConocio', formData.comoConocio);
+        data.append('conoceAlguien', formData.conoceAlguien);
+        data.append('enlaceRedSocial', formData.enlaceRedSocial);
+
+        // --- Info laboral ---
+        data.append('ocupacion', formData.ocupacion);
+
+        // --- Referencias ---
+        data.append('nombreReferencia1', formData.nombreReferencia1);
+        data.append('celularReferencia1', formData.celularReferencia1);
+        data.append('parentescoReferencia1', formData.parentescoReferencia1);
+        data.append('nombreReferencia2', formData.nombreReferencia2);
+        data.append('celularReferencia2', formData.celularReferencia2);
+        data.append('parentescoReferencia2', formData.parentescoReferencia2);
+
+        // --- Co-deudor ---
+        data.append('nombreCodeudor', formData.nombreCodeudor);
+        data.append('duiCodeudor', formData.duiCodeudor);
+        data.append('direccionCodeudor', formData.direccionCodeudor);
+        data.append('ingresosMensualesCodeudor', formData.ingresosMensualesCodeudor);
+
+        // --- Antecedentes ---
+        data.append('solicitadoAnteriormente', formData.solicitadoAnteriormente);
+        data.append('atrasosAnteriormente', formData.atrasosAnteriormente);
+        data.append('reportadoAnteriormente', formData.reportadoAnteriormente);
+        data.append('cobrosAnteriormente', formData.cobrosAnteriormente);
+        data.append('empleo', formData.empleo);
+        data.append('deudasActualmente', formData.deudasActualmente);
+
+        // --- Archivos (solo si son File objects) ---
+        if (formData.duiDelanteCodeudor instanceof File)
+        data.append('duiDelanteCodeudor', formData.duiDelanteCodeudor);
+
+        if (formData.duiAtrasCodeudor instanceof File)
+        data.append('duiAtrasCodeudor', formData.duiAtrasCodeudor);
+
+        if (formData.fotoRecibo instanceof File)
+        data.append('fotoRecibo', formData.fotoRecibo);
+        
+        let res = null;
+        
+        if(isUser){
+            res = await axiosData("/usuarioText/solicitar", { method: "POST", data: data, headers: { 'Content-Type': 'multipart/form-data'}});
+        }else{
+            res = await axiosData("/creditoTest/crear", { method: "POST", data: data, headers: { 'Content-Type': 'multipart/form-data'}});
+        }
 
         set({ isSubmittingCredito: false });
 
         get().resetArrays();
-        get().getCreditos();
+        get().getCreditos(null, isUser);
         return res
+    },
+
+    editCredito: async (creditoId, formData) =>{
+        set({ isSubmittingCredito: true });        
+        const data = new FormData();
+
+        // --- Info del crédito ---
+        data.append('id', formData.id);
+
+        data.append('monto', formData.monto);
+        data.append('frecuenciaPago', formData.frecuenciaPago);
+        data.append('finalidadCredito', formData.finalidadCredito);
+        data.append('formaPago', formData.formaPago);
+        data.append('propiedadANombre', formData.propiedadANombre);
+        data.append('vehiculoANombre', formData.vehiculoANombre);
+        if (formData.fechaAceptado)
+            data.append('fechaAceptado', formData.fechaAceptado);
+
+        // --- Info personal ---
+        data.append('dui', formData.dui);
+        data.append('nombres', formData.nombres);
+        data.append('apellidos', formData.apellidos);
+        data.append('email', formData.email);
+        data.append('celular', formData.celular);
+        data.append('direccion', formData.direccion);
+        data.append('tiempoResidencia', formData.tiempoResidencia);
+        data.append('estadoCivil', formData.estadoCivil);
+        data.append('fechaNacimiento', formData.fechaNacimiento);
+        data.append('gastosMensuales', formData.gastosMensuales);
+        data.append('comoConocio', formData.comoConocio);
+        data.append('conoceAlguien', formData.conoceAlguien);
+        data.append('enlaceRedSocial', formData.enlaceRedSocial);
+
+        // --- Info laboral ---
+        data.append('ocupacion', formData.ocupacion);
+
+        // --- Referencias ---
+        data.append('nombreReferencia1', formData.nombreReferencia1);
+        data.append('celularReferencia1', formData.celularReferencia1);
+        data.append('parentescoReferencia1', formData.parentescoReferencia1);
+        data.append('nombreReferencia2', formData.nombreReferencia2);
+        data.append('celularReferencia2', formData.celularReferencia2);
+        data.append('parentescoReferencia2', formData.parentescoReferencia2);
+
+        // --- Co-deudor ---
+        data.append('nombreCodeudor', formData.nombreCodeudor);
+        data.append('duiCodeudor', formData.duiCodeudor);
+        data.append('direccionCodeudor', formData.direccionCodeudor);
+        data.append('ingresosMensualesCodeudor', formData.ingresosMensualesCodeudor);
+
+        // --- Antecedentes ---
+        data.append('solicitadoAnteriormente', formData.solicitadoAnteriormente);
+        data.append('atrasosAnteriormente', formData.atrasosAnteriormente);
+        data.append('reportadoAnteriormente', formData.reportadoAnteriormente);
+        data.append('cobrosAnteriormente', formData.cobrosAnteriormente);
+        data.append('empleo', formData.empleo);
+        data.append('deudasActualmente', formData.deudasActualmente);
+
+        // --- Archivos (solo si son File objects) ---
+        if (formData.duiDelanteCodeudor instanceof File)
+        data.append('duiDelanteCodeudor', formData.duiDelanteCodeudor);
+
+        if (formData.duiAtrasCodeudor instanceof File)
+        data.append('duiAtrasCodeudor', formData.duiAtrasCodeudor);
+
+        if (formData.fotoRecibo instanceof File)
+        data.append('fotoRecibo', formData.fotoRecibo);
+        
+        const res = await axiosData(`/creditoTest/${creditoId}`, { method: "PUT", data: data, headers: { 'Content-Type': 'multipart/form-data'}});
+
+        set({ isSubmittingCredito: false });
+
+        get().resetArrays();
+        get().getCreditos(null);
+
+        if (!res) return false;
+        return true;
     },
 
     aceptarCredito: async (id, formData) => {

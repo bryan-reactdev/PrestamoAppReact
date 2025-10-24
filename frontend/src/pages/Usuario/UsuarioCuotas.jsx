@@ -43,7 +43,7 @@ export default function UsuarioCuotas(){
 
       <div className="content">
         <ContentTitle
-          title={`Cuotas del Crédito de $${cuotas[0]?.credito}`}
+          title={`Cuotas del Crédito ${cuotas[0] != null ? 'de $' + cuotas[0]?.credito : ''}`}
           subtitle={'Gestión de cuotas del crédito'}
         />
 

@@ -148,6 +148,11 @@ button:active, a:active{
   transform: scale(0.975);
   z-index: 10;
 }
+button.disabled, a.disabled {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.2;
+}
 
 button.sm, a.sm{
   padding-inline: var(--space-md);

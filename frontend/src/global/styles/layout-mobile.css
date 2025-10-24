@@ -94,15 +94,17 @@
 
     /* --- Modals --- */
     .modal-container{
-        padding: 0;
+        max-width: 90% !important;
+        max-height: 90vh !important;
+        padding: var(--space-md) !important;
 
         overflow: hidden;
+        box-sizing: border-box;
     }
     .modal-header h1{
         font-size: var(--font-xl);
     }
     .modal-content{
-        width: 80%;
 
         overflow-x: hidden;
     }
@@ -151,7 +153,19 @@
         font-size: var(--font-sm);
     }
 
+    /* --- Form --- */
+
+    .form-container{
+        width: 100%;
+
+        margin-inline: auto;
+
+        background-color: var(--background-secondary);
+    }
+    .form-section-content{
+        grid-template-columns: 1fr;
+    }
     .form-field{
-        grid-column: span 1 !important;
+        grid-column: span 2 !important;
     }
 }

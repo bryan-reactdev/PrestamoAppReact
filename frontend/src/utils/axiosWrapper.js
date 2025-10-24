@@ -1,7 +1,7 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 
-const API_BASE_IP = import.meta.env.VITE_API_IP;
+export const API_BASE_IP = import.meta.env.VITE_API_IP;
 
 const api = axios.create({
     baseURL: API_BASE_IP,

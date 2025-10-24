@@ -1,6 +1,5 @@
 import Sidebar from '../../components/Sidebar/Sidebar'
 import Navbar from '../../components/Navbar/Navbar'
-import ContentTitle from '../../components/Content/ContentTitle'
 import { useEffect, useState } from 'react'
 
 import { useCreditoStore } from '../../stores/useCreditoStore'
