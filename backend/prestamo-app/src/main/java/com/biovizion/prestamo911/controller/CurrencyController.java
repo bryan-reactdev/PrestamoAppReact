@@ -32,6 +32,7 @@ import com.biovizion.prestamo911.service.AbonoCuotaService;
 import com.biovizion.prestamo911.service.BalanceService;
 import com.biovizion.prestamo911.service.CreditoCuotaService;
 import com.biovizion.prestamo911.service.CreditoService;
+import com.biovizion.prestamo911.service.HistorialBalanceService;
 import com.biovizion.prestamo911.service.HistorialGastoService;
 import com.biovizion.prestamo911.service.HistorialSaldoService;
 import com.biovizion.prestamo911.service.PdfService;
@@ -55,7 +56,7 @@ public class CurrencyController {
     private BalanceService balanceService;
 
     @Autowired
-    private HistorialSaldoService historialBalanceService;
+    private HistorialBalanceService historialBalanceService;
 
     @Autowired
     private HistorialSaldoService historialSaldoService;
@@ -184,6 +185,7 @@ public class CurrencyController {
 
     public AllCurrencyDTO GetCurrentCurrency(){
         BalanceEntity balance = balanceService.get();
+        List<HistorialBalanceEntity> historialBalance = historialBalanceService.findAll();
         
         // Ingresos
         List<HistorialSaldoEntity> ingresosCapitales = historialSaldoService.findAllByTipo("Capital");
@@ -199,6 +201,7 @@ public class CurrencyController {
 
         return new AllCurrencyDTO(
             balance.getSaldo(),
+            historialBalance,
             ingresosCapitales,
             ingresosVarios,
             mapearAAbonoDTOs(cuotasAbonos),

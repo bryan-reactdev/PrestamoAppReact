@@ -27,6 +27,5 @@ public class CuotaRequestDTOs {
         
         private BigDecimal monto;
         private BigDecimal mora;
-        private BigDecimal abono;
     }
 }

@@ -139,7 +139,6 @@ public class CreditoUtils {
                 credito.setFechaAceptado(request.getFechaAceptado().atStartOfDay());
             }
 
-
             // --- UsuarioEntity ---
             usuario.setDui(request.getDui());
             usuario.setNombre(request.getNombres());

@@ -5,7 +5,7 @@ import BaseTable from '../../components/Table/BaseTable'
 
 import { useEffect, useState } from 'react'
 import { useCuotaStore } from '../../stores/useCuotaStore'
-import { cuotasPendientesColumns, cuotasTodosColumns } from '../../components/Table/Cuota/CuotaTableDefinitions'
+import { cuotasPagadasColumns, cuotasPendientesColumns, cuotasTodosColumns } from '../../components/Table/Cuota/CuotaTableDefinitions'
 import CuotaModalMarcarPagado from '../../components/Modal/Cuota/CuotaModalMarcarPagado'
 import CuotaModalAbonar from '../../components/Modal/Cuota/CuotaModalAbonar'
 import { useParams } from 'react-router-dom'
@@ -15,14 +15,17 @@ import CuotaModalNotas from '../../components/Modal/Cuota/CuotaModalNotas'
 import CuotaModalEditar from '../../components/Modal/Cuota/CuotaModalEditar'
 
 export default function AdminCuotas(){
-  const {id} = useParams();
-  const {cuotas, cuotasPendientes, cuotasPagadas, cuotasVencidas, cuotasEnRevision, isFetchingCuotas, getCuotas} = useCuotaStore();
+  const {id, usuarioId} = useParams();
+  const {cuotas, cuotasPendientes, cuotasPagadas, cuotasVencidas, cuotasEnRevision, isFetchingCuotas, getCuotas, getUsuarioCuotas} = useCuotaStore();
   // const [currentTab, setCurrentTab] = useState('Todos'); // Default to 'Todos'
   const [currentTab, setCurrentTab] = useState('Pendientes'); // Default to 'Todos'
 
   // --- Get de los créditos la PRIMERA vez que se inicializa esta página ---
   useEffect(() => {
-    if (id == null){
+    if (usuarioId){
+      getUsuarioCuotas(usuarioId);
+    }
+    else if (id == null){
       getCuotas();
     }
     else{
@@ -36,9 +39,9 @@ export default function AdminCuotas(){
   // -- Definición de las pestañas --
   const tabs = [
     // { label: 'Todos'},
-    { label: 'Pendientes', columnDefinitions: cuotasPendientesColumns, data: cuotasPendientes},
-    { label: 'Pagadas', data: cuotasPagadas},
     { label: 'Vencidas', data: cuotasVencidas},
+    { label: 'Pendientes', columnDefinitions: cuotasPendientesColumns, data: cuotasPendientes},
+    { label: 'Pagadas', columnDefinitions: cuotasPagadasColumns, data: cuotasPagadas},
     { label: 'En Revisión', data: cuotasEnRevision},
   ];
 

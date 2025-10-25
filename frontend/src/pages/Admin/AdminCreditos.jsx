@@ -56,13 +56,13 @@ export default function AdminCreditos(){
       <div className="content">
         <ContentTitleWithInfo
         >
-          <TotalCard onClick={() => setCurrentTipo('rapi-cash')} className={`tab ${currentTipo == 'rapi-cash' && 'active'} w-bg`} icon={'fas fa-money-bill'} iconBgColor='success' title={'Rapi-Cash'}>
+          <TotalCard onClick={() => setCurrentTipo('rapi-cash')} className={`tab ${currentTipo == 'rapi-cash' && 'active'} w-bg ${isFetchingCreditos && 'disabled'}`} icon={'fas fa-money-bill'} iconBgColor='success' title={'Rapi-Cash'}>
               <h3 className='color-success'>{filteredCreditos?.totalRapicash}</h3>
           </TotalCard>
-          <TotalCard onClick={() => setCurrentTipo('prendario')} className={`tab ${currentTipo == 'prendario' && 'active'} w-bg`} icon={'fas fa-ring'} iconBgColor='warning' title={'Prendarios'}>
+          <TotalCard onClick={() => setCurrentTipo('prendario')} className={`tab ${currentTipo == 'prendario' && 'active'} w-bg  ${isFetchingCreditos && 'disabled'}`} icon={'fas fa-ring'} iconBgColor='warning' title={'Prendarios'}>
               <h3 className='color-warning'>{filteredCreditos?.totalPrendarios}</h3>
           </TotalCard>
-          <TotalCard onClick={() => setCurrentTipo('hipotecario')} className={`tab ${currentTipo == 'hipotecario' && 'active'} w-bg`} icon={'fas fa-landmark'} iconBgColor='accent' title={'Hipotecarios'}>
+          <TotalCard onClick={() => setCurrentTipo('hipotecario')} className={`tab ${currentTipo == 'hipotecario' && 'active'} w-bg  ${isFetchingCreditos && 'disabled'}`} icon={'fas fa-landmark'} iconBgColor='accent' title={'Hipotecarios'}>
               <h3 className='color-accent'>{filteredCreditos?.totalHipotecarios}</h3>
           </TotalCard>
         </ContentTitleWithInfo>

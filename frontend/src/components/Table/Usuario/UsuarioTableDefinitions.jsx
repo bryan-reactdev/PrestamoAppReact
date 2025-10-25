@@ -58,6 +58,7 @@ export const usuariosTodosColumns = [
 
 export const usuarioAcciones = [
   UsuarioTableAccionTipos.VER_DETALLES,
+  UsuarioTableAccionTipos.VER_CUOTAS,
   UsuarioTableAccionTipos.VER_CREDITOS,
   UsuarioTableAccionTipos.CREAR_CREDITO,
   UsuarioTableAccionTipos.DESCARGAR_PDF_INFORME,

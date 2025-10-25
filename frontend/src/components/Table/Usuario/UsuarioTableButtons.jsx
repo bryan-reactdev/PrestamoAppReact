@@ -52,6 +52,17 @@ export const ButtonVerCreditosUsuario = ({row}) => {
   )
 }
 
+export const ButtonVerCuotasUsuario = ({row}) => {
+  return (
+    <Link className="a-accion" to={`/admin/usuarios/${row.id}/cuotas`}>
+      <button className="btn-accion">
+        <i className="fas fa-money-bill"/>
+        Ver Cuotas
+      </button>
+    </Link>
+  )
+}
+
 export const ButtonBloquearUsuario = ({row}) => {
   const {bloquearUsuario} = useUsuarioStore();
 

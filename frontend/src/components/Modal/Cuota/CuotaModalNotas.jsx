@@ -3,7 +3,7 @@ import { BaseModal } from '../ModalUtils'
 import { useCuotaStore } from '../../../stores/useCuotaStore'
 import { useCuotaModalStore } from '../../../stores/Modal/useCuotaModalStore'
 import FormField from '../../Form/FormField'
-import { getCurrentDate } from '../../../utils/dateUtils'
+import { DateTimeToDate, getCurrentDate } from '../../../utils/dateUtils'
 
 export default function CuotaModalNotas() {
   const { notas, closeModal, row } = useCuotaModalStore()
@@ -75,7 +75,7 @@ export default function CuotaModalNotas() {
                     <FormField
                       key={nota.id ?? `new-${index}`}
                       type="textarea"
-                      label={`Nota ${index + 1}`}
+                      label={`${DateTimeToDate(nota.fecha)}`}
                       name="contenido"
                       value={nota.contenido}
                       onChange={(e) => handleChange(index, e)}

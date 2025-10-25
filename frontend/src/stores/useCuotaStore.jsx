@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { axiosData } from "../utils/axiosWrapper";
-import toast from 'react-hot-toast';
 
 const estadoInicial = {
     cuota: null,
@@ -112,6 +111,27 @@ export const useCuotaStore = create((set, get) => ({
         set({ cuotasVencidas: vencidas ?? [] });
         set({ cuotasEnRevision: enRevision ?? [] });
         set({ isFetchingCuotas: false });
+    },
+
+    getUsuarioCuotas: async (usuarioId) => {
+        set({isFetchingCuotas: true})
+
+        const res = await axiosData(`/cuotaTest/usuario/${usuarioId}`, {method: "GET"})
+
+        const cuotaGroups = res?.data;
+        const todas = cuotaGroups?.find(group => group.estado === "Todos")?.data
+        const pendientes = cuotaGroups?.find(group => group.estado === "Pendientes")?.data
+        const pagadas = cuotaGroups?.find(group => group.estado === "Pagadas")?.data
+        const vencidas = cuotaGroups?.find(group => group.estado === "Vencidas")?.data
+        const enRevision = cuotaGroups?.find(group => group.estado === "EnRevision")?.data
+
+        set({ cuotas: todas ?? [] });
+        set({ cuotasPendientes: pendientes ?? [] });
+        set({ cuotasPagadas: pagadas ?? [] });
+        set({ cuotasVencidas: vencidas ?? [] });
+        set({ cuotasEnRevision: enRevision ?? [] });
+
+        set({isFetchingCuotas: false})
     },
 
     updateCuota: async (id, formData) => {

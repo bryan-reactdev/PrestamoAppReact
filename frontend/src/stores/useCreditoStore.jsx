@@ -171,7 +171,7 @@ export const useCreditoStore = create((set, get) => ({
         set({creditosRefinanciables: res?.data ?? null})
         set({isFetchingCreditosRefinanciables: false})
 
-        return (res?.data.length > 0);
+        return (res != null);
     },
 
     filterCreditos: async (tipo) => {

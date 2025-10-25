@@ -24,7 +24,7 @@ export default function StatCard({ title, titleIcon, value, color, actions, to, 
 
       <div className="stat-content">
         <div className={`stat-value color-${color} ${value < 0 && 'color-danger'}`}>
-          {(value === null) || (!Number(value) && value !== 0)
+          {(value === null) || (value === undefined) || (isNaN(value))
             ? <div> <i className="fas fa-dollar-sign" /> <div className="spinner" /> </div>
             : <p><i className='fas fa-dollar-sign' /> <strong>{value}</strong></p>
           }

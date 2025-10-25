@@ -189,6 +189,16 @@ export const creditosRefinanciarColumns = [
     }
   },
   {
+    accessorKey: 'frecuencia',
+    header: "Frecuencia",
+    size: 115,
+    enableSorting: false,
+    cell: (props) => {
+      const value = props.getValue();
+      return <p className={value}>{value}</p>;
+    }
+  },
+  {
     accessorKey: 'fechaAceptado',
     header: "Fecha Aceptado",
     size: 125,

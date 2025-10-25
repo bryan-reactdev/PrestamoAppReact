@@ -87,35 +87,34 @@
 <div class="pdf-section">1. INFORMACION PERSONAL</div>
 
 <div class="pdf-field">
-    <strong>Nombre completo:</strong> <span class="underline" th:text="${usuarioSolicitud?.nombres + ' ' + usuarioSolicitud?.apellidos}"></span>
+    <strong>Nombre completo:</strong> <span class="underline" th:text="${usuario?.nombre + ' ' + usuario?.apellido}"></span>
 </div>
 <div class="pdf-field">
-    <strong>DUI:</strong> <span class="underline" th:text="${usuarioSolicitud?.dui}"></span>
-    <strong>NIT:</strong> <span class="underline" th:text="${usuarioSolicitud?.nit}"></span>
+    <strong>DUI:</strong> <span class="underline" th:text="${usuario?.dui}"></span>
 </div>
 <div class="pdf-field">
-    <strong>Fecha de nacimiento:</strong> <span class="underline" th:text="${usuarioSolicitud?.fechaNacimiento}"></span>
+    <strong>Fecha de nacimiento:</strong> <span class="underline" th:text="${usuario?.fechaNacimiento}"></span>
 </div>
 <div class="pdf-field">
-    <strong>Estado civil:</strong> <span class="underline" th:text="${#strings.capitalize(usuarioSolicitud?.estadoCivil)}"></span>
+    <strong>Estado civil:</strong> <span class="underline" th:text="${#strings.capitalize(usuario?.estadoCivil)}"></span>
 </div>
 <div class="pdf-field">
-    <strong>Dirección completa:</strong> <span class="underline" th:text="${usuarioSolicitud?.direccion}"></span>
+    <strong>Dirección completa:</strong> <span class="underline" th:text="${usuario?.direccion}"></span>
 </div>
 <div class="pdf-field">
     <strong>Tiempo de residencia en la dirección actual:</strong> <span class="underline" th:text="${usuario?.tiempoResidencia}"></span>
 </div>
 <div class="pdf-field">
-    <strong>Teléfono:</strong> <span class="underline" th:text="${usuarioSolicitud?.telefono}"></span>
-    <strong>Correo electrónico:</strong> <span class="underline" th:text="${usuarioSolicitud?.email}"></span>
+    <strong>Teléfono:</strong> <span class="underline" th:text="${usuario?.celular}"></span>
+    <strong>Correo electrónico:</strong> <span class="underline" th:text="${usuario?.email}"></span>
 </div>
 <div class="pdf-field">
-    <strong>Ocupación / Negocio:</strong> <span class="underline" th:text="${usuarioSolicitud?.puesto}"></span>
+    <strong>Ocupación / Negocio:</strong> <span class="underline" th:text="${usuario?.ocupacion}"></span>
 </div>
 
 <!-- Nuevos campos añadidos -->
 <div class="pdf-field">
-    <strong>Gastos mensuales (vivienda, alimentación, transporte, etc.):</strong> US$ <span class="underline" th:text="${credito?.gastosMensuales}"></span>
+    <strong>Gastos mensuales (vivienda, alimentación, transporte, etc.):</strong> US$ <span class="underline" th:text="${usuario?.gastosMensuales}"></span>
 </div>
 
 <div class="pdf-field">
@@ -229,17 +228,6 @@
 
 <div class="pdf-field">
     <strong>Frecuencia de pago:</strong> <span class="underline" th:text="${credito?.plazoFrecuencia}"></span>
-</div>
-<div class="pdf-field">
-    <strong>Cuota establecida:</strong> US$ <span class="underline" th:text="${credito?.cuotaMensual}"></span>
-</div>
-
-<div class="pdf-field">
-    <strong>Cantidad de cuotas establecidas:</strong>  <span class="underline" th:text="${credito?.cuotaCantidad}"></span>
-</div>
-
-<div class="pdf-field">
-    <strong>Primera fecha de pago:</strong>  <span class="underline" th:text="${credito?.proximoPago}"></span>
 </div>
 
 <br/>

@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { axiosData } from "../utils/axiosWrapper";
 import { descargarPDFConPrint } from '../utils/generalUtil';
 import toast from 'react-hot-toast';
+import { getCurrentDate } from '../utils/dateUtils';
 
 const estadoInicial = {
     currentUsuario: null,
@@ -18,6 +19,9 @@ const estadoInicial = {
     usuariosConVencidas: [],
     isFetchingUsuariosConVencidas: false,
 
+    selectedDate: null, 
+    usuariosConCuotasForDate: [],
+
     isUpdatingUsuario: false,
 }
 
@@ -31,6 +35,9 @@ export const useUsuarioStore = create((set, get) => ({
                 usuario.id === id ? { ...usuario, [key]: value } : usuario
             ),
             usuariosConCuotas: state.usuariosConCuotas.map((usuario) =>
+                usuario.id === id ? { ...usuario, [key]: value } : usuario
+            ),
+            usuariosConCuotasForDate: state.usuariosConCuotasForDate.map((usuario) =>
                 usuario.id === id ? { ...usuario, [key]: value } : usuario
             ),
             usuariosConVencidas: state.usuariosConVencidas.map((usuario) =>
@@ -65,7 +72,7 @@ export const useUsuarioStore = create((set, get) => ({
         return get().currentUsuario;
     },
 
-    register: async (formData) => {
+    register: async (formData, isAdmin = false) => {
         set({ isAuthenticating: true });
         const data = new FormData();
 
@@ -84,14 +91,21 @@ export const useUsuarioStore = create((set, get) => ({
         if (formData.duiAtras instanceof File)
         data.append('duiAtras', formData.duiAtras);
         
-        const res = await axiosData('/auth/register', { method: "POST", data: data, headers: { 'Content-Type': 'multipart/form-data'}})
+        let res = null;
+
+        if (isAdmin){
+            res = await axiosData('/usuarioTest/', { method: "POST", data: data, headers: { 'Content-Type': 'multipart/form-data'}})  
+        } else{
+            res = await axiosData('/auth/register', { method: "POST", data: data, headers: { 'Content-Type': 'multipart/form-data'}})
+        }
 
         set({ currentUsuario: res?.data ?? null })
         set({ isAuthenticating: false });
 
         if (!res) return false;
 
-        return get().currentUsuario;
+        if (isAdmin) get().getUsuarios();
+        return res?.data;
     },
 
     logout: async () => {
@@ -128,6 +142,8 @@ export const useUsuarioStore = create((set, get) => ({
         const res = await axiosData("/usuarioTest/cuotas", { method: "GET" });
 
         set({ usuariosConCuotas: res?.data ?? [] });
+        get().filterUsuariosConCuotasForDate(get().selectedDate);
+
         set({ isFetchingUsuariosConCuotas: false });
     },
 
@@ -207,4 +223,22 @@ export const useUsuarioStore = create((set, get) => ({
             toast.error('Error al generar el PDF de informe', { id: 'pdf-toast' });
         }
     },
+
+    filterUsuariosConCuotasForDate: async (date) => {
+        
+        const {usuariosConCuotas} = get();
+        if (date == null) {
+            set({usuariosConCuotasForDate: usuariosConCuotas});
+            return;
+        }
+
+        const result = usuariosConCuotas.filter((usuario) => usuario.cuotaVencimiento?.startsWith(date));
+        set({usuariosConCuotasForDate: result});
+    },
+
+    setSelectedDate: (date) =>{
+        const {filterUsuariosConCuotasForDate} = get();
+        set({selectedDate: date});
+        filterUsuariosConCuotasForDate(date);
+    }
 }))

@@ -15,6 +15,8 @@ const estadoInicial = {
 
     saldo: null,
 
+    historialBalance: null,
+
     // Ingresos
     ingresosCapitales: null,
     ingresosVarios: null,
@@ -28,6 +30,8 @@ const estadoInicial = {
     creditosDesembolsados: null,
 
     currencyForDate: {
+        balance: null,
+
         // Ingresos
         ingresosCapitales: null,
         ingresosVarios: null,
@@ -79,6 +83,8 @@ export const useCurrencyStore = create((set, get) => ({
 
         set({
             saldo: res?.data.saldo ?? 0,
+
+            historialBalance: res?.data.historialBalance,
 
             // Ingresos
             ingresosCapitales: res?.data.ingresosCapitales,
@@ -158,7 +164,9 @@ export const useCurrencyStore = create((set, get) => ({
 
     // --- Totales Calculations ---
     getCurrencyForDate: () => {
-        const { filtrarPorFecha, selectedDate, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados } = get();
+        const { filtrarPorFecha, selectedDate, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados, historialBalance, saldo } = get();
+
+        const isCurrentDate = selectedDate === getCurrentDate();
 
         const ingresosCapitalesForDate = filtrarPorFecha(ingresosCapitales, selectedDate);
         const ingresosVariosForDate = filtrarPorFecha(ingresosVarios, selectedDate);
@@ -170,27 +178,50 @@ export const useCurrencyStore = create((set, get) => ({
         const egresosCuotasRetirosForDate = filtrarPorFecha(egresosCuotasRetiros, selectedDate);
         const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, selectedDate);
 
+        const historialBalanceForDate = filtrarPorFecha(historialBalance, selectedDate);
+
+        // Calculate totals from filtered data
+        const calculatedTotalIngresos = 
+            ingresosCapitalesForDate?.total +
+            ingresosVariosForDate?.total +
+            cuotasAbonosForDate?.total +
+            cuotasPagadasForDate?.total;
+
+        const calculatedTotalEgresos = 
+            gastosEmpresaForDate?.total +
+            egresosVariosForDate?.total +
+            egresosCuotasRetirosForDate?.total +
+            creditosDesembolsadosForDate?.total;
+
+        // Create balance object with consistent structure
+        const balance = isCurrentDate 
+            ? {
+                saldo: saldo,
+                fecha: selectedDate
+              }
+            : (historialBalanceForDate?.data?.[0] ? {
+                saldo: historialBalanceForDate.data[0].monto,
+                fecha: historialBalanceForDate.data[0].fecha
+              } : {
+                saldo: 0,
+                fecha: selectedDate
+              });
+
         set({
             currencyForDate: {
+                balance: balance,
+
                 ingresosCapitales: ingresosCapitalesForDate,
                 ingresosVarios: ingresosVariosForDate,
                 cuotasAbonos: cuotasAbonosForDate,
                 cuotasPagadas: cuotasPagadasForDate,
-                totalIngresos:
-                    ingresosCapitalesForDate?.total +
-                    ingresosVariosForDate?.total +
-                    cuotasAbonosForDate?.total +
-                    cuotasPagadasForDate?.total,
+                totalIngresos: calculatedTotalIngresos,
 
                 gastosEmpresa: gastosEmpresaForDate,
                 egresosVarios: egresosVariosForDate,
                 egresosCuotasRetiros: egresosCuotasRetirosForDate,
                 creditosDesembolsados: creditosDesembolsadosForDate,
-                totalEgresos:
-                    gastosEmpresaForDate?.total +
-                    egresosVariosForDate?.total +
-                    egresosCuotasRetirosForDate?.total +
-                    creditosDesembolsadosForDate?.total,
+                totalEgresos: calculatedTotalEgresos,
             },
         })
     },
@@ -214,6 +245,60 @@ export const useCurrencyStore = create((set, get) => ({
 
         const total = get().calcularTotal(filteredObjects);
         return { data: filteredObjects, total: total }
+    },
+
+    // --- Week Data Generation ---
+    getWeekData: () => {
+        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados } = get();
+        
+        const today = new Date();
+        const weekData = [];
+        
+        // Get the start of the week (Monday)
+        const startOfWeek = new Date(today);
+        const day = today.getDay();
+        const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+        startOfWeek.setDate(diff);
+        
+        // Generate 7 days of data
+        for (let i = 0; i < 7; i++) {
+            const date = new Date(startOfWeek);
+            date.setDate(startOfWeek.getDate() + i);
+            const dateString = date.toISOString().split('T')[0];
+            
+            // Calculate totals for this specific date
+            const ingresosCapitalesForDate = filtrarPorFecha(ingresosCapitales, dateString);
+            const ingresosVariosForDate = filtrarPorFecha(ingresosVarios, dateString);
+            const cuotasAbonosForDate = filtrarPorFecha(cuotasAbonos, dateString);
+            const cuotasPagadasForDate = filtrarPorFecha(cuotasPagadas, dateString);
+            
+            const gastosEmpresaForDate = filtrarPorFecha(gastosEmpresa, dateString);
+            const egresosVariosForDate = filtrarPorFecha(egresosVarios, dateString);
+            const egresosCuotasRetirosForDate = filtrarPorFecha(egresosCuotasRetiros, dateString);
+            const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, dateString);
+            
+            const totalIngresos = 
+                (ingresosCapitalesForDate?.total || 0) +
+                (ingresosVariosForDate?.total || 0) +
+                (cuotasAbonosForDate?.total || 0) +
+                (cuotasPagadasForDate?.total || 0);
+            
+            const totalEgresos = 
+                (gastosEmpresaForDate?.total || 0) +
+                (egresosVariosForDate?.total || 0) +
+                (egresosCuotasRetirosForDate?.total || 0) +
+                (creditosDesembolsadosForDate?.total || 0);
+            
+            weekData.push({
+                date: dateString,
+                dayName: date.toLocaleDateString('es-ES', { weekday: 'short' }),
+                totalIngresos: totalIngresos,
+                totalEgresos: totalEgresos,
+                balance: totalIngresos - totalEgresos
+            });
+        }
+        
+        return weekData;
     },
 
     // --- Helpers ---

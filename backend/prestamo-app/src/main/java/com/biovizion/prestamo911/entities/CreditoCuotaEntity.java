@@ -40,7 +40,6 @@ public class CreditoCuotaEntity {
 
     private BigDecimal abono;
     
-    // CAMBIO AÑADIDO: Campo transitorio para almacenar la observación generada en el servicio
     @Transient 
     private String observaciones;
 
@@ -50,9 +49,4 @@ public class CreditoCuotaEntity {
 
     @OneToMany(mappedBy = "cuota", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NotaEntity> notas = new ArrayList<>();
-
-    @Override
-    public String toString() {
-        return "CreditoCuotaEntity{id=" + id + ", codigo='" + codigo + "'}";
-    }
 }

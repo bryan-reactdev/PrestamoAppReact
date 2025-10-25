@@ -149,7 +149,8 @@ button:active, a:active{
   z-index: 10;
 }
 button.disabled, a.disabled,
-button.loading, a.loading {
+button.loading, a.loading,
+.disabled {
   position: relative;
   pointer-events: none;
   opacity: 0.2;
@@ -319,6 +320,7 @@ button.lg, a.lg{
   justify-content: center;
   align-items: center;
 }
+
 /* --- Animations --- */
 @keyframes spin {
   0% { transform: rotate(0deg); }

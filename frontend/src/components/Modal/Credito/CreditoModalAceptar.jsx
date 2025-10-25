@@ -90,7 +90,7 @@ export default function CreditoModalAceptar() {
   };
 
   const handleRefinanciar = async() => {
-    const success = await getCreditosRefinanciables(row?.original?.id); 
+    const success = await getCreditosRefinanciables(row?.id); 
     setRefinanciados(success);
   }
 
@@ -112,7 +112,7 @@ export default function CreditoModalAceptar() {
       onConfirm={handleAceptar}
       onClose={() => closeModal('aceptar')}
       title={'Configurar Cargos Financieros'}
-      customWidth={800}
+      customWidth={900}
       confirmText={`ACEPTAR`}
       // icon={'fas fa-cog'}
     >
@@ -178,7 +178,9 @@ export default function CreditoModalAceptar() {
                   {isFetchingCreditosRefinanciables ? (
                     <span className="spinner small"></span>
                   ) : refinanciados && creditosRefinanciables.length === 0 ? (
-                    <i className="fas fa-times" />
+                    <>
+                      <i className="fas fa-times" /> NO HAY CRÉDITOS
+                    </>
                   ) : (
                     <>
                       <i className="fas fa-dollar-sign" /> REFINANCIAR
@@ -189,11 +191,11 @@ export default function CreditoModalAceptar() {
             </div>
           </div>
 
-          {refinanciados &&
+          {(refinanciados && creditosRefinanciables.length !== 0) &&
           <div className="form-section">
             <div className="form-section-header light">
               <i className='fas fa-dollar-sign'></i>
-              Refinanciamiento
+              Créditos Refinanciables
             </div>
 
             <div className="form-section-content" style={{display: 'flex', flexDirection: 'column'}}>
@@ -224,7 +226,7 @@ export default function CreditoModalAceptar() {
                   data={selectedCuotas}
                   columns={cuotasRefinanciablesColumns(selectedCuotas, handleCuotaChange)}
                   card={CuotasPendientesCard}
-                  centered={['estado', 'calificacion', 'monto', 'montoDesembolsar', 'frecuencia', 'fechaAceptado', 'fechaSolicitud', 'fechaRechazado', 'desembolsado', 'accion', ]} 
+                  centered={['estado', 'fechaVencimiento', 'monto', 'mora', 'total', 'desembolsado', 'accion', ]} 
                   flexable='usuario' 
                   loading={isFetchingCreditosRefinanciables}
                   hideSearchbar

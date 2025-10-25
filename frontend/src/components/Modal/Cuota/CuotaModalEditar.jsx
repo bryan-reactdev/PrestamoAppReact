@@ -32,7 +32,6 @@ export default function CuotaModalEditar() {
         
         monto: cuota.monto,
         mora: cuota.mora,
-        abono: cuota.abono,
       })
     }
   }, [editar, cuota])
@@ -110,15 +109,6 @@ export default function CuotaModalEditar() {
                     type='money'
                     name='mora'
                     value={formData.mora}
-                    onChange={handleChange}
-                  />
-
-                  <FormField
-                    classNames={'two'}
-                    label={'Abono'}
-                    type='money'
-                    name='abono'
-                    value={formData.abono}
                     onChange={handleChange}
                   />
                 </div>

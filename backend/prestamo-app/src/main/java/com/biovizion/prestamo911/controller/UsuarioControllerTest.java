@@ -28,6 +28,7 @@ import com.biovizion.prestamo911.DTOs.Usuario.UsuarioDTOs.UsuarioCuotasDTO;
 import com.biovizion.prestamo911.DTOs.Usuario.UsuarioDTOs.UsuarioDTO;
 import com.biovizion.prestamo911.DTOs.Usuario.UsuarioDTOs.UsuarioTablaDTO;
 import com.biovizion.prestamo911.DTOs.Usuario.UsuarioRequestDTOs.UsuarioEditRequest;
+import com.biovizion.prestamo911.controller.AuthController.RegisterRequest;
 import com.biovizion.prestamo911.entities.CreditoEntity;
 import com.biovizion.prestamo911.entities.UsuarioEntity;
 import com.biovizion.prestamo911.service.CreditoService;
@@ -35,6 +36,7 @@ import com.biovizion.prestamo911.service.PdfService;
 import com.biovizion.prestamo911.service.UsuarioService;
 import com.biovizion.prestamo911.utils.FileUtils;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.GetMapping;
@@ -109,8 +111,47 @@ public class UsuarioControllerTest {
                     .body(new ApiResponse<>("Error al editar usuario: " + e.getMessage()));
         }
     }
+    
+    @PostMapping(value = "/", consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponse> crearUsuario(@ModelAttribute RegisterRequest registerRequest, HttpServletRequest request) {
+        try {
+            Optional<UsuarioEntity> existing = usuarioService.findByDui(registerRequest.getDui());
+            if (existing.isPresent()) {
+                // No especificar que es debido al DUI
+                ApiResponse<String> response = new ApiResponse<>("Un usuario con este DUI ya existe.");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+            }
 
-    @GetMapping("/vencidas")
+            UsuarioEntity usuario = new UsuarioEntity();
+            usuario.setNombre(registerRequest.getNombres());
+            usuario.setApellido(registerRequest.getApellidos());
+            usuario.setEmail(registerRequest.getEmail());
+            usuario.setCelular(registerRequest.getCelular());
+            usuario.setDui(registerRequest.getDui());
+            usuario.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+            usuario.setRol("USER");
+
+            // --- Use helper for file updates ---
+            FileUtils.tryUploadFotoDUI(usuario, "delante", registerRequest.getDuiDelante());
+            FileUtils.tryUploadFotoDUI(usuario, "atras", registerRequest.getDuiAtras());
+
+            usuarioService.save(usuario);
+
+            UsuarioDTO usuarioDTO = mapearAUsuarioDTO(usuario);
+
+            ApiResponse<UsuarioDTO> response = new ApiResponse<>("Usuario registrado exitosamente", usuarioDTO) ;
+
+            return ResponseEntity.ok(response);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+
+            ApiResponse<String> response = new ApiResponse<>("Error al registrar: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+  @GetMapping("/vencidas")
     public ResponseEntity<ApiResponse> getUsuariosConVencidas() {
         try {
             List<UsuarioCuotasDTO> usuarios = usuarioService.findAllConCuotasVencidas();

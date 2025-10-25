@@ -143,7 +143,7 @@ export default function BaseTable({
             {/* --- Estado vacío --- */}
             {!loading && (activeTab?.data?.length <= 0 || !activeTab?.data && data?.length <= 0) && (
                 <div style={{width: '100%', textAlign: 'center'}}>
-                    <h3>ESTA TABLA ESTÁ VACÍA.</h3>
+                    <h3>ESTA SECCIÓN ESTÁ VACÍA.</h3>
                 </div>
             )}
 
@@ -237,7 +237,7 @@ export default function BaseTable({
             {!loading && (activeTab?.data?.length <= 0 || !activeTab?.data && data?.length <= 0) && (
                 <div className="tr">
                     <div className="td" style={{width: table.getTotalSize(), justifyContent: 'center', flex: 1}}>
-                        <h3>ESTA TABLA ESTÁ VACÍA.</h3>
+                        <h3>ESTA SECCIÓN ESTÁ VACÍA.</h3>
                     </div>
                 </div>
             )}

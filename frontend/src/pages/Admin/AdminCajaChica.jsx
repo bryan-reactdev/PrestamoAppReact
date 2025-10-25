@@ -55,7 +55,7 @@ export default function AdminCajaChica(){
 
         <div className="stat-cards">
           {/* Balance de Capital */}
-          <StatCard title={'Balance de Capital'} titleIcon={'fas fa-money-bill-trend-up'} value={saldo}>
+          <StatCard title={'Balance de Capital'} titleIcon={'fas fa-money-bill-trend-up'} value={currencyForDate.balance?.saldo} to={'./balance'}>
             <StatSummaryItem value={currencyForDate.totalIngresos} color={'success'}>
               <i className={'fas fa-arrow-down'}/>
               Total de Ingresos

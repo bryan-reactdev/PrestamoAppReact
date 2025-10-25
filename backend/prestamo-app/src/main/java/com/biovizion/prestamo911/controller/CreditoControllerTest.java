@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -229,69 +230,100 @@ public class CreditoControllerTest {
     @PostMapping("/aceptar/{id}")
     public ResponseEntity<ApiResponse> aceptarCredito(@PathVariable Long id, @RequestBody CreditoAceptarRequest request){
         try {
-            CreditoEntity credito = creditoService.findById(id)
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Credito no encontrado"));            
-
-            if (request.getMontoAprobado().compareTo(new BigDecimal("200")) < 0) {
-                credito.setTipo("rapi-cash");
+            if (request == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ApiResponse<>("Error: request body is required"));
             }
-            else{
+
+            CreditoEntity credito = creditoService.findById(id)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Credito no encontrado"));
+
+            // Null-safe helpers
+            final Function<BigDecimal, BigDecimal> safe = (b) -> b == null ? BigDecimal.ZERO : b;
+
+            // Validate montoAprobado before using compareTo
+            BigDecimal montoAprobado = safe.apply(request.getMontoAprobado());
+            // If you want to require montoAprobado to be non-zero, validate explicitly:
+            // if (request.getMontoAprobado() == null) throw new IllegalArgumentException("Monto aprobado requerido");
+
+            if (montoAprobado.compareTo(new BigDecimal("200")) < 0) {
+                credito.setTipo("rapi-cash");
+            } else {
                 credito.setTipo("prendario");
             }
 
-            credito.setMonto(request.getMontoAprobado());
+            credito.setMonto(montoAprobado);
             credito.setPlazoFrecuencia(request.getFrecuencia());
             credito.setCuotaCantidad(request.getCuotaCantidad());
-            credito.setCuotaMensual(request.getCuotaMensual());
-            credito.setMora(request.getMora());
+            credito.setCuotaMensual(safe.apply(request.getCuotaMensual()));
+            credito.setMora(safe.apply(request.getMora()));
             credito.setEstado("Aceptado");
             credito.setFechaAceptado(LocalDateTime.now());
 
-            if (request.getSelectedCreditoId() != null){
+            if (request.getSelectedCreditoId() != null) {
                 Optional<CreditoEntity> optionalCredito = creditoService.findById(request.getSelectedCreditoId());
                 if (!optionalCredito.isEmpty()) {
                     CreditoEntity selectedCredito = optionalCredito.get();
                     List<CuotaDTO> cuotasActualizadas = request.getSelectedCuotas();
                     BigDecimal aDescontar = BigDecimal.ZERO;
-        
-                    for (CreditoCuotaEntity cuotaEntity : selectedCredito.getCuotas()) {
-                        // Find matching cuota by ID
-                        CuotaDTO cuotaDTO = cuotasActualizadas.stream()
-                            .filter(c -> Objects.equals(c.getId(), cuotaEntity.getId()))
-                            .findFirst()
-                            .orElse(null);
-        
-                        if (cuotaDTO != null) {
-                            // Update only relevant fields
-                            cuotaEntity.setMonto(cuotaDTO.getMonto());
-                            cuotaEntity.setPagoMora(cuotaDTO.getMora());
-                            cuotaEntity.setAbono(cuotaDTO.getAbono());
-                            cuotaEntity.setTotal((cuotaDTO.getMonto().add(cuotaDTO.getMora()).subtract(cuotaDTO.getAbono())));
-    
-                            aDescontar = aDescontar.add(cuotaEntity.getTotal());
+
+                    if (cuotasActualizadas != null) {
+                        for (CreditoCuotaEntity cuotaEntity : selectedCredito.getCuotas()) {
+                            // Find matching cuota by ID
+                            CuotaDTO cuotaDTO = cuotasActualizadas.stream()
+                                    .filter(c -> Objects.equals(c.getId(), cuotaEntity.getId()))
+                                    .findFirst()
+                                    .orElse(null);
+
+                            if (cuotaDTO != null) {
+                                // Null-safe extraction
+                                BigDecimal monto = safe.apply(cuotaDTO.getMonto());
+                                BigDecimal mora = safe.apply(cuotaDTO.getMora());
+                                BigDecimal abono = safe.apply(cuotaDTO.getAbono());
+
+                                // total = monto + mora - abono (all null-safe)
+                                BigDecimal total = monto.add(mora).subtract(abono);
+
+                                cuotaEntity.setMonto(monto);
+                                cuotaEntity.setPagoMora(mora);
+                                cuotaEntity.setAbono(abono);
+                                cuotaEntity.setTotal(total);
+
+                                aDescontar = aDescontar.add(total);
+                            }
                         }
                     }
-    
+
                     selectedCredito.setRefinanciado(true);
                     selectedCredito.setEstado("Finalizado");
+
                     List<CreditoCuotaEntity> cuotas = selectedCredito.getCuotas().stream()
-                                                    .filter(c -> !"Pagado".equals(c.getEstado())) // only keep non-paid
-                                                    .peek(c -> { 
-                                                        cuotaUtils.pagarCuota(c);
-                                                    })
-                                                    .collect(Collectors.toList());
-    
-                    credito.setMontoDado(credito.getMonto().subtract(aDescontar));
+                            .filter(c -> !"Pagado".equals(c.getEstado()))
+                            .peek(c -> {
+                                cuotaUtils.pagarCuota(c);
+                            })
+                            .collect(Collectors.toList());
+
+                    // Null-safe montoDado calculation
+                    BigDecimal montoActual = safe.apply(credito.getMonto());
+                    BigDecimal descuento = safe.apply(aDescontar);
+                    credito.setMontoDado(montoActual.subtract(descuento));
+
                     creditoService.save(selectedCredito);
                     cuotaService.saveAll(cuotas);
                 }
+            } else {
+                // No selectedCreditoId — ensure montoDado still set (safe)
+                BigDecimal montoActual = safe.apply(credito.getMonto());
+                credito.setMontoDado(montoActual);
             }
 
             creditoService.save(credito);
 
-            ApiResponse<String> response = new ApiResponse<>("Crédito aceptado exitosamente!");           
+            ApiResponse<String> response = new ApiResponse<>("Crédito aceptado exitosamente!");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
+            e.printStackTrace();
             ApiResponse<String> response = new ApiResponse<>("Error al aceptar crédito: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }

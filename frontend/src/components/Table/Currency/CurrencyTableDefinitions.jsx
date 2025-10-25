@@ -281,3 +281,59 @@ export const creditosDesembolsadosColumns = [
   //   cell: ({ row }) => <ButtonAcciones row={row} acciones={creditosAceptadosAcciones} />,
   // },
 ]
+
+1// --- Historial Balance ---
+export const historialBalanceColumns = [
+  {
+    accessorKey: 'monto',
+    header: "Balance",
+    size: 125,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span className={`color-${value >= 0 ? 'success' : 'danger'}`}>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'totalIngresos',
+    header: "Total Ingresos",
+    size: 125,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span className='color-success'>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'totalEgresos',
+    header: "Total Egresos",
+    size: 125,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span className='color-danger'>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'fecha',
+    header: "Fecha",
+    size: 125,
+    cell: (props) => {
+      const value = props.getValue();
+
+      if (!value) return <p>N/A</p>;
+
+      const [y, m, d] = value.split('T')[0].split('-');
+      return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
+    }
+  }
+]

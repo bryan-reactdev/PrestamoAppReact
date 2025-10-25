@@ -6,6 +6,7 @@ import java.util.List;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.CreditoDTO;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.AbonoDTO;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaDTO;
+import com.biovizion.prestamo911.entities.HistorialBalanceEntity;
 import com.biovizion.prestamo911.entities.HistorialGastoEntity;
 import com.biovizion.prestamo911.entities.HistorialSaldoEntity;
 
@@ -19,6 +20,8 @@ public class CurrencyDTOs {
     @AllArgsConstructor
     public static class AllCurrencyDTO{
         private BigDecimal saldo;
+
+        private List<HistorialBalanceEntity> historialBalance;
 
         // Ingresos
         private List<HistorialSaldoEntity> ingresosCapitales;

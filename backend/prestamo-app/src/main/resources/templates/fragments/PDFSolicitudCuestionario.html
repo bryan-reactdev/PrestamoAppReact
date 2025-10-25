@@ -82,23 +82,23 @@
 <div class="pdf-section">Información del Cliente</div>
 
 <div class="pdf-field">
-    <p><strong>Nombre completo:</strong> <span class="underline" th:text="${usuarioSolicitud.nombres + ' ' + usuarioSolicitud.apellidos}"></span></p>
+    <p><strong>Nombre completo:</strong> <span class="underline" th:text="${usuario.nombre + ' ' + usuario.apellido}"></span></p>
 </div>
 
 <div class="pdf-field">
-    <p><strong>DUI / NIT:</strong> <span class="underline" th:text="${usuarioSolicitud.dui != null ? usuarioSolicitud.dui : usuarioSolicitud.nit}"></span></p>
+    <p><strong>DUI:</strong> <span class="underline" th:text="${usuario.dui}"></span></p>
 </div>
 
 <div class="pdf-field">
-    <p><strong>Dirección actual:</strong> <span class="underline" th:text="${usuarioSolicitud.direccion}"></span></p>
+    <p><strong>Dirección actual:</strong> <span class="underline" th:text="${usuario.direccion}"></span></p>
 </div>
 
 <div class="pdf-field">
-    <p><strong>Teléfono:</strong> <span class="underline" th:text="${usuarioSolicitud.telefono}"></span></p>
+    <p><strong>Celular:</strong> <span class="underline" th:text="${usuario.celular}"></span></p>
 </div>
 
 <div class="pdf-field">
-    <p><strong>Correo electrónico:</strong> <span class="underline" th:text="${usuarioSolicitud.email}"></span></p>
+    <p><strong>Correo electrónico:</strong> <span class="underline" th:text="${usuario.email}"></span></p>
 </div>
 
 <div class="spacer"></div>
@@ -124,24 +124,20 @@
 </div>
 <div class="pdf-field" th:if="${usuarioSolicitud.solicitadoEstado != null}">
     <p>Estado actual:
-        <span class="underline" th:if="${usuarioSolicitud.solicitadoEstado.name() == 'en_curso'}">En curso</span>
-        <span class="underline" th:if="${usuarioSolicitud.solicitadoEstado.name() == 'incumplido'}">Incumplido</span>
-        <span class="underline" th:if="${usuarioSolicitud.solicitadoEstado.name() == 'pagado'}">Pagado</span>
+        <span class="underline" th:if="${usuarioSolicitud.solicitadoEstado == 'en_curso'}">En curso</span>
+        <span class="underline" th:if="${usuarioSolicitud.solicitadoEstado == 'incumplido'}">Incumplido</span>
+        <span class="underline" th:if="${usuarioSolicitud.solicitadoEstado == 'pagado'}">Pagado</span>
     </p>
 </div>
 
 <div class="pdf-field">
     <p><strong>2. ¿Ha tenido atrasos en pagos de créditos, tarjetas u obligaciones financieras en los últimos 24 meses?</strong></p>
 </div>
-<!-- <div class="pdf-field">
-    <p class="underline" th:if="${!usuarioSolicitud.atrasos}">Nunca</p>
-    <p class="underline" th:if="${usuarioSolicitud.atrasos}">1 a 2 veces</p>
-</div> -->
 
 <div class="pdf-field" th:if="${usuarioSolicitud.atrasos != null}">
-        <span class="underline" th:if="${usuarioSolicitud.atrasos.name() == 'nunca'}">Nunca</span>
-        <span class="underline" th:if="${usuarioSolicitud.atrasos.name() == 'uno_a_dos'}">1 a 2 veces</span>
-        <span class="underline" th:if="${usuarioSolicitud.atrasos.name() == 'dos_o_mas'}">Más de 2 veces</span>
+        <span class="underline" th:if="${usuarioSolicitud.atrasos == 'nunca'}">Nunca</span>
+        <span class="underline" th:if="${usuarioSolicitud.atrasos == 'uno_a_dos'}">1 a 2 veces</span>
+        <span class="underline" th:if="${usuarioSolicitud.atrasos == 'dos_o_mas'}">Más de 2 veces</span>
 </div>
 
 <div class="spacer"></div>
@@ -172,9 +168,9 @@
     <p><strong>5. ¿Actualmente cuenta con un empleo fijo o negocio propio?</strong></p>
 </div>
 <div class="pdf-field">
-    <p class="underline" th:if="${usuarioSolicitud.empleado?.name() == 'empleo_fijo'}">Empleo fijo</p>
-    <p class="underline" th:if="${usuarioSolicitud.empleado?.name() == 'negocio_propio'}">Negocio Propio</p>
-    <p class="underline" th:if="${usuarioSolicitud.empleado?.name() == 'ninguno'}">Ninguno</p>
+    <p class="underline" th:if="${usuarioSolicitud.empleado == 'empleo_fijo'}">Empleo fijo</p>
+    <p class="underline" th:if="${usuarioSolicitud.empleado == 'negocio_propio'}">Negocio Propio</p>
+    <p class="underline" th:if="${usuarioSolicitud.empleado == 'ninguno'}">Ninguno</p>
 
 </div>
 

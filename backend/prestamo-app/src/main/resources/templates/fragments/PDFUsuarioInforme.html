@@ -118,7 +118,7 @@
     <strong>Correo electrónico:</strong> <span class="underline" th:text="${usuario?.email}"></span>
 </div>
 <div class="pdf-field">
-    <strong>Teléfono celular:</strong> <span class="underline" th:text="${usuario?.celular}"></span>
+    <strong>Celular:</strong> <span class="underline" th:text="${usuario?.celular}"></span>
 </div>
 <div class="pdf-field">
     <strong>Fecha de nacimiento:</strong> <span class="underline" th:text="${usuario?.fechaNacimiento}"></span>
@@ -184,11 +184,11 @@
 <div class="pdf-field" th:if="${usuarioSolicitud?.solicitado != null && usuarioSolicitud?.solicitado}">
     <strong>Entidad donde solicitó:</strong> <span class="underline" th:text="${usuarioSolicitud?.solicitadoEntidad}"></span>
     <strong>Monto solicitado:</strong> US$ <span class="underline" th:text="${usuarioSolicitud?.solicitadoMonto}"></span>
-    <strong>Estado:</strong> <span class="underline" th:text="${#strings.capitalize(usuarioSolicitud?.solicitadoEstado?.name()?.replace('_', ' '))}"></span>
+    <strong>Estado:</strong> <span class="underline" th:text="${#strings.capitalize(usuarioSolicitud?.solicitadoEstado.replace('_', ' '))}"></span>
 </div>
 
 <div class="pdf-field">
-    <strong>Historial de atrasos:</strong> <span class="underline" th:text="${#strings.capitalize(usuarioSolicitud?.atrasos?.name()?.replace('_', ' '))}"></span>
+    <strong>Historial de atrasos:</strong> <span class="underline" th:text="${#strings.capitalize(usuarioSolicitud?.atrasos.replace('_', ' '))}"></span>
 </div>
 
 <div class="pdf-field">

@@ -110,7 +110,7 @@ public class AuthController {
             Optional<UsuarioEntity> existing = usuarioService.findByDui(registerRequest.getDui());
             if (existing.isPresent()) {
                 // No especificar que es debido al DUI
-                ApiResponse<String> response = new ApiResponse<>("Un usuario con esta información ya existe.");
+                ApiResponse<String> response = new ApiResponse<>("Un usuario con este DUI ya existe.");
                 return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
             }
 

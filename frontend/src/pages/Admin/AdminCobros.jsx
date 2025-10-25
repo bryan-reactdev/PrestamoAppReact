@@ -1,6 +1,5 @@
 import Sidebar from '../../components/Sidebar/Sidebar'
 import Navbar from '../../components/Navbar/Navbar'
-import ContentTitle from '../../components/Content/ContentTitle'
 import BaseTable from '../../components/Table/BaseTable'
 
 import { useEffect, useState } from 'react'
@@ -12,9 +11,12 @@ import TotalCard from '../../components/Cards/TotalCard'
 import ContentTitleWithInfo from '../../components/Content/ContentTitleWithInfo'
 import { useCurrencyStore } from '../../stores/useCurrencyStore'
 import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
+import FormField from '../../components/Form/FormField'
+import { getCurrentDate } from '../../utils/dateUtils'
+import { axiosData } from '../../utils/axiosWrapper'
 
 export default function AdminCobros(){
-  const {usuariosConVencidas, usuariosConCuotas, isFetchingUsuariosConVencidas, getUsuariosConVencidas, getUsuariosConCuotas} = useUsuarioStore();
+  const {usuariosConVencidas, usuariosConCuotas, usuariosConCuotasForDate, isFetchingUsuariosConVencidas, getUsuariosConVencidas, getUsuariosConCuotas, selectedDate, setSelectedDate} = useUsuarioStore();
   const {cuotasTotales, getCuotasTotales} = useCurrencyStore();
   const [currentTab, setCurrentTab] = useState('');
 
@@ -32,7 +34,7 @@ export default function AdminCobros(){
 
   const tabs = [
     { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Lista de Usuarios con Cuotas Vencidos', text: usuariosConVencidas.length ?? '0'},
-    { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Clientes con Cuotas', text: usuariosConCuotas.length ?? '0', data: usuariosConCuotas},
+    { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Clientes con Cuotas', text: usuariosConCuotas.length ?? '0', data: usuariosConCuotasForDate},
   ];
 
   return(
@@ -63,6 +65,25 @@ export default function AdminCobros(){
           </TotalCard>
         </ContentTitleWithInfo>
 
+        {currentTab === "Mapeo de Clientes con Cuotas" &&
+          <div className="date-controls">
+            <FormField
+              classNames={'simple'}
+              label={'Fecha'} 
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
+            <button 
+              className='btn-primary sm' 
+              onClick={() => setSelectedDate(getCurrentDate())}
+            >
+              <i className='fas fa-rotate'/>
+              IR A HOY
+            </button>
+          </div>
+        }
+
         <BaseTable 
           data={usuariosConVencidas} 
           columns={usuariosConVencidasColumns} 
@@ -76,8 +97,8 @@ export default function AdminCobros(){
           onTabChange={setCurrentTab}
           isCardTabs={true}
         />
+
       </div>
-      
     </div>
   )
 }

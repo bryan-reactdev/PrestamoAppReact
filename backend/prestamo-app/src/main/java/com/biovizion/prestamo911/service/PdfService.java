@@ -2,10 +2,8 @@ package com.biovizion.prestamo911.service;
 
 import com.biovizion.prestamo911.DTOs.Usuario.UsuarioDTOs.UsuarioCuotasDTO;
 import com.biovizion.prestamo911.entities.AbonoCuotaEntity;
-import com.biovizion.prestamo911.entities.BalanceEntity;
 import com.biovizion.prestamo911.entities.CreditoCuotaEntity;
 import com.biovizion.prestamo911.entities.CreditoEntity;
-import com.biovizion.prestamo911.entities.HistorialBalanceEntity;
 import com.biovizion.prestamo911.entities.HistorialGastoEntity;
 import com.biovizion.prestamo911.entities.HistorialSaldoEntity;
 import com.biovizion.prestamo911.entities.UsuarioEntity;

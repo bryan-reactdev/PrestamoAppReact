@@ -9,6 +9,7 @@ import { usuariosTodosColumns } from '../../components/Table/Usuario/UsuarioTabl
 import { UsuariosCard } from '../../components/Card/Usuario/UsuarioCardDefinitions'
 import AccionesModal from '../../components/Card/AccionesModal'
 import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
+import { Link } from 'react-router-dom'
 
 export default function AdminUsuarios(){
   const {usuarios, isFetchingUsuarios, getUsuarios} = useUsuarioStore();
@@ -42,7 +43,9 @@ export default function AdminUsuarios(){
           flexable='usuario' 
           loading={isFetchingUsuarios}
           customHeaderHeight={50}
-        />
+        >
+          <Link className='btn-primary'to={'/admin/usuarios/crear'}><i className='fas fa-user'/>REGISTRAR USUARIO</Link>
+        </BaseTable>
       </div>
       
     </div>

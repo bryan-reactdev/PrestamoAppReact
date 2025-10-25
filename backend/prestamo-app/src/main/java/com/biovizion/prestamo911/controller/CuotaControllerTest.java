@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.biovizion.prestamo911.ScheduledTasks;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaDTO;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaTablaDTO;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.NotaDTO;
@@ -34,11 +35,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-
-
 @Controller
 @RequestMapping("/cuotaTest")
 public class CuotaControllerTest {
+    @Autowired
+    private ScheduledTasks scheduledTasks;
+
     @Autowired
     private CurrencyUtils currencyUtils;
 
@@ -81,6 +83,37 @@ public class CuotaControllerTest {
             return ResponseEntity.status(500).body(response);
         }
     }
+    
+    @GetMapping("/usuario/{id}")
+    public ResponseEntity<ApiResponse> getUsuarioCuotas(@PathVariable Long id) {
+        try {
+            List<CreditoCuotaEntity> cuotas = cuotaService.findByUsuarioId(id);
+            List<CreditoCuotaEntity> cuotasPendientes = cuotaService.findByUsuarioIdAndEstado(id, "Pendiente");
+            List<CreditoCuotaEntity> cuotasPagadas = cuotaService.findByUsuarioIdAndEstado(id, "Pagado");
+            List<CreditoCuotaEntity> cuotasVencidas = cuotaService.findByUsuarioIdAndEstado(id, "Vencido");
+            List<CreditoCuotaEntity> cuotasEnRevision = cuotaService.findByUsuarioIdAndEstado(id, "EnRevision");
+            
+            List<CuotaTablaDTO> todosDTOs = mapearACuotaTablaDTOs(cuotas);
+            List<CuotaTablaDTO> pendientesDTOs = mapearACuotaTablaDTOs(cuotasPendientes);
+            List<CuotaTablaDTO> pagadasDTOs = mapearACuotaTablaDTOs(cuotasPagadas);
+            List<CuotaTablaDTO> vencidasDTOs = mapearACuotaTablaDTOs(cuotasVencidas);
+            List<CuotaTablaDTO> enRevisionDTOs = mapearACuotaTablaDTOs(cuotasEnRevision);
+            
+            List<GroupDTO<CuotaTablaDTO>> groupedResponse = Arrays.asList(
+                new GroupDTO<>("Todos", todosDTOs),
+                new GroupDTO<>("Pendientes", pendientesDTOs),
+                new GroupDTO<>("Pagadas", pagadasDTOs),
+                new GroupDTO<>("Vencidas", vencidasDTOs),
+                new GroupDTO<>("EnRevision", enRevisionDTOs)
+            );
+           
+            ApiResponse<List<GroupDTO<CuotaTablaDTO>>> response = new ApiResponse<>("FETCH Cuotas del usuario obtenidas exitosamente", groupedResponse);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse<String> response = new ApiResponse<>("Error al obtener las cuotas del usuario: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse> getCuota(@PathVariable Long id) {
@@ -118,18 +151,28 @@ public class CuotaControllerTest {
             }
 
             cuota.setEstado(request.getEstado());
-            cuota.setFechaVencimiento(request.getFechaVencimiento().atStartOfDay());
-            cuota.setFechaPago(request.getFechaPagado().atStartOfDay());
-            cuota.setMonto(request.getMonto());
-            cuota.setPagoMora(request.getMora());
-            cuota.setAbono(request.getAbono());
+            BigDecimal monto = request.getMonto() != null ? request.getMonto() : BigDecimal.ZERO;
+            BigDecimal mora = request.getMora() != null ? request.getMora() : BigDecimal.ZERO;
+            BigDecimal abono = cuota.getAbono() != null ? cuota.getAbono() : BigDecimal.ZERO;
 
-            BigDecimal total = (request.getMonto().add(request.getMora()).subtract(request.getAbono()));
+            BigDecimal total = monto.add(mora).subtract(abono);
+
+            cuota.setFechaVencimiento(request.getFechaVencimiento().atStartOfDay());
+            if (request.getFechaPagado() != null){
+                cuota.setFechaPago(request.getFechaPagado().atStartOfDay());
+            }else{
+                cuota.setFechaPago(null);
+            }
+
+            cuota.setMonto(monto);
+            cuota.setPagoMora(mora);
             cuota.setTotal(total);
 
             if (isPagado){
                 currencyUtils.addFondos(total);
             }
+
+            cuotaService.update(cuota);
            
             ApiResponse<CuotaDTO> response = new ApiResponse<>("Cuota editada exitosamente");
             return ResponseEntity.ok(response);
@@ -226,6 +269,18 @@ public class CuotaControllerTest {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(new ApiResponse<>("Error al guardar las notas: " + e.getMessage()));
+        }
+    }
+
+    @PostMapping("/probar")
+    public ResponseEntity<ApiResponse> probar(){
+        try {
+            scheduledTasks.checkExpiredCuotas();
+
+            return ResponseEntity.ok(new ApiResponse<>("Probado exitosamente"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(new ApiResponse<>("Error al probar: " + e.getMessage()));
         }
     }
 }
