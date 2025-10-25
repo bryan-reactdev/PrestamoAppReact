@@ -74,6 +74,7 @@ public class SecurityConfig {
                     .username(usuario.getDui())
                     .password(usuario.getPassword())
                     .roles(usuario.getRol())
+                    .disabled(!usuario.isEnabled())
                     .build();
         };
     }

@@ -53,10 +53,12 @@ export const ButtonVerCreditosUsuario = ({row}) => {
 }
 
 export const ButtonBloquearUsuario = ({row}) => {
+  const {bloquearUsuario} = useUsuarioStore();
+
   return (
     <button 
       className="btn-accion color-danger"
-      onClick={() => console.log(`Editado: ${row.id} `)}
+      onClick={() => bloquearUsuario(row.id)}
     >
       <i className="fas fa-lock"/>
       Bloquear
@@ -64,14 +66,16 @@ export const ButtonBloquearUsuario = ({row}) => {
   )
 }
 ButtonBloquearUsuario.visibleIf = (row, role) => {
-  return role.includes("ADMIN")
+  return role.includes("ADMIN") && row.original.enabled
 }
 
 export const ButtonDesbloquearUsuario = ({row}) => {
+  const {desbloquearUsuario} = useUsuarioStore();
+  
   return (
     <button 
       className="btn-accion color-warning"
-      onClick={() => console.log(`Editado: ${row.id} `)}
+      onClick={() => desbloquearUsuario(row.id)}
     >
       <i className="fas fa-unlock"/>
       Desbloquear
@@ -79,5 +83,5 @@ export const ButtonDesbloquearUsuario = ({row}) => {
   )
 }
 ButtonDesbloquearUsuario.visibleIf = (row, role) => {
-  return role.includes("ADMIN")
+  return role.includes("ADMIN") && !row.original.enabled
 }

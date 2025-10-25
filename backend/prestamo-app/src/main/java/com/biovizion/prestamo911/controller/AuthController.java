@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -82,28 +83,22 @@ public class AuthController {
             Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
             );
-            
+
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            
-            // Create session
             HttpSession session = request.getSession();
-            
             session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
 
             UsuarioDTO usuario = mapearAUsuarioDTO(usuarioService.findByDui(loginRequest.getUsername()).get());
+            return ResponseEntity.ok(new ApiResponse<>("Exitosamente autenticado", usuario));
 
-            ApiResponse<UsuarioDTO> response = new ApiResponse<>("Exitosamente autenticado", usuario) ;
-
-            return ResponseEntity.ok(response);
+        } catch (DisabledException e) {
+            ApiResponse<String> response = new ApiResponse<>("No tienes permiso para iniciar sesión.");
+            return ResponseEntity.status(403).body(response);
         } catch (AuthenticationException e) {
-            e.printStackTrace();
-            
             ApiResponse<String> response = new ApiResponse<>("Estas credenciales son erroneas.");
             return ResponseEntity.status(401).body(response);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
-
             ApiResponse<String> response = new ApiResponse<>("Error al iniciar sesión: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }

@@ -2,6 +2,7 @@ package com.biovizion.prestamo911.controller;
 
 import static com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.mapearACreditoTablaDTOs;
 import static com.biovizion.prestamo911.DTOs.Usuario.UsuarioDTOs.mapearAUsuarioDTO;
+import static com.biovizion.prestamo911.DTOs.Usuario.UsuarioDTOs.mapearAUsuarioTablaDTOs;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,6 +42,8 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @Controller
 @RequestMapping("/usuarioTest")
@@ -61,18 +64,7 @@ public class UsuarioControllerTest {
     public ResponseEntity<ApiResponse> getUsuarios() {
         try {
             List<UsuarioEntity> usuarios = usuarioService.findAll();
-            List<UsuarioTablaDTO> usuarioDTOs = usuarios.stream().map(usuario -> {
-                String usuarioNombre = usuario.getNombre().trim() + " " + usuario.getApellido().trim();
-
-                return new UsuarioTablaDTO(
-                    usuario.getId(),
-                    usuario.getCalificacion(),
-                    usuarioNombre,
-                    usuario.getDui(),
-                    usuario.getEmail(),
-                    usuario.getCelular()
-                );
-            }).collect(Collectors.toList());
+            List<UsuarioTablaDTO> usuarioDTOs = mapearAUsuarioTablaDTOs(usuarios);
             
             ApiResponse<List<UsuarioTablaDTO>> response = 
                 new ApiResponse<>("FETCH Usuarios obtenidos exitosamente", usuarioDTOs);
@@ -194,6 +186,50 @@ public class UsuarioControllerTest {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             ApiResponse<String> response = new ApiResponse<>("Error al obtener los créditos del usuario: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @PostMapping("/{id}/bloquear")
+    public ResponseEntity<ApiResponse> bloquearUsuario(@PathVariable Long id) {
+        try {
+            Optional<UsuarioEntity> usuarioOpt = usuarioService.findById(id);
+            if (!usuarioOpt.isPresent()) {
+                ApiResponse<String> response = new ApiResponse<>("Usuario no encontrado");
+                return ResponseEntity.status(404).body(response);
+            }
+
+            UsuarioEntity usuario = usuarioOpt.get();
+            usuario.setEnabled(false);
+            usuarioService.save(usuario);
+            
+            ApiResponse<List<UsuarioTablaDTO>> response = 
+                new ApiResponse<>("Usuario bloqueaado exitosamente");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse<String> response = new ApiResponse<>("Error al bloquear el usuario: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @PostMapping("/{id}/desbloquear")
+    public ResponseEntity<ApiResponse> desbloquearUsuario(@PathVariable Long id) {
+        try {
+            Optional<UsuarioEntity> usuarioOpt = usuarioService.findById(id);
+            if (!usuarioOpt.isPresent()) {
+                ApiResponse<String> response = new ApiResponse<>("Usuario no encontrado");
+                return ResponseEntity.status(404).body(response);
+            }
+
+            UsuarioEntity usuario = usuarioOpt.get();
+            usuario.setEnabled(true);
+            usuarioService.save(usuario);
+            
+            ApiResponse<List<UsuarioTablaDTO>> response = 
+                new ApiResponse<>("Usuario desbloqueaado exitosamente");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse<String> response = new ApiResponse<>("Error al desbloquear el usuario: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }
     }

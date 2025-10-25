@@ -25,6 +25,20 @@ const estadoInicial = {
 export const useUsuarioStore = create((set, get) => ({
     ...estadoInicial,
 
+    updateKey: (id, key, value) => {
+        set((state) => ({
+            usuarios: state.usuarios.map((usuario) =>
+                usuario.id === id ? { ...usuario, [key]: value } : usuario
+            ),
+            usuariosConCuotas: state.usuariosConCuotas.map((usuario) =>
+                usuario.id === id ? { ...usuario, [key]: value } : usuario
+            ),
+            usuariosConVencidas: state.usuariosConVencidas.map((usuario) =>
+                usuario.id === id ? { ...usuario, [key]: value } : usuario
+            ),
+        }));
+    },
+
     authenticate: async () => {
         set({isAuthenticating: true})
         
@@ -154,6 +168,26 @@ export const useUsuarioStore = create((set, get) => ({
         get().authenticate();
 
         return true;
+    },
+
+    bloquearUsuario: async(id) => {
+        get().updateKey(id, 'enabled', true);
+        
+        const res = await axiosData(`/usuarioTest/${id}/bloquear`, {method: "POST"})
+
+        if (res == null){
+            get().updateKey(id, 'enabled', false);
+        }
+    },
+
+    desbloquearUsuario: async(id) => {
+        get().updateKey(id, 'enabled', false);
+        
+        const res = await axiosData(`/usuarioTest/${id}/desbloquear`, {method: "POST"})
+
+        if (res == null){
+            get().updateKey(id, 'enabled', true);
+        }
     },
 
     descargarPDFInforme: async (id) => {

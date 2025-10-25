@@ -82,7 +82,6 @@ public class UsuarioEntity {
     @Column(name = "telefono_persona_conocida")
     private String telefonoPersonaConocida; // Teléfono de la persona que conoce con crédito
 
-
     @Column(nullable = false)
     private boolean enabled = true;
     

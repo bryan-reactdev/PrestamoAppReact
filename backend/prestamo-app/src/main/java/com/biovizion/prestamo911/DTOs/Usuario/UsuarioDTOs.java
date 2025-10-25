@@ -3,6 +3,7 @@ package com.biovizion.prestamo911.DTOs.Usuario;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.CreditoDTO;
 import com.biovizion.prestamo911.entities.UsuarioEntity;
@@ -19,9 +20,11 @@ public class UsuarioDTOs {
         private Long id;
         private String calificacion;
         private String usuario;
+
         private String dui;
         private String email;
         private String celular;
+        private Boolean enabled;
     }
 
     @Data
@@ -32,6 +35,7 @@ public class UsuarioDTOs {
         private String calificacion;
         private String nombres;
         private String apellidos;
+
         private String rol;
         private String codigo;
         private String dui;
@@ -40,6 +44,7 @@ public class UsuarioDTOs {
         private String celular;
         private String duiDelante;
         private String duiAtras;
+        private Boolean enabled;
     }
 
     @Data
@@ -78,7 +83,28 @@ public class UsuarioDTOs {
             usuario.getEmail(),
             usuario.getCelular(),
             usuario.getDuiDelante(),
-            usuario.getDuiAtras()
+            usuario.getDuiAtras(),
+            usuario.isEnabled()
         );
+    }
+
+    public static UsuarioTablaDTO mapearAUsuarioTablaDTO(UsuarioEntity usuario){
+        String usuarioNombre = usuario.getNombre().trim() + " " + usuario.getApellido().trim();
+
+        return new UsuarioTablaDTO(
+            usuario.getId(),
+            usuario.getCalificacion(),
+            usuarioNombre,
+            usuario.getDui(),
+            usuario.getEmail(),
+            usuario.getCelular(),
+            usuario.isEnabled()
+        );
+    }
+
+    public static List<UsuarioTablaDTO> mapearAUsuarioTablaDTOs(List<UsuarioEntity> usuarios){
+        return usuarios.stream().map(usuario -> {
+            return mapearAUsuarioTablaDTO(usuario);
+        }).collect(Collectors.toList());
     }
 }
