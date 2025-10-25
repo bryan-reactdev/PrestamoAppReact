@@ -13,6 +13,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<ApiResponse> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
+        System.out.println(ex);
+
         ApiResponse response = 
             new ApiResponse("Envíaste información inválida o faltante. Recarga la página e intenta de nuevo");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);

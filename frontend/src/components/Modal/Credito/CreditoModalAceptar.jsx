@@ -95,16 +95,15 @@ export default function CreditoModalAceptar() {
   }
 
   const handleAceptar = () => {
-    if (selectedCredito != null){
-      setFormData((state) => ({
-        ...state,
-        selectedCreditoId: selectedCredito.id,
-        selectedCuotas: selectedCuotas
-      }))
+    let payload = { ...formData };
+
+    if (selectedCredito != null) {
+      payload.selectedCreditoId = selectedCredito.id;
+      payload.selectedCuotas = selectedCuotas;
     }
 
-    aceptarCredito(row?.original?.id, formData)
-    closeModal('aceptar')
+    aceptarCredito(row?.original?.id, payload);
+    closeModal('aceptar');
   };
 
   return (

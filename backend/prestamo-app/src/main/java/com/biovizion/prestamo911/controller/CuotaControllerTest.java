@@ -1,9 +1,9 @@
 package com.biovizion.prestamo911.controller;
 
+import static com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.mapearACuotaDTO;
 import static com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.mapearACuotaTablaDTOs;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -13,12 +13,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaDTO;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaTablaDTO;
+import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.NotaDTO;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaRequestDTOs.AbonoRequest;
+import com.biovizion.prestamo911.DTOs.Cuota.CuotaRequestDTOs.CuotaEditRequest;
 import com.biovizion.prestamo911.DTOs.GlobalDTOs.ApiResponse;
 import com.biovizion.prestamo911.DTOs.GlobalDTOs.GroupDTO;
 import com.biovizion.prestamo911.entities.AbonoCuotaEntity;
 import com.biovizion.prestamo911.entities.CreditoCuotaEntity;
+import com.biovizion.prestamo911.entities.NotaEntity;
 import com.biovizion.prestamo911.service.AbonoCuotaService;
 import com.biovizion.prestamo911.service.CreditoCuotaService;
 import com.biovizion.prestamo911.utils.CuotaUtils;
@@ -27,7 +31,9 @@ import com.biovizion.prestamo911.utils.CurrencyUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 @Controller
@@ -68,13 +74,70 @@ public class CuotaControllerTest {
                 new GroupDTO<>("EnRevision", enRevisionDTOs)
             );
            
-            ApiResponse<List<GroupDTO<CuotaTablaDTO>>> response = new ApiResponse<>("Cuotas obtenidas exitosamente", groupedResponse);
+            ApiResponse<List<GroupDTO<CuotaTablaDTO>>> response = new ApiResponse<>("FETCH Cuotas obtenidas exitosamente", groupedResponse);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             ApiResponse<String> response = new ApiResponse<>("Error al obtener las cuotas: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse> getCuota(@PathVariable Long id) {
+        try {
+            Optional<CreditoCuotaEntity> cuotaOpt = cuotaService.findById(id);
+            if (!cuotaOpt.isPresent()) {
+                ApiResponse<String> response = new ApiResponse<>("Cuota no encontrada");
+                return ResponseEntity.status(404).body(response);
+            }
+            CreditoCuotaEntity cuota = cuotaOpt.get();
+            CuotaDTO cuotaDTO = mapearACuotaDTO(cuota);
+           
+            ApiResponse<CuotaDTO> response = new ApiResponse<>("FETCH Cuota obtenidas exitosamente", cuotaDTO);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse<String> response = new ApiResponse<>("Error al obtener la cuota: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }   
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse> updateCuota(@PathVariable Long id, @RequestBody CuotaEditRequest request) {
+        try {
+            Optional<CreditoCuotaEntity> cuotaOpt = cuotaService.findById(id);
+            if (!cuotaOpt.isPresent()) {
+                ApiResponse<String> response = new ApiResponse<>("Cuota no encontrada");
+                return ResponseEntity.status(404).body(response);
+            }
+            
+            CreditoCuotaEntity cuota = cuotaOpt.get();
+            Boolean isPagado = "Pagado".equals(cuota.getEstado());
+
+            if (isPagado){
+                currencyUtils.removeFondos(cuota.getTotal());
+            }
+
+            cuota.setEstado(request.getEstado());
+            cuota.setFechaVencimiento(request.getFechaVencimiento().atStartOfDay());
+            cuota.setFechaPago(request.getFechaPagado().atStartOfDay());
+            cuota.setMonto(request.getMonto());
+            cuota.setPagoMora(request.getMora());
+            cuota.setAbono(request.getAbono());
+
+            BigDecimal total = (request.getMonto().add(request.getMora()).subtract(request.getAbono()));
+            cuota.setTotal(total);
+
+            if (isPagado){
+                currencyUtils.addFondos(total);
+            }
+           
+            ApiResponse<CuotaDTO> response = new ApiResponse<>("Cuota editada exitosamente");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse<String> response = new ApiResponse<>("Error al editar la cuota: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }    
 
     @PostMapping("/pagar/{id}")
     public ResponseEntity<ApiResponse> pagarCuota(@PathVariable Long id) {
@@ -135,5 +198,34 @@ public class CuotaControllerTest {
             ApiResponse<String> response = new ApiResponse<>("Error al abonar la cuota: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }        
-    }    
+    }
+
+    @PostMapping("/notas/{id}")
+    public ResponseEntity<ApiResponse> guardarNotasCuota(
+            @PathVariable Long id, 
+            @RequestBody List<NotaDTO> notasDtoList) {
+        try {
+            Optional<CreditoCuotaEntity> cuotaOpt = cuotaService.findById(id);
+            if (!cuotaOpt.isPresent()) {
+                return ResponseEntity.status(404).body(new ApiResponse<>("Cuota no encontrada"));
+            }
+            CreditoCuotaEntity cuota = cuotaOpt.get();
+
+            cuota.getNotas().clear();
+            for (NotaDTO dto : notasDtoList) {
+                NotaEntity nota = new NotaEntity();
+                nota.setContenido(dto.getContenido());
+                nota.setFecha(dto.getFecha().atStartOfDay());
+                nota.setCuota(cuota);
+                cuota.getNotas().add(nota);
+            }
+
+            cuotaService.save(cuota);
+
+            return ResponseEntity.ok(new ApiResponse<>("Notas guardadas exitosamente", cuota));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(500).body(new ApiResponse<>("Error al guardar las notas: " + e.getMessage()));
+        }
+    }
 }

@@ -1,30 +1,42 @@
-import React, { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BaseModal } from '../ModalUtils'
 import { useCuotaStore } from '../../../stores/useCuotaStore'
 import { useCuotaModalStore } from '../../../stores/Modal/useCuotaModalStore'
 import FormField from '../../Form/FormField'
-import { getCurrentDate } from '../../../utils/dateUtils'
+import FormSelect from '../../Form/FormSelect'
 
-export default function CuotaModalAbonar() {
-  const { abonar, closeModal, row } = useCuotaModalStore()
-  const { abonarCuota } = useCuotaStore()
+export default function CuotaModalEditar() {
+  const { editar, closeModal, row } = useCuotaModalStore()
+  const { cuota, getCuota, isFetchingCuota, updateCuota, isUpdatingCuota } = useCuotaStore()
+  const [formData, setFormData] = useState(null)
   
-  const [formData, setFormData] = useState({
-    monto: '',
-    fecha: getCurrentDate(),
-  });
-
-  const handleAbonar = () => {
-    abonarCuota(row.id, row, formData);
-    
-    setFormData({
-      monto: '',
-      fecha: getCurrentDate(),
-    })
-    closeModal('abonar')
+  const handleGuardar = async() => {
+    const success = await updateCuota(row.id, formData)
+    if (success) closeModal('editar')
   }
 
-  // -- Handler para el formData --
+  useEffect(() => {
+    if (!editar) return // only run when modal is open
+
+    const cuotaId = row?.original?.id
+    if (cuotaId) getCuota(cuotaId)
+  }, [editar, row])
+
+  useEffect(() => {
+    if (editar && cuota) {
+      setFormData({
+        fechaVencimiento: cuota.fechaVencimiento,
+        fechaPagado: cuota.fechaPagado,
+        
+        estado: cuota.estado,
+        
+        monto: cuota.monto,
+        mora: cuota.mora,
+        abono: cuota.abono,
+      })
+    }
+  }, [editar, cuota])
+
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -37,40 +49,82 @@ export default function CuotaModalAbonar() {
 
   return (
     <BaseModal
-      isOpen={abonar}
-      onConfirm={handleAbonar}
-      onClose={() => closeModal('abonar')}
-      customWidth={500}
-      title='Abonar Cuota'
-      confirmText='ABONAR'
+      isOpen={editar}
+      onConfirm={handleGuardar}
+      onClose={() => closeModal('editar')}
+      customWidth={800}
+      title="Editar Cuota"
+      confirmText="GUARDAR"
+      cancelText="CERRAR"
     >
       <div className="modal-content">
-
         <div className="form-container">
           <div className="form-section">
-            <div className="form-section-content">
-              <FormField
-                classNames='primary success'
-                type='money'
-                label={'Monto a Abonar'}
-                name='monto'
-                value={formData.monto}
-                onChange={handleChange}  
-                placeholder='0.00'
-              />
+              {!formData || isFetchingCuota ? (
+                <div className="spinner large"></div>
+              ) : (
+                <div className='form-section-content'>
+                  <FormSelect
+                    classNames="two"
+                    label="Estado"
+                    name="estado"
+                    value={formData.estado}
+                    onChange={handleChange}
+                  >
+                    <option value="Pendiente">Pendiente</option>
+                    <option value="Vencido">Vencido</option>
+                    <option value="Pagado" disabled hidden>Pagado</option>
+                    <option value="EnRevision" disabled hidden>EnRevision</option>
+                  </FormSelect>
 
-              <FormField
-                classNames='primary'
-                type='date'
-                label={'Fecha de Abono'}
-                name='fecha'
-                value={formData.fecha}
-                onChange={handleChange}  
-              />
-            </div>
+                  <FormField
+                    classNames={'two'}
+                    label={'Fecha Vencimiento'}
+                    type='date'
+                    name='fechaVencimiento'
+                    value={formData.fechaVencimiento}
+                    onChange={handleChange}
+                  />
+
+                  <FormField
+                    classNames={'two'}
+                    label={'Fecha Pagado'}
+                    type='date'
+                    name='fechaPagado'
+                    value={formData.fechaPagado}
+                    onChange={handleChange}
+                  />
+
+                  <FormField
+                    classNames={'two'}
+                    label={'Monto'}
+                    type='money'
+                    name='monto'
+                    value={formData.monto}
+                    onChange={handleChange}
+                  />
+
+                  <FormField
+                    classNames={'two'}
+                    label={'Mora'}
+                    type='money'
+                    name='mora'
+                    value={formData.mora}
+                    onChange={handleChange}
+                  />
+
+                  <FormField
+                    classNames={'two'}
+                    label={'Abono'}
+                    type='money'
+                    name='abono'
+                    value={formData.abono}
+                    onChange={handleChange}
+                  />
+                </div>
+              )}
           </div>
-        </div> 
-        
+        </div>
       </div>
     </BaseModal>
   )

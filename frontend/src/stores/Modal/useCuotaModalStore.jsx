@@ -3,6 +3,8 @@ import { create } from 'zustand';
 const estadoInicial = {
     marcarPagado: false,
     abonar: false,
+    notas: false,
+    editar: false,
     row: []
 }
 

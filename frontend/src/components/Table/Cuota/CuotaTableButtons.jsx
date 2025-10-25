@@ -29,10 +29,11 @@ ButtonAbonarCuota.visibleIf = (row, role) => {
   return !role.includes('USER'); 
 };
 
+export const ButtonNotasCuota = ({row}) => {
+  const {openModal} = useCuotaModalStore();
 
-export const ButtonNotasCuota = (row) => {
   return (
-    <button className='btn-accion' onClick={() => console.log(`Notas: ${row.id} `)}>
+    <button className='btn-accion' onClick={() => openModal('notas', row)}>
       <i className="fas fa-note-sticky"/>
       Notas
     </button>
@@ -42,10 +43,11 @@ ButtonNotasCuota.visibleIf = (row, role) => {
   return !role.includes('USER'); 
 };
 
+export const ButtonEditarCuota = ({row}) => {
+  const {openModal} = useCuotaModalStore();
 
-export const ButtonEditarCuota = (row) => {
   return (
-    <button className='btn-accion' onClick={() => console.log(`Editado: ${row.id} `)}>
+    <button className='btn-accion' onClick={() => openModal('editar', row)}>
       <i className="fas fa-edit"/>
       Editar Cuota
     </button>

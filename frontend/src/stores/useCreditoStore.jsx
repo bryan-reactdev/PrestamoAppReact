@@ -42,44 +42,60 @@ const estadoInicial = {
     wasGlobalFetch: false,
 }
 
+// --- inside your Zustand store ---
+const updateCollections = (state, id, updater) => {
+  const groupKeys = [
+    'creditos',
+    'creditosPendientes',
+    'creditosAceptados',
+    'creditosRechazados',
+    'creditosFinalizados',
+  ];
+
+  // update top-level creditos groups
+  const updated = {};
+  for (const key of groupKeys) {
+    updated[key] = state[key].map(updater);
+  }
+
+  // update filteredCreditos groups
+  const filteredUpdated = {};
+  for (const key of groupKeys) {
+    filteredUpdated[key] = state.filteredCreditos[key].map(updater);
+  }
+
+  // keep totals consistent
+  filteredUpdated.totalRapicash = state.getTotalesTipos(updated.creditos, 'rapi-cash');
+  filteredUpdated.totalPrendarios = state.getTotalesTipos(updated.creditos, 'prendario');
+  filteredUpdated.totalHipotecarios = state.getTotalesTipos(updated.creditos, 'hipotecario');
+
+  return {
+    ...state,
+    ...updated,
+    filteredCreditos: { ...state.filteredCreditos, ...filteredUpdated },
+  };
+};
+
+
 // --- Definición de Store --- //
 export const useCreditoStore = create((set, get) => ({
     ...estadoInicial,
 
     // Helper para actualizar valores de manera optimistica
     updateKey: (id, key, value) => {
-        set((state) => ({
-            creditos: state.creditos.map((credito) =>
-                credito.id === id ? { ...credito, [key]: value } : credito
-            ),
-            creditosPendientes: state.creditosPendientes.map((credito) =>
-                credito.id === id ? { ...credito, [key]: value } : credito
-            ),
-            creditosAceptados: state.creditosAceptados.map((credito) =>
-                credito.id === id ? { ...credito, [key]: value } : credito
-            ),
-            creditosRechazados: state.creditosRechazados.map((credito) =>
-                credito.id === id ? { ...credito, [key]: value } : credito
-            ),
-            creditosFinalizados: state.creditosFinalizados.map((credito) =>
-                credito.id === id ? { ...credito, [key]: value } : credito
-            ),
-        }));
+        set((state) =>
+            updateCollections(state, id, (credito) =>
+            credito.id === id ? { ...credito, [key]: value } : credito
+            )
+        );
     },
 
-    // Helper para actualizar el estado de manera optimistica
     updateEstado: (id, newEstado) => {
-        set((state) => ({
-            creditos: state.creditos.map((credito) =>
-                credito.id === id ? { ...credito, estado: newEstado } : credito
-            ),
-            creditosPendientes: state.creditosPendientes.map((credito) =>
-                credito.id === id ? { ...credito, estado: newEstado } : credito
-            ),
-            creditosAceptados: state.creditosAceptados.map((credito) =>
-                credito.id === id ? { ...credito, estado: newEstado } : credito
-            ),
-        }));
+        set((state) =>
+            updateCollections(state, id, (credito) =>
+            credito.id === id ? { ...credito, estado: newEstado } : credito
+            )
+        );
     },
 
     getCredito: async (creditoId) =>{

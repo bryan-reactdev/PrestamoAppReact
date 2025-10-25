@@ -138,12 +138,13 @@ public class CreditoControllerTest {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Credito no encontrado"));
 
             List<CreditoEntity> creditos = creditoService.findAceptadosByUsuarioId(credito.getUsuario().getId());
-            // List<CreditoEntity> creditosRefinanciables = creditos.stream()
-            //                                             .map(c -> )
+            List<CreditoEntity> creditosRefinanciables = creditos.stream()
+                                                        .filter(c -> c.getDesembolsado() == true)
+                                                        .collect(Collectors.toList());
 
-            List<CreditoDTO> creditosRefinanciables = mapearACreditoDTOs(creditos);
+            List<CreditoDTO> creditoDTOs = mapearACreditoDTOs(creditosRefinanciables);
 
-            ApiResponse<List<CreditoDTO>> response = new ApiResponse<>("FETCH Créditos refinanciables obtenido exitosamente", creditosRefinanciables);
+            ApiResponse<List<CreditoDTO>> response = new ApiResponse<>("FETCH Créditos refinanciables obtenido exitosamente", creditoDTOs);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             ApiResponse<String> response = new ApiResponse<>("Error al obtener los créditos refinanciables: " + e.getMessage());

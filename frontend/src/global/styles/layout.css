@@ -698,6 +698,7 @@
   border: var(--border-width-xs) solid var(--color-accent);
 }
 .form-field input, .form-field select, .form-field textarea{
+    resize: vertical;
     flex: 1;
     max-width: 100%;
     
@@ -1077,6 +1078,29 @@
   padding: var(--space-sm);
   padding-inline: var(--space-lg);
   gap: var(--space-sm);
+}
+
+.notas-container{
+  width: 100%;
+  display: flex;
+
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  gap: var(--space-md);
+}
+.nota{
+  position: relative;
+  display: flex;
+}
+.nota button{
+  position: absolute;
+
+  top: 0;
+  right: 0;
+
+  padding: var(--space-sm);
 }
 
 /* --- Extras --- */

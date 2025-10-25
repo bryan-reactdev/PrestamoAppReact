@@ -11,6 +11,8 @@ import CuotaModalAbonar from '../../components/Modal/Cuota/CuotaModalAbonar'
 import { useParams } from 'react-router-dom'
 import { CuotasPendientesCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
 import AccionesModal from '../../components/Card/AccionesModal'
+import CuotaModalNotas from '../../components/Modal/Cuota/CuotaModalNotas'
+import CuotaModalEditar from '../../components/Modal/Cuota/CuotaModalEditar'
 
 export default function AdminCuotas(){
   const {id} = useParams();
@@ -44,6 +46,8 @@ export default function AdminCuotas(){
     <div className="page">
       <CuotaModalMarcarPagado/>
       <CuotaModalAbonar/>
+      <CuotaModalNotas/>
+      <CuotaModalEditar/>
 
       {/* Mobile */}
       <AccionesModal/>

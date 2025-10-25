@@ -55,17 +55,6 @@ export default function AdminCreditos(){
 
       <div className="content">
         <ContentTitleWithInfo
-          title={
-            !usuarioId
-              ? 'Créditos'
-              : (
-                  <div>
-                    {'Créditos de '}
-                    {filteredCreditos.creditos[0]?.usuario ?? 'Usuario'}
-                  </div>
-                )
-          }
-          subtitle={'Gestión de Creditos'}
         >
           <TotalCard onClick={() => setCurrentTipo('rapi-cash')} className={`tab ${currentTipo == 'rapi-cash' && 'active'} w-bg`} icon={'fas fa-money-bill'} iconBgColor='success' title={'Rapi-Cash'}>
               <h3 className='color-success'>{filteredCreditos?.totalRapicash}</h3>

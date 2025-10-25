@@ -3,6 +3,9 @@ import { axiosData } from "../utils/axiosWrapper";
 import toast from 'react-hot-toast';
 
 const estadoInicial = {
+    cuota: null,
+    isFetchingCuota: false,
+    
     cuotas: [],
     cuotasPendientes: [],
     cuotasPagadas: [],
@@ -10,7 +13,9 @@ const estadoInicial = {
     cuotasEnRevision: [],
     isFetchingCuotas: false,
 
+    isUpdatingCuota: false,
     isPagandoCuota: false,
+    isGuardandoNotas: false,
     
     wasGlobalFetch: false,
 }
@@ -38,6 +43,27 @@ export const useCuotaStore = create((set, get) => ({
                 cuota.id === id ? { ...cuota, [key]: value } : cuota
             ),
         }));
+    },
+
+    updateCuotaOptimistic: (id, updatedFields) => {
+        set((state) => ({
+            cuotas: state.cuotas.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
+            cuotasPendientes: state.cuotasPendientes.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
+            cuotasPagadas: state.cuotasPagadas.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
+            cuotasVencidas: state.cuotasVencidas.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
+            cuotasEnRevision: state.cuotasEnRevision.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
+        }));
+    },
+
+    getCuota: async (cuotaId) => {
+        set({isFetchingCuota: true})
+
+        set({cuota: null})
+        const res = await axiosData(`/cuotaTest/${cuotaId}`, {method:"GET"});
+        
+        set({cuota: res?.data ?? null})
+
+        set({isFetchingCuota: false})
     },
 
     getCuotas: async (creditoId = null, isUsuario = false) =>{
@@ -88,6 +114,39 @@ export const useCuotaStore = create((set, get) => ({
         set({ isFetchingCuotas: false });
     },
 
+    updateCuota: async (id, formData) => {
+        set({ isUpdatingCuota: true });
+
+        // Save previous state for rollback
+        const { cuotas, cuotasPendientes, cuotasPagadas, cuotasVencidas, cuotasEnRevision } = get();
+        const previousData = {
+            cuotas: [...cuotas],
+            cuotasPendientes: [...cuotasPendientes],
+            cuotasPagadas: [...cuotasPagadas],
+            cuotasVencidas: [...cuotasVencidas],
+            cuotasEnRevision: [...cuotasEnRevision],
+        };
+
+        // Optimistically update all arrays
+        // Work around to get the total calculated
+        formData.total =
+            (Number(formData.monto) + Number(formData.mora)) - Number(formData.abono);
+
+        get().updateCuotaOptimistic(id, formData);
+
+        // Make request
+        const res = await axiosData(`/cuotaTest/${id}`, { method: "PUT", data: formData });
+
+        // Rollback if failed
+        if (!res) {
+            set({ ...previousData });
+        }
+
+        set({ isUpdatingCuota: false });
+
+        return res != null;
+    },
+
     pagarCuota: async (id, row) => {
         const previousEstado = row.original.estado;
 
@@ -119,5 +178,15 @@ export const useCuotaStore = create((set, get) => ({
         if (res === null) {
             get().updateKey(id, 'abono', montoOriginal)
         }
+    },
+
+    guardarNotas: async (id, formData) => {
+        set ({isGuardandoNotas: true})
+
+        const res = await axiosData(`/cuotaTest/notas/${id}`, {method: "POST", data: formData})
+
+        set ({isGuardandoNotas: false})
+
+        return (res != null)
     }
 }))
