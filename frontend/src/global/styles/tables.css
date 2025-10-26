@@ -1,7 +1,6 @@
 /* --- Table Container --- */
 .table {
   display: flex;
-
   flex-direction: column;
   
   margin-inline: auto;
@@ -21,7 +20,7 @@
   width: 100%;
 }
 .tr:hover{
-  box-shadow: inset 0 0 0 var(--border-width-sm) var(--color-accent);
+  box-shadow: inset 0 0 0 var(--border-width-sm) var(--color-accent-light);
 }
 .tr.selected-row {
   background-color: rgba(0, 150, 255, 0.1);
@@ -34,7 +33,7 @@
 /* --- Table Cells --- */
 .th,
 .td {
-  box-shadow: inset 0 0 0 0.5px #cccccc;
+  box-shadow: inset 0 0 0 0.5px var(--border-input);
 }
 .column-centered{
   display: flex !important;
@@ -48,6 +47,10 @@
 }
 
 /* --- Table Header Cells --- */
+.th span{
+  color: var(--color-primary);
+  font-weight: 500;
+}
 .th, .td {
   position: relative;
   display: flex;

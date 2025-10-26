@@ -185,7 +185,7 @@ export default function BaseTable({
                             }}
                             key={header.id}
                         >
-                            {header.column.columnDef.header}
+                            <span>{header.column.columnDef.header}</span>
                             {header.column.getCanSort() && (
                                 <i
                                     className={
