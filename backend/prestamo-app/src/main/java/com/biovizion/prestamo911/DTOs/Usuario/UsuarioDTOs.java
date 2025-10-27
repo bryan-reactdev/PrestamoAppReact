@@ -57,6 +57,7 @@ public class UsuarioDTOs {
         private String nombres;
         private String apellidos;
         private String celular;
+        private String direccion;
 
         private LocalDate cuotaVencimiento;
 

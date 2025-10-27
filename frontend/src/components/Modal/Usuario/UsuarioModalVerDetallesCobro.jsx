@@ -28,6 +28,7 @@ export default function UsuarioModalVerDetallesCobro() {
 
   if (!row?.original) return null
 
+  console.log(row.original)
   const usuarioData = row.original
   const creditos = usuarioData.creditos || []
 
@@ -45,7 +46,7 @@ export default function UsuarioModalVerDetallesCobro() {
           <h3>{usuarioData.usuario}</h3>
           <FormField
             label="Dirección"
-            value={usuarioData.direccion || 'N/A'}
+            value={usuarioData.direccion}
             disabled={true}
           />
         </div>
