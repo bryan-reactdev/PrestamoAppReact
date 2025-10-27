@@ -42,7 +42,7 @@ export default function UsuarioModalVerDetallesCobro() {
     >
       <div className="modal-content">
         {/* User Info Header */}
-        <div style={{ width: '50%', marginInline: 'auto' }}>
+        <div>
           <h3>{usuarioData.usuario}</h3>
           <FormField
             label="Dirección"
