@@ -58,12 +58,16 @@ export const usuariosTodosColumns = [
 
 export const usuarioAcciones = [
   UsuarioTableAccionTipos.VER_DETALLES,
-  UsuarioTableAccionTipos.VER_CUOTAS,
   UsuarioTableAccionTipos.VER_CREDITOS,
   UsuarioTableAccionTipos.CREAR_CREDITO,
   UsuarioTableAccionTipos.DESCARGAR_PDF_INFORME,
   UsuarioTableAccionTipos.BLOQUEAR,
   UsuarioTableAccionTipos.DESBLOQUEAR,
+]
+
+export const usuarioConVencidasAcciones = [
+  UsuarioTableAccionTipos.VER_DETALLES_COBRO,
+  ...usuarioAcciones,
 ]
 // --- Usuarios Todos ---
 export const usuariosConVencidasColumns = [
@@ -153,6 +157,6 @@ export const usuariosConVencidasColumns = [
     accessorKey: 'accion',
     header: "Acción",
     size: 125,
-    cell: ({ row }) => <ButtonAcciones row={row} acciones={usuarioAcciones} />,
+    cell: ({ row }) => <ButtonAcciones row={row} acciones={usuarioConVencidasAcciones} />,
   },
 ]

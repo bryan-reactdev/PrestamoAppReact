@@ -52,17 +52,6 @@ export const ButtonVerCreditosUsuario = ({row}) => {
   )
 }
 
-export const ButtonVerCuotasUsuario = ({row}) => {
-  return (
-    <Link className="a-accion" to={`/admin/usuarios/${row.id}/cuotas`}>
-      <button className="btn-accion">
-        <i className="fas fa-money-bill"/>
-        Ver Cuotas
-      </button>
-    </Link>
-  )
-}
-
 export const ButtonBloquearUsuario = ({row}) => {
   const {bloquearUsuario} = useUsuarioStore();
 
@@ -95,4 +84,18 @@ export const ButtonDesbloquearUsuario = ({row}) => {
 }
 ButtonDesbloquearUsuario.visibleIf = (row, role) => {
   return role.includes("ADMIN") && !row.original.enabled
+}
+
+export const ButtonVerDetallesCobroUsuario = ({row}) => {
+  const { openModal } = useUsuarioModalStore();
+
+  return (
+    <button 
+      className="btn-accion"
+      onClick={() => openModal('verDetallesCobro', row)}
+    >
+      <i className="fas fa-money-bill-wave"/>
+      Ver Detalles para Cobro
+    </button>
+  )
 }

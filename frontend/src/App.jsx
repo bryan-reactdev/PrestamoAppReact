@@ -61,7 +61,6 @@ export default function App(){
                     <Route path="/admin/usuarios/crear" element={<AdminRegistrarUsuario />} />
                     <Route path="/admin/usuarios/:usuarioId/creditos/:id/cuotas" element={<AdminCuotas />} />
                     <Route path="/admin/usuarios/:id/crear" element={<AdminCrearCredito />} />
-                    <Route path="/admin/usuarios/:usuarioId/cuotas" element={<AdminCuotas />} />
                     <Route path="/admin/usuarios/:usuarioId/creditos" element={<AdminCreditos />} />
                     <Route path="/admin/historial" element={<AdminHistorial />} />
                 </Route>

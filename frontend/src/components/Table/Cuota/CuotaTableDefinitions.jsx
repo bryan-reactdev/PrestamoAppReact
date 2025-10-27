@@ -102,7 +102,86 @@ export const cuotasTodosColumns = [
     accessorKey: 'accion',
     header: "Acción",
     size: 125,
-    cell: ({ row }) => <ButtonAcciones row={row} acciones={cuotasPendientesAcciones} />,
+    cell: ({ row }) => <ButtonAcciones row={row} acciones={getAccionesByEstado(row.original.estado)} />,
+  },
+]
+// --- Todas las Cuotas Minimal ---
+export const cuotasTodosMinimalColumns = [
+  {
+    accessorKey: 'estado',
+    header: "Estado",
+    size: 125,
+    cell: ({ getValue }) => {
+      const value = getValue();
+      const displayText = value === 'EnRevision' ? 'En Revisión' : value;
+    
+      return <p className={`badge ${value}`}>{displayText}</p>;
+    }
+  },
+  {
+    accessorKey: 'fechaVencimiento',
+    header: "Fecha Vencimiento",
+    size: 150,
+    cell: (props) => {
+      const value = props.getValue();
+
+      if (!value) return <p className="empty">N/A</p>;
+
+      const [y, m, d] = value.split('T')[0].split('-');
+      return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
+    }
+  },
+  {
+    accessorKey: 'monto',
+    header: "Monto",
+    size: 90,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'mora',
+    header: "Mora",
+    size: 90,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'abono',
+    header: "Abono",
+    size: 90,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'total',
+    header: "Total",
+    size: 90,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
   },
 ]
 
@@ -404,3 +483,16 @@ export const cuotasPagadasAcciones = [
   CuotaTableAccionTipos.NOTAS,
   CuotaTableAccionTipos.EDITAR
 ]
+
+// Function to get the correct acciones based on cuota estado
+export const getAccionesByEstado = (estado) => {
+  switch (estado) {
+    case 'Pagado':
+      return cuotasPagadasAcciones;
+    case 'Pendiente':
+    case 'Vencida':
+    case 'EnRevision':
+    default:
+      return cuotasPendientesAcciones;
+  }
+}

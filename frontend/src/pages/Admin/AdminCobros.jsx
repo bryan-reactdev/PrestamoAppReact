@@ -10,6 +10,7 @@ import TotalCard from '../../components/Cards/TotalCard'
 import ContentTitleWithInfo from '../../components/Content/ContentTitleWithInfo'
 import { useCurrencyStore } from '../../stores/useCurrencyStore'
 import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
+import UsuarioModalVerDetallesCobro from '../../components/Modal/Usuario/UsuarioModalVerDetallesCobro'
 import FormField from '../../components/Form/FormField'
 import { getCurrentDate } from '../../utils/dateUtils'
 import { useCuotaStore } from '../../stores/useCuotaStore'
@@ -17,7 +18,7 @@ import { cuotasPendientesColumns } from '../../components/Table/Cuota/CuotaTable
 
 export default function AdminCobros(){
   const {usuariosConVencidas, isFetchingUsuariosConVencidas, getUsuariosConVencidas, descargarPDFCobros} = useUsuarioStore();
-  const {cuotasPendientes, cuotasPendientesForMapeo, getCuotas, selectedDate, setSelectedDate} = useCuotaStore();
+  const {cuotasPendientesForMapeo, getCuotas, selectedDate, setSelectedDate} = useCuotaStore();
   const {cuotasTotales, getCuotasTotales} = useCurrencyStore();
   const [currentTab, setCurrentTab] = useState('');
 
@@ -27,9 +28,7 @@ export default function AdminCobros(){
       getUsuariosConVencidas();
       getCuotasTotales();
     }
-    if (cuotasPendientes.length === 0) {
-      getCuotas();
-    }
+    getCuotas();
   }, [getUsuariosConVencidas, getCuotasTotales, getCuotas]);
   
   // Definición de las columnas que estarán centradas
@@ -48,6 +47,7 @@ export default function AdminCobros(){
       {/* Mobile */}
 
       <UsuarioModalVerDetalles/>
+      <UsuarioModalVerDetallesCobro/>
 
       <div className="content">
         <ContentTitleWithInfo title={''} subtitle={''}>

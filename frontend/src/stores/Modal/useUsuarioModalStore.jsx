@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 const estadoInicial = {
   verDetalles: false,
+  verDetallesCobro: false,
   
   row: null,
 };

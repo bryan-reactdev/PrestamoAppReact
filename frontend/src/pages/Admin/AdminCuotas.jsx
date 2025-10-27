@@ -14,17 +14,13 @@ import CuotaModalNotas from '../../components/Modal/Cuota/CuotaModalNotas'
 import CuotaModalEditar from '../../components/Modal/Cuota/CuotaModalEditar'
 
 export default function AdminCuotas(){
-  const {id, usuarioId} = useParams();
+  const {id} = useParams();
   const {cuotas, cuotasPendientes, cuotasPagadas, cuotasVencidas, cuotasEnRevision, isFetchingCuotas, getCuotas, getUsuarioCuotas, descargarPDFCuotas} = useCuotaStore();
-  // const [currentTab, setCurrentTab] = useState('Todos'); // Default to 'Todos'
-  const [currentTab, setCurrentTab] = useState('Pendientes'); // Default to 'Todos'
+  const [currentTab, setCurrentTab] = useState('Todos'); // Default to 'Todos'
 
   // --- Get de los créditos la PRIMERA vez que se inicializa esta página ---
   useEffect(() => {
-    if (usuarioId){
-      getUsuarioCuotas(usuarioId);
-    }
-    else if (id == null){
+    if (id == null){
       getCuotas();
     }
     else{
@@ -37,7 +33,7 @@ export default function AdminCuotas(){
 
   // -- Definición de las pestañas --
   const tabs = [
-    // { label: 'Todos'},
+    { label: 'Todos', columnDefinitions: cuotasTodosColumns, data: cuotas, card: CuotasPendientesCard},
     { label: 'Vencidas', data: cuotasVencidas, card: CuotasPendientesCard},
     { label: 'Pendientes', columnDefinitions: cuotasPendientesColumns, data: cuotasPendientes, card: CuotasPendientesCard},
     { label: 'Pagadas', columnDefinitions: cuotasPagadasColumns, data: cuotasPagadas, card: CuotasPagadasCard},
