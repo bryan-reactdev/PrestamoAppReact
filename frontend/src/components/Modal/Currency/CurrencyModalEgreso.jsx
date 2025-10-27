@@ -2,7 +2,7 @@ import { BaseModal } from '../ModalUtils'
 import { useCurrencyStore } from '../../../stores/useCurrencyStore'
 import { useCurrencyModalStore } from '../../../stores/Modal/useCurrencyModalStore'
 import FormField from '../../Form/FormField'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import FormSelect from '../../Form/FormSelect'
 
 export default function CurrencyModalEgreso() {
@@ -14,6 +14,7 @@ export default function CurrencyModalEgreso() {
       tipo: '',
       fecha: selectedDate ?? ''
     })
+    const formRef = useRef(null)
 
   const handleRealizar = () => {
     realizarEgreso(formData)
@@ -54,9 +55,10 @@ export default function CurrencyModalEgreso() {
       confirmText={`REALIZAR EGRESO`}
       confirmColor='danger'
       cancelColor='secondary'
+      formRef={formRef}
     >
       <div className="modal-content">
-        <div className="form-container">
+        <form ref={formRef} className="form-container">
           <div className="form-section">
             <div className="form-section-content">
               <FormField
@@ -107,7 +109,7 @@ export default function CurrencyModalEgreso() {
               />
             </div>
           </div>
-        </div>
+        </form>
 
         <p className='color-secondary'>Esta función está hecha para registrar egresos generales. Los desembolsos deben registrarse desde el listado de créditos de cada cliente.</p>
       </div>

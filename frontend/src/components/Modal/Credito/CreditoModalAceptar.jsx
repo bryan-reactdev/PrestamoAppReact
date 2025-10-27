@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { useCreditoStore } from '../../../stores/useCreditoStore'
 import { BaseModal } from '../ModalUtils'
 import { useCreditoModalStore } from '../../../stores/Modal/useCreditoModalStore'
@@ -17,6 +17,7 @@ export default function CreditoModalAceptar() {
   const [selectedCredito, setSelectedCredito] = useState(null);
   const [selectedCuotas, setSelectedCuotas] = useState([]);
   const [refinanciados, setRefinanciados] = useState(false);
+  const formRef = useRef(null);
 
   const handleDescargarPDF = (tipo) => {
     descargarCreditoPDF(row.id, tipo);
@@ -94,9 +95,7 @@ export default function CreditoModalAceptar() {
     setRefinanciados(success);
   }
 
-  const handleAceptar = (e) => {
-    e.preventDefault();
-    
+  const handleAceptar = () => {
     let payload = { ...formData };
 
     if (selectedCredito != null) {
@@ -116,10 +115,11 @@ export default function CreditoModalAceptar() {
       title={'Configurar Cargos Financieros'}
       customWidth={900}
       confirmText={`ACEPTAR`}
+      formRef={formRef}
       // icon={'fas fa-cog'}
     >
       <div className="modal-content">
-        <div className="form-container">
+        <form ref={formRef} className="form-container">
 
           <div className="form-section">
             <div className="form-section-header light">
@@ -318,7 +318,7 @@ export default function CreditoModalAceptar() {
             </div>
           </div>
 
-        </div>
+        </form>
       </div>
     </BaseModal>
   )

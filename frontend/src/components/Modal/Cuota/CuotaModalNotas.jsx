@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import { BaseModal } from '../ModalUtils'
 import { useCuotaStore } from '../../../stores/useCuotaStore'
 import { useCuotaModalStore } from '../../../stores/Modal/useCuotaModalStore'
@@ -10,6 +10,7 @@ export default function CuotaModalNotas() {
   const { cuota, getCuota, isFetchingCuota, guardarNotas, isGuardandoNotas } = useCuotaStore()
   
   const [cuotaNotas, setCuotaNotas] = useState([])
+  const formRef = useRef(null)
 
   const handleGuardar = async() => {
     const success = await guardarNotas(row.id, cuotaNotas)
@@ -61,9 +62,10 @@ export default function CuotaModalNotas() {
       title="Notas de Cuota"
       confirmText="GUARDAR"
       cancelText="CERRAR"
+      formRef={formRef}
     >
       <div className="modal-content">
-        <div className="form-container">
+        <form ref={formRef} className="form-container">
           <div className="form-section">
               <div className="notas-container">
                 {isFetchingCuota &&
@@ -107,7 +109,7 @@ export default function CuotaModalNotas() {
               </div>
 
           </div>
-        </div>
+        </form>
       </div>
     </BaseModal>
   )

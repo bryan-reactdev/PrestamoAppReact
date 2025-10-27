@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { BaseModal } from '../ModalUtils'
 import { useCuotaStore } from '../../../stores/useCuotaStore'
 import { useCuotaModalStore } from '../../../stores/Modal/useCuotaModalStore'
@@ -13,6 +13,7 @@ export default function CuotaModalAbonar() {
     monto: '',
     fecha: getCurrentDate(),
   });
+  const formRef = useRef(null);
 
   const handleAbonar = () => {
     abonarCuota(row.id, row, formData);
@@ -43,10 +44,11 @@ export default function CuotaModalAbonar() {
       customWidth={500}
       title='Abonar Cuota'
       confirmText='ABONAR'
+      formRef={formRef}
     >
       <div className="modal-content">
 
-        <div className="form-container">
+        <form ref={formRef} className="form-container">
           <div className="form-section">
             <div className="form-section-content">
               <FormField
@@ -72,7 +74,7 @@ export default function CuotaModalAbonar() {
               />
             </div>
           </div>
-        </div> 
+        </form> 
         
       </div>
     </BaseModal>

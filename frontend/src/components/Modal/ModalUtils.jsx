@@ -38,6 +38,7 @@ export function BaseModal({
   cancelColor = 'secondary',
   children,
   style={},
+  formRef = null, // New prop to accept form reference
 }) {
   const modalRef = useRef(null)
   const modalContainerRef = useRef(null)
@@ -51,6 +52,21 @@ export function BaseModal({
     setTimeout(() => {
       onClose();
     }, 100);
+  }
+
+  const handleConfirm = () => {
+    // If there's a form ref, validate the form first
+    if (formRef && formRef.current) {
+      if (formRef.current.checkValidity()) {
+        onConfirm();
+      } else {
+        // Trigger validation messages
+        formRef.current.reportValidity();
+      }
+    } else {
+      // No form validation needed
+      onConfirm();
+    }
   }
 
   useEffect(() => {
@@ -76,7 +92,7 @@ export function BaseModal({
           {onConfirm &&
           <button
             className={`btn-${confirmColor}`}
-            onClick={onConfirm}
+            onClick={handleConfirm}
             autoFocus
           >
             {confirmText}

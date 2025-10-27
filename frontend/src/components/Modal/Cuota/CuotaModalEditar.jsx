@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { BaseModal } from '../ModalUtils'
 import { useCuotaStore } from '../../../stores/useCuotaStore'
 import { useCuotaModalStore } from '../../../stores/Modal/useCuotaModalStore'
@@ -9,6 +9,7 @@ export default function CuotaModalEditar() {
   const { editar, closeModal, row } = useCuotaModalStore()
   const { cuota, getCuota, isFetchingCuota, updateCuota, isUpdatingCuota } = useCuotaStore()
   const [formData, setFormData] = useState(null)
+  const formRef = useRef(null)
   
   const handleGuardar = async() => {
     const success = await updateCuota(row.id, formData)
@@ -55,9 +56,10 @@ export default function CuotaModalEditar() {
       title="Editar Cuota"
       confirmText="GUARDAR"
       cancelText="CERRAR"
+      formRef={formRef}
     >
       <div className="modal-content">
-        <div className="form-container">
+        <form ref={formRef} className="form-container">
           <div className="form-section">
               {!formData || isFetchingCuota ? (
                 <div className="spinner large"></div>
@@ -119,7 +121,7 @@ export default function CuotaModalEditar() {
                 </div>
               )}
           </div>
-        </div>
+        </form>
       </div>
     </BaseModal>
   )
