@@ -12,9 +12,12 @@ import { useCurrencyStore } from '../../stores/useCurrencyStore'
 import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
 import FormField from '../../components/Form/FormField'
 import { getCurrentDate } from '../../utils/dateUtils'
+import { useCuotaStore } from '../../stores/useCuotaStore'
+import { cuotasPendientesColumns } from '../../components/Table/Cuota/CuotaTableDefinitions'
 
 export default function AdminCobros(){
-  const {usuariosConVencidas, usuariosConCuotas, usuariosConCuotasForDate, isFetchingUsuariosConVencidas, getUsuariosConVencidas, getUsuariosConCuotas, selectedDate, setSelectedDate, descargarPDFCobros} = useUsuarioStore();
+  const {usuariosConVencidas, isFetchingUsuariosConVencidas, getUsuariosConVencidas, descargarPDFCobros} = useUsuarioStore();
+  const {cuotasPendientes, cuotasPendientesForMapeo, getCuotas, selectedDate, setSelectedDate} = useCuotaStore();
   const {cuotasTotales, getCuotasTotales} = useCurrencyStore();
   const [currentTab, setCurrentTab] = useState('');
 
@@ -22,17 +25,19 @@ export default function AdminCobros(){
   useEffect(() => {
     if (usuariosConVencidas.length === 0) {
       getUsuariosConVencidas();
-      getUsuariosConCuotas();
       getCuotasTotales();
     }
-  }, [getUsuariosConVencidas, getUsuariosConCuotas, getCuotasTotales]);
+    if (cuotasPendientes.length === 0) {
+      getCuotas();
+    }
+  }, [getUsuariosConVencidas, getCuotasTotales, getCuotas]);
   
   // Definición de las columnas que estarán centradas
   const centered = ['calificacion', 'celular', 'cuotaVencimiento', 'cuotaMonto', 'cuotaMora', 'cuotaAbono', 'cuotaTotal', 'accion']
 
   const tabs = [
     { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Lista de Usuarios con Cuotas Vencidas', text: usuariosConVencidas.length ?? '0'},
-    { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Clientes con Cuotas', text: usuariosConCuotas.length ?? '0', data: usuariosConCuotasForDate},
+    { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Cuotas con Clientes', text: cuotasPendientesForMapeo.length ?? '0', data: cuotasPendientesForMapeo, columnDefinitions: cuotasPendientesColumns},
   ];
 
   return(
@@ -64,7 +69,7 @@ export default function AdminCobros(){
           </TotalCard>
         </ContentTitleWithInfo>
 
-        {currentTab === "Mapeo de Clientes con Cuotas" &&
+        {currentTab === "Mapeo de Cuotas con Clientes" &&
           <div className="date-controls">
             <FormField
               classNames={'simple'}

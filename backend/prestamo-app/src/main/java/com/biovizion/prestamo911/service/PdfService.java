@@ -40,6 +40,12 @@ public class PdfService {
             Context context = new Context();
             context.setVariable("cuota", cuota);
 
+            // Logo dentro del JAR
+            URL logoResource = getClass().getClassLoader().getResource("static/img/logo.jpg");
+            if (logoResource != null) {
+                context.setVariable("logoUrl", logoResource.toExternalForm());
+            }
+
             // Renderizar HTML desde la plantilla
             String htmlContent = templateEngine.process("fragments/pdf_factura", context);
 
@@ -307,6 +313,12 @@ public class PdfService {
         context.setVariable("usuario", usuario);
         context.setVariable("cuotas", cuotas);
 
+        // Logo dentro del JAR
+        URL logoResource = getClass().getClassLoader().getResource("static/img/logo.jpg");
+        if (logoResource != null) {
+            context.setVariable("logoUrl", logoResource.toExternalForm());
+        }
+
         String htmlContent = templateEngine.process("fragments/PDFCuotasUsuario", context);
         String nombreCompleto = usuario.getNombre() + " " + usuario.getApellido();
 
@@ -334,6 +346,12 @@ public class PdfService {
 
         Context context = new Context();
         context.setVariable("usuarios", usuarios);
+
+        // Logo dentro del JAR
+        URL logoResource = getClass().getClassLoader().getResource("static/img/logo.jpg");
+        if (logoResource != null) {
+            context.setVariable("logoUrl", logoResource.toExternalForm());
+        }
 
         String htmlContent = templateEngine.process("fragments/PDFUsuariosVencidas", context);
 

@@ -14,6 +14,9 @@ const estadoInicial = {
     cuotasEnRevision: [],
     isFetchingCuotas: false,
 
+    selectedDate: null,
+    cuotasPendientesForMapeo: [],
+
     isUpdatingCuota: false,
     isPagandoCuota: false,
     isGuardandoNotas: false,
@@ -34,6 +37,9 @@ export const useCuotaStore = create((set, get) => ({
             cuotasPendientes: state.cuotasPendientes.map((cuota) =>
                 cuota.id === id ? { ...cuota, [key]: value } : cuota
             ),
+            cuotasPendientesForMapeo: state.cuotasPendientesForMapeo.map((cuota) =>
+                cuota.id === id ? { ...cuota, [key]: value } : cuota
+            ),
             cuotasPagadas: state.cuotasPagadas.map((cuota) =>
                 cuota.id === id ? { ...cuota, [key]: value } : cuota
             ),
@@ -50,6 +56,7 @@ export const useCuotaStore = create((set, get) => ({
         set((state) => ({
             cuotas: state.cuotas.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
             cuotasPendientes: state.cuotasPendientes.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
+            cuotasPendientesForMapeo: state.cuotasPendientesForMapeo.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
             cuotasPagadas: state.cuotasPagadas.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
             cuotasVencidas: state.cuotasVencidas.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
             cuotasEnRevision: state.cuotasEnRevision.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
@@ -83,6 +90,7 @@ export const useCuotaStore = create((set, get) => ({
             cuotasPagadas: [],
             cuotasVencidas: [],
             cuotasEnRevision: [],
+            cuotasPendientesForMapeo: [],
         })
         let res = null;
         
@@ -109,6 +117,7 @@ export const useCuotaStore = create((set, get) => ({
 
         set({ cuotas: todas ?? [] });
         set({ cuotasPendientes: pendientes ?? [] });
+        set({ cuotasPendientesForMapeo: pendientes ?? [] });
         set({ cuotasPagadas: pagadas ?? [] });
         set({ cuotasVencidas: vencidas ?? [] });
         set({ cuotasEnRevision: enRevision ?? [] });
@@ -129,6 +138,7 @@ export const useCuotaStore = create((set, get) => ({
 
         set({ cuotas: todas ?? [] });
         set({ cuotasPendientes: pendientes ?? [] });
+        set({ cuotasPendientesForMapeo: pendientes ?? [] });
         set({ cuotasPagadas: pagadas ?? [] });
         set({ cuotasVencidas: vencidas ?? [] });
         set({ cuotasEnRevision: enRevision ?? [] });
@@ -229,4 +239,21 @@ export const useCuotaStore = create((set, get) => ({
             toast.error('Error al generar el PDF de cuotas', { id: 'pdf-toast' });
         }
     },
+
+    filterCuotasPendientesForMapeo: async (date) => {
+        const {cuotasPendientes} = get();
+        if (date == null) {
+            set({cuotasPendientesForMapeo: cuotasPendientes});
+            return;
+        }
+
+        const result = cuotasPendientes.filter((cuota) => cuota.fechaVencimiento?.startsWith(date));
+        set({cuotasPendientesForMapeo: result});
+    },
+
+    setSelectedDate: (date) => {
+        const {filterCuotasPendientesForMapeo} = get();
+        set({selectedDate: date});
+        filterCuotasPendientesForMapeo(date);
+    }
 }))

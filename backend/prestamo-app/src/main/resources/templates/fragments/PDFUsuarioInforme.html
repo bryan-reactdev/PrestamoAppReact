@@ -354,6 +354,25 @@
         <div th:if="${#lists.isEmpty(credito.cuotas)}" class="pdf-field">
             <em>No hay cuotas registradas para este crédito.</em>
         </div>
+        
+        <!-- Totales de cuotas -->
+        <div th:if="${not #lists.isEmpty(credito.cuotas)}" class="pdf-field" style="margin-top: 15px;">
+            <div class="pdf-field">
+                <strong>Total de cuotas:</strong> <span class="underline" th:text="${#lists.size(credito.cuotas)}"></span>
+            </div>
+            <div class="pdf-field">
+                <strong>Total de cuotas pagadas:</strong> <span class="underline" th:text="${#lists.size(credito.cuotas.?[estado == 'Pagado'])}"></span>
+            </div>
+            <div class="pdf-field">
+                <strong>Total de cuotas a pagar:</strong> <span class="underline" th:text="${#lists.size(credito.cuotas.?[estado == 'Pendiente' or estado == 'Vencido'])}"></span>
+            </div>
+            <div class="pdf-field">
+                <strong>Total cancelado:</strong> $<span class="underline" th:text="${#numbers.formatDecimal(#aggregates.sum(credito.cuotas.?[estado == 'Pagado'].![monto + pagoMora]), 1, 'COMMA', 2, 'POINT')}"></span>
+            </div>
+            <div class="pdf-field">
+                <strong>Total pendiente a pagar:</strong> $<span class="underline" th:text="${#numbers.formatDecimal(#aggregates.sum(credito.cuotas.?[estado == 'Pendiente' or estado == 'Vencido'].![total]), 1, 'COMMA', 2, 'POINT')}"></span>
+            </div>
+        </div>
     </div>
 
     <div class="spacer"></div>

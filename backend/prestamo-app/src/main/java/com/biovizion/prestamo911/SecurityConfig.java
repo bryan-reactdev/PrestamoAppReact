@@ -89,8 +89,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
             "http://192.168.0.194:5173",
-            "http://localhost:5173",
-            "http://localhost:4173"
+            "http://localhost:4173",
+            "http://31.220.51.108:4173",
+            "https://prestamo911.com"
         ));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
