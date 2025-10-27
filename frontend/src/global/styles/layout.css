@@ -28,6 +28,16 @@
     height: 7.5%;
     z-index: 10;
 }
+
+/* Landing page navbar - not fixed */
+.page.landing .navbar{
+    position: static;
+    height: 20%;
+    z-index: auto;
+    top: auto;
+    left: auto;
+    right: auto;
+}
 .navbar-header{
     grid-column: 1;
     display: flex;
@@ -187,8 +197,10 @@
 
 /* --- Page Landing Custom --- */
 .page.landing{
-  grid-template-rows: 20% 1fr;
-  grid-template-columns: 1fr;
+  display: block;
+  width: 100%;
+  height: auto;
+  min-height: 100vh;
 
   background-color: var(--landing-secondary);
   box-sizing: border-box;
@@ -198,10 +210,7 @@
 }
 
 .page.landing .navbar{
-  height: 20%;
-
   padding-inline: 15%;
-
   background: var(--landing-primary);
 }
 
@@ -213,9 +222,9 @@
 }
 
 .page.landing .content{
-  grid-column: 1;
-  
   padding: 0;
+  min-height: 80vh;
+  width: 100%;
 
   justify-content: center;
   align-items: center;
@@ -795,6 +804,7 @@
   height: auto;
 
   margin-top: var(--space-sm);
+  margin-inline: auto;
 
   border-radius: var(--border-lg);
 
@@ -1011,6 +1021,7 @@
 }
 .total-card.tab{
   cursor: pointer;
+  min-width: 125px;
 
   transition: transform 0.15s ease;
 }
@@ -1279,7 +1290,8 @@
 
 /* Chart.js default styling */
 
-.weekly-stats-chart .chart-container {
+.weekly-stats-chart .chart-container,
+.monthly-stats-chart .chart-container {
   height: 400px;
   margin-bottom: var(--space-lg);
 }
@@ -1314,6 +1326,45 @@
   background-color: var(--color-danger);
 }
 
+/* View Tabs */
+.view-tabs {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-lg);
+  background: var(--background-secondary);
+  padding: var(--space-sm);
+  border-radius: var(--border-lg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.view-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-sm) var(--space-md);
+  border: none;
+  background: transparent;
+  color: var(--color-secondary);
+  border-radius: var(--border-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.view-tab:hover {
+  background: var(--background-primary);
+  color: var(--color-primary);
+}
+
+.view-tab.active {
+  background: var(--color-primary);
+  color: var(--background-primary);
+}
+
+.view-tab i {
+  font-size: var(--font-sm);
+}
+
 /* Chart Tooltip */
 .chart-tooltip {
   background: var(--background-primary);
@@ -1333,6 +1384,11 @@
 .tooltip-value {
   color: var(--color-secondary);
   font-weight: 500;
+}
+
+/* --- Mobile Cards (Hidden on Desktop) --- */
+.mobile-cards-container {
+    display: none;
 }
 
 /* --- Animations --- */

@@ -68,18 +68,6 @@ export const usuarioAcciones = [
 // --- Usuarios Todos ---
 export const usuariosConVencidasColumns = [
   {
-    accessorKey: 'calificacion',
-    header: "Calificación",
-    size: 125,
-    cell: (props) => {
-      const value = props.getValue();
-      let displayValue = value;
-      if (value === 'A_PLUS') displayValue = 'A+';
-      else if (value === 'D') displayValue = 'Indeseable';
-      return <p className={value}>{displayValue}</p>;
-    }
-  },
-  {
     accessorKey: 'usuario',
     header: "Usuario",
     cell: (props) => <p>{props.getValue()}</p>

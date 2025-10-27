@@ -6,8 +6,8 @@ import FormField from '../../Form/FormField'
 import FormSelect from '../../Form/FormSelect'
 import BaseTable from '../../Table/BaseTable'
 import { creditosRefinanciarColumns } from '../../Table/Credito/CreditoTableDefinitions'
-import { CreditosDefaultCard } from '../../Card/Credito/CreditoCardDefinitions'
-import { cuotasRefinanciablesColumns, cuotasTodosColumns } from '../../Table/Cuota/CuotaTableDefinitions'
+import { cuotasRefinanciablesColumns } from '../../Table/Cuota/CuotaTableDefinitions'
+import { CreditosAceptadosCard } from '../../Card/Credito/CreditoCardDefinitions'
 import { CuotasPendientesCard } from '../../Card/Cuota/CuotaCardDefinitions'
 
 export default function CreditoModalAceptar() {
@@ -94,7 +94,9 @@ export default function CreditoModalAceptar() {
     setRefinanciados(success);
   }
 
-  const handleAceptar = () => {
+  const handleAceptar = (e) => {
+    e.preventDefault();
+    
     let payload = { ...formData };
 
     if (selectedCredito != null) {
@@ -132,6 +134,8 @@ export default function CreditoModalAceptar() {
                 onChange={handleChange}
                 label={'Monto del Crédito'} 
                 type={'money'}
+                required
+                min={1}
               />
 
               <FormSelect 
@@ -139,6 +143,7 @@ export default function CreditoModalAceptar() {
                 name='frecuencia'
                 value={formData.frecuencia}
                 onChange={handleChange}
+                required
               >
                 <option value="Diaria">Diaria</option>
                 <option value="Semanal">Semanal</option>
@@ -202,7 +207,8 @@ export default function CreditoModalAceptar() {
               <BaseTable
                 data={creditosRefinanciables}
                 columns={creditosRefinanciarColumns}
-                card={CreditosDefaultCard}
+                card={CreditosAceptadosCard}
+                cardProps={{ disableModal: true }}
                 centered={['estado', 'calificacion', 'monto', 'montoDesembolsar', 'frecuencia', 'fechaAceptado', 'fechaSolicitud', 'fechaRechazado', 'desembolsado', 'accion', ]} 
                 flexable='usuario' 
                 loading={isFetchingCreditosRefinanciables}
@@ -211,7 +217,9 @@ export default function CreditoModalAceptar() {
                 selectedRowId={selectedCredito?.id}
                 onRowSelect={(row) => {
                   setSelectedCredito(row);
-                  setSelectedCuotas(row.cuotas ?? []); // or map to add any extra props if needed
+                  // Filter out paid cuotas (cuotasPagadas) from the cuotas
+                  const unpaidCuotas = (row.cuotas ?? []).filter(cuota => cuota.estado !== 'Pagado');
+                  setSelectedCuotas(unpaidCuotas);
                 }}
 
               />
@@ -220,12 +228,10 @@ export default function CreditoModalAceptar() {
               <>
                 <h3 style={{margin: 0, padding: 0}}>Cuotas</h3>
 
-                {console.log(selectedCuotas[0])}
-
                 <BaseTable
                   data={selectedCuotas}
-                  columns={cuotasRefinanciablesColumns(selectedCuotas, handleCuotaChange)}
                   card={CuotasPendientesCard}
+                  columns={cuotasRefinanciablesColumns(selectedCuotas, handleCuotaChange)}
                   centered={['estado', 'fechaVencimiento', 'monto', 'mora', 'total', 'desembolsado', 'accion', ]} 
                   flexable='usuario' 
                   loading={isFetchingCreditosRefinanciables}
@@ -282,7 +288,9 @@ export default function CreditoModalAceptar() {
                 name='cuotaMensual'
                 value={formData.cuotaMensual}
                 onChange={handleChange}
-                placeholder='Ingresa una cuota mensual'
+                placeholder='0.00'
+                required
+                min={1}
               />
               <FormField
                 label={'Mora'} 
@@ -291,7 +299,8 @@ export default function CreditoModalAceptar() {
                 name='mora'
                 value={formData.mora}
                 onChange={handleChange}
-                placeholder='Ingresa una mora'
+                placeholder='0.00'
+                min={0}
               />
               <FormField
                 label={'Cantidad de Cuotas'} 
@@ -300,7 +309,10 @@ export default function CreditoModalAceptar() {
                 name='cuotaCantidad'
                 value={formData.cuotaCantidad}
                 onChange={handleChange}
-                placeholder='Ingresa una cantidad de cuotas'
+                placeholder='Ej: 12'
+                required
+                min={1}
+                max={60}
               />
 
             </div>

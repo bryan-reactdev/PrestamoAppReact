@@ -4,22 +4,16 @@ import static com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.mapearACreditoT
 import static com.biovizion.prestamo911.DTOs.Usuario.UsuarioDTOs.mapearAUsuarioDTO;
 import static com.biovizion.prestamo911.DTOs.Usuario.UsuarioDTOs.mapearAUsuarioTablaDTOs;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
 
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.biovizion.prestamo911.DTOs.GlobalDTOs.ApiResponse;
 import com.biovizion.prestamo911.DTOs.GlobalDTOs.GroupDTO;
@@ -44,7 +38,6 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 @Controller
@@ -85,13 +78,13 @@ public class UsuarioControllerTest {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                     .body(new ApiResponse<>("Usuario no encontrado"));
             }
-
             UsuarioEntity usuario = usuarioOpt.get();
 
             usuario.setNombre(request.getNombres());
             usuario.setApellido(request.getApellidos());
             usuario.setEmail(request.getEmail());
             usuario.setCelular(request.getCelular());
+            usuario.setDireccion(request.getDireccion());
 
             if (request.getPassword() != null && !request.getPassword().trim().isEmpty()) {
                 usuario.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -284,5 +277,13 @@ public class UsuarioControllerTest {
         List<CreditoEntity> creditos = creditoService.findByUsuarioId(usuarioId);
         
         pdfService.generarUsuarioInformePDF(usuario, creditos, response);
+    }
+
+    // --- Cobros PDF ---
+    @PostMapping("/cobros/pdf")
+    public void getPDFCobros(HttpServletResponse response) {
+        List<UsuarioCuotasDTO> usuarios = usuarioService.findAllConCuotasVencidas();
+
+        pdfService.generarUsuarioVencidas(usuarios, response);
     }
 }

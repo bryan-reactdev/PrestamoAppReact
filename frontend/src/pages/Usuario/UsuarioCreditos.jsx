@@ -11,7 +11,6 @@ import { CreditosAceptadosCard, CreditosDefaultCard, CreditosPendientesCard } fr
 import CreditoModalGenerarDocumentos from '../../components/Modal/Credito/CreditoModalGenerarDocumentos'
 import CreditoModalRechazar from '../../components/Modal/Credito/CreditoModalRechazar'
 import { useParams } from 'react-router-dom'
-import AccionesModal from '../../components/Card/AccionesModal'
 import ContentTitle from '../../components/Content/ContentTitle'
 import UsuarioSidebar from '../../components/Sidebar/UsuarioSidebar'
 
@@ -43,7 +42,6 @@ export default function UsuarioCreditos(){
       <CreditoModalRechazar/>      
 
       {/* Mobile */}
-      <AccionesModal/>
 
       <Navbar/>
       <UsuarioSidebar activePage={'creditos'}/>

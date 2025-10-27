@@ -1,5 +1,7 @@
 import { create } from 'zustand';
 import { axiosData } from "../utils/axiosWrapper";
+import toast from 'react-hot-toast';
+import { descargarPDFConPrint } from '../utils/generalUtil';
 
 const estadoInicial = {
     cuota: null,
@@ -208,5 +210,23 @@ export const useCuotaStore = create((set, get) => ({
         set ({isGuardandoNotas: false})
 
         return (res != null)
-    }
+    },
+
+    descargarPDFCuotas: async (id) => {
+        try {
+            toast.loading('Generando PDF...', { id: 'pdf-toast' });
+
+            const res = await axiosData(`/cuotaTest/pdf/${id}`, {
+                method: "POST",
+                responseType: "blob",
+            });
+
+            await descargarPDFConPrint(res);
+            
+            toast.success('PDF de cuotas listo para imprimir', { id: 'pdf-toast' });
+        } catch (err) {
+            console.error("Error descargando PDF:", err);
+            toast.error('Error al generar el PDF de cuotas', { id: 'pdf-toast' });
+        }
+    },
 }))

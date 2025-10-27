@@ -1,12 +1,12 @@
 .cards-container{
-  height: 50vh;
+  max-height: 50vh;
   display: flex;
 
   flex-direction: column;
 
   gap: var(--space-sm);
 
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .card {
@@ -25,6 +25,10 @@
   background-color: var(--table-background-primary);
 
   box-sizing: border-box;
+}
+
+.card.selected-row {
+  background-color: rgba(0, 150, 255, 0.1);
 }
 .card-header{
   display: flex;
@@ -118,12 +122,16 @@
   gap: var(--space-xs);
 }
 .inactive-tab {
+  min-width: 115px;
+  
   font-size: var(--font-xs);
 
   color: var(--color-primary);
   border: var(--border-width-xs) solid var(--border-primary);
 }
 .active-tab{
+  min-width: 115px;
+
   font-size: var(--font-xs);
 
   color: var(--color-contrast);

@@ -10,18 +10,23 @@ export default function Sidebar({ activePage }) {
     <div className="homebar">
       <Link className={`btn-homebar ${activePage === 'dashboard' && 'active'}`} to={'/admin/'}>
         <i className="fas fa-home"/>
+        <span>Dashboard</span>
       </Link>
       <Link className={`btn-homebar ${activePage === 'creditos' && 'active'}`} to={'/admin/creditos'}>
         <i className="fas fa-credit-card"/>
+        <span>Créditos</span>
       </Link>
       <Link className={`btn-homebar ${activePage === 'cobros' && 'active'}`} to={'/admin/cobros'}>
         <i className="fas fa-money-bill"/>
+        <span>Cobros</span>
       </Link>
       <Link className={`btn-homebar ${activePage === 'caja' && 'active'}`} to={'/admin/caja'}>
         <i className="fas fa-cash-register"/>
+        <span>Caja</span>
       </Link>
       <Link className={`btn-homebar ${activePage === 'usuarios' && 'active'}`} to={'/admin/usuarios'}>
         <i className="fas fa-users"/>
+        <span>Usuarios</span>
       </Link>
     </div>
   )

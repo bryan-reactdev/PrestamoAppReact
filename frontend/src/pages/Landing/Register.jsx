@@ -54,85 +54,85 @@ export default function Register() {
 
                         <form style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
                             <div className="two-column-container" style={{gap: 'var(--space-md'}}>
-                            <FormField
-                                label="Nombres"
-                                classNames="simple one"
-                                placeholder="Ingresa tus nombres"
-                                name="nombres"
-                                value={formData.nombres}
-                                onChange={handleChange}
-                                required
-                            />
+                                <FormField
+                                    label="Nombres"
+                                    classNames="simple one"
+                                    placeholder="Ingresa tus nombres"
+                                    name="nombres"
+                                    value={formData.nombres}
+                                    onChange={handleChange}
+                                    required
+                                />
 
-                            <FormField
-                                label="Apellidos"
-                                classNames="simple one"
-                                placeholder="Ingresa tus apellidos"
-                                name="apellidos"
-                                value={formData.apellidos}
-                                onChange={handleChange}
-                                required
-                            />
+                                <FormField
+                                    label="Apellidos"
+                                    classNames="simple one"
+                                    placeholder="Ingresa tus apellidos"
+                                    name="apellidos"
+                                    value={formData.apellidos}
+                                    onChange={handleChange}
+                                    required
+                                />
 
-                            <FormField
-                                label="Email"
-                                classNames="simple one"
-                                type="email"
-                                placeholder="usuario@email.com"
-                                name="email"
-                                value={formData.email}
-                                onChange={handleChange}
-                                required
-                            />
+                                <FormField
+                                    label="Email"
+                                    classNames="simple one"
+                                    type="email"
+                                    placeholder="usuario@email.com"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                />
 
-                            <FormField
-                                label="Número de teléfono"
-                                classNames="simple one"
-                                placeholder="1212 3434"
-                                name="celular"
-                                value={formData.celular}
-                                onChange={handleChange}
-                                required
-                            />
+                                <FormField
+                                    label="Número de teléfono"
+                                    classNames="simple one"
+                                    placeholder="1212 3434"
+                                    name="celular"
+                                    value={formData.celular}
+                                    onChange={handleChange}
+                                    required
+                                />
 
-                            <FormField
-                                label="Número de DUI (Incluir guión)"
-                                classNames="simple one"
-                                placeholder="12345678-9"
-                                name="dui"
-                                value={formData.dui}
-                                onChange={handleChange}
-                                required
-                            />
+                                <FormField
+                                    label="Número de DUI (Incluir guión)"
+                                    classNames="simple one"
+                                    placeholder="12345678-9"
+                                    name="dui"
+                                    value={formData.dui}
+                                    onChange={handleChange}
+                                    required
+                                />
 
-                            <FormField
-                                label="Contraseña"
-                                classNames="simple one"
-                                type="password"
-                                placeholder="********"
-                                name="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                required
-                            />
+                                <FormField
+                                    label="Contraseña"
+                                    classNames="simple one"
+                                    type="password"
+                                    placeholder="********"
+                                    name="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                />
 
-                            <FormField
-                                label="Foto de DUI (frente)"
-                                classNames="simple one"
-                                type="file"
-                                name="duiDelante"
-                                preview={formData.duiDelante}
-                                onChange={handleChange}
-                            />
+                                <FormField
+                                    label="Foto de DUI (frente)"
+                                    classNames="simple one"
+                                    type="file"
+                                    name="duiDelante"
+                                    preview={formData.duiDelante}
+                                    onChange={handleChange}
+                                />
 
-                            <FormField
-                                label="Foto de DUI (atrás)"
-                                classNames="simple one"
-                                type="file"
-                                name="duiAtras"
-                                preview={formData.duiAtras}
-                                onChange={handleChange}
-                            />
+                                <FormField
+                                    label="Foto de DUI (atrás)"
+                                    classNames="simple one"
+                                    type="file"
+                                    name="duiAtras"
+                                    preview={formData.duiAtras}
+                                    onChange={handleChange}
+                                />
                             </div>
 
                             <button style={{ width: '100%', padding: 'var(--space-md)', cursor: isAuthenticating ? 'not-allowed' : '', pointerEvents: isAuthenticating ? 'none' : '' }} className="btn-primary" onClick={onSubmit} disabled={isAuthenticating}>

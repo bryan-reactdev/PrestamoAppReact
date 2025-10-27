@@ -1,12 +1,22 @@
-import { useModalStore } from "../../../stores/Modal/useModalStore";
+import { useState, useRef } from "react";
+import ButtonAcciones from "../../Table/ButtonAcciones";
 import { usuarioAcciones } from "../../Table/Usuario/UsuarioTableDefinitions";
 
 export const UsuariosCard = ({row}) => {
     if (!row) return;
-    const { openAccionesModal } = useModalStore();
+    const [modalOpen, setModalOpen] = useState(false);
+    const cardRef = useRef(null);
+
+    const handleCardClick = () => {
+        setModalOpen(!modalOpen);
+    };
 
     return (
-        <div className={`card ${row.original.estado}`} onClick={() => openAccionesModal(row, usuarioAcciones)}>    
+        <div 
+            ref={cardRef}
+            className={`card ${row.original.estado}`} 
+            onClick={handleCardClick}
+        >    
             <div className="card-header">
                 <div className="card-user">
                     <strong>{row.original.usuario}</strong> 
@@ -32,6 +42,16 @@ export const UsuariosCard = ({row}) => {
                     <p className={`badge ${!row.original.desembolsado ? 'Pendiente' : 'Realizado' }`}>{!row.original.desembolsado ? 'PENDIENTE' : 'REALIZADO' }</p>
                 </div> */}
             </div>
+
+            <ButtonAcciones 
+                acciones={usuarioAcciones} 
+                row={row} 
+                open={modalOpen}
+                setOpen={setModalOpen}
+                hideButton={true}
+                containerRef={cardRef}
+                modalMode={true}
+            />
         </div>
     )
 }

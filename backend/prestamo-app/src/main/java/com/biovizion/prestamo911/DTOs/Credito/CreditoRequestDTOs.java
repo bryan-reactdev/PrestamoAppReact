@@ -66,6 +66,7 @@ public class CreditoRequestDTOs{
         private String finalidadCredito;
         private String formaPago;
         private Boolean propiedadANombre;
+        private String direccionPropiedad;
         private Boolean vehiculoANombre;
     
         // --- Info personal ---
@@ -81,10 +82,25 @@ public class CreditoRequestDTOs{
         private BigDecimal gastosMensuales;
         private String comoConocio;
         private Boolean conoceAlguien;
+        private String nombrePersonaConocida;
+        private String telefonoPersonaConocida;
         private String enlaceRedSocial;
     
         // --- Info laboral ---
         private String ocupacion;
+        // --- Campos Empleado ---
+        private String empresaTrabajo;
+        private String direccionEmpresa;
+        private String telefonoEmpresa;
+        private String antiguedadLaboral;
+        private BigDecimal ingresoMensualEmpleado;
+        // --- Campos Emprendedor ---
+        private String actividadEmprendedor;
+        private BigDecimal ingresoMensualEmprendedor;
+        private String otrosIngresos;
+        private String telefonoNegocio;
+        private String direccionNegocio;
+        private String antiguedadNegocio;
     
         // --- Referencias ---
         private String nombreReferencia1;
@@ -106,11 +122,17 @@ public class CreditoRequestDTOs{
     
         // --- Antecedentes ---
         private Boolean solicitadoAnteriormente;
+        private String solicitadoEntidad;
+        private String frecuenciaPagoCreditoAnterior;
+        private Double solicitadoMonto;
+        private String solicitadoEstado;
         private String atrasosAnteriormente;
         private Boolean reportadoAnteriormente;
         private Boolean cobrosAnteriormente;
         private String empleo;
         private Boolean deudasActualmente;
+        private String otrasDeudasEntidad;
+        private Double otrasDeudasMonto;
     }
 
     @Data
@@ -144,6 +166,7 @@ public class CreditoRequestDTOs{
         private String finalidadCredito;
         private String formaPago;
         private Boolean propiedadANombre;
+        private String direccionPropiedad;
         private Boolean vehiculoANombre;
     
         // --- Info personal ---
@@ -159,10 +182,25 @@ public class CreditoRequestDTOs{
         private BigDecimal gastosMensuales;
         private String comoConocio;
         private Boolean conoceAlguien;
+        private String nombrePersonaConocida;
+        private String telefonoPersonaConocida;
         private String enlaceRedSocial;
     
         // --- Info laboral ---
         private String ocupacion;
+        // --- Campos Empleado ---
+        private String empresaTrabajo;
+        private String direccionEmpresa;
+        private String telefonoEmpresa;
+        private String antiguedadLaboral;
+        private BigDecimal ingresoMensualEmpleado;
+        // --- Campos Emprendedor ---
+        private String actividadEmprendedor;
+        private BigDecimal ingresoMensualEmprendedor;
+        private String otrosIngresos;
+        private String telefonoNegocio;
+        private String direccionNegocio;
+        private String antiguedadNegocio;
     
         // --- Referencias ---
         private String nombreReferencia1;
@@ -187,11 +225,17 @@ public class CreditoRequestDTOs{
     
         // --- Antecedentes ---
         private Boolean solicitadoAnteriormente;
+        private String solicitadoEntidad;
+        private String frecuenciaPagoCreditoAnterior;
+        private Double solicitadoMonto;
+        private String solicitadoEstado;
         private String atrasosAnteriormente;
         private Boolean reportadoAnteriormente;
         private Boolean cobrosAnteriormente;
         private String empleo;
         private Boolean deudasActualmente;
+        private String otrasDeudasEntidad;
+        private Double otrasDeudasMonto;
     }
 
     public static CreditoFullDTO mapearACreditoEditDTO(CreditoEntity credito) {
@@ -217,6 +261,7 @@ public class CreditoRequestDTOs{
             .finalidadCredito(credito.getDestino())
             .formaPago(credito.getFormaDePago())
             .propiedadANombre(credito.getTienePropiedad())
+            .direccionPropiedad(credito.getDireccionPropiedad())
             .vehiculoANombre(credito.getTieneVehiculo())
             // --- Info personal ---
             .dui(usuario.getDui())
@@ -231,9 +276,24 @@ public class CreditoRequestDTOs{
             .gastosMensuales(usuario.getGastosMensuales())
             .comoConocio(usuario.getFuenteConocimiento())
             .conoceAlguien(usuario.getConoceAlguien())
+            .nombrePersonaConocida(usuario.getNombrePersonaConocida())
+            .telefonoPersonaConocida(usuario.getTelefonoPersonaConocida())
             .enlaceRedSocial(usuario.getPerfilRedSocial())
             // --- Info laboral ---
             .ocupacion(usuario.getOcupacion())
+            // --- Campos Empleado ---
+            .empresaTrabajo(solicitud.getEmpresaTrabajo())
+            .direccionEmpresa(solicitud.getDireccionEmpresa())
+            .telefonoEmpresa(solicitud.getTelefonoEmpresa())
+            .antiguedadLaboral(solicitud.getAntiguedadLaboral())
+            .ingresoMensualEmpleado(solicitud.getIngresoMensualEmpleado())
+            // --- Campos Emprendedor ---
+            .actividadEmprendedor(solicitud.getActividadEmprendedor())
+            .ingresoMensualEmprendedor(solicitud.getIngresoMensualEmprendedor())
+            .otrosIngresos(solicitud.getOtrosIngresos())
+            .telefonoNegocio(solicitud.getTelefonoNegocio())
+            .direccionNegocio(solicitud.getDireccionNegocio())
+            .antiguedadNegocio(solicitud.getAntiguedadNegocio())
             // --- Referencias ---
             .nombreReferencia1(solicitud.getReferencia1())
             .celularReferencia1(solicitud.getTelefonoReferencia1())
@@ -254,11 +314,17 @@ public class CreditoRequestDTOs{
             .fotoReciboPreview(solicitud.getFotoRecibo())
             // --- Antecedentes ---
             .solicitadoAnteriormente(solicitud.getSolicitado())
+            .solicitadoEntidad(solicitud.getSolicitadoEntidad())
+            .frecuenciaPagoCreditoAnterior(solicitud.getFrecuenciaPagoCreditoAnterior())
+            .solicitadoMonto(solicitud.getSolicitadoMonto())
+            .solicitadoEstado(solicitud.getSolicitadoEstado())
             .atrasosAnteriormente(solicitud.getAtrasos())
             .reportadoAnteriormente(solicitud.getReportado())
             .cobrosAnteriormente(solicitud.getDeudas())
             .empleo(solicitud.getEmpleado())
             .deudasActualmente(solicitud.getOtrasDeudas())
+            .otrasDeudasEntidad(solicitud.getOtrasDeudasEntidad())
+            .otrasDeudasMonto(solicitud.getOtrasDeudasMonto())
             .build();
     }
 }

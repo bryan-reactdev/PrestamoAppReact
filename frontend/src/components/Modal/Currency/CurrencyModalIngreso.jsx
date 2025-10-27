@@ -68,6 +68,7 @@ export default function CurrencyModalIngreso() {
                 onChange={handleChange}
                 placeholder={'0.00'}
                 required
+                min={0.01}
               />
 
               <FormSelect
@@ -101,6 +102,7 @@ export default function CurrencyModalIngreso() {
                 onChange={handleChange}
                 placeholder={'Escriba el motivo del ingreso...'}
                 required
+                minLength={5}
               />
             </div>
           </div>

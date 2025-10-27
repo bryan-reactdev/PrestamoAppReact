@@ -9,14 +9,13 @@ import { cuotasPagadasColumns, cuotasPendientesColumns, cuotasTodosColumns } fro
 import CuotaModalMarcarPagado from '../../components/Modal/Cuota/CuotaModalMarcarPagado'
 import CuotaModalAbonar from '../../components/Modal/Cuota/CuotaModalAbonar'
 import { useParams } from 'react-router-dom'
-import { CuotasPendientesCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
-import AccionesModal from '../../components/Card/AccionesModal'
+import { CuotasPendientesCard, CuotasPagadasCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
 import CuotaModalNotas from '../../components/Modal/Cuota/CuotaModalNotas'
 import CuotaModalEditar from '../../components/Modal/Cuota/CuotaModalEditar'
 
 export default function AdminCuotas(){
   const {id, usuarioId} = useParams();
-  const {cuotas, cuotasPendientes, cuotasPagadas, cuotasVencidas, cuotasEnRevision, isFetchingCuotas, getCuotas, getUsuarioCuotas} = useCuotaStore();
+  const {cuotas, cuotasPendientes, cuotasPagadas, cuotasVencidas, cuotasEnRevision, isFetchingCuotas, getCuotas, getUsuarioCuotas, descargarPDFCuotas} = useCuotaStore();
   // const [currentTab, setCurrentTab] = useState('Todos'); // Default to 'Todos'
   const [currentTab, setCurrentTab] = useState('Pendientes'); // Default to 'Todos'
 
@@ -39,10 +38,10 @@ export default function AdminCuotas(){
   // -- Definición de las pestañas --
   const tabs = [
     // { label: 'Todos'},
-    { label: 'Vencidas', data: cuotasVencidas},
-    { label: 'Pendientes', columnDefinitions: cuotasPendientesColumns, data: cuotasPendientes},
-    { label: 'Pagadas', columnDefinitions: cuotasPagadasColumns, data: cuotasPagadas},
-    { label: 'En Revisión', data: cuotasEnRevision},
+    { label: 'Vencidas', data: cuotasVencidas, card: CuotasPendientesCard},
+    { label: 'Pendientes', columnDefinitions: cuotasPendientesColumns, data: cuotasPendientes, card: CuotasPendientesCard},
+    { label: 'Pagadas', columnDefinitions: cuotasPagadasColumns, data: cuotasPagadas, card: CuotasPagadasCard},
+    { label: 'En Revisión', data: cuotasEnRevision, card: CuotasPendientesCard},
   ];
 
   return(
@@ -53,7 +52,6 @@ export default function AdminCuotas(){
       <CuotaModalEditar/>
 
       {/* Mobile */}
-      <AccionesModal/>
       
       <Navbar/>
       <Sidebar activePage={!id ? 'cobros' : 'creditos'}/>
@@ -80,14 +78,20 @@ export default function AdminCuotas(){
         <BaseTable 
           data={cuotas} 
           columns={cuotasTodosColumns} 
-          card={CuotasPendientesCard}
+          card={tabs.find(tab => tab.label === currentTab)?.card || CuotasPendientesCard}
           centered={centered} 
           flexable='usuario' 
           loading={isFetchingCuotas}
           tabs={tabs}
           currentTab={currentTab}
           onTabChange={setCurrentTab}
-        />
+        >
+          {id && (
+          <button className='btn-danger' onClick={() => descargarPDFCuotas(!id ? null : id)}>
+            <i className='fas fa-print'/>PDF
+          </button>
+          )}
+        </BaseTable>
       </div>
       
     </div>

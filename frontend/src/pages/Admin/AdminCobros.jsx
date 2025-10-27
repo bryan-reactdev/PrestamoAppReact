@@ -6,17 +6,15 @@ import { useEffect, useState } from 'react'
 import { useUsuarioStore } from '../../stores/useUsuarioStore'
 import { usuariosConVencidasColumns } from '../../components/Table/Usuario/UsuarioTableDefinitions'
 import { UsuariosCard } from '../../components/Card/Usuario/UsuarioCardDefinitions'
-import AccionesModal from '../../components/Card/AccionesModal'
 import TotalCard from '../../components/Cards/TotalCard'
 import ContentTitleWithInfo from '../../components/Content/ContentTitleWithInfo'
 import { useCurrencyStore } from '../../stores/useCurrencyStore'
 import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
 import FormField from '../../components/Form/FormField'
 import { getCurrentDate } from '../../utils/dateUtils'
-import { axiosData } from '../../utils/axiosWrapper'
 
 export default function AdminCobros(){
-  const {usuariosConVencidas, usuariosConCuotas, usuariosConCuotasForDate, isFetchingUsuariosConVencidas, getUsuariosConVencidas, getUsuariosConCuotas, selectedDate, setSelectedDate} = useUsuarioStore();
+  const {usuariosConVencidas, usuariosConCuotas, usuariosConCuotasForDate, isFetchingUsuariosConVencidas, getUsuariosConVencidas, getUsuariosConCuotas, selectedDate, setSelectedDate, descargarPDFCobros} = useUsuarioStore();
   const {cuotasTotales, getCuotasTotales} = useCurrencyStore();
   const [currentTab, setCurrentTab] = useState('');
 
@@ -33,7 +31,7 @@ export default function AdminCobros(){
   const centered = ['calificacion', 'celular', 'cuotaVencimiento', 'cuotaMonto', 'cuotaMora', 'cuotaAbono', 'cuotaTotal', 'accion']
 
   const tabs = [
-    { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Lista de Usuarios con Cuotas Vencidos', text: usuariosConVencidas.length ?? '0'},
+    { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Lista de Usuarios con Cuotas Vencidas', text: usuariosConVencidas.length ?? '0'},
     { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Clientes con Cuotas', text: usuariosConCuotas.length ?? '0', data: usuariosConCuotasForDate},
   ];
 
@@ -42,7 +40,8 @@ export default function AdminCobros(){
       <Navbar/>
       <Sidebar activePage={'cobros'}/>
 
-      <AccionesModal/>
+      {/* Mobile */}
+
       <UsuarioModalVerDetalles/>
 
       <div className="content">
@@ -86,8 +85,8 @@ export default function AdminCobros(){
 
         <BaseTable 
           data={usuariosConVencidas} 
-          columns={usuariosConVencidasColumns} 
           card={UsuariosCard}
+          columns={usuariosConVencidasColumns} 
           centered={centered} 
           flexable='usuario' 
           loading={isFetchingUsuariosConVencidas}
@@ -96,7 +95,13 @@ export default function AdminCobros(){
           currentTab={currentTab}
           onTabChange={setCurrentTab}
           isCardTabs={true}
-        />
+        >
+          {currentTab === "Lista de Usuarios con Cuotas Vencidas" && (
+            <button className='btn-danger' onClick={() => descargarPDFCobros()}>
+              <i className='fas fa-print'/>PDF
+            </button>
+          )}
+        </BaseTable>
 
       </div>
     </div>

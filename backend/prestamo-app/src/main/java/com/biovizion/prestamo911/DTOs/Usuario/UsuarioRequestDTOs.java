@@ -12,6 +12,7 @@ public class UsuarioRequestDTOs {
         private String apellidos;
         private String email;
         private String celular;
+        private String direccion;
         private MultipartFile duiDelante;
         private MultipartFile duiAtras;
         private String password;

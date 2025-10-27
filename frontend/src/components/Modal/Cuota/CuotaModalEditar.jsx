@@ -69,6 +69,7 @@ export default function CuotaModalEditar() {
                     name="estado"
                     value={formData.estado}
                     onChange={handleChange}
+                    required
                   >
                     <option value="Pendiente">Pendiente</option>
                     <option value="Vencido">Vencido</option>
@@ -83,6 +84,7 @@ export default function CuotaModalEditar() {
                     name='fechaVencimiento'
                     value={formData.fechaVencimiento}
                     onChange={handleChange}
+                    required
                   />
 
                   <FormField
@@ -101,6 +103,8 @@ export default function CuotaModalEditar() {
                     name='monto'
                     value={formData.monto}
                     onChange={handleChange}
+                    required
+                    min={0.01}
                   />
 
                   <FormField
@@ -110,6 +114,7 @@ export default function CuotaModalEditar() {
                     name='mora'
                     value={formData.mora}
                     onChange={handleChange}
+                    min={0}
                   />
                 </div>
               )}

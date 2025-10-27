@@ -7,6 +7,12 @@ export default function FormField({
   label,
   type = 'text',
   preview: initialPreview = null,
+  required = false,
+  pattern,
+  min,
+  max,
+  minLength,
+  maxLength,
   ...props
 }) {
   const isMoney = type === 'money';
@@ -49,11 +55,23 @@ export default function FormField({
         {isMoney && <i className="fas fa-dollar-sign"></i>}
 
         {type === 'textarea' ? (
-          <textarea {...props}></textarea>
+          <textarea 
+            required={required}
+            pattern={pattern}
+            minLength={minLength}
+            maxLength={maxLength}
+            {...props}
+          ></textarea>
         ) : (
           <input
             type={isPassword && showPassword ? 'text' : isMoney ? 'number' : type}
             step={isMoney ? 0.01 : 1}
+            required={required}
+            pattern={pattern}
+            min={min}
+            max={max}
+            minLength={minLength}
+            maxLength={maxLength}
             {...props}
             value={type === 'file' ? '' : props?.value}
             onChange={handleChange}

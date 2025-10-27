@@ -3,9 +3,9 @@ import Navbar from '../../components/Navbar/Navbar'
 import BaseTable from '../../components/Table/BaseTable'
 
 import { useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { useCurrencyStore } from '../../stores/useCurrencyStore'
 import { ingresoEgresoColumns } from '../../components/Table/Currency/CurrencyTableDefinitions'
-import { CuotasPendientesCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
 import FormField from '../../components/Form/FormField'
 import { getCurrentDate } from '../../utils/dateUtils'
 import TotalCard from '../../components/Cards/TotalCard'
@@ -13,8 +13,10 @@ import ContentTitleWithInfo from '../../components/Content/ContentTitleWithInfo'
 import { creditosAceptadosColumns } from '../../components/Table/Credito/CreditoTableDefinitions'
 import { CreditosAceptadosCard } from '../../components/Card/Credito/CreditoCardDefinitions'
 import { IngresoEgresoCard } from '../../components/Card/Currency/CurrencyCardDefinitions'
+import { ButtonPDF } from '../../components/Content/Layout/Stats/StatButtons'
 export default function AdminEgresos() {
   const { saldo, getBalance, currencyForDate, selectedDate, setSelectedDate, getCurrencyForDate, isFetchingBalance } = useCurrencyStore();
+  const [searchParams] = useSearchParams();
   const [currentTab, setCurrentTab] = useState('Todos'); // Default to 'Todos'
 
   useEffect(() => {
@@ -23,15 +25,21 @@ export default function AdminEgresos() {
     }
   }, [getBalance])
 
+  // Handle date query parameter
+  useEffect(() => {
+    const dateParam = searchParams.get('date');
+    if (dateParam) {
+      setSelectedDate(dateParam);
+    }
+  }, [searchParams, setSelectedDate]);
+
   // Calculation on update
   useEffect(() => {
     getCurrencyForDate();
-  }, [saldo])
+  }, [saldo, selectedDate])
 
   // Definición de las columnas que estarán centradas
   const centered = ['fecha', 'monto', 'calificacion', 'montoDesembolsar', 'frecuencia', 'fechaAceptado', 'desembolsado', 'accion']
-
-  console.log(currencyForDate.creditosDesembolsados?.data)
 
   const tabs = [
     { icon: 'fas fa-building', label: 'Gastos Empresa', iconBgColor: 'accent-light', value: currencyForDate.gastosEmpresa?.total },
@@ -46,7 +54,7 @@ export default function AdminEgresos() {
       <Sidebar activePage={'caja'} />
 
       <div className="content">
-        <ContentTitleWithInfo title={'Ingresos'} subtitle={'Gestión de Ingresos'}>
+        <ContentTitleWithInfo>
           <TotalCard icon={'fas fa-chart-line'} iconBgColor='danger' color="accent" title={'Ingresos Totales'} style={{ padding: 0 }}>
             <i className='fas fa-dollar-sign color-danger' />
             <h3 className='color-danger'>{currencyForDate.totalEgresos}</h3>
@@ -83,7 +91,9 @@ export default function AdminEgresos() {
           currentTab={currentTab}
           onTabChange={setCurrentTab}
           isCardTabs={true}
-        />
+        >
+          <ButtonPDF tipo={'egreso'}/>
+        </BaseTable>
       </div>
 
     </div>

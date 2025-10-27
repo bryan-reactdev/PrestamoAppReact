@@ -26,8 +26,11 @@ import com.biovizion.prestamo911.entities.CreditoCuotaEntity;
 import com.biovizion.prestamo911.entities.NotaEntity;
 import com.biovizion.prestamo911.service.AbonoCuotaService;
 import com.biovizion.prestamo911.service.CreditoCuotaService;
+import com.biovizion.prestamo911.service.PdfService;
 import com.biovizion.prestamo911.utils.CuotaUtils;
 import com.biovizion.prestamo911.utils.CurrencyUtils;
+
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -52,6 +55,9 @@ public class CuotaControllerTest {
 
     @Autowired
     private AbonoCuotaService abonoService;
+
+    @Autowired
+    private PdfService pdfService;
     
     @GetMapping("/")
     public ResponseEntity<ApiResponse> getCuotas() {
@@ -270,6 +276,14 @@ public class CuotaControllerTest {
             e.printStackTrace();
             return ResponseEntity.status(500).body(new ApiResponse<>("Error al guardar las notas: " + e.getMessage()));
         }
+    }
+
+    // --- PDF ---
+    @PostMapping("/pdf/{id}")
+    public void getPDFCuota(@PathVariable Long id, HttpServletResponse response){
+        List<CreditoCuotaEntity> cuotas = cuotaService.findByCreditoId(id);
+
+        pdfService.generarCuotasPDF(cuotas, false, false, response);
     }
 
     @PostMapping("/probar")

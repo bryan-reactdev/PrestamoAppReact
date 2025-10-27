@@ -14,7 +14,7 @@ export const ButtonPDF = ({tipo}) => {
 
 export const ButtonIngreso = () => {
   const { openModal } = useCurrencyModalStore()
-
+  
   const handleOpenModal = (e) => {
     e.stopPropagation();
     openModal('ingreso');

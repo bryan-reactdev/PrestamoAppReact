@@ -81,6 +81,7 @@ export default function CuotaModalNotas() {
                       onChange={(e) => handleChange(index, e)}
                       placeholder="Escribe una nota..."
                       disabled={isGuardandoNotas}
+                      minLength={3}
                     />
 
                     <button

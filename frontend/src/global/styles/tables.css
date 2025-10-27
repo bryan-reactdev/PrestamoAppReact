@@ -6,8 +6,7 @@
   margin-inline: auto;
 
   border: var(--border-width-xs) solid var(--border-strong);
-  border-bottom-left-radius: var(--border-lg);
-  border-bottom-right-radius: var(--border-lg);
+  border-radius: var(--border-md);
 
   background-color: var(--table-background-primary);
 
@@ -27,8 +26,16 @@
 }
 .header{
   background-color: var(--table-background-secondary);
+  border-top-left-radius: var(--border-md);
+  border-top-right-radius: var(--border-md);
 }
 
+.header .th:first-child {
+  border-top-left-radius: var(--border-md);
+}
+.header .th:last-child {
+  border-top-right-radius: var(--border-md);
+}
 
 /* --- Table Cells --- */
 .th,
@@ -108,12 +115,14 @@
 }
 .inactive-tab {
   font-weight: 500;
+  min-width: 100px;
 
   color: var(--color-primary);
   border: var(--border-width-xs) solid var(--border-primary);
 }
 .active-tab{
   transform: scale(0.975);
+  min-width: 100px;
 
   font-weight: 500;
   

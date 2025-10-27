@@ -7,7 +7,6 @@ import { useEffect, useState } from 'react'
 import { useCuotaStore } from '../../stores/useCuotaStore'
 import { cuotasPendientesColumns, cuotasTodosColumns } from '../../components/Table/Cuota/CuotaTableDefinitions'
 import { CuotasPendientesCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
-import AccionesModal from '../../components/Card/AccionesModal'
 import { useParams } from 'react-router-dom'
 import UsuarioSidebar from '../../components/Sidebar/UsuarioSidebar'
 
@@ -36,7 +35,6 @@ export default function UsuarioCuotas(){
   return(
     <div className="page">
       {/* Mobile */}
-      <AccionesModal/>
       
       <Navbar/>
       <UsuarioSidebar activePage={'creditos'}/>

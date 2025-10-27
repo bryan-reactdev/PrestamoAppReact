@@ -40,8 +40,6 @@ export const cuotasPagadasIngresoColumns = [
     accessorKey: 'usuario',
     header: "Usuario",
     cell: (props) => {
-      console.log(props.row.original)
-
       return <p>{props.getValue()}</p>;
     }
   },

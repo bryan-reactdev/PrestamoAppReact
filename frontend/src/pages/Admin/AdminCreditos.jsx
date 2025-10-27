@@ -11,16 +11,14 @@ import { CreditosAceptadosCard, CreditosDefaultCard, CreditosPendientesCard } fr
 import CreditoModalGenerarDocumentos from '../../components/Modal/Credito/CreditoModalGenerarDocumentos'
 import CreditoModalRechazar from '../../components/Modal/Credito/CreditoModalRechazar'
 import { useParams } from 'react-router-dom'
-import AccionesModal from '../../components/Card/AccionesModal'
 import ContentTitleWithInfo from '../../components/Content/ContentTitleWithInfo'
 import TotalCard from '../../components/Cards/TotalCard'
 
 export default function AdminCreditos(){
   const { usuarioId } = useParams();
   const {filterCreditos, filteredCreditos, isFetchingCreditos, getCreditos } = useCreditoStore();
-  // const [currentTab, setCurrentTab] = useState('Todos'); // Default to 'Todos'
-  const [currentTab, setCurrentTab] = useState('Pendientes'); // Default to 'Todos'
   const [currentTipo, setCurrentTipo] = useState('rapi-cash');
+  const [currentTab, setCurrentTab] = useState('Pendientes');
 
   useEffect(() => {
     getCreditos(usuarioId ?? null);
@@ -30,14 +28,62 @@ export default function AdminCreditos(){
     filterCreditos(currentTipo);
   }, [currentTipo])
 
-  const centered = ['estado', 'calificacion', 'monto', 'montoDesembolsar', 'frecuencia', 'fechaAceptado', 'fechaSolicitud', 'fechaRechazado', 'desembolsado', 'accion', ]
+  const centered = ['estado', 'calificacion', 'monto', 'montoDesembolsar', 'frecuencia', 'fechaAceptado', 'fechaSolicitud', 'fechaRechazado', 'desembolsado', 'accion']
 
-  const tabs = [
-    // { label: 'Todos'},
-    { label: 'Pendientes', columnDefinitions: creditosPendientesColumns, card: CreditosPendientesCard, data: filteredCreditos.creditosPendientes},
-    { label: 'Aceptados', columnDefinitions: creditosAceptadosColumns, card: CreditosAceptadosCard, data: filteredCreditos.creditosAceptados},
-    { label: 'Rechazados', columnDefinitions: creditosRechazadosColumns, data: filteredCreditos.creditosRechazados},
-    { label: 'Finalizados', columnDefinitions: creditosFinalizadosColumns, data: filteredCreditos.creditosFinalizados},
+  // Main tipo tabs (higher level)
+  const tipoTabs = [
+    { 
+      icon: 'fas fa-money-bill', 
+      label: 'Rapi-Cash', 
+      value: filteredCreditos?.totalRapicash,
+      iconBgColor: 'success',
+      onClick: () => setCurrentTipo('rapi-cash'),
+      isActive: currentTipo === 'rapi-cash'
+    },
+    { 
+      icon: 'fas fa-ring', 
+      label: 'Prendarios', 
+      value: filteredCreditos?.totalPrendarios,
+      iconBgColor: 'warning',
+      onClick: () => setCurrentTipo('prendario'),
+      isActive: currentTipo === 'prendario'
+    },
+    { 
+      icon: 'fas fa-landmark', 
+      label: 'Hipotecarios', 
+      value: filteredCreditos?.totalHipotecarios,
+      iconBgColor: 'accent',
+      onClick: () => setCurrentTipo('hipotecario'),
+      isActive: currentTipo === 'hipotecario'
+    }
+  ];
+
+  // Estado tabs (filtered by current tipo)
+  const estadoTabs = [
+    { 
+      label: 'Pendientes', 
+      columnDefinitions: creditosPendientesColumns, 
+      data: filteredCreditos.creditosPendientes,
+      card: CreditosPendientesCard
+    },
+    { 
+      label: 'Aceptados', 
+      columnDefinitions: creditosAceptadosColumns, 
+      data: filteredCreditos.creditosAceptados,
+      card: CreditosAceptadosCard
+    },
+    { 
+      label: 'Rechazados', 
+      columnDefinitions: creditosRechazadosColumns, 
+      data: filteredCreditos.creditosRechazados,
+      card: CreditosDefaultCard
+    },
+    { 
+      label: 'Finalizados', 
+      columnDefinitions: creditosFinalizadosColumns, 
+      data: filteredCreditos.creditosFinalizados,
+      card: CreditosDefaultCard
+    }
   ];
 
   return(
@@ -48,35 +94,37 @@ export default function AdminCreditos(){
       <CreditoModalRechazar/>      
 
       {/* Mobile */}
-      <AccionesModal/>
 
       <Navbar/>
       <Sidebar activePage={'creditos'}/>
 
       <div className="content">
-        <ContentTitleWithInfo
-        >
-          <TotalCard onClick={() => setCurrentTipo('rapi-cash')} className={`tab ${currentTipo == 'rapi-cash' && 'active'} w-bg ${isFetchingCreditos && 'disabled'}`} icon={'fas fa-money-bill'} iconBgColor='success' title={'Rapi-Cash'}>
-              <h3 className='color-success'>{filteredCreditos?.totalRapicash}</h3>
-          </TotalCard>
-          <TotalCard onClick={() => setCurrentTipo('prendario')} className={`tab ${currentTipo == 'prendario' && 'active'} w-bg  ${isFetchingCreditos && 'disabled'}`} icon={'fas fa-ring'} iconBgColor='warning' title={'Prendarios'}>
-              <h3 className='color-warning'>{filteredCreditos?.totalPrendarios}</h3>
-          </TotalCard>
-          <TotalCard onClick={() => setCurrentTipo('hipotecario')} className={`tab ${currentTipo == 'hipotecario' && 'active'} w-bg  ${isFetchingCreditos && 'disabled'}`} icon={'fas fa-landmark'} iconBgColor='accent' title={'Hipotecarios'}>
-              <h3 className='color-accent'>{filteredCreditos?.totalHipotecarios}</h3>
-          </TotalCard>
+        <ContentTitleWithInfo>
+          {tipoTabs.map((tab) => (
+            <TotalCard 
+              key={tab.label}
+              onClick={tab.onClick} 
+              className={`tab ${tab.isActive ? 'active' : ''} w-bg ${isFetchingCreditos ? 'disabled' : ''}`} 
+              icon={tab.icon} 
+              iconBgColor={tab.iconBgColor} 
+              title={tab.label}
+            >
+              <h3 className={`color-${tab.iconBgColor}`}>{tab.value}</h3>
+            </TotalCard>
+          ))}
         </ContentTitleWithInfo>
         
         <BaseTable 
           data={filteredCreditos.creditos} 
           columns={creditosTodosColumns} 
-          card={CreditosDefaultCard}
+          card={estadoTabs.find(tab => tab.label === currentTab)?.card || CreditosDefaultCard}
           centered={centered} 
           flexable='usuario' 
           loading={isFetchingCreditos}
-          tabs={tabs} 
+          tabs={estadoTabs} 
           currentTab={currentTab}
           onTabChange={setCurrentTab}
+          isCardTabs={false}
         />
       </div>
     </div>

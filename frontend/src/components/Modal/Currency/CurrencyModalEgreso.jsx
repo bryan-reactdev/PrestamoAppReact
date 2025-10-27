@@ -68,6 +68,7 @@ export default function CurrencyModalEgreso() {
                 onChange={handleChange}
                 placeholder={'0.00'}
                 required
+                min={0.01}
               />
 
               <FormSelect
@@ -100,8 +101,9 @@ export default function CurrencyModalEgreso() {
                 type={'textarea'}
                 value={formData.motivo}
                 onChange={handleChange}
-                placeholder={'Escriba el motivo del ingreso...'}
+                placeholder={'Escriba el motivo del egreso...'}
                 required
+                minLength={5}
               />
             </div>
           </div>

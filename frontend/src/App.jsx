@@ -22,7 +22,6 @@ import UsuarioSolicitar from './pages/Usuario/UsuarioSolicitar';
 import UsuarioCuotas from './pages/Usuario/UsuarioCuotas';
 import AdminEditarCredito from './pages/Admin/AdminEditarCredito';
 import AdminRegistrarUsuario from './pages/Admin/AdminRegistrarUsuario';
-import AdminHistorialBalance from './pages/Admin/AdminHistorialBalance';
 import AdminEstadisticas from './pages/Admin/AdminEstadisticas';
 
 export default function App(){
@@ -57,8 +56,7 @@ export default function App(){
                     <Route path="/admin/caja" element={<AdminCajaChica />} />
                     <Route path="/admin/caja/ingresos" element={<AdminIngresos />} />
                     <Route path="/admin/caja/egresos" element={<AdminEgresos />} />
-                    <Route path="/admin/caja/balance" element={<AdminHistorialBalance />} />
-                    <Route path="/admin/caja/estadisticas" element={<AdminEstadisticas />} />
+                    <Route path="/admin/caja/balance" element={<AdminEstadisticas />} />
                     <Route path="/admin/usuarios" element={<AdminUsuarios />} />
                     <Route path="/admin/usuarios/crear" element={<AdminRegistrarUsuario />} />
                     <Route path="/admin/usuarios/:usuarioId/creditos/:id/cuotas" element={<AdminCuotas />} />

@@ -88,9 +88,7 @@ export default function AdminEditarCredito(){
 
   // --- Asignar los valores default ---
   useEffect(() => {
-    console.log('uh')
     if (credito !== null){
-      console.log('in')
       setFormData(credito);
     }
   }, [credito])

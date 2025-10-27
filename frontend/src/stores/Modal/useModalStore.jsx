@@ -3,10 +3,7 @@ import { create } from 'zustand';
 
 const estadoInicial = {
   sidebar: isMobile ? false : true,
-  accionesModal: false,
   registerInfo: false,
-  acciones: null,
-  row: null,
 };
 
 export const useModalStore = create((set) => ({
@@ -35,15 +32,6 @@ export const useModalStore = create((set) => ({
       ...state,
       [key]: false,
       row: null,
-    }));
-  },
-
-  openAccionesModal: (row, acciones) => {
-    set((state) => ({
-      ...state,
-      accionesModal: true,
-      row,
-      acciones
     }));
   },
 }));

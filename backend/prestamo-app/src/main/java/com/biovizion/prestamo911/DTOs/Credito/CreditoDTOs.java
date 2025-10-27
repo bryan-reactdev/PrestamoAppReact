@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaDTO;
 import com.biovizion.prestamo911.entities.CreditoEntity;
 import com.biovizion.prestamo911.entities.CreditoEntity.Calificacion;
-import com.biovizion.prestamo911.entities.NotaEntity;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;

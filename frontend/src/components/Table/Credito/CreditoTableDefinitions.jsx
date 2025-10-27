@@ -283,8 +283,7 @@ export const creditosPendientesColumns = [
 
       if (!value) return <p>N/A</p>;
 
-      const [y, m, d] = value.split('T')[0].split('-');
-      return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
+      return <p>{DateTimeToDate(value)}</p>;
     }
   },
   {
@@ -348,8 +347,7 @@ export const creditosRechazadosColumns = [
 
       if (!value) return <p>N/A</p>;
 
-      const [y, m, d] = value.split('T')[0].split('-');
-      return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
+      return <p>{DateTimeToDate(value)}</p>;
     }
   },
   {
@@ -361,8 +359,7 @@ export const creditosRechazadosColumns = [
 
       if (!value) return <p>N/A</p>;
 
-      const [y, m, d] = value.split('T')[0].split('-');
-      return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
+      return <p>{DateTimeToDate(value)}</p>;
     }
   },
   {
@@ -417,8 +414,7 @@ export const creditosFinalizadosColumns = [
 
       if (!value) return <p>N/A</p>;
 
-      const [y, m, d] = value.split('T')[0].split('-');
-      return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
+      return <p>{DateTimeToDate(value)}</p>;
     }
   },
   {
@@ -427,11 +423,9 @@ export const creditosFinalizadosColumns = [
     size: 125,
     cell: (props) => {
       const value = props.getValue();
-
       if (!value) return <p>N/A</p>;
 
-      const [y, m, d] = value.split('T')[0].split('-');
-      return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
+      return <p>{DateTimeToDate(value)}</p>;
     }
   },
   {

@@ -207,6 +207,7 @@ export const useCreditoStore = create((set, get) => ({
         data.append('finalidadCredito', formData.finalidadCredito);
         data.append('formaPago', formData.formaPago);
         data.append('propiedadANombre', formData.propiedadANombre);
+        data.append('direccionPropiedad', formData.direccionPropiedad);
         data.append('vehiculoANombre', formData.vehiculoANombre);
 
         // --- Info personal ---
@@ -222,10 +223,25 @@ export const useCreditoStore = create((set, get) => ({
         data.append('gastosMensuales', formData.gastosMensuales);
         data.append('comoConocio', formData.comoConocio);
         data.append('conoceAlguien', formData.conoceAlguien);
+        data.append('nombrePersonaConocida', formData.nombrePersonaConocida);
+        data.append('telefonoPersonaConocida', formData.telefonoPersonaConocida);
         data.append('enlaceRedSocial', formData.enlaceRedSocial);
 
         // --- Info laboral ---
         data.append('ocupacion', formData.ocupacion);
+        // --- Campos Empleado ---
+        data.append('empresaTrabajo', formData.empresaTrabajo);
+        data.append('direccionEmpresa', formData.direccionEmpresa);
+        data.append('telefonoEmpresa', formData.telefonoEmpresa);
+        data.append('antiguedadLaboral', formData.antiguedadLaboral);
+        data.append('ingresoMensualEmpleado', formData.ingresoMensualEmpleado);
+        // --- Campos Emprendedor ---
+        data.append('actividadEmprendedor', formData.actividadEmprendedor);
+        data.append('ingresoMensualEmprendedor', formData.ingresoMensualEmprendedor);
+        data.append('otrosIngresos', formData.otrosIngresos);
+        data.append('telefonoNegocio', formData.telefonoNegocio);
+        data.append('direccionNegocio', formData.direccionNegocio);
+        data.append('antiguedadNegocio', formData.antiguedadNegocio);
 
         // --- Referencias ---
         data.append('nombreReferencia1', formData.nombreReferencia1);
@@ -243,11 +259,17 @@ export const useCreditoStore = create((set, get) => ({
 
         // --- Antecedentes ---
         data.append('solicitadoAnteriormente', formData.solicitadoAnteriormente);
+        data.append('solicitadoEntidad', formData.solicitadoEntidad);
+        data.append('frecuenciaPagoCreditoAnterior', formData.frecuenciaPagoCreditoAnterior);
+        data.append('solicitadoMonto', formData.solicitadoMonto);
+        data.append('solicitadoEstado', formData.solicitadoEstado);
         data.append('atrasosAnteriormente', formData.atrasosAnteriormente);
         data.append('reportadoAnteriormente', formData.reportadoAnteriormente);
         data.append('cobrosAnteriormente', formData.cobrosAnteriormente);
         data.append('empleo', formData.empleo);
         data.append('deudasActualmente', formData.deudasActualmente);
+        data.append('otrasDeudasEntidad', formData.otrasDeudasEntidad);
+        data.append('otrasDeudasMonto', formData.otrasDeudasMonto);
 
         // --- Archivos (solo si son File objects) ---
         if (formData.duiDelanteCodeudor instanceof File)
@@ -303,10 +325,25 @@ export const useCreditoStore = create((set, get) => ({
         data.append('gastosMensuales', formData.gastosMensuales);
         data.append('comoConocio', formData.comoConocio);
         data.append('conoceAlguien', formData.conoceAlguien);
+        data.append('nombrePersonaConocida', formData.nombrePersonaConocida);
+        data.append('telefonoPersonaConocida', formData.telefonoPersonaConocida);
         data.append('enlaceRedSocial', formData.enlaceRedSocial);
 
         // --- Info laboral ---
         data.append('ocupacion', formData.ocupacion);
+        // --- Campos Empleado ---
+        data.append('empresaTrabajo', formData.empresaTrabajo);
+        data.append('direccionEmpresa', formData.direccionEmpresa);
+        data.append('telefonoEmpresa', formData.telefonoEmpresa);
+        data.append('antiguedadLaboral', formData.antiguedadLaboral);
+        data.append('ingresoMensualEmpleado', formData.ingresoMensualEmpleado);
+        // --- Campos Emprendedor ---
+        data.append('actividadEmprendedor', formData.actividadEmprendedor);
+        data.append('ingresoMensualEmprendedor', formData.ingresoMensualEmprendedor);
+        data.append('otrosIngresos', formData.otrosIngresos);
+        data.append('telefonoNegocio', formData.telefonoNegocio);
+        data.append('direccionNegocio', formData.direccionNegocio);
+        data.append('antiguedadNegocio', formData.antiguedadNegocio);
 
         // --- Referencias ---
         data.append('nombreReferencia1', formData.nombreReferencia1);
@@ -324,11 +361,17 @@ export const useCreditoStore = create((set, get) => ({
 
         // --- Antecedentes ---
         data.append('solicitadoAnteriormente', formData.solicitadoAnteriormente);
+        data.append('solicitadoEntidad', formData.solicitadoEntidad);
+        data.append('frecuenciaPagoCreditoAnterior', formData.frecuenciaPagoCreditoAnterior);
+        data.append('solicitadoMonto', formData.solicitadoMonto);
+        data.append('solicitadoEstado', formData.solicitadoEstado);
         data.append('atrasosAnteriormente', formData.atrasosAnteriormente);
         data.append('reportadoAnteriormente', formData.reportadoAnteriormente);
         data.append('cobrosAnteriormente', formData.cobrosAnteriormente);
         data.append('empleo', formData.empleo);
         data.append('deudasActualmente', formData.deudasActualmente);
+        data.append('otrasDeudasEntidad', formData.otrasDeudasEntidad);
+        data.append('otrasDeudasMonto', formData.otrasDeudasMonto);
 
         // --- Archivos (solo si son File objects) ---
         if (formData.duiDelanteCodeudor instanceof File)
@@ -501,8 +544,6 @@ export const useCreditoStore = create((set, get) => ({
             if (object.tipo == tipo){
                 return object;
             }
-
-            return console.warn(tipo, `Object doesn't contain a valid tipo`, object)
         })
 
         return filteredObjects;

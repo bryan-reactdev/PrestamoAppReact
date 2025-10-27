@@ -24,18 +24,20 @@ ChartJS.register(
   Filler
 );
 
-export default function WeeklyStatsChart({ 
+export default function StatsChart({ 
   data, 
   minValue = 0, 
   maxValue = 10000,
-  onRangeChange 
+  type = 'week', // 'week' or 'month'
+  className = 'stats-chart',
+  onDateClick = null // Callback function for date clicks
 }) {
   // Transform data for Chart.js
   const chartData = React.useMemo(() => {
     if (!data || data.length === 0) return null;
     
     return {
-      labels: data.map(day => day.dayName),
+      labels: data.map(day => type === 'week' ? day.dayName : day.dayNumber),
       datasets: [
         {
           label: 'Ingresos',
@@ -53,11 +55,21 @@ export default function WeeklyStatsChart({
         }
       ]
     };
-  }, [data]);
+  }, [data, type]);
 
   const options = React.useMemo(() => ({
     responsive: true,
     maintainAspectRatio: false,
+    onClick: (event, elements) => {
+      if (elements.length > 0 && onDateClick) {
+        const element = elements[0];
+        const dataIndex = element.index;
+        const clickedData = data[dataIndex];
+        if (clickedData) {
+          onDateClick(clickedData.date, element.datasetIndex === 0 ? 'ingresos' : 'egresos');
+        }
+      }
+    },
     plugins: {
       tooltip: {
         backgroundColor: 'rgba(255, 255, 255, 0.95)',
@@ -80,16 +92,16 @@ export default function WeeklyStatsChart({
         max: maxValue
       }
     }
-  }), [minValue, maxValue]);
+  }), [minValue, maxValue, data, onDateClick]);
 
   // Don't render chart if no data
   if (!data || data.length === 0 || !chartData) {
     return (
-      <div className="weekly-stats-chart">
+      <div className={className}>
         <div className="chart-container" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="empty">
             <h3>No hay datos disponibles</h3>
-            <p>Cargando datos de la semana...</p>
+            <p>Cargando datos...</p>
           </div>
         </div>
       </div>
@@ -97,7 +109,7 @@ export default function WeeklyStatsChart({
   }
 
   return (
-    <div className="weekly-stats-chart">
+    <div className={className}>
       <div className="chart-container">
         <Line data={chartData} options={options} />
       </div>

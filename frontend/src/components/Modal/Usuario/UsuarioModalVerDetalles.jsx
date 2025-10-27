@@ -17,6 +17,7 @@ export default function UsuarioModalVerDetalles() {
     duiDelante: null,
     duiAtras: null,
     password: '',
+    direccion: '',
   })
 
   useEffect(() => {
@@ -31,6 +32,7 @@ export default function UsuarioModalVerDetalles() {
         duiDelante: null,
         duiAtras: null,
         password: '',
+        direccion: '',
       })
       getUsuario(userId)
     }
@@ -49,6 +51,7 @@ export default function UsuarioModalVerDetalles() {
           duiDelante: usuario.duiDelante ?? null,
           duiAtras: usuario.duiAtras ?? null,
           password: '',
+          direccion: usuario.direccion ?? '',
         })
       }
     } else if (currentUsuario) {
@@ -62,6 +65,7 @@ export default function UsuarioModalVerDetalles() {
         duiDelante: currentUsuario.duiDelante ?? null,
         duiAtras: currentUsuario.duiAtras ?? null,
         password: '',
+        direccion: currentUsuario.direccion ?? '',
       })
     }
   }, [usuario, currentUsuario, row])
@@ -78,6 +82,7 @@ export default function UsuarioModalVerDetalles() {
       duiDelante: null,
       duiAtras: null,
       password: '',
+      direccion: '',
     })
 
     closeModal('verDetalles');
@@ -146,6 +151,14 @@ export default function UsuarioModalVerDetalles() {
                   value={formData.celular}
                   onChange={handleChange}
                   required
+                />
+
+                <FormField
+                  classNames="full"
+                  label="Dirección"
+                  name="direccion"
+                  value={formData.direccion}
+                  onChange={handleChange}
                 />
 
                 <FormField

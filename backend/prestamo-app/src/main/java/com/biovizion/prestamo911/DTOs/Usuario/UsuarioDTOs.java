@@ -54,6 +54,8 @@ public class UsuarioDTOs {
         private Long id;
         private String calificacion;
         private String usuario;
+        private String nombres;
+        private String apellidos;
         private String celular;
 
         private LocalDate cuotaVencimiento;

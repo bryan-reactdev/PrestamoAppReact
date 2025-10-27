@@ -146,6 +146,8 @@ public class UsuarioImpl implements UsuarioService {
                 usuario.getId(),
                 usuario.getCalificacion(),
                 usuarioNombre,
+                usuario.getNombre(),
+                usuario.getApellido(),
                 usuario.getCelular(),
                 oldestCuota != null ? oldestCuota.getFechaVencimiento().toLocalDate() : null,
                 oldestCuota != null ? oldestCuota.getMonto() : BigDecimal.ZERO,

@@ -7,7 +7,6 @@ import { useEffect } from 'react'
 import { useUsuarioStore } from '../../stores/useUsuarioStore'
 import { usuariosTodosColumns } from '../../components/Table/Usuario/UsuarioTableDefinitions'
 import { UsuariosCard } from '../../components/Card/Usuario/UsuarioCardDefinitions'
-import AccionesModal from '../../components/Card/AccionesModal'
 import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
 import { Link } from 'react-router-dom'
 
@@ -29,7 +28,6 @@ export default function AdminUsuarios(){
       <Navbar/>
       <Sidebar activePage={'usuarios'}/>
 
-      <AccionesModal/>
       <UsuarioModalVerDetalles/>
 
       <div className="content">

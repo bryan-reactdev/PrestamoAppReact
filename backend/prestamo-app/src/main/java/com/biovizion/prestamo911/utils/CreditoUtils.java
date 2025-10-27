@@ -53,6 +53,7 @@ public class CreditoUtils {
             credito.setDestino(request.getFinalidadCredito());
             credito.setFormaDePago(request.getFormaPago());
             credito.setTienePropiedad(request.getPropiedadANombre());
+            credito.setDireccionPropiedad(request.getDireccionPropiedad());
             credito.setTieneVehiculo(request.getVehiculoANombre());
 
             // --- UsuarioEntity ---
@@ -63,12 +64,28 @@ public class CreditoUtils {
             usuario.setCelular(request.getCelular());
             usuario.setDireccion(request.getDireccion());
             usuario.setOcupacion(request.getOcupacion());
+            
+            // --- Campos Empleado ---
+            usuarioSolicitud.setEmpresaTrabajo(request.getEmpresaTrabajo());
+            usuarioSolicitud.setDireccionEmpresa(request.getDireccionEmpresa());
+            usuarioSolicitud.setTelefonoEmpresa(request.getTelefonoEmpresa());
+            usuarioSolicitud.setAntiguedadLaboral(request.getAntiguedadLaboral());
+            usuarioSolicitud.setIngresoMensualEmpleado(request.getIngresoMensualEmpleado());
+            // --- Campos Emprendedor ---
+            usuarioSolicitud.setActividadEmprendedor(request.getActividadEmprendedor());
+            usuarioSolicitud.setIngresoMensualEmprendedor(request.getIngresoMensualEmprendedor());
+            usuarioSolicitud.setOtrosIngresos(request.getOtrosIngresos());
+            usuarioSolicitud.setTelefonoNegocio(request.getTelefonoNegocio());
+            usuarioSolicitud.setDireccionNegocio(request.getDireccionNegocio());
+            usuarioSolicitud.setAntiguedadNegocio(request.getAntiguedadNegocio());
             usuario.setTiempoResidencia(request.getTiempoResidencia());
             usuario.setEstadoCivil(request.getEstadoCivil());
             usuario.setFechaNacimiento(request.getFechaNacimiento());
             usuario.setGastosMensuales(request.getGastosMensuales());
             usuario.setFuenteConocimiento(request.getComoConocio());
             usuario.setConoceAlguien(request.getConoceAlguien());
+            usuario.setNombrePersonaConocida(request.getNombrePersonaConocida());
+            usuario.setTelefonoPersonaConocida(request.getTelefonoPersonaConocida());
             usuario.setPerfilRedSocial(request.getEnlaceRedSocial());
 
             // --- UsuarioSolicitudEntity ---
@@ -85,9 +102,15 @@ public class CreditoUtils {
             usuarioSolicitud.setCodeudorDireccion(request.getDireccionCodeudor());
             usuarioSolicitud.setIngresoMensualCodeudor(request.getIngresosMensualesCodeudor());
             usuarioSolicitud.setSolicitado(request.getSolicitadoAnteriormente());
+            usuarioSolicitud.setSolicitadoEntidad(request.getSolicitadoEntidad());
+            usuarioSolicitud.setFrecuenciaPagoCreditoAnterior(request.getFrecuenciaPagoCreditoAnterior());
+            usuarioSolicitud.setSolicitadoMonto(request.getSolicitadoMonto());
+            usuarioSolicitud.setSolicitadoEstado(request.getSolicitadoEstado());
             usuarioSolicitud.setAtrasos(request.getAtrasosAnteriormente());
             usuarioSolicitud.setReportado(request.getReportadoAnteriormente());
             usuarioSolicitud.setOtrasDeudas(request.getDeudasActualmente());
+            usuarioSolicitud.setOtrasDeudasEntidad(request.getOtrasDeudasEntidad());
+            usuarioSolicitud.setOtrasDeudasMonto(request.getOtrasDeudasMonto());
             usuarioSolicitud.setEmpleado(request.getEmpleo());
 
             // --- Fotos ---
@@ -134,6 +157,7 @@ public class CreditoUtils {
             credito.setDestino(request.getFinalidadCredito());
             credito.setFormaDePago(request.getFormaPago());
             credito.setTienePropiedad(request.getPropiedadANombre());
+            credito.setDireccionPropiedad(request.getDireccionPropiedad());
             credito.setTieneVehiculo(request.getVehiculoANombre());
             if (credito.getFechaAceptado() != null) {
                 credito.setFechaAceptado(request.getFechaAceptado().atStartOfDay());
@@ -147,12 +171,28 @@ public class CreditoUtils {
             usuario.setCelular(request.getCelular());
             usuario.setDireccion(request.getDireccion());
             usuario.setOcupacion(request.getOcupacion());
+            
+            // --- Campos Empleado ---
+            usuarioSolicitud.setEmpresaTrabajo(request.getEmpresaTrabajo());
+            usuarioSolicitud.setDireccionEmpresa(request.getDireccionEmpresa());
+            usuarioSolicitud.setTelefonoEmpresa(request.getTelefonoEmpresa());
+            usuarioSolicitud.setAntiguedadLaboral(request.getAntiguedadLaboral());
+            usuarioSolicitud.setIngresoMensualEmpleado(request.getIngresoMensualEmpleado());
+            // --- Campos Emprendedor ---
+            usuarioSolicitud.setActividadEmprendedor(request.getActividadEmprendedor());
+            usuarioSolicitud.setIngresoMensualEmprendedor(request.getIngresoMensualEmprendedor());
+            usuarioSolicitud.setOtrosIngresos(request.getOtrosIngresos());
+            usuarioSolicitud.setTelefonoNegocio(request.getTelefonoNegocio());
+            usuarioSolicitud.setDireccionNegocio(request.getDireccionNegocio());
+            usuarioSolicitud.setAntiguedadNegocio(request.getAntiguedadNegocio());
             usuario.setTiempoResidencia(request.getTiempoResidencia());
             usuario.setEstadoCivil(request.getEstadoCivil());
             usuario.setFechaNacimiento(request.getFechaNacimiento());
             usuario.setGastosMensuales(request.getGastosMensuales());
             usuario.setFuenteConocimiento(request.getComoConocio());
             usuario.setConoceAlguien(request.getConoceAlguien());
+            usuario.setNombrePersonaConocida(request.getNombrePersonaConocida());
+            usuario.setTelefonoPersonaConocida(request.getTelefonoPersonaConocida());
             usuario.setPerfilRedSocial(request.getEnlaceRedSocial());
 
             // --- UsuarioSolicitudEntity ---
@@ -169,9 +209,15 @@ public class CreditoUtils {
             usuarioSolicitud.setCodeudorDireccion(request.getDireccionCodeudor());
             usuarioSolicitud.setIngresoMensualCodeudor(request.getIngresosMensualesCodeudor());
             usuarioSolicitud.setSolicitado(request.getSolicitadoAnteriormente());
+            usuarioSolicitud.setSolicitadoEntidad(request.getSolicitadoEntidad());
+            usuarioSolicitud.setFrecuenciaPagoCreditoAnterior(request.getFrecuenciaPagoCreditoAnterior());
+            usuarioSolicitud.setSolicitadoMonto(request.getSolicitadoMonto());
+            usuarioSolicitud.setSolicitadoEstado(request.getSolicitadoEstado());
             usuarioSolicitud.setAtrasos(request.getAtrasosAnteriormente());
             usuarioSolicitud.setReportado(request.getReportadoAnteriormente());
             usuarioSolicitud.setOtrasDeudas(request.getDeudasActualmente());
+            usuarioSolicitud.setOtrasDeudasEntidad(request.getOtrasDeudasEntidad());
+            usuarioSolicitud.setOtrasDeudasMonto(request.getOtrasDeudasMonto());
             usuarioSolicitud.setEmpleado(request.getEmpleo());
 
             // --- Fotos ---

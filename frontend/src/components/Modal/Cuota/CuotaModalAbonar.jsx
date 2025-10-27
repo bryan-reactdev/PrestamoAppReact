@@ -57,6 +57,8 @@ export default function CuotaModalAbonar() {
                 value={formData.monto}
                 onChange={handleChange}  
                 placeholder='0.00'
+                required
+                min={0.01}
               />
 
               <FormField
@@ -65,7 +67,8 @@ export default function CuotaModalAbonar() {
                 label={'Fecha de Abono'}
                 name='fecha'
                 value={formData.fecha}
-                onChange={handleChange}  
+                onChange={handleChange}
+                required
               />
             </div>
           </div>

@@ -12,6 +12,7 @@ export default function BaseTable({
   data, 
   columns,
   card,
+  cardProps = {},
   centered, 
   flexable, 
   loading, 
@@ -130,7 +131,13 @@ export default function BaseTable({
         ?
         <div className="cards-container">
             {table.getRowModel().rows.map((row) =>(
-                React.createElement(activeTab.card ?? card, {row, key: row.id})
+                React.createElement(activeTab.card ?? card, {
+                    row, 
+                    key: row.id, 
+                    selectedRowId,
+                    onRowSelect,
+                    ...cardProps
+                })
             ))}
 
             {/* --- Estado de carga durante fetch --- */}
@@ -147,7 +154,7 @@ export default function BaseTable({
                 </div>
             )}
 
-            {/* Controles de navgeación */}
+            {!hidePagination &&
             <div className="pagination">
                 <button
                     className='btn-navigation'
@@ -169,6 +176,7 @@ export default function BaseTable({
                     SIGUIENTE &raquo;
                 </button>
             </div>
+            }
         </div>
         :
         <div className="table" style={{width: '100%'}}>

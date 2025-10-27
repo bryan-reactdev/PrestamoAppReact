@@ -142,7 +142,6 @@ export const useCurrencyStore = create((set, get) => ({
         try {
             toast.loading('Generando PDF...', { id: 'pdf-toast' });
 
-            console.log(`/currency/${tipo}/${fecha}/pdf`)
             const res = await axiosData(`/currency/${tipo}/${fecha}/pdf`, {
                 method: "POST",
                 responseType: "blob",
@@ -301,6 +300,61 @@ export const useCurrencyStore = create((set, get) => ({
         return weekData;
     },
 
+    // --- Month Data Generation ---
+    getMonthData: () => {
+        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados } = get();
+        
+        const today = new Date();
+        const monthData = [];
+        
+        // Get the start of the month
+        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        
+        // Generate 31 days of data
+        for (let i = 0; i < 31; i++) {
+            const date = new Date(startOfMonth);
+            date.setDate(startOfMonth.getDate() + i);
+            
+            // Skip if date is in the future
+            if (date > today) break;
+            
+            const dateString = date.toISOString().split('T')[0];
+            
+            // Calculate totals for this specific date
+            const ingresosCapitalesForDate = filtrarPorFecha(ingresosCapitales, dateString);
+            const ingresosVariosForDate = filtrarPorFecha(ingresosVarios, dateString);
+            const cuotasAbonosForDate = filtrarPorFecha(cuotasAbonos, dateString);
+            const cuotasPagadasForDate = filtrarPorFecha(cuotasPagadas, dateString);
+            
+            const gastosEmpresaForDate = filtrarPorFecha(gastosEmpresa, dateString);
+            const egresosVariosForDate = filtrarPorFecha(egresosVarios, dateString);
+            const egresosCuotasRetirosForDate = filtrarPorFecha(egresosCuotasRetiros, dateString);
+            const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, dateString);
+            
+            const totalIngresos = 
+                (ingresosCapitalesForDate?.total || 0) +
+                (ingresosVariosForDate?.total || 0) +
+                (cuotasAbonosForDate?.total || 0) +
+                (cuotasPagadasForDate?.total || 0);
+            
+            const totalEgresos = 
+                (gastosEmpresaForDate?.total || 0) +
+                (egresosVariosForDate?.total || 0) +
+                (egresosCuotasRetirosForDate?.total || 0) +
+                (creditosDesembolsadosForDate?.total || 0);
+            
+            monthData.push({
+                date: dateString,
+                dayNumber: date.getDate(),
+                totalIngresos: totalIngresos,
+                totalEgresos: totalEgresos,
+                balance: totalIngresos - totalEgresos
+            });
+        }
+        
+        return monthData;
+    },
+
     // --- Helpers ---
     calcularTotal: (objects) => {
         if (!Array.isArray(objects)) return;
@@ -308,6 +362,9 @@ export const useCurrencyStore = create((set, get) => ({
         return objects.reduce((sum, item) => {
             if (item?.total) {
                 return sum + item.total;
+            }
+            else if (item?.montoDesembolsar && item.montoDesembolsar !== 0) {
+                return sum + item.montoDesembolsar;
             }
             else if (item?.monto) {
                 return sum + item.monto;

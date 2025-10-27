@@ -166,6 +166,7 @@ export const useUsuarioStore = create((set, get) => ({
         data.append('apellidos', formData.apellidos);
         data.append('email', formData.email);
         data.append('celular', formData.celular);
+        data.append('direccion', formData.direccion);
         data.append('password', formData.password);
 
         // Append files only if they exist and are File objects
@@ -187,22 +188,22 @@ export const useUsuarioStore = create((set, get) => ({
     },
 
     bloquearUsuario: async(id) => {
-        get().updateKey(id, 'enabled', true);
+        get().updateKey(id, 'enabled', false);
         
         const res = await axiosData(`/usuarioTest/${id}/bloquear`, {method: "POST"})
 
         if (res == null){
-            get().updateKey(id, 'enabled', false);
+            get().updateKey(id, 'enabled', true);
         }
     },
 
     desbloquearUsuario: async(id) => {
-        get().updateKey(id, 'enabled', false);
+        get().updateKey(id, 'enabled', true);
         
         const res = await axiosData(`/usuarioTest/${id}/desbloquear`, {method: "POST"})
 
         if (res == null){
-            get().updateKey(id, 'enabled', true);
+            get().updateKey(id, 'enabled', false);
         }
     },
 
@@ -221,6 +222,24 @@ export const useUsuarioStore = create((set, get) => ({
         } catch (err) {
             console.error("Error descargando PDF:", err);
             toast.error('Error al generar el PDF de informe', { id: 'pdf-toast' });
+        }
+    },
+
+    descargarPDFCobros: async () => {
+        try {
+            toast.loading('Generando PDF...', { id: 'pdf-toast' });
+
+            const res = await axiosData(`/usuarioTest/cobros/pdf`, {
+                method: "POST",
+                responseType: "blob",
+            });
+
+            await descargarPDFConPrint(res);
+            
+            toast.success('PDF de cobros listo para imprimir', { id: 'pdf-toast' });
+        } catch (err) {
+            console.error("Error descargando PDF:", err);
+            toast.error('Error al generar el PDF de cobros', { id: 'pdf-toast' });
         }
     },
 
