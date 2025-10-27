@@ -114,9 +114,24 @@ public class CreditoUtils {
             usuarioSolicitud.setEmpleado(request.getEmpleo());
 
             // --- Fotos ---
+            // Handle new file uploads
             FileUtils.tryUploadFotoSolicitud(usuarioSolicitud, "delante", request.getDuiDelanteCodeudor());
             FileUtils.tryUploadFotoSolicitud(usuarioSolicitud, "atras", request.getDuiAtrasCodeudor());
             FileUtils.tryUploadFotoSolicitud(usuarioSolicitud, "foto", request.getFotoRecibo());
+            
+            // Handle preview fields (existing images from previous solicitud)
+            String duiDelantePreview = request.getDuiDelanteCodeudorPreview();
+            if (duiDelantePreview != null && !duiDelantePreview.isEmpty()) {
+                usuarioSolicitud.setDuiDelanteCodeudor(duiDelantePreview);
+            }
+            String duiAtrasPreview = request.getDuiAtrasCodeudorPreview();
+            if (duiAtrasPreview != null && !duiAtrasPreview.isEmpty()) {
+                usuarioSolicitud.setDuiAtrasCodeudor(duiAtrasPreview);
+            }
+            String fotoReciboPreview = request.getFotoReciboPreview();
+            if (fotoReciboPreview != null && !fotoReciboPreview.isEmpty()) {
+                usuarioSolicitud.setFotoRecibo(fotoReciboPreview);
+            }
             
             // --- Set relationships ---
             credito.setUsuario(usuario);
@@ -221,9 +236,24 @@ public class CreditoUtils {
             usuarioSolicitud.setEmpleado(request.getEmpleo());
 
             // --- Fotos ---
+            // Handle new file uploads
             FileUtils.tryUploadFotoSolicitud(usuarioSolicitud, "delante", request.getDuiDelanteCodeudor());
             FileUtils.tryUploadFotoSolicitud(usuarioSolicitud, "atras", request.getDuiAtrasCodeudor());
             FileUtils.tryUploadFotoSolicitud(usuarioSolicitud, "foto", request.getFotoRecibo());
+            
+            // Handle preview fields (existing images from previous solicitud)
+            String duiDelantePreview = request.getDuiDelanteCodeudorPreview();
+            if (duiDelantePreview != null && !duiDelantePreview.isEmpty()) {
+                usuarioSolicitud.setDuiDelanteCodeudor(duiDelantePreview);
+            }
+            String duiAtrasPreview = request.getDuiAtrasCodeudorPreview();
+            if (duiAtrasPreview != null && !duiAtrasPreview.isEmpty()) {
+                usuarioSolicitud.setDuiAtrasCodeudor(duiAtrasPreview);
+            }
+            String fotoReciboPreview = request.getFotoReciboPreview();
+            if (fotoReciboPreview != null && !fotoReciboPreview.isEmpty()) {
+                usuarioSolicitud.setFotoRecibo(fotoReciboPreview);
+            }
             
             // --- Save entities ---
             usuarioService.save(usuario);

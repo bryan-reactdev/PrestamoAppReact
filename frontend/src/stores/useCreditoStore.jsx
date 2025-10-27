@@ -108,6 +108,11 @@ export const useCreditoStore = create((set, get) => ({
         set({isFetchingCredito: false})
     },
 
+    tryGetExistingSolicitud: async (usuarioId) => {
+        const res = await axiosData(`/creditoTest/usuario/${usuarioId}/existing-solicitud`, { method: "GET" });
+        return res?.data ?? null;
+    },
+
     // --- GET ---
     getCreditos: async (usuarioId = null, isUser = false) =>{
         const isCurrentGlobal = (usuarioId == null || usuarioId == 0);
@@ -200,6 +205,13 @@ export const useCreditoStore = create((set, get) => ({
         set({ isSubmittingCredito: true });        
         const data = new FormData();
 
+        // Helper function to conditionally append values
+        const appendIfValue = (key, value) => {
+            if (value !== null && value !== undefined && value !== '') {
+                data.append(key, value);
+            }
+        };
+
         // --- Info del crédito ---
         data.append('usuarioId', formData.usuarioId);
         data.append('monto', formData.monto);
@@ -207,7 +219,7 @@ export const useCreditoStore = create((set, get) => ({
         data.append('finalidadCredito', formData.finalidadCredito);
         data.append('formaPago', formData.formaPago);
         data.append('propiedadANombre', formData.propiedadANombre);
-        data.append('direccionPropiedad', formData.direccionPropiedad);
+        appendIfValue('direccionPropiedad', formData.direccionPropiedad);
         data.append('vehiculoANombre', formData.vehiculoANombre);
 
         // --- Info personal ---
@@ -223,63 +235,69 @@ export const useCreditoStore = create((set, get) => ({
         data.append('gastosMensuales', formData.gastosMensuales);
         data.append('comoConocio', formData.comoConocio);
         data.append('conoceAlguien', formData.conoceAlguien);
-        data.append('nombrePersonaConocida', formData.nombrePersonaConocida);
-        data.append('telefonoPersonaConocida', formData.telefonoPersonaConocida);
+        appendIfValue('nombrePersonaConocida', formData.nombrePersonaConocida);
+        appendIfValue('telefonoPersonaConocida', formData.telefonoPersonaConocida);
         data.append('enlaceRedSocial', formData.enlaceRedSocial);
 
         // --- Info laboral ---
         data.append('ocupacion', formData.ocupacion);
         // --- Campos Empleado ---
-        data.append('empresaTrabajo', formData.empresaTrabajo);
-        data.append('direccionEmpresa', formData.direccionEmpresa);
-        data.append('telefonoEmpresa', formData.telefonoEmpresa);
-        data.append('antiguedadLaboral', formData.antiguedadLaboral);
-        data.append('ingresoMensualEmpleado', formData.ingresoMensualEmpleado);
+        appendIfValue('empresaTrabajo', formData.empresaTrabajo);
+        appendIfValue('direccionEmpresa', formData.direccionEmpresa);
+        appendIfValue('telefonoEmpresa', formData.telefonoEmpresa);
+        appendIfValue('antiguedadLaboral', formData.antiguedadLaboral);
+        appendIfValue('ingresoMensualEmpleado', formData.ingresoMensualEmpleado);
         // --- Campos Emprendedor ---
-        data.append('actividadEmprendedor', formData.actividadEmprendedor);
-        data.append('ingresoMensualEmprendedor', formData.ingresoMensualEmprendedor);
-        data.append('otrosIngresos', formData.otrosIngresos);
-        data.append('telefonoNegocio', formData.telefonoNegocio);
-        data.append('direccionNegocio', formData.direccionNegocio);
-        data.append('antiguedadNegocio', formData.antiguedadNegocio);
+        appendIfValue('actividadEmprendedor', formData.actividadEmprendedor);
+        appendIfValue('ingresoMensualEmprendedor', formData.ingresoMensualEmprendedor);
+        appendIfValue('otrosIngresos', formData.otrosIngresos);
+        appendIfValue('telefonoNegocio', formData.telefonoNegocio);
+        appendIfValue('direccionNegocio', formData.direccionNegocio);
+        appendIfValue('antiguedadNegocio', formData.antiguedadNegocio);
 
         // --- Referencias ---
-        data.append('nombreReferencia1', formData.nombreReferencia1);
-        data.append('celularReferencia1', formData.celularReferencia1);
-        data.append('parentescoReferencia1', formData.parentescoReferencia1);
-        data.append('nombreReferencia2', formData.nombreReferencia2);
-        data.append('celularReferencia2', formData.celularReferencia2);
-        data.append('parentescoReferencia2', formData.parentescoReferencia2);
+        appendIfValue('nombreReferencia1', formData.nombreReferencia1);
+        appendIfValue('celularReferencia1', formData.celularReferencia1);
+        appendIfValue('parentescoReferencia1', formData.parentescoReferencia1);
+        appendIfValue('nombreReferencia2', formData.nombreReferencia2);
+        appendIfValue('celularReferencia2', formData.celularReferencia2);
+        appendIfValue('parentescoReferencia2', formData.parentescoReferencia2);
 
         // --- Co-deudor ---
-        data.append('nombreCodeudor', formData.nombreCodeudor);
-        data.append('duiCodeudor', formData.duiCodeudor);
-        data.append('direccionCodeudor', formData.direccionCodeudor);
-        data.append('ingresosMensualesCodeudor', formData.ingresosMensualesCodeudor);
+        appendIfValue('nombreCodeudor', formData.nombreCodeudor);
+        appendIfValue('duiCodeudor', formData.duiCodeudor);
+        appendIfValue('direccionCodeudor', formData.direccionCodeudor);
+        appendIfValue('ingresosMensualesCodeudor', formData.ingresosMensualesCodeudor);
 
         // --- Antecedentes ---
         data.append('solicitadoAnteriormente', formData.solicitadoAnteriormente);
-        data.append('solicitadoEntidad', formData.solicitadoEntidad);
-        data.append('frecuenciaPagoCreditoAnterior', formData.frecuenciaPagoCreditoAnterior);
-        data.append('solicitadoMonto', formData.solicitadoMonto);
-        data.append('solicitadoEstado', formData.solicitadoEstado);
+        appendIfValue('solicitadoEntidad', formData.solicitadoEntidad);
+        appendIfValue('frecuenciaPagoCreditoAnterior', formData.frecuenciaPagoCreditoAnterior);
+        appendIfValue('solicitadoMonto', formData.solicitadoMonto);
+        appendIfValue('solicitadoEstado', formData.solicitadoEstado);
         data.append('atrasosAnteriormente', formData.atrasosAnteriormente);
         data.append('reportadoAnteriormente', formData.reportadoAnteriormente);
         data.append('cobrosAnteriormente', formData.cobrosAnteriormente);
         data.append('empleo', formData.empleo);
         data.append('deudasActualmente', formData.deudasActualmente);
-        data.append('otrasDeudasEntidad', formData.otrasDeudasEntidad);
-        data.append('otrasDeudasMonto', formData.otrasDeudasMonto);
+        appendIfValue('otrasDeudasEntidad', formData.otrasDeudasEntidad);
+        appendIfValue('otrasDeudasMonto', formData.otrasDeudasMonto);
 
-        // --- Archivos (solo si son File objects) ---
+        // --- Archivos (File objects o strings de preview) ---
         if (formData.duiDelanteCodeudor instanceof File)
-        data.append('duiDelanteCodeudor', formData.duiDelanteCodeudor);
+            data.append('duiDelanteCodeudor', formData.duiDelanteCodeudor);
+        else if (formData.duiDelanteCodeudor && typeof formData.duiDelanteCodeudor === 'string')
+            data.append('duiDelanteCodeudorPreview', formData.duiDelanteCodeudor);
 
         if (formData.duiAtrasCodeudor instanceof File)
-        data.append('duiAtrasCodeudor', formData.duiAtrasCodeudor);
+            data.append('duiAtrasCodeudor', formData.duiAtrasCodeudor);
+        else if (formData.duiAtrasCodeudor && typeof formData.duiAtrasCodeudor === 'string')
+            data.append('duiAtrasCodeudorPreview', formData.duiAtrasCodeudor);
 
         if (formData.fotoRecibo instanceof File)
-        data.append('fotoRecibo', formData.fotoRecibo);
+            data.append('fotoRecibo', formData.fotoRecibo);
+        else if (formData.fotoRecibo && typeof formData.fotoRecibo === 'string')
+            data.append('fotoReciboPreview', formData.fotoRecibo);
         
         let res = null;
         
@@ -325,63 +343,69 @@ export const useCreditoStore = create((set, get) => ({
         data.append('gastosMensuales', formData.gastosMensuales);
         data.append('comoConocio', formData.comoConocio);
         data.append('conoceAlguien', formData.conoceAlguien);
-        data.append('nombrePersonaConocida', formData.nombrePersonaConocida);
-        data.append('telefonoPersonaConocida', formData.telefonoPersonaConocida);
+        appendIfValue('nombrePersonaConocida', formData.nombrePersonaConocida);
+        appendIfValue('telefonoPersonaConocida', formData.telefonoPersonaConocida);
         data.append('enlaceRedSocial', formData.enlaceRedSocial);
 
         // --- Info laboral ---
         data.append('ocupacion', formData.ocupacion);
         // --- Campos Empleado ---
-        data.append('empresaTrabajo', formData.empresaTrabajo);
-        data.append('direccionEmpresa', formData.direccionEmpresa);
-        data.append('telefonoEmpresa', formData.telefonoEmpresa);
-        data.append('antiguedadLaboral', formData.antiguedadLaboral);
-        data.append('ingresoMensualEmpleado', formData.ingresoMensualEmpleado);
+        appendIfValue('empresaTrabajo', formData.empresaTrabajo);
+        appendIfValue('direccionEmpresa', formData.direccionEmpresa);
+        appendIfValue('telefonoEmpresa', formData.telefonoEmpresa);
+        appendIfValue('antiguedadLaboral', formData.antiguedadLaboral);
+        appendIfValue('ingresoMensualEmpleado', formData.ingresoMensualEmpleado);
         // --- Campos Emprendedor ---
-        data.append('actividadEmprendedor', formData.actividadEmprendedor);
-        data.append('ingresoMensualEmprendedor', formData.ingresoMensualEmprendedor);
-        data.append('otrosIngresos', formData.otrosIngresos);
-        data.append('telefonoNegocio', formData.telefonoNegocio);
-        data.append('direccionNegocio', formData.direccionNegocio);
-        data.append('antiguedadNegocio', formData.antiguedadNegocio);
+        appendIfValue('actividadEmprendedor', formData.actividadEmprendedor);
+        appendIfValue('ingresoMensualEmprendedor', formData.ingresoMensualEmprendedor);
+        appendIfValue('otrosIngresos', formData.otrosIngresos);
+        appendIfValue('telefonoNegocio', formData.telefonoNegocio);
+        appendIfValue('direccionNegocio', formData.direccionNegocio);
+        appendIfValue('antiguedadNegocio', formData.antiguedadNegocio);
 
         // --- Referencias ---
-        data.append('nombreReferencia1', formData.nombreReferencia1);
-        data.append('celularReferencia1', formData.celularReferencia1);
-        data.append('parentescoReferencia1', formData.parentescoReferencia1);
-        data.append('nombreReferencia2', formData.nombreReferencia2);
-        data.append('celularReferencia2', formData.celularReferencia2);
-        data.append('parentescoReferencia2', formData.parentescoReferencia2);
+        appendIfValue('nombreReferencia1', formData.nombreReferencia1);
+        appendIfValue('celularReferencia1', formData.celularReferencia1);
+        appendIfValue('parentescoReferencia1', formData.parentescoReferencia1);
+        appendIfValue('nombreReferencia2', formData.nombreReferencia2);
+        appendIfValue('celularReferencia2', formData.celularReferencia2);
+        appendIfValue('parentescoReferencia2', formData.parentescoReferencia2);
 
         // --- Co-deudor ---
-        data.append('nombreCodeudor', formData.nombreCodeudor);
-        data.append('duiCodeudor', formData.duiCodeudor);
-        data.append('direccionCodeudor', formData.direccionCodeudor);
-        data.append('ingresosMensualesCodeudor', formData.ingresosMensualesCodeudor);
+        appendIfValue('nombreCodeudor', formData.nombreCodeudor);
+        appendIfValue('duiCodeudor', formData.duiCodeudor);
+        appendIfValue('direccionCodeudor', formData.direccionCodeudor);
+        appendIfValue('ingresosMensualesCodeudor', formData.ingresosMensualesCodeudor);
 
         // --- Antecedentes ---
         data.append('solicitadoAnteriormente', formData.solicitadoAnteriormente);
-        data.append('solicitadoEntidad', formData.solicitadoEntidad);
-        data.append('frecuenciaPagoCreditoAnterior', formData.frecuenciaPagoCreditoAnterior);
-        data.append('solicitadoMonto', formData.solicitadoMonto);
-        data.append('solicitadoEstado', formData.solicitadoEstado);
+        appendIfValue('solicitadoEntidad', formData.solicitadoEntidad);
+        appendIfValue('frecuenciaPagoCreditoAnterior', formData.frecuenciaPagoCreditoAnterior);
+        appendIfValue('solicitadoMonto', formData.solicitadoMonto);
+        appendIfValue('solicitadoEstado', formData.solicitadoEstado);
         data.append('atrasosAnteriormente', formData.atrasosAnteriormente);
         data.append('reportadoAnteriormente', formData.reportadoAnteriormente);
         data.append('cobrosAnteriormente', formData.cobrosAnteriormente);
         data.append('empleo', formData.empleo);
         data.append('deudasActualmente', formData.deudasActualmente);
-        data.append('otrasDeudasEntidad', formData.otrasDeudasEntidad);
-        data.append('otrasDeudasMonto', formData.otrasDeudasMonto);
+        appendIfValue('otrasDeudasEntidad', formData.otrasDeudasEntidad);
+        appendIfValue('otrasDeudasMonto', formData.otrasDeudasMonto);
 
-        // --- Archivos (solo si son File objects) ---
+        // --- Archivos (File objects o strings de preview) ---
         if (formData.duiDelanteCodeudor instanceof File)
-        data.append('duiDelanteCodeudor', formData.duiDelanteCodeudor);
+            data.append('duiDelanteCodeudor', formData.duiDelanteCodeudor);
+        else if (formData.duiDelanteCodeudor && typeof formData.duiDelanteCodeudor === 'string')
+            data.append('duiDelanteCodeudorPreview', formData.duiDelanteCodeudor);
 
         if (formData.duiAtrasCodeudor instanceof File)
-        data.append('duiAtrasCodeudor', formData.duiAtrasCodeudor);
+            data.append('duiAtrasCodeudor', formData.duiAtrasCodeudor);
+        else if (formData.duiAtrasCodeudor && typeof formData.duiAtrasCodeudor === 'string')
+            data.append('duiAtrasCodeudorPreview', formData.duiAtrasCodeudor);
 
         if (formData.fotoRecibo instanceof File)
-        data.append('fotoRecibo', formData.fotoRecibo);
+            data.append('fotoRecibo', formData.fotoRecibo);
+        else if (formData.fotoRecibo && typeof formData.fotoRecibo === 'string')
+            data.append('fotoReciboPreview', formData.fotoRecibo);
         
         const res = await axiosData(`/creditoTest/${creditoId}`, { method: "PUT", data: data, headers: { 'Content-Type': 'multipart/form-data'}});
 

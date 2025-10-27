@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 public interface CreditoRepository extends JpaRepository<CreditoEntity, Long> {
     @Query("SELECT c FROM CreditoEntity c WHERE c.desembolsado = :desembolsado AND DATE(c.fechaDesembolsado) = :fecha")
@@ -44,4 +45,7 @@ public interface CreditoRepository extends JpaRepository<CreditoEntity, Long> {
 
     @Query("SELECT c FROM CreditoEntity c WHERE LOWER(c.estado) = 'finalizado' AND c.usuario.id = :id ORDER BY c.usuarioSolicitud.fechaSolicitud DESC")
     List<CreditoEntity> findFinalizadosByUsuarioId(Long id);
+
+    @Query("SELECT c FROM CreditoEntity c WHERE c.usuario.id = :id ORDER BY c.usuarioSolicitud.fechaSolicitud DESC LIMIT 1")
+    Optional<CreditoEntity> findMostRecentByUsuarioId(Long id);
 }

@@ -13,7 +13,7 @@ import toast from 'react-hot-toast'
 export default function AdminCrearCredito(){
   const {id} = useParams();
   const navigate = useNavigate();
-  const {submitCredito, isSubmittingCredito} = useCreditoStore();
+  const {submitCredito, isSubmittingCredito, tryGetExistingSolicitud} = useCreditoStore();
   const [formData, setFormData] = useState({
     usuarioId: 0,
 
@@ -92,16 +92,45 @@ export default function AdminCrearCredito(){
   });
 
   const {usuario, isFetchingUsuario, getUsuario} = useUsuarioStore();
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   // --- Cosas a correr al inicializar la página '''
-  // --- Get de el usuario ---
+  // --- Try to get existing solicitud first, otherwise get user data ---
   useEffect(() => {
-    getUsuario(id);
-  }, [id]);
+    const loadData = async () => {
+      setIsLoadingData(true);
+      
+      // First try to get existing solicitud
+      const existingSolicitud = await tryGetExistingSolicitud(id);
+      
+      if (existingSolicitud) {
+        // Auto-fill form with existing solicitud data
+        setFormData((prev) => ({
+          ...prev,
+          ...existingSolicitud,
+          usuarioId: existingSolicitud.usuarioId || id,
+          // Handle file previews - if they exist, use the preview path as the form value
+          duiDelanteCodeudor: existingSolicitud.duiDelanteCodeudorPreview || '',
+          duiAtrasCodeudor: existingSolicitud.duiAtrasCodeudorPreview || '',
+          fotoRecibo: existingSolicitud.fotoReciboPreview || '',
+          monto: '',
+          frecuenciaPago: '',
+          finalidadCredito: '',
+          formaPago: '',
+        }));
+      } else {
+        getUsuario(id);
+      }
+      
+      setIsLoadingData(false);
+    };
 
-  // --- Asignar los valores default ---
+    loadData();
+  }, [id, tryGetExistingSolicitud, getUsuario]);
+
+  // --- Asignar los valores default del usuario (fallback) ---
   useEffect(() => {
-    if (usuario !== null){
+    if (usuario !== null && !isLoadingData){
       setFormData((prev) => ({
         ...prev,
         usuarioId: usuario.id,
@@ -113,7 +142,7 @@ export default function AdminCrearCredito(){
         celular: usuario.celular,
       }));
     }
-  }, [usuario])
+  }, [usuario, isLoadingData])
 
   const handleChange = (e) => {
     const { name, type, value, files } = e.target;
@@ -142,7 +171,7 @@ export default function AdminCrearCredito(){
   };
 
   // --- Estado de Carga ---
-  if (isFetchingUsuario || !usuario){
+  if (isLoadingData || (isFetchingUsuario && !usuario)){
     return(
       <div className="page">
         <Navbar/>
@@ -167,7 +196,7 @@ export default function AdminCrearCredito(){
       <div className="content">
         <ContentTitle 
           title={`Crear Crédito`}
-          subtitle={`Creación de crédito para: ${usuario.nombres + ' ' + usuario.apellidos}`}
+          subtitle={`Creación de crédito para: ${formData.nombres + ' ' + formData.apellidos}`}
         />
 
         {/* Sección 1 */}

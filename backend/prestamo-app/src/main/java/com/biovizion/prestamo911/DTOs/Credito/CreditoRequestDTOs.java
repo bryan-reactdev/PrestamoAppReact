@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.lang.Nullable;
 
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaDTO;
 import com.biovizion.prestamo911.entities.CreditoEntity;
@@ -66,6 +67,7 @@ public class CreditoRequestDTOs{
         private String finalidadCredito;
         private String formaPago;
         private Boolean propiedadANombre;
+        @Nullable
         private String direccionPropiedad;
         private Boolean vehiculoANombre;
     
@@ -82,56 +84,95 @@ public class CreditoRequestDTOs{
         private BigDecimal gastosMensuales;
         private String comoConocio;
         private Boolean conoceAlguien;
+        @Nullable
         private String nombrePersonaConocida;
+        @Nullable
         private String telefonoPersonaConocida;
         private String enlaceRedSocial;
     
         // --- Info laboral ---
         private String ocupacion;
         // --- Campos Empleado ---
+        @Nullable
         private String empresaTrabajo;
+        @Nullable
         private String direccionEmpresa;
+        @Nullable
         private String telefonoEmpresa;
+        @Nullable
         private String antiguedadLaboral;
+        @Nullable
         private BigDecimal ingresoMensualEmpleado;
         // --- Campos Emprendedor ---
+        @Nullable
         private String actividadEmprendedor;
+        @Nullable
         private BigDecimal ingresoMensualEmprendedor;
+        @Nullable
         private String otrosIngresos;
+        @Nullable
         private String telefonoNegocio;
+        @Nullable
         private String direccionNegocio;
+        @Nullable
         private String antiguedadNegocio;
     
         // --- Referencias ---
+        @Nullable
         private String nombreReferencia1;
+        @Nullable
         private String celularReferencia1;
+        @Nullable
         private String parentescoReferencia1;
+        @Nullable
         private String nombreReferencia2;
+        @Nullable
         private String celularReferencia2;
+        @Nullable
         private String parentescoReferencia2;
     
         // --- Co-deudor ---
+        @Nullable
         private String nombreCodeudor;
+        @Nullable
         private String duiCodeudor;
+        @Nullable
         private String direccionCodeudor;
+        @Nullable
         private BigDecimal ingresosMensualesCodeudor;
         
+        @Nullable
         private MultipartFile duiDelanteCodeudor;
+        @Nullable
         private MultipartFile duiAtrasCodeudor;
+        @Nullable
         private MultipartFile fotoRecibo;
+        
+        @Nullable
+        private String duiDelanteCodeudorPreview;
+        @Nullable
+        private String duiAtrasCodeudorPreview;
+        @Nullable
+        private String fotoReciboPreview;
     
         // --- Antecedentes ---
         private Boolean solicitadoAnteriormente;
+        @Nullable
         private String solicitadoEntidad;
+        @Nullable
         private String frecuenciaPagoCreditoAnterior;
+        @Nullable
         private Double solicitadoMonto;
+        @Nullable
         private String solicitadoEstado;
         private String atrasosAnteriormente;
         private Boolean reportadoAnteriormente;
         private Boolean cobrosAnteriormente;
         private String empleo;
         private Boolean deudasActualmente;
+        @Nullable
         private String otrasDeudasEntidad;
+        @Nullable
         private Double otrasDeudasMonto;
     }
 
@@ -166,6 +207,7 @@ public class CreditoRequestDTOs{
         private String finalidadCredito;
         private String formaPago;
         private Boolean propiedadANombre;
+        @Nullable
         private String direccionPropiedad;
         private Boolean vehiculoANombre;
     
@@ -182,42 +224,68 @@ public class CreditoRequestDTOs{
         private BigDecimal gastosMensuales;
         private String comoConocio;
         private Boolean conoceAlguien;
+        @Nullable
         private String nombrePersonaConocida;
+        @Nullable
         private String telefonoPersonaConocida;
         private String enlaceRedSocial;
     
         // --- Info laboral ---
         private String ocupacion;
         // --- Campos Empleado ---
+        @Nullable
         private String empresaTrabajo;
+        @Nullable
         private String direccionEmpresa;
+        @Nullable
         private String telefonoEmpresa;
+        @Nullable
         private String antiguedadLaboral;
+        @Nullable
         private BigDecimal ingresoMensualEmpleado;
         // --- Campos Emprendedor ---
+        @Nullable
         private String actividadEmprendedor;
+        @Nullable
         private BigDecimal ingresoMensualEmprendedor;
+        @Nullable
         private String otrosIngresos;
+        @Nullable
         private String telefonoNegocio;
+        @Nullable
         private String direccionNegocio;
+        @Nullable
         private String antiguedadNegocio;
     
         // --- Referencias ---
+        @Nullable
         private String nombreReferencia1;
+        @Nullable
         private String celularReferencia1;
+        @Nullable
         private String parentescoReferencia1;
+        @Nullable
         private String nombreReferencia2;
+        @Nullable
         private String celularReferencia2;
+        @Nullable
         private String parentescoReferencia2;
     
         // --- Co-deudor ---
+        @Nullable
         private String nombreCodeudor;
+        @Nullable
         private String duiCodeudor;
+        @Nullable
         private String direccionCodeudor;
+        @Nullable
         private BigDecimal ingresosMensualesCodeudor;
         
+        @Nullable
         private MultipartFile duiDelanteCodeudor;
+        @Nullable
         private MultipartFile duiAtrasCodeudor;
+        @Nullable
         private MultipartFile fotoRecibo;
         private String duiDelanteCodeudorPreview;
         private String duiAtrasCodeudorPreview;
@@ -225,16 +293,22 @@ public class CreditoRequestDTOs{
     
         // --- Antecedentes ---
         private Boolean solicitadoAnteriormente;
+        @Nullable
         private String solicitadoEntidad;
+        @Nullable
         private String frecuenciaPagoCreditoAnterior;
+        @Nullable
         private Double solicitadoMonto;
+        @Nullable
         private String solicitadoEstado;
         private String atrasosAnteriormente;
         private Boolean reportadoAnteriormente;
         private Boolean cobrosAnteriormente;
         private String empleo;
         private Boolean deudasActualmente;
+        @Nullable
         private String otrasDeudasEntidad;
+        @Nullable
         private Double otrasDeudasMonto;
     }
 

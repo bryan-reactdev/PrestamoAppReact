@@ -186,6 +186,25 @@ public class CreditoControllerTest {
         }
     }
 
+    @GetMapping("/usuario/{usuarioId}/existing-solicitud")
+    public ResponseEntity<ApiResponse> getExistingSolicitud(@PathVariable Long usuarioId) {
+        try {
+            Optional<CreditoEntity> existingCredito = creditoService.findMostRecentByUsuarioId(usuarioId);
+            
+            if (existingCredito.isPresent()) {
+                CreditoFullDTO creditoDTO = CreditoRequestDTOs.mapearACreditoEditDTO(existingCredito.get());
+                ApiResponse<CreditoFullDTO> response = new ApiResponse<>("Solicitud existente encontrada", creditoDTO);
+                return ResponseEntity.ok(response);
+            } else {
+                ApiResponse<String> response = new ApiResponse<>("No se encontró solicitud existente");
+                return ResponseEntity.ok(response);
+            }
+        } catch (Exception e) {
+            ApiResponse<String> response = new ApiResponse<>("Error al obtener solicitud existente: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
     // --- POST ---
     @PostMapping(value = "/crear", consumes = "multipart/form-data" )
     public ResponseEntity<ApiResponse> crearCredito(@ModelAttribute CreditoSolicitudRequest request) {

@@ -99,6 +99,11 @@ public class CreditoImpl implements CreditoService {
     public List<CreditoEntity> findFinalizadosByUsuarioId(Long id) {
         return creditoRepository.findFinalizadosByUsuarioId(id);
     }
+
+    @Override
+    public Optional<CreditoEntity> findMostRecentByUsuarioId(Long id) {
+        return creditoRepository.findMostRecentByUsuarioId(id);
+    }
     
     @Override
     public void updateCreditRatings() {
