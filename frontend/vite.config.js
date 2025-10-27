@@ -16,4 +16,23 @@ export default defineConfig({
     host: true,
     port: 5173,
   },
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          charts: ['chart.js', 'react-chartjs-2'],
+          router: ['react-router-dom'],
+          utils: ['axios', 'zustand']
+        }
+      }
+    }
+  },
+  preview: {
+    port: 4173,
+    host: true
+  }
 })
