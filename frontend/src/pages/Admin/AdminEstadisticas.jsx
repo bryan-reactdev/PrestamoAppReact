@@ -44,8 +44,10 @@ export default function AdminEstadisticas(){
   // Helper function to calculate max value from data
   const getMaxValue = (data) => {
     if (!data || data.length === 0) return 5000;
-    const maxIngresos = Math.max(...data.map(day => day.totalIngresos || 0));
-    const maxEgresos = Math.max(...data.map(day => day.totalEgresos || 0));
+    let maxIngresos = Math.max(...data.map(day => day.totalIngresos || 0));
+    let maxEgresos = Math.max(...data.map(day => day.totalEgresos || 0));
+    maxIngresos = maxIngresos * 1.1;
+    maxEgresos = maxEgresos * 1.1;
     return Math.max(maxIngresos, maxEgresos);
   };
 
@@ -132,7 +134,6 @@ export default function AdminEstadisticas(){
     setIsCustomizationMenuOpen(false);
   };
 
-
   const currentData = currentView === 'Semanal' ? currentWeekData : currentMonthData;
   const chartTitle = currentView === 'Semanal' ? getWeekLabel(currentWeekOffset) : getMonthLabel(currentMonthOffset);
   const pageTitle = currentView === 'Semanal' ? 'Estadísticas Semanales' : 'Estadísticas Mensuales';
@@ -168,13 +169,20 @@ export default function AdminEstadisticas(){
         
         <div className="stats-chart-container">
           <div className="chart-header" style={{ width: '100%' }}>
-            <div className="chart-navigation">         
+            <div className="chart-navigation" style={{ width: '100%' }}>         
               <button 
                 className="nav-button prev"
                 onClick={handlePrevious}
                 title={currentView === 'Semanal' ? 'Semana anterior' : 'Mes anterior'}
               >
                 <i className="fas fa-chevron-left"></i>
+              </button>
+              <button 
+                className="nav-button"
+                onClick={handleResetNavigation}
+                title="Volver a la semana/mes actual"
+              >
+                <i className="fas fa-undo"></i>
               </button>
               <button 
                 className="nav-button next"
@@ -184,15 +192,8 @@ export default function AdminEstadisticas(){
                 <i className="fas fa-chevron-right"></i>
               </button>
 
-              <button 
-                className="nav-button"
-                onClick={handleResetNavigation}
-                title="Volver a la semana/mes actual"
-              >
-                <i className="fas fa-undo"></i>
-              </button>
 
-              <div className="customization-menu-container" ref={rangeMenuRef}>
+              <div className="customization-menu-container" ref={rangeMenuRef} style={{ marginLeft: 'auto' }}>
                 <button 
                   className="customization-menu-trigger"
                   onClick={handleToggleCustomizationMenu}

@@ -293,6 +293,16 @@ export const useCurrencyStore = create((set, get) => ({
             weekData.push({
                 date: dateString,
                 dayName: date.toLocaleDateString('es-ES', { weekday: 'short' }),
+                // Detailed breakdown for tooltips
+                ingresosCapitales: ingresosCapitalesForDate?.total || 0,
+                ingresosVarios: ingresosVariosForDate?.total || 0,
+                cuotasAbonos: cuotasAbonosForDate?.total || 0,
+                cuotasPagadas: cuotasPagadasForDate?.total || 0,
+                gastosEmpresa: gastosEmpresaForDate?.total || 0,
+                egresosVarios: egresosVariosForDate?.total || 0,
+                egresosCuotasRetiros: egresosCuotasRetirosForDate?.total || 0,
+                creditosDesembolsados: creditosDesembolsadosForDate?.total || 0,
+                // Totals
                 totalIngresos: totalIngresos,
                 totalEgresos: totalEgresos,
                 balance: totalIngresos - totalEgresos
@@ -350,6 +360,16 @@ export const useCurrencyStore = create((set, get) => ({
             monthData.push({
                 date: dateString,
                 dayNumber: date.getDate(),
+                // Detailed breakdown for tooltips
+                ingresosCapitales: ingresosCapitalesForDate?.total || 0,
+                ingresosVarios: ingresosVariosForDate?.total || 0,
+                cuotasAbonos: cuotasAbonosForDate?.total || 0,
+                cuotasPagadas: cuotasPagadasForDate?.total || 0,
+                gastosEmpresa: gastosEmpresaForDate?.total || 0,
+                egresosVarios: egresosVariosForDate?.total || 0,
+                egresosCuotasRetiros: egresosCuotasRetirosForDate?.total || 0,
+                creditosDesembolsados: creditosDesembolsadosForDate?.total || 0,
+                // Totals
                 totalIngresos: totalIngresos,
                 totalEgresos: totalEgresos,
                 balance: totalIngresos - totalEgresos
