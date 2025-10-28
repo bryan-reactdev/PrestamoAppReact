@@ -18,6 +18,7 @@ export default function AdminProtectedRoute() {
 
   // Check if user has admin role (not 'USER')
   if (currentUsuario.rol === 'USER') {
+    toast.error('No tienes permisos para acceder a esta página');
     return <Navigate to="/usuario/" replace />;
   }
 
