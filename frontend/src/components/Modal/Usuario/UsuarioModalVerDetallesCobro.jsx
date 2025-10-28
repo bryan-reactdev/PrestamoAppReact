@@ -2,7 +2,7 @@ import { BaseModal } from '../ModalUtils'
 import BaseTable from '../../Table/BaseTable'
 import { useUsuarioModalStore } from '../../../stores/Modal/useUsuarioModalStore'
 import { useState, useEffect } from 'react'
-import { creditosTodosColumns } from '../../Table/Credito/CreditoTableDefinitions'
+import { creditosTodosColumns, creditosTodosMinimalColumns } from '../../Table/Credito/CreditoTableDefinitions'
 import { cuotasTodosColumns, cuotasTodosMinimalColumns } from '../../Table/Cuota/CuotaTableDefinitions'
 import FormField from '../../Form/FormField'
 
@@ -56,13 +56,13 @@ export default function UsuarioModalVerDetallesCobro() {
           <h4 style={{ marginBottom: '15px', color: '#333' }}>Créditos</h4>
           <BaseTable
             data={creditos}
-            columns={creditosTodosColumns}
+            columns={creditosTodosMinimalColumns}
             hideSearchbar={true}
             hidePagination={true}
             selectedRowId={selectedCredito?.id}
             onRowSelect={handleCreditoSelect}
             centered={['estado', 'calificacion', 'monto', 'montoDesembolsar', 'frecuencia', 'fechaAceptado', 'fechaSolicitud', 'fechaRechazado', 'desembolsado']}
-            flexable={[]}
+            flexable={['monto']}
           />
         </div>
 
@@ -78,7 +78,7 @@ export default function UsuarioModalVerDetallesCobro() {
               hideSearchbar={true}
               hidePagination={true}
               centered={['estado', 'fechaVencimiento', 'monto', 'mora', 'abono', 'total']}
-              flexable={[]}
+              flexable={['fechaVencimiento']}
             />
           </div>
         )}

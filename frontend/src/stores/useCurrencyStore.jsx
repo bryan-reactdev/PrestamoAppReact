@@ -247,16 +247,18 @@ export const useCurrencyStore = create((set, get) => ({
     },
 
     // --- Week Data Generation ---
-    getWeekData: () => {
+    getWeekData: (weekOffset = 0) => {
         const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados } = get();
         
         const today = new Date();
+        const targetDate = new Date(today);
+        targetDate.setDate(today.getDate() + (weekOffset * 7));
         const weekData = [];
         
-        // Get the start of the week (Monday)
-        const startOfWeek = new Date(today);
-        const day = today.getDay();
-        const diff = today.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+        // Get the start of the target week (Monday)
+        const startOfWeek = new Date(targetDate);
+        const day = targetDate.getDay();
+        const diff = targetDate.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
         startOfWeek.setDate(diff);
         
         // Generate 7 days of data
@@ -301,22 +303,24 @@ export const useCurrencyStore = create((set, get) => ({
     },
 
     // --- Month Data Generation ---
-    getMonthData: () => {
+    getMonthData: (monthOffset = 0) => {
         const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados } = get();
         
         const today = new Date();
+        const targetDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
         const monthData = [];
         
-        // Get the start of the month
-        const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        // Get the start of the target month
+        const startOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth(), 1);
+        const endOfMonth = new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0);
         
-        // Generate 31 days of data
-        for (let i = 0; i < 31; i++) {
+        // Generate days for the month
+        for (let i = 0; i < endOfMonth.getDate(); i++) {
             const date = new Date(startOfMonth);
             date.setDate(startOfMonth.getDate() + i);
             
-            // Skip if date is in the future
-            if (date > today) break;
+            // Skip if date is in the future (for current month)
+            if (monthOffset === 0 && date > today) break;
             
             const dateString = date.toISOString().split('T')[0];
             

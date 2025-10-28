@@ -393,4 +393,52 @@
     .mobile-cards-container {
         display: flex;
     }
+
+    /* Chart Navigation Mobile */
+    .chart-navigation {
+        gap: var(--space-sm);
+    }
+    
+    .chart-navigation h3 {
+        font-size: var(--font-md);
+    }
+    
+    .nav-button {
+        width: 36px;
+        height: 36px;
+        font-size: var(--font-xs);
+    }
+    
+    .reset-nav-button {
+        padding: var(--space-xs) var(--space-sm);
+        font-size: var(--font-xs);
+    }
+    
+    .reset-nav-button span {
+        display: none;
+    }
+
+    /* Range Menu Mobile */
+    .range-menu {
+        min-width: 260px;
+        right: -10px;
+    }
+    
+    .range-menu-header h4 {
+        font-size: var(--font-sm);
+    }
+    
+    .range-inputs {
+        padding: var(--space-sm);
+        gap: var(--space-sm);
+    }
+    
+    .range-menu-actions {
+        padding: var(--space-sm);
+    }
+    
+    .reset-range-btn {
+        padding: var(--space-xs) var(--space-sm);
+        font-size: var(--font-xs);
+    }
 }

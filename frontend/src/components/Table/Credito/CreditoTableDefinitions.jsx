@@ -51,6 +51,50 @@ export const creditosTodosColumns = [
   }
 ]
 
+// --- Todos los Créditos Minimal ---
+export const creditosTodosMinimalColumns = [
+  {
+    accessorKey: 'estado',
+    header: "Estado",
+    size: 125,
+    enableSorting: false,
+    cell: (props) => <p className={'badge ' + props.getValue()}>{props.getValue()}</p>
+  },
+  {
+    accessorKey: 'monto',
+    header: "Monto",
+    size: 125,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'frecuencia',
+    header: "Frecuencia",
+    size: 125,
+    enableSorting: false,
+    cell: (props) => <p>{props.getValue()}</p>  
+  },
+  {
+    accessorKey: 'fechaSolicitud',
+    header: "Fecha Solicitud",
+    size: 125,
+    cell: (props) => {
+      const value = props.getValue();
+
+      if (!value) return <p>N/A</p>;
+
+      const [y, m, d] = value.split('T')[0].split('-');
+      return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
+    }
+  }
+]
+
 // --- Créditos Aceptados ---
 export const creditosAceptadosColumns = [
   {

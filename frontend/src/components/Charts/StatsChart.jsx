@@ -71,6 +71,47 @@ export default function StatsChart({
       }
     },
     plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+        align: 'center',
+        labels: {
+          usePointStyle: true,
+          pointStyle: 'circle',
+          padding: 20,
+          font: {
+            size: 14,
+            weight: '500'
+          },
+          generateLabels: function(chart) {
+            const original = ChartJS.defaults.plugins.legend.labels.generateLabels;
+            const labels = original.call(this, chart);
+            
+            // Customize the legend labels
+            labels.forEach((label, index) => {
+              label.fillStyle = label.strokeStyle;
+              label.strokeStyle = 'transparent';
+              label.lineWidth = 0;
+              label.pointStyle = 'circle';
+              label.radius = 6;
+            });
+            
+            return labels;
+          }
+        },
+        onClick: function(e, legendItem, legend) {
+          const index = legendItem.datasetIndex;
+          const ci = legend.chart;
+          
+          if (ci.isDatasetVisible(index)) {
+            ci.hide(index);
+            legendItem.hidden = true;
+          } else {
+            ci.show(index);
+            legendItem.hidden = false;
+          }
+        }
+      },
       tooltip: {
         backgroundColor: 'rgba(255, 255, 255, 0.95)',
         titleColor: '#1f2937',
