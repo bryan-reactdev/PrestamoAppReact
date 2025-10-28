@@ -16,6 +16,7 @@ import Register from './pages/Landing/Register';
 import { useUsuarioStore } from './stores/useUsuarioStore';
 import { useEffect } from 'react';
 import ProtectedRoute from './ProtectedRoute';
+import AdminProtectedRoute from './AdminProtectedRoute';
 import UsuarioDashboard from './pages/Usuario/UsuarioDashboard';
 import UsuarioCreditos from './pages/Usuario/UsuarioCreditos';
 import UsuarioSolicitar from './pages/Usuario/UsuarioSolicitar';
@@ -47,7 +48,10 @@ export default function App(){
                     <Route path="/usuario/solicitar" element={<UsuarioSolicitar />} /> 
                     <Route path="/usuario/creditos" element={<UsuarioCreditos />} /> 
                     <Route path="/usuario/creditos/:id/cuotas" element={<UsuarioCuotas />} /> 
+                </Route>
 
+                {/* Admin Protected */}
+                <Route element={<AdminProtectedRoute />}>
                     <Route path="/admin/" element={<AdminDashboard />} />
                     <Route path="/admin/creditos" element={<AdminCreditos />} />
                     <Route path="/admin/creditos/:id/cuotas" element={<AdminCuotas />} />

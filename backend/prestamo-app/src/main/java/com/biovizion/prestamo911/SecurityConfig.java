@@ -32,7 +32,8 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/auth/**", "/usuario/create"
                 ).permitAll()
-                .requestMatchers("/creditoTest/**", "/cuotaTest/**").hasAnyRole("ADMIN", "SECRETARIA", "GERENTE")
+                .requestMatchers("/creditoTest/**", "/cuotaTest/**", "/usuarioTest/**", "/currency/**", "/historialTest/**").hasAnyRole("ADMIN", "SECRETARIA", "GERENTE")
+                .requestMatchers("/usuarioText/**").authenticated()
                 .anyRequest().authenticated()
             )
             .formLogin(form -> form.disable())
