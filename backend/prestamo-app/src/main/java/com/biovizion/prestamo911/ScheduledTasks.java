@@ -83,7 +83,9 @@ public class ScheduledTasks {
             BalanceEntity balanceActual = balanceService.get();
 
             HistorialBalanceEntity historialBalance = new HistorialBalanceEntity();
-            historialBalance.setFecha(LocalDateTime.now());
+            // Set fecha to midnight SV time for the day being summarized (yesterday)
+            // At midnight Oct 29, we're summarizing Oct 28, so save as Oct 28 00:00:00
+            historialBalance.setFecha(elSalvadorDate.atStartOfDay());
             historialBalance.setMonto(balanceActual.getSaldo());
             historialBalance.setIngresosTotales(ingresosTotales);
             historialBalance.setEgresosTotales(egresosTotales);

@@ -41,7 +41,7 @@ public class CreditoUtils {
             UsuarioSolicitudEntity usuarioSolicitud = new UsuarioSolicitudEntity();
             
             // --- CreditoEntity ---
-            if (request.getMonto().compareTo(new BigDecimal("200")) < 0) {
+            if (request.getMonto().compareTo(new BigDecimal("201")) < 0) {
                 credito.setTipo("rapi-cash");
             }
             else{

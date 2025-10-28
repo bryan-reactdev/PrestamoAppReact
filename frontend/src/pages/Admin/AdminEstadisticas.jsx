@@ -31,8 +31,8 @@ export default function AdminEstadisticas(){
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0); // 0 = current week, -1 = previous week, etc.
   const [currentMonthOffset, setCurrentMonthOffset] = useState(0); // 0 = current month, -1 = previous month, etc.
   
-  // Range controls state
-  const [isRangeMenuOpen, setIsRangeMenuOpen] = useState(false);
+  // Customization menu state
+  const [isCustomizationMenuOpen, setIsCustomizationMenuOpen] = useState(false);
   const rangeMenuRef = useRef(null);
 
   useEffect(() => {
@@ -64,22 +64,22 @@ export default function AdminEstadisticas(){
     }
   }, [ingresosCapitales, gastosEmpresa, getWeekData, getMonthData, currentView, currentWeekOffset, currentMonthOffset]);
 
-  // Click outside to close range menu
+  // Click outside to close customization menu
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (rangeMenuRef.current && !rangeMenuRef.current.contains(event.target)) {
-        setIsRangeMenuOpen(false);
+        setIsCustomizationMenuOpen(false);
       }
     };
 
-    if (isRangeMenuOpen) {
+    if (isCustomizationMenuOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [isRangeMenuOpen]);
+  }, [isCustomizationMenuOpen]);
 
   const handleMinChange = (value) => {
     setMinValue(value);
@@ -123,13 +123,13 @@ export default function AdminEstadisticas(){
     setCurrentMonthOffset(0);
   };
 
-  // Range menu handlers
-  const handleToggleRangeMenu = () => {
-    setIsRangeMenuOpen(!isRangeMenuOpen);
+  // Customization menu handlers
+  const handleToggleCustomizationMenu = () => {
+    setIsCustomizationMenuOpen(!isCustomizationMenuOpen);
   };
 
-  const handleCloseRangeMenu = () => {
-    setIsRangeMenuOpen(false);
+  const handleCloseCustomizationMenu = () => {
+    setIsCustomizationMenuOpen(false);
   };
 
 
@@ -166,22 +166,9 @@ export default function AdminEstadisticas(){
           subtitle={pageSubtitle}
         />
         
-        <div className="tabs-container" style={{ marginBottom: 'var(--space-sm)' }}>
-          {viewTabs.map((tab) => (
-            <button
-              key={tab.label}
-              className={currentView === tab.label ? 'active-tab' : 'inactive-tab'}
-              onClick={() => handleViewTabChange(tab)}
-            >
-              <i className={tab.icon}></i>
-              {tab.label}
-            </button>
-          ))}
-        </div>
-        
         <div className="stats-chart-container">
-          <div className="chart-header">
-            <div className="chart-navigation">
+          <div className="chart-header" style={{ width: '100%' }}>
+            <div className="chart-navigation">         
               <button 
                 className="nav-button prev"
                 onClick={handlePrevious}
@@ -189,9 +176,6 @@ export default function AdminEstadisticas(){
               >
                 <i className="fas fa-chevron-left"></i>
               </button>
-              
-              <h3>{chartTitle}</h3>
-              
               <button 
                 className="nav-button next"
                 onClick={handleNext}
@@ -199,77 +183,98 @@ export default function AdminEstadisticas(){
               >
                 <i className="fas fa-chevron-right"></i>
               </button>
-            </div>
-            
-            <div className="chart-actions">
+
               <button 
-                className="reset-nav-button"
+                className="nav-button"
                 onClick={handleResetNavigation}
                 title="Volver a la semana/mes actual"
               >
                 <i className="fas fa-undo"></i>
-                <span>Actual</span>
               </button>
-              
-              <div className="range-menu-container" ref={rangeMenuRef}>
+
+              <div className="customization-menu-container" ref={rangeMenuRef}>
                 <button 
-                  className="range-menu-trigger"
-                  onClick={handleToggleRangeMenu}
-                  title="Configurar rango de valores"
+                  className="customization-menu-trigger"
+                  onClick={handleToggleCustomizationMenu}
+                  title="Personalizar vista"
                 >
-                  <i className="fas fa-filter"></i>
+                  <i className="fas fa-cog"></i>
                 </button>
                 
-                {isRangeMenuOpen && (
-                  <div className="range-menu">
-                    <div className="range-menu-header">
-                      <h4>Configurar Rango</h4>
+                {isCustomizationMenuOpen && (
+                  <div className="customization-menu">
+                    <div className="customization-menu-header">
+                      <h4>Personalizar Vista</h4>
                       <button 
                         className="close-menu-btn"
-                        onClick={handleCloseRangeMenu}
+                        onClick={handleCloseCustomizationMenu}
                       >
                         <i className="fas fa-times"></i>
                       </button>
                     </div>
                     
-                    <div className="range-inputs">
-                      <div className="range-input-group">
-                        <label>Valor Mínimo</label>
-                        <input
-                          type="number"
-                          value={minValue}
-                          onChange={(e) => handleMinChange(Number(e.target.value))}
-                          min="0"
-                          step="100"
-                        />
-                      </div>
-                      
-                      <div className="range-input-group">
-                        <label>Valor Máximo</label>
-                        <input
-                          type="number"
-                          value={maxValue}
-                          onChange={(e) => handleMaxChange(Number(e.target.value))}
-                          min="1000"
-                          step="100"
-                        />
+                    {/* View Selection */}
+                    <div className="customization-section">
+                      <h5>Vista</h5>
+                      <div className="view-selection">
+                        {viewTabs.map((tab) => (
+                          <button
+                            key={tab.label}
+                            className={`view-option ${currentView === tab.label ? 'active' : ''}`}
+                            onClick={() => handleViewTabChange(tab)}
+                          >
+                            <i className={tab.icon}></i>
+                            {tab.label}
+                          </button>
+                        ))}
                       </div>
                     </div>
                     
-                    <div className="range-menu-actions">
+                    {/* Range Controls */}
+                    <div className="customization-section">
+                      <h5>Rango de Valores</h5>
+                      <div className="range-inputs">
+                        <div className="range-input-group">
+                          <label>Valor Mínimo</label>
+                          <input
+                            type="number"
+                            value={minValue}
+                            onChange={(e) => handleMinChange(Number(e.target.value))}
+                            min="0"
+                            step="100"
+                          />
+                        </div>
+                        
+                        <div className="range-input-group">
+                          <label>Valor Máximo</label>
+                          <input
+                            type="number"
+                            value={maxValue}
+                            onChange={(e) => handleMaxChange(Number(e.target.value))}
+                            min="1000"
+                            step="100"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="customization-menu-actions">
                       <button 
-                        className="reset-range-btn"
+                        className="reset-customization-btn"
                         onClick={handleReset}
                       >
                         <i className="fas fa-undo"></i>
-                        Resetear
+                        Resetear Rango
                       </button>
                     </div>
                   </div>
                 )}
               </div>
             </div>
+                          
           </div>
+          
+          <h3>{chartTitle}</h3>
 
           <StatsChart
             data={currentData}
