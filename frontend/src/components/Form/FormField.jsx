@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { API_BASE_IP } from '../../utils/axiosWrapper';
+import WhatsAppIcon from '../Elements/WhatsAppIcon';
 
 export default function FormField({
   classNames,
@@ -17,6 +18,7 @@ export default function FormField({
 }) {
   const isMoney = type === 'money';
   const isPassword = type === 'password';
+  const isPhone = type === 'phone';
   const [preview, setPreview] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
 
@@ -90,6 +92,18 @@ export default function FormField({
               cursor: 'pointer',
               color: '#555',
               fontSize: '0.95rem',
+            }}
+          />
+        )}
+
+        {isPhone && (props.readOnly || props.disabled) && (
+          <WhatsAppIcon
+            phoneNumber={props.value}
+            style={{
+              position: 'absolute',
+              right: isPassword ? '2.5rem' : '0.5rem',
+              top: '50%',
+              transform: 'translateY(-50%)',
             }}
           />
         )}

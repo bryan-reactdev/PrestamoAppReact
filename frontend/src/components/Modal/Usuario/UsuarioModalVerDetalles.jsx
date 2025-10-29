@@ -22,7 +22,7 @@ export default function UsuarioModalVerDetalles() {
 
   useEffect(() => {
     const userId = row?.original?.id
-    if (userId) {
+    if (userId && verDetalles) {
       setFormData({
         usuarioId: '',
         nombres: '',
@@ -36,7 +36,7 @@ export default function UsuarioModalVerDetalles() {
       })
       getUsuario(userId)
     }
-  }, [row])
+  }, [row, verDetalles, getUsuario])
 
   useEffect(() => {
     if (row) {

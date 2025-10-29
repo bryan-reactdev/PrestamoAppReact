@@ -1,5 +1,6 @@
 import ButtonAcciones from "../ButtonAcciones";
 import UsuarioTableAccionTipos from './UsuarioTableAccionTipos';
+import WhatsAppIcon from '../../Elements/WhatsAppIcon';
 
 // --- Usuarios Todos ---
 export const usuariosTodosColumns = [
@@ -40,12 +41,17 @@ export const usuariosTodosColumns = [
   {
     accessorKey: 'celular',
     header: "Celular",
-    size:125,
+    size:150,
     cell: ({getValue}) => {
       const value = getValue();
       if (!value) return <p className="empty">N/A</p>
 
-      return <p>{value}</p>
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <p style={{ margin: 0 }}>{value}</p>
+          <WhatsAppIcon phoneNumber={value} size={24} />
+        </div>
+      );
     }
   },
   {
@@ -79,12 +85,17 @@ export const usuariosConVencidasColumns = [
   {
     accessorKey: 'celular',
     header: "Celular",
-    size:125,
+    size:150,
     cell: ({getValue}) => {
       const value = getValue();
       if (!value) return <p className="empty">N/A</p>
 
-      return <p>{value}</p>
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <p style={{ margin: 0 }}>{value}</p>
+          <WhatsAppIcon phoneNumber={value} size={24} />
+        </div>
+      );
     }
   },
 

@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.CreditoDTO;
 import com.biovizion.prestamo911.entities.UsuarioEntity;
 
@@ -45,6 +46,8 @@ public class UsuarioDTOs {
         private String duiDelante;
         private String duiAtras;
         private Boolean enabled;
+
+        private List<CreditoDTO> creditos;
     }
 
     @Data
@@ -87,7 +90,8 @@ public class UsuarioDTOs {
             usuario.getCelular(),
             usuario.getDuiDelante(),
             usuario.getDuiAtras(),
-            usuario.isEnabled()
+            usuario.isEnabled(),
+            CreditoDTOs.mapearACreditoDTOs(usuario.getCreditos())
         );
     }
 

@@ -82,6 +82,7 @@ public class CuotaDTOs {
         private String usuario;
         private String nombres;
         private String apellidos;
+        private String celular;
         private LocalDateTime fechaVencimiento;
         private LocalDateTime fechaPagado;
         private BigDecimal monto;
@@ -90,6 +91,8 @@ public class CuotaDTOs {
         private BigDecimal total;
         
         private BigDecimal credito;
+
+        private Long userId;
     }
 
     public static AbonoDTO mapearAAbonoDTO(AbonoCuotaEntity abono){
@@ -165,13 +168,15 @@ public class CuotaDTOs {
                 usuarioNombre,
                 cuota.getCredito().getUsuario().getNombre(),
                 cuota.getCredito().getUsuario().getApellido(),
+                cuota.getCredito().getUsuario().getCelular(),
                 cuota.getFechaVencimiento(),
                 cuota.getFechaPago(),
                 cuota.getMonto(),
                 cuota.getPagoMora(),
                 cuota.getAbono(),
                 cuota.getTotal(),
-                cuota.getCredito().getMonto()
+                cuota.getCredito().getMonto(),
+                cuota.getCredito().getUsuario().getId()
             );
         }).collect(Collectors.toList());
     }

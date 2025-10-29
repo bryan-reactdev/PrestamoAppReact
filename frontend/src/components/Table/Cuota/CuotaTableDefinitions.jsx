@@ -1,6 +1,8 @@
 import FormField from "../../Form/FormField";
 import ButtonAcciones from "../ButtonAcciones";
 import CuotaTableAccionTipos from "./CuotaTableAccionTipos";
+import WhatsAppIcon from '../../Elements/WhatsAppIcon';
+import UsuarioTableAccionTipos from "../Usuario/UsuarioTableAccionTipos";
 
 // --- Todas las Cuotas ---
 export const cuotasTodosColumns = [
@@ -21,6 +23,22 @@ export const cuotasTodosColumns = [
     cell: (props) => <p>{props.getValue()}</p>
   },
   {
+    accessorKey: 'celular',
+    header: "Celular",
+    size: 150,
+    cell: ({getValue}) => {
+      const value = getValue();
+      if (!value) return <p className="empty">N/A</p>
+
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <p style={{ margin: 0 }}>{value}</p>
+          <WhatsAppIcon phoneNumber={value} size={24} />
+        </div>
+      );
+    }
+  },
+  {
     accessorKey: 'fechaVencimiento',
     header: "Fecha Vencimiento",
     size: 110,
@@ -34,22 +52,9 @@ export const cuotasTodosColumns = [
     }
   },
   {
-    accessorKey: 'fechaPagado',
-    header: "Fecha Pagado",
-    size: 110,
-    cell: (props) => {
-      const value = props.getValue();
-
-      if (!value) return <p className="empty">N/A</p>;
-
-      const [y, m, d] = value.split('T')[0].split('-');
-      return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
-    }
-  },
-  {
     accessorKey: 'monto',
     header: "Monto",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -62,7 +67,7 @@ export const cuotasTodosColumns = [
   {
     accessorKey: 'mora',
     header: "Mora",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -75,7 +80,7 @@ export const cuotasTodosColumns = [
   {
     accessorKey: 'abono',
     header: "Abono",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -88,7 +93,7 @@ export const cuotasTodosColumns = [
   {
     accessorKey: 'total',
     header: "Total",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -134,7 +139,7 @@ export const cuotasTodosMinimalColumns = [
   {
     accessorKey: 'monto',
     header: "Monto",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -147,7 +152,7 @@ export const cuotasTodosMinimalColumns = [
   {
     accessorKey: 'mora',
     header: "Mora",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -160,7 +165,7 @@ export const cuotasTodosMinimalColumns = [
   {
     accessorKey: 'abono',
     header: "Abono",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -173,7 +178,7 @@ export const cuotasTodosMinimalColumns = [
   {
     accessorKey: 'total',
     header: "Total",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -296,6 +301,22 @@ export const cuotasPendientesColumns = [
     cell: (props) => <p>{props.getValue()}</p>
   },
   {
+    accessorKey: 'celular',
+    header: "Celular",
+    size: 150,
+    cell: ({getValue}) => {
+      const value = getValue();
+      if (!value) return <p className="empty">N/A</p>
+
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <p style={{ margin: 0 }}>{value}</p>
+          <WhatsAppIcon phoneNumber={value} size={24} />
+        </div>
+      );
+    }
+  },
+  {
     accessorKey: 'fechaVencimiento',
     header: "Fecha Vencimiento",
     size: 110,
@@ -311,7 +332,7 @@ export const cuotasPendientesColumns = [
   {
     accessorKey: 'monto',
     header: "Monto",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -324,7 +345,7 @@ export const cuotasPendientesColumns = [
   {
     accessorKey: 'mora',
     header: "Mora",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -337,7 +358,7 @@ export const cuotasPendientesColumns = [
   {
     accessorKey: 'abono',
     header: "Abono",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -350,7 +371,7 @@ export const cuotasPendientesColumns = [
   {
     accessorKey: 'total',
     header: "Total",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -394,6 +415,22 @@ export const cuotasPagadasColumns = [
     cell: (props) => <p>{props.getValue()}</p>
   },
   {
+    accessorKey: 'celular',
+    header: "Celular",
+    size: 150,
+    cell: ({getValue}) => {
+      const value = getValue();
+      if (!value) return <p className="empty">N/A</p>
+
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <p style={{ margin: 0 }}>{value}</p>
+          <WhatsAppIcon phoneNumber={value} size={24} />
+        </div>
+      );
+    }
+  },
+  {
     accessorKey: 'fechaVencimiento',
     header: "Fecha Vencimiento",
     size: 110,
@@ -409,7 +446,7 @@ export const cuotasPagadasColumns = [
   {
     accessorKey: 'fechaPagado',
     header: "Fecha Pagado",
-    size: 110,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
 
@@ -422,7 +459,7 @@ export const cuotasPagadasColumns = [
   {
     accessorKey: 'monto',
     header: "Monto",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -435,7 +472,7 @@ export const cuotasPagadasColumns = [
   {
     accessorKey: 'mora',
     header: "Mora",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -448,7 +485,7 @@ export const cuotasPagadasColumns = [
   {
     accessorKey: 'abono',
     header: "Abono",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -461,7 +498,7 @@ export const cuotasPagadasColumns = [
   {
     accessorKey: 'total',
     header: "Total",
-    size: 90,
+    size: 85,
     cell: (props) => {
       const value = props.getValue();
       return (
@@ -496,3 +533,118 @@ export const getAccionesByEstado = (estado) => {
       return cuotasPendientesAcciones;
   }
 }
+
+// --- Cuotas Cobros ---
+export const cuotasCobrosColumns = [
+  {
+    accessorKey: 'estado',
+    header: "Estado",
+    size: 125,
+    cell: ({ getValue }) => {
+      const value = getValue();
+      const displayText = value === 'EnRevision' ? 'En Revisión' : value;
+    
+      return <p className={`badge ${value}`}>{displayText}</p>;
+    }
+  },
+  {
+    accessorKey: 'usuario',
+    header: "Usuario",
+    cell: (props) => <p>{props.getValue()}</p>
+  },
+  {
+    accessorKey: 'celular',
+    header: "Celular",
+    size: 150,
+    cell: ({getValue}) => {
+      const value = getValue();
+      if (!value) return <p className="empty">N/A</p>
+
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <p style={{ margin: 0 }}>{value}</p>
+          <WhatsAppIcon phoneNumber={value} size={24} />
+        </div>
+      );
+    }
+  },
+  {
+    accessorKey: 'fechaVencimiento',
+    header: "Fecha Vencimiento",
+    size: 110,
+    cell: (props) => {
+      const value = props.getValue();
+
+      if (!value) return <p className="empty">N/A</p>;
+
+      const [y, m, d] = value.split('T')[0].split('-');
+      return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
+    }
+  },
+  {
+    accessorKey: 'monto',
+    header: "Monto",
+    size: 85,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'mora',
+    header: "Mora",
+    size: 85,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'abono',
+    header: "Abono",
+    size: 85,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'total',
+    header: "Total",
+    size: 85,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'accion',
+    header: "Acción",
+    size: 125,
+    cell: ({ row }) => <ButtonAcciones row={row} acciones={cuotasCobrosAcciones} />,
+  },
+]
+
+export const cuotasCobrosAcciones = [
+  UsuarioTableAccionTipos.VER_DETALLES_COBRO,
+  CuotaTableAccionTipos.MARCAR_PAGADO,
+  CuotaTableAccionTipos.ABONAR,
+  CuotaTableAccionTipos.NOTAS,
+  CuotaTableAccionTipos.EDITAR
+]

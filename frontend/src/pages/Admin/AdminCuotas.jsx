@@ -29,15 +29,15 @@ export default function AdminCuotas(){
   }, [getCuotas, id]);
   
   // Definición de las columnas que estarán centradas
-  const centered = ['estado', 'codigo', 'fechaVencimiento', 'fechaPagado', 'monto', 'mora', 'total', 'accion']
+  const centered = ['estado', 'celular', 'codigo', 'fechaVencimiento', 'fechaPagado', 'monto', 'mora', 'total', 'accion']
 
   // -- Definición de las pestañas --
   const tabs = [
-    { label: 'Todos', columnDefinitions: cuotasTodosColumns, data: cuotas, card: CuotasPendientesCard},
-    { label: 'Vencidas', data: cuotasVencidas, card: CuotasPendientesCard},
+    { label: 'Todos'},
+    { label: 'Vencidas', columnDefinitions: cuotasPendientesColumns,data: cuotasVencidas, card: CuotasPendientesCard},
     { label: 'Pendientes', columnDefinitions: cuotasPendientesColumns, data: cuotasPendientes, card: CuotasPendientesCard},
     { label: 'Pagadas', columnDefinitions: cuotasPagadasColumns, data: cuotasPagadas, card: CuotasPagadasCard},
-    { label: 'En Revisión', data: cuotasEnRevision, card: CuotasPendientesCard},
+    { label: 'En Revisión', columnDefinitions: cuotasPendientesColumns, data: cuotasEnRevision, card: CuotasPendientesCard},
   ];
 
   return(
@@ -74,7 +74,7 @@ export default function AdminCuotas(){
         <BaseTable 
           data={cuotas} 
           columns={cuotasTodosColumns} 
-          card={tabs.find(tab => tab.label === currentTab)?.card || CuotasPendientesCard}
+          card={CuotasPendientesCard}
           centered={centered} 
           flexable='usuario' 
           loading={isFetchingCuotas}

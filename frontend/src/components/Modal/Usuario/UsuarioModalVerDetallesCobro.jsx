@@ -1,13 +1,15 @@
 import { BaseModal } from '../ModalUtils'
 import BaseTable from '../../Table/BaseTable'
 import { useUsuarioModalStore } from '../../../stores/Modal/useUsuarioModalStore'
+import { useUsuarioStore } from '../../../stores/useUsuarioStore'
 import { useState, useEffect } from 'react'
-import { creditosTodosColumns, creditosTodosMinimalColumns } from '../../Table/Credito/CreditoTableDefinitions'
-import { cuotasTodosColumns, cuotasTodosMinimalColumns } from '../../Table/Cuota/CuotaTableDefinitions'
+import { creditosTodosMinimalColumns } from '../../Table/Credito/CreditoTableDefinitions'
+import { cuotasTodosMinimalColumns } from '../../Table/Cuota/CuotaTableDefinitions'
 import FormField from '../../Form/FormField'
 
 export default function UsuarioModalVerDetallesCobro() {
   const { verDetallesCobro, row, closeModal } = useUsuarioModalStore()
+  const { usuario, getUsuario, isFetchingUsuario } = useUsuarioStore()
   const [selectedCredito, setSelectedCredito] = useState(null)
 
   // Reset selected credito when modal opens/closes
@@ -16,6 +18,14 @@ export default function UsuarioModalVerDetallesCobro() {
       setSelectedCredito(null)
     }
   }, [verDetallesCobro])
+
+  // Fetch usuario data if userId is present
+  useEffect(() => {
+    const userId = row?.original?.userId
+    if (userId && verDetallesCobro) {
+      getUsuario(userId)
+    }
+  }, [row, verDetallesCobro, getUsuario])
 
   const handleCloseModal = () => {
     setSelectedCredito(null)
@@ -28,28 +38,46 @@ export default function UsuarioModalVerDetallesCobro() {
 
   if (!row?.original) return null
 
-  console.log(row.original)
-  const usuarioData = row.original
-  const creditos = usuarioData.creditos || []
+  // Determine which data source to use
+  const hasUserId = row.original.userId
+  const fetchedUsuario = usuario
+  
+  const usuarioData = hasUserId && fetchedUsuario ? fetchedUsuario : row.original
+  const creditos = hasUserId && fetchedUsuario ? (fetchedUsuario.creditos || []) : (row.original.creditos || [])
 
   return (
     <BaseModal
       isOpen={verDetallesCobro}
       onClose={handleCloseModal}
-      customWidth={1200}
-      title={`Detalles para Cobro - ${usuarioData.usuario}`}
+      customWidth={1000}
+      title={`Detalles para Cobro`}
       cancelText="CERRAR"
     >
-      <div className="modal-content">
-        {/* User Info Header */}
-        <div>
-          <h3>{usuarioData.usuario}</h3>
-          <FormField
-            label="Dirección"
-            value={usuarioData.direccion}
-            disabled={true}
-          />
-        </div>
+      <div className="modal-content" style={{width: '80%'}}>
+        {isFetchingUsuario && hasUserId ? (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '200px' }}>
+            <div className="spinner large" />
+          </div>
+        ) : (
+          <>
+            {/* User Info Header */}
+            <h3>{usuarioData.usuario || `${usuarioData.nombres} ${usuarioData.apellidos}`}</h3>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 'var(--space-md)' }}>
+              <FormField
+                classNames={'one'}
+                label="Dirección"
+                value={usuarioData.direccion}
+                type="textarea"
+                disabled={true}
+              />
+              <FormField
+                classNames={'one'}
+                label="Celular"
+                type="phone"
+                value={usuarioData.celular}
+                disabled={true}
+              />
+            </div>
 
         {/* Creditos Table */}
         <div style={{ marginBottom: '30px' }}>
@@ -93,6 +121,8 @@ export default function UsuarioModalVerDetallesCobro() {
           <div style={{ textAlign: 'center', padding: '20px', color: '#666' }}>
             <p>No hay créditos disponibles para este usuario</p>
           </div>
+        )}
+          </>
         )}
       </div>
     </BaseModal>

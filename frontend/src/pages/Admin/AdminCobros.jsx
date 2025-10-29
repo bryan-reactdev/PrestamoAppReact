@@ -14,7 +14,7 @@ import UsuarioModalVerDetallesCobro from '../../components/Modal/Usuario/Usuario
 import FormField from '../../components/Form/FormField'
 import { getCurrentDate } from '../../utils/dateUtils'
 import { useCuotaStore } from '../../stores/useCuotaStore'
-import { cuotasPendientesColumns } from '../../components/Table/Cuota/CuotaTableDefinitions'
+import { cuotasCobrosAcciones, cuotasCobrosColumns, cuotasPendientesColumns } from '../../components/Table/Cuota/CuotaTableDefinitions'
 import { CuotasPendientesCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
 import CuotaModalMarcarPagado from '../../components/Modal/Cuota/CuotaModalMarcarPagado'
 import CuotaModalAbonar from '../../components/Modal/Cuota/CuotaModalAbonar'
@@ -37,11 +37,11 @@ export default function AdminCobros(){
   }, [getUsuariosConVencidas, getCuotasTotales, getCuotas]);
   
   // Definición de las columnas que estarán centradas
-  const centered = ['calificacion', 'celular', 'cuotaVencimiento', 'cuotaMonto', 'cuotaMora', 'cuotaAbono', 'cuotaTotal', 'accion']
+  const centered = ['calificacion', 'estado', 'celular', 'fechaVencimiento', 'cuotaVencimiento', 'cuotaMonto', 'cuotaMora', 'cuotaAbono', 'cuotaTotal', 'monto', 'mora', 'abono', 'total', 'accion']
 
   const tabs = [
     { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Lista de Usuarios con Cuotas Vencidas', text: usuariosConVencidas.length ?? '0'},
-    { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Cuotas con Clientes', text: cuotasPendientesForMapeo.length ?? '0', data: cuotasPendientesForMapeo, card: CuotasPendientesCard, columnDefinitions: cuotasPendientesColumns},
+    { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Cuotas con Clientes', text: cuotasPendientesForMapeo.length ?? '0', data: cuotasPendientesForMapeo, card: CuotasPendientesCard, columnDefinitions: cuotasCobrosColumns},
   ];
 
   return(
