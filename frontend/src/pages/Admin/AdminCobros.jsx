@@ -15,6 +15,11 @@ import FormField from '../../components/Form/FormField'
 import { getCurrentDate } from '../../utils/dateUtils'
 import { useCuotaStore } from '../../stores/useCuotaStore'
 import { cuotasPendientesColumns } from '../../components/Table/Cuota/CuotaTableDefinitions'
+import { CuotasPendientesCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
+import CuotaModalMarcarPagado from '../../components/Modal/Cuota/CuotaModalMarcarPagado'
+import CuotaModalAbonar from '../../components/Modal/Cuota/CuotaModalAbonar'
+import CuotaModalNotas from '../../components/Modal/Cuota/CuotaModalNotas'
+import CuotaModalEditar from '../../components/Modal/Cuota/CuotaModalEditar'
 
 export default function AdminCobros(){
   const {usuariosConVencidas, isFetchingUsuariosConVencidas, getUsuariosConVencidas, descargarPDFCobros} = useUsuarioStore();
@@ -36,7 +41,7 @@ export default function AdminCobros(){
 
   const tabs = [
     { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Lista de Usuarios con Cuotas Vencidas', text: usuariosConVencidas.length ?? '0'},
-    { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Cuotas con Clientes', text: cuotasPendientesForMapeo.length ?? '0', data: cuotasPendientesForMapeo, columnDefinitions: cuotasPendientesColumns},
+    { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Cuotas con Clientes', text: cuotasPendientesForMapeo.length ?? '0', data: cuotasPendientesForMapeo, card: CuotasPendientesCard, columnDefinitions: cuotasPendientesColumns},
   ];
 
   return(
@@ -48,6 +53,11 @@ export default function AdminCobros(){
 
       <UsuarioModalVerDetalles/>
       <UsuarioModalVerDetallesCobro/>
+
+      <CuotaModalMarcarPagado/>
+      <CuotaModalAbonar/>
+      <CuotaModalNotas/>
+      <CuotaModalEditar/>
 
       <div className="content">
         <ContentTitleWithInfo title={''} subtitle={''}>

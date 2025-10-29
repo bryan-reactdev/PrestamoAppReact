@@ -127,7 +127,12 @@ export default function StatsChart({
           weight: 'bold'
         },
         bodyFont: {
-          size: 12
+          size: 12,
+          weight: 'normal'
+        },
+        labelFont: {
+          size: 12,
+          weight: 'bold'
         },
         callbacks: {
           title: function(context) {
@@ -147,14 +152,22 @@ export default function StatsChart({
           label: function(context) {
             const dataIndex = context.dataIndex;
             const clickedData = data[dataIndex];
-            const isIngresos = context.dataset.label === 'Ingresos';
             
             if (!clickedData) return `${context.dataset.label}: $${context.parsed.y.toLocaleString()}`;
             
-            // Use pre-calculated breakdown data (much more efficient!)
+            // Return just the main total line
+            return `${context.dataset.label} Totales: $${context.parsed.y.toLocaleString()}`;
+          },
+          afterLabel: function(context) {
+            const dataIndex = context.dataIndex;
+            const clickedData = data[dataIndex];
+            const isIngresos = context.dataset.label === 'Ingresos';
+            
+            if (!clickedData) return '';
+            
+            // Return the breakdown details
             if (isIngresos) {
               return [
-                `  • ${context.dataset.label} Totales: $${context.parsed.y.toLocaleString()}`,
                 `  • Ingresos Capitales: $${(clickedData.ingresosCapitales || 0).toLocaleString()}`,
                 `  • Ingresos Varios: $${(clickedData.ingresosVarios || 0).toLocaleString()}`,
                 `  • Abonos a Cuotas: $${(clickedData.cuotasAbonos || 0).toLocaleString()}`,
@@ -162,7 +175,6 @@ export default function StatsChart({
               ];
             } else {
               return [
-                `  • ${context.dataset.label} Totales: $${context.parsed.y.toLocaleString()}`,
                 `  • Gastos Empresa: $${(clickedData.gastosEmpresa || 0).toLocaleString()}`,
                 `  • Egresos Varios: $${(clickedData.egresosVarios || 0).toLocaleString()}`,
                 `  • Retiros Cuotas: $${(clickedData.egresosCuotasRetiros || 0).toLocaleString()}`,
