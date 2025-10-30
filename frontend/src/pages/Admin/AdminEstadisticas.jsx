@@ -284,9 +284,10 @@ export default function AdminEstadisticas(){
             type={currentView === 'Semanal' ? 'week' : 'month'}
             className={currentView === 'Semanal' ? 'weekly-stats-chart' : 'monthly-stats-chart'}
             onDateClick={handleDateClick}
+            saldo={saldo}
           />
 
-          <ChartSummary data={currentData} />
+          <ChartSummary data={currentData} saldo={saldo} />
         </div>
       </div>
     </div>

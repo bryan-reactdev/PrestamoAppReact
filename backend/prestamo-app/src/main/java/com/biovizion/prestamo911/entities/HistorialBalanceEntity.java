@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "historial_balance")
@@ -26,5 +26,5 @@ public class HistorialBalanceEntity {
     private BigDecimal egresosTotales;
 
     @Column(columnDefinition = "DATETIME")
-    private LocalDateTime fecha;
+    private LocalDate fecha;
 }

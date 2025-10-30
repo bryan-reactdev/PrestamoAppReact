@@ -30,7 +30,8 @@ export default function StatsChart({
   maxValue = 10000,
   type = 'week', // 'week' or 'month'
   className = 'stats-chart',
-  onDateClick = null // Callback function for date clicks
+  onDateClick = null, // Callback function for date clicks
+  saldo = 0
 }) {
   // Transform data for Chart.js
   const chartData = React.useMemo(() => {
@@ -164,21 +165,28 @@ export default function StatsChart({
             const isIngresos = context.dataset.label === 'Ingresos';
             
             if (!clickedData) return '';
-            
-            // Return the breakdown details
+            // date check logic
+            let showSaldo = false;
+            if (clickedData.date) {
+              const todayStr = new Date().toISOString().slice(0,10);
+              showSaldo = clickedData.date >= todayStr;
+            }
+            const balanceToShow = showSaldo ? saldo : (clickedData.historialBalance || 0);
             if (isIngresos) {
               return [
                 `  • Ingresos Capitales: $${(clickedData.ingresosCapitales || 0).toLocaleString()}`,
                 `  • Ingresos Varios: $${(clickedData.ingresosVarios || 0).toLocaleString()}`,
                 `  • Abonos a Cuotas: $${(clickedData.cuotasAbonos || 0).toLocaleString()}`,
-                `  • Cuotas Pagadas: $${(clickedData.cuotasPagadas || 0).toLocaleString()}`
+                `  • Cuotas Pagadas: $${(clickedData.cuotasPagadas || 0).toLocaleString()}`,
+                `  • Balance: $${balanceToShow.toLocaleString()}`
               ];
             } else {
               return [
                 `  • Gastos Empresa: $${(clickedData.gastosEmpresa || 0).toLocaleString()}`,
                 `  • Egresos Varios: $${(clickedData.egresosVarios || 0).toLocaleString()}`,
                 `  • Retiros Cuotas: $${(clickedData.egresosCuotasRetiros || 0).toLocaleString()}`,
-                `  • Créditos Desembolsados: $${(clickedData.creditosDesembolsados || 0).toLocaleString()}`
+                `  • Créditos Desembolsados: $${(clickedData.creditosDesembolsados || 0).toLocaleString()}`,
+                `  • Balance: $${balanceToShow.toLocaleString()}`
               ];
             }
           }
@@ -191,7 +199,7 @@ export default function StatsChart({
         max: maxValue
       }
     }
-  }), [minValue, maxValue, data, onDateClick]);
+  }), [minValue, maxValue, data, onDateClick, saldo]);
 
   // Don't render chart if no data
   if (!data || data.length === 0 || !chartData) {

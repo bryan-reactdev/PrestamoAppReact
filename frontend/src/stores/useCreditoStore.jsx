@@ -318,6 +318,13 @@ export const useCreditoStore = create((set, get) => ({
         set({ isSubmittingCredito: true });        
         const data = new FormData();
 
+        // Helper function to conditionally append values
+        const appendIfValue = (key, value) => {
+            if (value !== null && value !== undefined && value !== '') {
+                data.append(key, value);
+            }
+        };
+
         // --- Info del crédito ---
         data.append('id', formData.id);
 

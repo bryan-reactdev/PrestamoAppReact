@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function ChartSummary({ data }) {
+export default function ChartSummary({ data, saldo }) {
   // Calculate totals
   const totalIngresos = data.reduce((sum, day) => sum + day.totalIngresos, 0);
   const totalEgresos = data.reduce((sum, day) => sum + day.totalEgresos, 0);
@@ -17,8 +17,29 @@ export default function ChartSummary({ data }) {
   const egresosCuotasRetiros = data.reduce((sum, day) => sum + (day.egresosCuotasRetiros || 0), 0);
   const creditosDesembolsados = data.reduce((sum, day) => sum + (day.creditosDesembolsados || 0), 0);
 
+  // Balances
+  const cajaChicaInicial = data?.length > 0 ? (data[0]?.historialBalance || 0) : 0;
+  const lastData = data?.length > 0 ? data[data.length-1] : null;
+  let cajaChicaFinal = lastData ? (lastData.historialBalance || 0) : 0;
+  if (lastData && cajaChicaFinal === 0 && lastData.date) {
+    const lastDate = new Date(lastData.date);
+    const today = new Date();
+    // Set both to midnight
+    lastDate.setHours(0,0,0,0);
+    today.setHours(0,0,0,0);
+    if (lastDate > today) {
+      cajaChicaFinal = saldo || 0;
+    }
+  }
+
   return (
     <div className="chart-summary">
+      <div className="summary-item" title={`Caja chica al inicio del rango\nFecha inicial: ${data?.[0]?.date || 'N/A'}\nSaldo: $${cajaChicaInicial.toLocaleString()}`}>
+        <h4>Caja Chica Inicial</h4>
+        <span>
+          ${cajaChicaInicial.toLocaleString()}
+        </span>
+      </div>
       <div className="summary-item" title={`💰 Ingresos Capitales: $${ingresosCapitales.toLocaleString()}\n💰 Ingresos Varios: $${ingresosVarios.toLocaleString()}\n💰 Abonos a Cuotas: $${cuotasAbonos.toLocaleString()}\n💰 Cuotas Pagadas: $${cuotasPagadas.toLocaleString()}`}>
         <h4>Total Ingresos</h4>
         <span className="color-success">
@@ -32,9 +53,15 @@ export default function ChartSummary({ data }) {
         </span>
       </div>
       <div className="summary-item" title={`Balance Neto = Ingresos - Egresos\n💰 Ingresos: $${totalIngresos.toLocaleString()}\n💸 Egresos: $${totalEgresos.toLocaleString()}\n📊 Resultado: $${balanceNeto.toLocaleString()}`}>
-        <h4>Balance Neto</h4>
+        <h4>{balanceNeto >= 0 ? 'Superávit' : 'Déficit'}</h4>
         <span className={`color-${balanceNeto >= 0 ? 'success' : 'danger'}`}>
           ${balanceNeto.toLocaleString()}
+        </span>
+      </div>
+      <div className="summary-item" title={`Caja chica al final del rango\nFecha final: ${data?.[data.length-1]?.date || 'N/A'}\nSaldo: $${cajaChicaFinal.toLocaleString()}`}>
+        <h4>Caja Chica Final</h4>
+        <span>
+          ${cajaChicaFinal.toLocaleString()}
         </span>
       </div>
     </div>

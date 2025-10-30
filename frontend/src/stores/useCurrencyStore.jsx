@@ -248,7 +248,7 @@ export const useCurrencyStore = create((set, get) => ({
 
     // --- Week Data Generation ---
     getWeekData: (weekOffset = 0) => {
-        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados } = get();
+        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados, historialBalance } = get();
         
         const today = new Date();
         const targetDate = new Date(today);
@@ -277,6 +277,7 @@ export const useCurrencyStore = create((set, get) => ({
             const egresosVariosForDate = filtrarPorFecha(egresosVarios, dateString);
             const egresosCuotasRetirosForDate = filtrarPorFecha(egresosCuotasRetiros, dateString);
             const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, dateString);
+            const historialBalanceForDate = filtrarPorFecha(historialBalance, dateString);
             
             const totalIngresos = 
                 (ingresosCapitalesForDate?.total || 0) +
@@ -302,6 +303,7 @@ export const useCurrencyStore = create((set, get) => ({
                 egresosVarios: egresosVariosForDate?.total || 0,
                 egresosCuotasRetiros: egresosCuotasRetirosForDate?.total || 0,
                 creditosDesembolsados: creditosDesembolsadosForDate?.total || 0,
+                historialBalance: historialBalanceForDate?.data?.[0]?.monto || 0,
                 // Totals
                 totalIngresos: totalIngresos,
                 totalEgresos: totalEgresos,
@@ -314,7 +316,7 @@ export const useCurrencyStore = create((set, get) => ({
 
     // --- Month Data Generation ---
     getMonthData: (monthOffset = 0) => {
-        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados } = get();
+        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados, historialBalance } = get();
         
         const today = new Date();
         const targetDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
@@ -344,6 +346,7 @@ export const useCurrencyStore = create((set, get) => ({
             const egresosVariosForDate = filtrarPorFecha(egresosVarios, dateString);
             const egresosCuotasRetirosForDate = filtrarPorFecha(egresosCuotasRetiros, dateString);
             const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, dateString);
+            const historialBalanceForDate = filtrarPorFecha(historialBalance, dateString);
             
             const totalIngresos = 
                 (ingresosCapitalesForDate?.total || 0) +
@@ -369,6 +372,7 @@ export const useCurrencyStore = create((set, get) => ({
                 egresosVarios: egresosVariosForDate?.total || 0,
                 egresosCuotasRetiros: egresosCuotasRetirosForDate?.total || 0,
                 creditosDesembolsados: creditosDesembolsadosForDate?.total || 0,
+                historialBalance: historialBalanceForDate?.data?.[0]?.monto || 0,
                 // Totals
                 totalIngresos: totalIngresos,
                 totalEgresos: totalEgresos,
