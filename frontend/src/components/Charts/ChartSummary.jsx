@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function ChartSummary({ data, saldo }) {
+export default function ChartSummary({ data, saldo, viewType = 'Semanal' }) {
   // Calculate totals
   const totalIngresos = data.reduce((sum, day) => sum + day.totalIngresos, 0);
   const totalEgresos = data.reduce((sum, day) => sum + day.totalEgresos, 0);
@@ -18,50 +18,70 @@ export default function ChartSummary({ data, saldo }) {
   const creditosDesembolsados = data.reduce((sum, day) => sum + (day.creditosDesembolsados || 0), 0);
 
   // Balances
-  const cajaChicaInicial = data?.length > 0 ? (data[0]?.historialBalance || 0) : 0;
+  const firstData = data?.length > 0 ? data[0] : null;
+  const today = new Date();
+  today.setUTCHours(0, 0, 0, 0);
+  const todayStr = today.toISOString().split('T')[0];
+  
+  // Initial balance
+  let cajaChicaInicial = null;
+  if (firstData) {
+    const firstDateStr = firstData.date?.split('T')[0];
+    if (firstDateStr >= todayStr) {
+      cajaChicaInicial = saldo;
+    } else {
+      cajaChicaInicial = (firstData.historialBalance !== null && firstData.historialBalance !== undefined && firstData.historialBalance !== 0)
+        ? firstData.historialBalance 
+        : null;
+    }
+  }
+  
+  // Final balance
   const lastData = data?.length > 0 ? data[data.length-1] : null;
-  let cajaChicaFinal = lastData ? (lastData.historialBalance || 0) : 0;
-  if (lastData && cajaChicaFinal === 0 && lastData.date) {
-    const lastDate = new Date(lastData.date);
-    const today = new Date();
-    // Set both to midnight
-    lastDate.setHours(0,0,0,0);
-    today.setHours(0,0,0,0);
-    if (lastDate > today) {
-      cajaChicaFinal = saldo || 0;
+  let cajaChicaFinal = null;
+  if (lastData && lastData.date) {
+    const lastDateStr = lastData.date.split('T')[0];
+    // If last date is today or in the future, use current saldo (most accurate)
+    if (lastDateStr >= todayStr) {
+      cajaChicaFinal = saldo;
+    } else {
+      // For past dates, use historialBalance if available (not null, undefined, or 0)
+      cajaChicaFinal = (lastData.historialBalance !== null && lastData.historialBalance !== undefined && lastData.historialBalance !== 0)
+        ? lastData.historialBalance 
+        : null;
     }
   }
 
   return (
     <div className="chart-summary">
-      <div className="summary-item" title={`Caja chica al inicio del rango\nFecha inicial: ${data?.[0]?.date || 'N/A'}\nSaldo: $${cajaChicaInicial.toLocaleString()}`}>
+      <div className="summary-item" title={`Caja chica al inicio del rango\nFecha inicial: ${data?.[0]?.date || 'N/A'}\nSaldo: ${cajaChicaInicial !== null ? `$${cajaChicaInicial.toLocaleString()}` : 'N/A'}`}>
         <h4>Caja Chica Inicial</h4>
         <span>
-          ${cajaChicaInicial.toLocaleString()}
+          {cajaChicaInicial !== null ? `$${cajaChicaInicial.toLocaleString()}` : 'N/A'}
         </span>
       </div>
       <div className="summary-item" title={`💰 Ingresos Capitales: $${ingresosCapitales.toLocaleString()}\n💰 Ingresos Varios: $${ingresosVarios.toLocaleString()}\n💰 Abonos a Cuotas: $${cuotasAbonos.toLocaleString()}\n💰 Cuotas Pagadas: $${cuotasPagadas.toLocaleString()}`}>
-        <h4>Total Ingresos</h4>
+        <h4>Total Ingresos {viewType}</h4>
         <span className="color-success">
           ${totalIngresos.toLocaleString()}
         </span>
       </div>
       <div className="summary-item" title={`💸 Gastos Empresa: $${gastosEmpresa.toLocaleString()}\n💸 Egresos Varios: $${egresosVarios.toLocaleString()}\n💸 Retiros Cuotas: $${egresosCuotasRetiros.toLocaleString()}\n💸 Créditos Desembolsados: $${creditosDesembolsados.toLocaleString()}`}>
-        <h4>Total Egresos</h4>
+        <h4>Total Egresos {viewType}</h4>
         <span className="color-danger">
           ${totalEgresos.toLocaleString()}
         </span>
       </div>
       <div className="summary-item" title={`Balance Neto = Ingresos - Egresos\n💰 Ingresos: $${totalIngresos.toLocaleString()}\n💸 Egresos: $${totalEgresos.toLocaleString()}\n📊 Resultado: $${balanceNeto.toLocaleString()}`}>
-        <h4>{balanceNeto >= 0 ? 'Superávit' : 'Déficit'}</h4>
+        <h4>Balance Neto {viewType}</h4>
         <span className={`color-${balanceNeto >= 0 ? 'success' : 'danger'}`}>
           ${balanceNeto.toLocaleString()}
         </span>
       </div>
-      <div className="summary-item" title={`Caja chica al final del rango\nFecha final: ${data?.[data.length-1]?.date || 'N/A'}\nSaldo: $${cajaChicaFinal.toLocaleString()}`}>
+      <div className="summary-item" title={`Caja chica al final del rango\nFecha final: ${data?.[data.length-1]?.date || 'N/A'}\nSaldo: ${cajaChicaFinal !== null ? `$${cajaChicaFinal.toLocaleString()}` : 'N/A'}`}>
         <h4>Caja Chica Final</h4>
         <span>
-          ${cajaChicaFinal.toLocaleString()}
+          {cajaChicaFinal !== null ? `$${cajaChicaFinal.toLocaleString()}` : 'N/A'}
         </span>
       </div>
     </div>

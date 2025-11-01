@@ -287,7 +287,7 @@ export default function AdminEstadisticas(){
             saldo={saldo}
           />
 
-          <ChartSummary data={currentData} saldo={saldo} />
+          <ChartSummary data={currentData} saldo={saldo} viewType={currentView} />
         </div>
       </div>
     </div>

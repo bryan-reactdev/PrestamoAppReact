@@ -140,13 +140,25 @@ export default function StatsChart({
             const dataIndex = context[0].dataIndex;
             const clickedData = data[dataIndex];
             if (clickedData) {
-              const date = new Date(clickedData.date);
-              return date.toLocaleDateString('es-ES', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              });
+              // Parse date string directly without timezone conversion
+              const dateStr = clickedData.date;
+              if (dateStr) {
+                // Parse YYYY-MM-DD format in UTC
+                const [year, month, day] = dateStr.split('T')[0].split('-');
+                const dateObj = new Date(Date.UTC(year, month - 1, day));
+                
+                // Format manually to avoid timezone conversion
+                const weekdays = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+                const months = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 
+                               'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+                
+                const weekday = weekdays[dateObj.getUTCDay()];
+                const monthName = months[dateObj.getUTCMonth()];
+                const dayNum = dateObj.getUTCDate();
+                const yearNum = dateObj.getUTCFullYear();
+                
+                return `${weekday}, ${dayNum} de ${monthName} de ${yearNum}`;
+              }
             }
             return context[0].label;
           },
@@ -167,18 +179,31 @@ export default function StatsChart({
             if (!clickedData) return '';
             // date check logic
             let showSaldo = false;
+            let balanceToShow = null;
             if (clickedData.date) {
               const todayStr = new Date().toISOString().slice(0,10);
-              showSaldo = clickedData.date >= todayStr;
+              if (clickedData.date >= todayStr) {
+                showSaldo = true;
+                balanceToShow = saldo;
+              } else {
+                // For past dates, use historialBalance if available (not null, undefined, or 0)
+                balanceToShow = (clickedData.historialBalance !== null && 
+                                clickedData.historialBalance !== undefined && 
+                                clickedData.historialBalance !== 0)
+                  ? clickedData.historialBalance 
+                  : null;
+              }
             }
-            const balanceToShow = showSaldo ? saldo : (clickedData.historialBalance || 0);
+            
+            const balanceDisplay = balanceToShow !== null ? `$${balanceToShow.toLocaleString()}` : 'N/A';
+            
             if (isIngresos) {
               return [
                 `  • Ingresos Capitales: $${(clickedData.ingresosCapitales || 0).toLocaleString()}`,
                 `  • Ingresos Varios: $${(clickedData.ingresosVarios || 0).toLocaleString()}`,
                 `  • Abonos a Cuotas: $${(clickedData.cuotasAbonos || 0).toLocaleString()}`,
                 `  • Cuotas Pagadas: $${(clickedData.cuotasPagadas || 0).toLocaleString()}`,
-                `  • Balance: $${balanceToShow.toLocaleString()}`
+                `  • Balance: ${balanceDisplay}`
               ];
             } else {
               return [
@@ -186,7 +211,7 @@ export default function StatsChart({
                 `  • Egresos Varios: $${(clickedData.egresosVarios || 0).toLocaleString()}`,
                 `  • Retiros Cuotas: $${(clickedData.egresosCuotasRetiros || 0).toLocaleString()}`,
                 `  • Créditos Desembolsados: $${(clickedData.creditosDesembolsados || 0).toLocaleString()}`,
-                `  • Balance: $${balanceToShow.toLocaleString()}`
+                `  • Balance: ${balanceDisplay}`
               ];
             }
           }
