@@ -247,8 +247,9 @@ export const useCuotaStore = create((set, get) => ({
             return;
         }
 
-        const result = cuotasPendientes.filter((cuota) => cuota.fechaVencimiento?.startsWith(date));
-        set({cuotasPendientesForMapeo: result});
+        const resultPendientes = cuotasPendientes.filter((cuota) => cuota.fechaVencimiento?.startsWith(date));
+        const resultVencidas = cuotasVencidas.filter((cuota) => cuota.fechaVencimiento?.startsWith(date));
+        set({cuotasPendientesForMapeo: resultPendientes.concat(resultVencidas ?? [])});
     },
 
     setSelectedDate: (date) => {
