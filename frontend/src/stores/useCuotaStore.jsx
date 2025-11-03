@@ -117,7 +117,7 @@ export const useCuotaStore = create((set, get) => ({
 
         set({ cuotas: todas ?? [] });
         set({ cuotasPendientes: pendientes ?? [] });
-        set({ cuotasPendientesForMapeo: pendientes ?? [] });
+        set({ cuotasPendientesForMapeo: (pendientes ?? []).concat(vencidas ?? []) });
         set({ cuotasPagadas: pagadas ?? [] });
         set({ cuotasVencidas: vencidas ?? [] });
         set({ cuotasEnRevision: enRevision ?? [] });
@@ -138,7 +138,7 @@ export const useCuotaStore = create((set, get) => ({
 
         set({ cuotas: todas ?? [] });
         set({ cuotasPendientes: pendientes ?? [] });
-        set({ cuotasPendientesForMapeo: pendientes ?? [] });
+        set({ cuotasPendientesForMapeo: (pendientes ?? []).concat(vencidas ?? []) });
         set({ cuotasPagadas: pagadas ?? [] });
         set({ cuotasVencidas: vencidas ?? [] });
         set({ cuotasEnRevision: enRevision ?? [] });
@@ -241,9 +241,9 @@ export const useCuotaStore = create((set, get) => ({
     },
 
     filterCuotasPendientesForMapeo: async (date) => {
-        const {cuotasPendientes} = get();
+        const {cuotasPendientes, cuotasVencidas} = get();
         if (date == null) {
-            set({cuotasPendientesForMapeo: cuotasPendientes});
+            set({ cuotasPendientesForMapeo: (cuotasPendientes ?? []).concat(cuotasVencidas ?? []) });
             return;
         }
 
