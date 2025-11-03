@@ -79,6 +79,7 @@ export const useCurrencyStore = create((set, get) => ({
 
     getBalance: async () => {
         set({ isFetchingBalance: true });
+        get().resetArrays();
 
         const res = await axiosData("/currency/balance", { method: "GET" });
 
@@ -101,6 +102,9 @@ export const useCurrencyStore = create((set, get) => ({
         });
 
         set({ isFetchingBalance: false });
+
+        // Recalculate filtered arrays for selected date
+        get().getCurrencyForDate();
     },
 
     realizarIngreso: async (formData, images = []) => {
@@ -471,4 +475,40 @@ export const useCurrencyStore = create((set, get) => ({
         }, 0);
     },
 
+    resetArrays: () => {
+        set({
+            saldo: null,
+            historialBalance: null,
+
+            // Ingresos
+            ingresosCapitales: null,
+            ingresosVarios: null,
+            cuotasAbonos: null,
+            cuotasPagadas: null,
+
+            // Egresos
+            gastosEmpresa: null,
+            egresosVarios: null,
+            egresosCuotasRetiros: null,
+            creditosDesembolsados: null,
+
+            currencyForDate: {
+                balance: null,
+
+                // Ingresos
+                ingresosCapitales: null,
+                ingresosVarios: null,
+                cuotasAbonos: null,
+                cuotasPagadas: null,
+                totalIngresos: null,
+
+                // Egresos
+                gastosEmpresa: null,
+                egresosVarios: null,
+                egresosCuotasRetiros: null,
+                creditosDesembolsados: null,
+                totalEgresos: null,
+            },
+        });
+    },
 }))
