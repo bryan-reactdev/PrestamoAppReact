@@ -45,10 +45,10 @@ export default function AdminIngresos(){
   const centered = ['fecha', 'monto', 'accion', 'credito', 'fechaCuota', 'fechaAbono', 'fechaVencimiento', 'fechaPagado', 'mora', 'abono', 'total']
 
   const tabs = [
-    { icon: 'fas fa-building', label: 'Ingresos Capitales', iconBgColor: 'accent-light', value: currencyForDate.ingresosCapitales?.total},
-    { icon: 'fas fa-coins', label: 'Ingresos Varios', data: currencyForDate.ingresosVarios?.data ?? [], iconBgColor: 'warning', value: currencyForDate.ingresosVarios?.total},
-    { icon: 'fas fa-money-bill', label: 'Abonos a Cuotas', columnDefinitions: abonosColumns, data: currencyForDate.cuotasAbonos?.data ?? [], value: currencyForDate.cuotasAbonos?.total},
-    { icon: 'fas fa-wallet', label: 'Cuotas Pagadas', columnDefinitions: cuotasPagadasColumns, card: CuotasPagadasCard, data: currencyForDate.cuotasPagadas?.data ?? [], iconBgColor: 'success-light', value: currencyForDate.cuotasPagadas?.total},
+    { icon: 'fas fa-building', label: 'Ingresos Capitales', iconBgColor: 'accent-light', value: currencyForDate.ingresosCapitales?.total, isLoading: isFetchingBalance},
+    { icon: 'fas fa-coins', label: 'Ingresos Varios', data: currencyForDate.ingresosVarios?.data ?? [], iconBgColor: 'warning', value: currencyForDate.ingresosVarios?.total, isLoading: isFetchingBalance},
+    { icon: 'fas fa-money-bill', label: 'Abonos a Cuotas', columnDefinitions: abonosColumns, data: currencyForDate.cuotasAbonos?.data ?? [], value: currencyForDate.cuotasAbonos?.total, isLoading: isFetchingBalance},
+    { icon: 'fas fa-wallet', label: 'Cuotas Pagadas', columnDefinitions: cuotasPagadasColumns, card: CuotasPagadasCard, data: currencyForDate.cuotasPagadas?.data ?? [], iconBgColor: 'success-light', value: currencyForDate.cuotasPagadas?.total, isLoading: isFetchingBalance},
   ];
 
   return(

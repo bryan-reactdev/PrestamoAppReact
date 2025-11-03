@@ -44,10 +44,10 @@ export default function AdminEgresos() {
   const centered = ['fecha', 'monto', 'accion', 'calificacion', 'montoDesembolsar', 'frecuencia', 'fechaAceptado', 'desembolsado']
 
   const tabs = [
-    { icon: 'fas fa-building', label: 'Gastos Empresa', iconBgColor: 'accent-light', value: currencyForDate.gastosEmpresa?.total },
-    { icon: 'fas fa-coins', label: 'Egresos Varios', data: currencyForDate.egresosVarios?.data ?? [], iconBgColor: 'warning', value: currencyForDate.egresosVarios?.total },
-    { icon: 'fas fa-money-bill', label: 'Retiro Cuotas', data: currencyForDate.egresosCuotasRetiros?.data ?? [], value: currencyForDate.egresosCuotasRetiros?.total },
-    { icon: 'fas fa-credit-card', label: 'Créditos Desembolsados', columnDefinitions: creditosAceptadosColumns, card: CreditosAceptadosCard, data: currencyForDate.creditosDesembolsados?.data ?? [], iconBgColor: 'danger', value: currencyForDate.creditosDesembolsados?.total },
+    { icon: 'fas fa-building', label: 'Gastos Empresa', iconBgColor: 'accent-light', value: currencyForDate.gastosEmpresa?.total, isLoading: isFetchingBalance },
+    { icon: 'fas fa-coins', label: 'Egresos Varios', data: currencyForDate.egresosVarios?.data ?? [], iconBgColor: 'warning', value: currencyForDate.egresosVarios?.total, isLoading: isFetchingBalance },
+    { icon: 'fas fa-money-bill', label: 'Retiro Cuotas', data: currencyForDate.egresosCuotasRetiros?.data ?? [], value: currencyForDate.egresosCuotasRetiros?.total, isLoading: isFetchingBalance },
+    { icon: 'fas fa-credit-card', label: 'Créditos Desembolsados', columnDefinitions: creditosAceptadosColumns, card: CreditosAceptadosCard, data: currencyForDate.creditosDesembolsados?.data ?? [], iconBgColor: 'danger', value: currencyForDate.creditosDesembolsados?.total, isLoading: isFetchingBalance },
   ];
 
   return (

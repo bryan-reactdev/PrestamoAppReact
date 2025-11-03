@@ -33,7 +33,12 @@ export default function TabsTotals({ tabs, currentTab, setCurrentTab }) {
           onClick={() => handleEstadoChange(tab)}
         >
           <div className="color-accent">
-            {tab.text
+            {tab.isLoading
+            ?
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="spinner" style={{ width: '12px', height: '12px' }}></div>
+              </div>
+            : tab.text
             ?
               <div>
                 <span className={`color-${tab.color}`}>{tab.text}</span>

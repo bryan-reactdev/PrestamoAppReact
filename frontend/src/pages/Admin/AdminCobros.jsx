@@ -20,11 +20,12 @@ import CuotaModalMarcarPagado from '../../components/Modal/Cuota/CuotaModalMarca
 import CuotaModalAbonar from '../../components/Modal/Cuota/CuotaModalAbonar'
 import CuotaModalNotas from '../../components/Modal/Cuota/CuotaModalNotas'
 import CuotaModalEditar from '../../components/Modal/Cuota/CuotaModalEditar'
+import { formatCurrencySV } from '../../utils/currencyUtils'
 
 export default function AdminCobros(){
   const {usuariosConVencidas, isFetchingUsuariosConVencidas, getUsuariosConVencidas, descargarPDFCobros} = useUsuarioStore();
-  const {cuotasPendientesForMapeo, getCuotas, selectedDate, setSelectedDate} = useCuotaStore();
-  const {cuotasTotales, getCuotasTotales} = useCurrencyStore();
+  const {cuotasPendientesForMapeo, isFetchingCuotas, getCuotas, selectedDate, setSelectedDate} = useCuotaStore();
+  const {cuotasTotales, getCuotasTotales, isFetchingCuotasTotales} = useCurrencyStore();
   const [currentTab, setCurrentTab] = useState('');
 
   // --- Get de los créditos la PRIMERA vez que se inicializa esta página ---
@@ -40,8 +41,8 @@ export default function AdminCobros(){
   const centered = ['calificacion', 'estado', 'celular', 'fechaVencimiento', 'cuotaVencimiento', 'cuotaMonto', 'cuotaMora', 'cuotaAbono', 'cuotaTotal', 'monto', 'mora', 'abono', 'total', 'accion']
 
   const tabs = [
-    { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Lista de Usuarios con Cuotas Vencidas', text: usuariosConVencidas.length ?? '0'},
-    { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Cuotas con Clientes', text: cuotasPendientesForMapeo.length ?? '0', data: cuotasPendientesForMapeo, card: CuotasPendientesCard, columnDefinitions: cuotasCobrosColumns},
+    { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Lista de Usuarios con Cuotas Vencidas', text: usuariosConVencidas.length ?? '0', isLoading: isFetchingUsuariosConVencidas},
+    { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Cuotas con Clientes', text: cuotasPendientesForMapeo.length ?? '0', isLoading: isFetchingCuotas, data: cuotasPendientesForMapeo, card: CuotasPendientesCard, columnDefinitions: cuotasCobrosColumns},
   ];
 
   return(
@@ -61,21 +62,21 @@ export default function AdminCobros(){
 
       <div className="content">
         <ContentTitleWithInfo title={''} subtitle={''}>
-          <TotalCard icon={'fas fa-chart-line'} iconBgColor='danger' title={'Vencidas Totales'} style={{padding: 0}}>
+          <TotalCard icon={'fas fa-chart-line'} iconBgColor='danger' title={'Vencidas Totales'} style={{padding: 0}} isLoading={isFetchingCuotasTotales}>
               <i className='fas fa-dollar-sign color-danger'/>
-              <h3 className='color-danger'>{cuotasTotales?.totalVencidas}</h3>
+              <h3 className='color-danger'>{formatCurrencySV(cuotasTotales?.totalVencidas)}</h3>
           </TotalCard>
-          <TotalCard icon={'fas fa-chart-line'} iconBgColor='warning' title={'Pendientes Totales'} style={{padding: 0}}>
+          <TotalCard icon={'fas fa-chart-line'} iconBgColor='warning' title={'Pendientes Totales'} style={{padding: 0}} isLoading={isFetchingCuotasTotales}>
               <i className='fas fa-dollar-sign color-warning'/>
-              <h3 className='color-warning'>{cuotasTotales?.totalPendientes}</h3>
+              <h3 className='color-warning'>{formatCurrencySV(cuotasTotales?.totalPendientes)}</h3>
           </TotalCard>
-          <TotalCard icon={'fas fa-chart-line'} iconBgColor='primary' title={'Total a Cobrar'} style={{padding: 0}}>
+          <TotalCard icon={'fas fa-chart-line'} iconBgColor='primary' title={'Total a Cobrar'} style={{padding: 0}} isLoading={isFetchingCuotasTotales}>
               <i className='fas fa-dollar-sign color-primary'/>
-              <h3 className='color-primary'>{cuotasTotales?.totalVencidas + cuotasTotales.totalPendientes}</h3>
+              <h3 className='color-primary'>{formatCurrencySV(cuotasTotales?.totalVencidas + cuotasTotales?.totalPendientes)}</h3>
           </TotalCard>
-          <TotalCard icon={'fas fa-chart-line'} iconBgColor='success' title={'Pagadas Totales'} style={{padding: 0}}>
+          <TotalCard icon={'fas fa-chart-line'} iconBgColor='success' title={'Pagadas Totales'} style={{padding: 0}} isLoading={isFetchingCuotasTotales}>
               <i className='fas fa-dollar-sign color-success'/>
-              <h3 className='color-success'>{cuotasTotales?.totalPagadas}</h3>
+              <h3 className='color-success'>{formatCurrencySV(cuotasTotales?.totalPagadas)}</h3>
           </TotalCard>
         </ContentTitleWithInfo>
 

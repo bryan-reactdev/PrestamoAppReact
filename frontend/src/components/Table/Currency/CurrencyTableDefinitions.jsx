@@ -1,5 +1,6 @@
 import ButtonAcciones from "../ButtonAcciones";
 import CurrencyTableAccionTipos from "./CurrencyTableAccionTipos";
+import { formatCurrencySV } from "../../../utils/currencyUtils";
 
 // --- Todos los Créditos ---
 export const ingresoEgresoColumns = [
@@ -30,7 +31,7 @@ export const ingresoEgresoColumns = [
       const value = props.getValue();
       return (
         <span>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <small>$</small> {formatCurrencySV(value)}
         </span>
       );
     }
@@ -92,7 +93,7 @@ export const cuotasPagadasIngresoColumns = [
       const value = props.getValue();
       return (
         <span>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <small>$</small> {formatCurrencySV(value)}
         </span>
       );
     }
@@ -105,7 +106,7 @@ export const cuotasPagadasIngresoColumns = [
       const value = props.getValue();
       return (
         <span>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <small>$</small> {formatCurrencySV(value)}
         </span>
       );
     }
@@ -118,7 +119,7 @@ export const cuotasPagadasIngresoColumns = [
       const value = props.getValue();
       return (
         <span>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <small>$</small> {formatCurrencySV(value)}
         </span>
       );
     }
@@ -131,7 +132,7 @@ export const cuotasPagadasIngresoColumns = [
       const value = props.getValue();
       return (
         <span>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <small>$</small> {formatCurrencySV(value)}
         </span>
       );
     }
@@ -153,7 +154,7 @@ export const abonosColumns = [
       const value = props.getValue();
       return (
         <span>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <small>$</small> {formatCurrencySV(value)}
         </span>
       );
     }
@@ -192,7 +193,7 @@ export const abonosColumns = [
       const value = props.getValue();
       return (
         <span>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <small>$</small> {formatCurrencySV(value)}
         </span>
       );
     }
@@ -227,7 +228,7 @@ export const creditosDesembolsadosColumns = [
       const value = props.getValue();
       return (
         <span>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <small>$</small> {formatCurrencySV(value)}
         </span>
       );
     }
@@ -242,7 +243,7 @@ export const creditosDesembolsadosColumns = [
       
       return (
         <span>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <small>$</small> {formatCurrencySV(value)}
         </span>
       );
     }
@@ -305,7 +306,7 @@ export const historialBalanceColumns = [
       const value = props.getValue();
       return (
         <span className={`color-${value >= 0 ? 'success' : 'danger'}`}>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <small>$</small> {formatCurrencySV(value)}
         </span>
       );
     }
@@ -318,7 +319,7 @@ export const historialBalanceColumns = [
       const value = props.getValue();
       return (
         <span className='color-success'>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <small>$</small> {formatCurrencySV(value)}
         </span>
       );
     }
@@ -331,7 +332,7 @@ export const historialBalanceColumns = [
       const value = props.getValue();
       return (
         <span className='color-danger'>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <small>$</small> {formatCurrencySV(value)}
         </span>
       );
     }
