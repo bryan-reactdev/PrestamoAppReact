@@ -5,6 +5,10 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "historial_gastos")
@@ -27,4 +31,8 @@ public class HistorialGastoEntity {
 
     @Column(columnDefinition = "DATETIME")
     private LocalDateTime fecha;
+
+    @OneToMany(mappedBy = "historialGasto", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<HistorialImageEntity> imagenes = new ArrayList<>();
 }

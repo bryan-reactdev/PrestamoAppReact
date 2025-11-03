@@ -9,11 +9,12 @@ import org.springframework.data.jpa.repository.Query;
 import com.biovizion.prestamo911.entities.HistorialSaldoEntity;
 
 public interface HistorialSaldoRepository extends JpaRepository<HistorialSaldoEntity, Long> {
+    @Query("SELECT DISTINCT h FROM HistorialSaldoEntity h LEFT JOIN FETCH h.imagenes WHERE h.tipo = :tipo")
     List<HistorialSaldoEntity> findAllByTipo(String tipo);
 
-    @Query("SELECT h FROM HistorialSaldoEntity h WHERE DATE(h.fecha) = :fecha")
+    @Query("SELECT DISTINCT h FROM HistorialSaldoEntity h LEFT JOIN FETCH h.imagenes WHERE DATE(h.fecha) = :fecha")
     List<HistorialSaldoEntity> findAllByFecha(LocalDate fecha);
 
-    @Query("SELECT h FROM HistorialSaldoEntity h WHERE DATE(h.fecha) = :fecha AND h.tipo = :tipo")
+    @Query("SELECT DISTINCT h FROM HistorialSaldoEntity h LEFT JOIN FETCH h.imagenes WHERE DATE(h.fecha) = :fecha AND h.tipo = :tipo")
     List<HistorialSaldoEntity> findAllByFechaAndTipo(LocalDate fecha, String tipo);
 }

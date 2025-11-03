@@ -85,6 +85,7 @@ export default function AdminRegistrarUsuario() {
                                 label="Número de teléfono"
                                 classNames="simple one"
                                 placeholder="1212 3434"
+                                type="phone"
                                 name="celular"
                                 value={formData.celular}
                                 onChange={handleChange}

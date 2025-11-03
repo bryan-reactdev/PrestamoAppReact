@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 public class CurrencyRequestDTOs {
     @Data
@@ -14,6 +15,8 @@ public class CurrencyRequestDTOs {
         private String tipo;
 
         private LocalDate fecha;
+
+        private MultipartFile[] images;
     }
 
     @Data
@@ -24,5 +27,17 @@ public class CurrencyRequestDTOs {
         private String tipo;
 
         private LocalDate fecha;
+
+        private MultipartFile[] images;
+    }
+
+    @Data
+    public static class HistorialEditRequest{
+        private BigDecimal monto;
+        private String motivo;
+        private String tipo;
+        private LocalDate fecha;
+        private MultipartFile[] images;
+        private String[] existingImages; // Paths of images to keep
     }
 }

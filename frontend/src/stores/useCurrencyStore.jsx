@@ -51,6 +51,7 @@ const estadoInicial = {
     isFetchingBalance: false,
     isRealizandoIngreso: false,
     isRealizandoEgreso: false,
+    isUpdatingHistorial: false,
 
     // Sorting
     selectedDate: getCurrentDate(),
@@ -102,13 +103,26 @@ export const useCurrencyStore = create((set, get) => ({
         set({ isFetchingBalance: false });
     },
 
-    realizarIngreso: async (formData) => {
+    realizarIngreso: async (formData, images = []) => {
         set({ isRealizandoIngreso: true });
         toast.loading('Realizando Ingreso...', { id: 'realizar-ingreso' });
 
+        // Create FormData for file upload
+        const data = new FormData();
+        data.append('monto', formData.monto);
+        data.append('motivo', formData.motivo);
+        data.append('tipo', formData.tipo);
+        data.append('fecha', formData.fecha);
+        
+        // Append images
+        images.forEach((image) => {
+            data.append('images', image);
+        });
+
         const res = await axiosData("/currency/ingreso", {
             method: "POST",
-            data: formData
+            data: data,
+            headers: { 'Content-Type': 'multipart/form-data' }
         });
 
         toast.dismiss('realizar-ingreso');
@@ -120,13 +134,26 @@ export const useCurrencyStore = create((set, get) => ({
         set({ isRealizandoIngreso: false });
     },
 
-    realizarEgreso: async (formData) => {
+    realizarEgreso: async (formData, images = []) => {
         set({ isRealizandoEgreso: true });
         toast.loading('Realizando Egreso...', { id: 'realizar-egreso' });
 
+        // Create FormData for file upload
+        const data = new FormData();
+        data.append('monto', formData.monto);
+        data.append('motivo', formData.motivo);
+        data.append('tipo', formData.tipo);
+        data.append('fecha', formData.fecha);
+        
+        // Append images
+        images.forEach((image) => {
+            data.append('images', image);
+        });
+
         const res = await axiosData("/currency/egreso", {
             method: "POST",
-            data: formData
+            data: data,
+            headers: { 'Content-Type': 'multipart/form-data' }
         });
 
         toast.dismiss('realizar-egreso');
@@ -383,6 +410,48 @@ export const useCurrencyStore = create((set, get) => ({
         return monthData;
     },
 
+    editHistorial: async (id, formData, existingImages = [], newImages = []) => {
+        set({ isUpdatingHistorial: true });
+        toast.loading('Editando registro...', { id: 'editar-historial' });
+
+        // Create FormData for file upload
+        const data = new FormData();
+        data.append('monto', formData.monto);
+        data.append('motivo', formData.motivo);
+        data.append('tipo', formData.tipo);
+        data.append('fecha', formData.fecha);
+        
+        // Append existing images (paths to keep)
+        existingImages.forEach((filePath) => {
+            data.append('existingImages', filePath);
+        });
+        
+        // Append new images only if they are File objects
+        newImages.forEach((image) => {
+            if (image instanceof File) {
+                data.append('images', image);
+            }
+        });
+
+        const res = await axiosData(`/currency/historial/${id}`, {
+            method: "PUT",
+            data: data,
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+
+        toast.dismiss('editar-historial');
+
+        if (res != null) {
+            toast.dismiss('editar-historial');
+            get().getBalance();
+        } else {
+            toast.error('Error al editar el registro');
+        }
+
+        set({ isUpdatingHistorial: false });
+        return res != null;
+    },
+
     // --- Helpers ---
     calcularTotal: (objects) => {
         if (!Array.isArray(objects)) return;
@@ -401,4 +470,5 @@ export const useCurrencyStore = create((set, get) => ({
             return console.warn(`This item doesn't contain a valid value`, item);
         }, 0);
     },
+
 }))

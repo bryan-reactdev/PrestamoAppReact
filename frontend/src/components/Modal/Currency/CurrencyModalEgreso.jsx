@@ -14,28 +14,39 @@ export default function CurrencyModalEgreso() {
       tipo: '',
       fecha: selectedDate ?? ''
     })
+    const [images, setImages] = useState([])
     const formRef = useRef(null)
 
   const handleRealizar = () => {
-    realizarEgreso(formData)
+    realizarEgreso(formData, images)
 
     // -- Clear form data --
-    formData.monto = '';
-    formData.motivo = '';
-    formData.tipo = '';
+    setFormData({
+      monto: '',
+      motivo: '',
+      tipo: '',
+      fecha: selectedDate ?? ''
+    })
+    setImages([])
 
     closeModal('egreso')
   }
 
   // -- Handler para el formData --
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, files } = e.target;
 
-    // Dynamically add/update the field
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value === 'true' ? true : value === 'false' ? false : value,
-    }));
+    if (type === 'file') {
+      // Handle multiple file uploads - FormField passes files array in synthetic event
+      const fileArray = Array.from(files || []);
+      setImages(fileArray);
+    } else {
+      // Dynamically add/update the field
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value === 'true' ? true : value === 'false' ? false : value,
+      }));
+    }
   };
   
   useEffect(() => {
@@ -106,6 +117,17 @@ export default function CurrencyModalEgreso() {
                 placeholder={'Escriba el motivo del egreso...'}
                 required
                 minLength={5}
+              />
+
+              <FormField
+                classNames={'primary'}
+                label={'Fotos/Facturas'}
+                name={'images'}
+                type={'file'}
+                accept={'image/*'}
+                multiple
+                onChange={handleChange}
+                required
               />
             </div>
           </div>

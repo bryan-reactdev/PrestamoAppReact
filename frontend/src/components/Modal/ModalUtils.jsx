@@ -3,13 +3,13 @@ import React, { useRef, useEffect } from 'react'
 export const setupModalEventHandlers = (open, modalContainerRef, closeModal) => {
     if (!open) return;
 
-    const handleClickOutsideModal = (event) => {
-        if (modalContainerRef.current && !modalContainerRef.current.contains(event.target)) {
-            closeModal();
-        }
-    };
+    // const handleClickOutsideModal = (event) => {
+    //     if (modalContainerRef.current && !modalContainerRef.current.contains(event.target)) {
+    //         closeModal();
+    //     }
+    // };
 
-    document.addEventListener('mousedown', handleClickOutsideModal);
+    // document.addEventListener('mousedown', handleClickOutsideModal);
 
     const handleEscapeKey = (event) => {
         if (event.key === 'Escape') {
@@ -20,7 +20,7 @@ export const setupModalEventHandlers = (open, modalContainerRef, closeModal) => 
     document.addEventListener('keydown', handleEscapeKey);
 
     return () => {
-        document.removeEventListener('mousedown', handleClickOutsideModal);
+        // document.removeEventListener('mousedown', handleClickOutsideModal);
         document.removeEventListener('keydown', handleEscapeKey);
     };
 }

@@ -3,12 +3,13 @@ import FormField from "../../components/Form/FormField";
 import NavbarLanding from "../../components/Navbar/NavbarLanding";
 import RegisterInfoModal from "../../components/Modal/Auth/RegisterInfoModal";
 import { useUsuarioStore } from "../../stores/useUsuarioStore";
-import { useState } from "react";
+import { useState, useRef } from "react";
 
 export default function Register() {
     const navigate = useNavigate();
 
     const { isAuthenticating, register } = useUsuarioStore();
+    const formRef = useRef(null);
     const [formData, setFormData] = useState({
         nombres: '',
         apellidos: '',
@@ -22,6 +23,12 @@ export default function Register() {
 
     const onSubmit = async (e) => {
         e.preventDefault();
+
+        // Validate form before submitting
+        if (formRef.current && !formRef.current.checkValidity()) {
+            formRef.current.reportValidity();
+            return;
+        }
 
         const user = await register(formData);
         
@@ -52,7 +59,7 @@ export default function Register() {
                             <small className="color-secondary" style={{ maxWidth: '750px', margin: 0, padding: 0 }}> Asegúrate de ingresar datos reales y completos; Información incorrecta o incompleta causará atrasos y el rechazo de tus solicitudes.</small>
                         </div>
 
-                        <form style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
+                        <form ref={formRef} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
                             <div className="two-column-container" style={{gap: 'var(--space-md'}}>
                                 <FormField
                                     label="Nombres"
@@ -62,6 +69,7 @@ export default function Register() {
                                     value={formData.nombres}
                                     onChange={handleChange}
                                     required
+                                    minLength={2}
                                 />
 
                                 <FormField
@@ -72,6 +80,7 @@ export default function Register() {
                                     value={formData.apellidos}
                                     onChange={handleChange}
                                     required
+                                    minLength={2}
                                 />
 
                                 <FormField
@@ -89,6 +98,7 @@ export default function Register() {
                                     label="Número de teléfono"
                                     classNames="simple one"
                                     placeholder="1212 3434"
+                                    type="phone"
                                     name="celular"
                                     value={formData.celular}
                                     onChange={handleChange}
@@ -103,6 +113,7 @@ export default function Register() {
                                     value={formData.dui}
                                     onChange={handleChange}
                                     required
+                                    pattern="[0-9]{8}-[0-9]{1}"
                                 />
 
                                 <FormField
@@ -114,6 +125,7 @@ export default function Register() {
                                     value={formData.password}
                                     onChange={handleChange}
                                     required
+                                    minLength={4}
                                 />
 
                                 <FormField
@@ -123,6 +135,8 @@ export default function Register() {
                                     name="duiDelante"
                                     preview={formData.duiDelante}
                                     onChange={handleChange}
+                                    accept="image/*"
+                                    required
                                 />
 
                                 <FormField
@@ -132,6 +146,8 @@ export default function Register() {
                                     name="duiAtras"
                                     preview={formData.duiAtras}
                                     onChange={handleChange}
+                                    accept="image/*"
+                                    required
                                 />
                             </div>
 

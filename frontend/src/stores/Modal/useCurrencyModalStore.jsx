@@ -3,6 +3,8 @@ import { create } from 'zustand';
 const estadoInicial = {
     ingreso: false,
     egreso: false,
+    verImagenes: false,
+    editar: false,
   
     row: null,
 };

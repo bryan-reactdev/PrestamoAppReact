@@ -7,6 +7,8 @@ import { useSearchParams } from 'react-router-dom'
 import { useCurrencyStore } from '../../stores/useCurrencyStore'
 import { abonosColumns, ingresoEgresoColumns } from '../../components/Table/Currency/CurrencyTableDefinitions'
 import FormField from '../../components/Form/FormField'
+import CurrencyModalVerImagenes from '../../components/Modal/Currency/CurrencyModalVerImagenes'
+import CurrencyModalEditar from '../../components/Modal/Currency/CurrencyModalEditar'
 import { getCurrentDate } from '../../utils/dateUtils'
 import TotalCard from '../../components/Cards/TotalCard'
 import ContentTitleWithInfo from '../../components/Content/ContentTitleWithInfo'
@@ -40,7 +42,7 @@ export default function AdminIngresos(){
   }, [saldo, selectedDate])
 
   // Definición de las columnas que estarán centradas
-  const centered = ['fecha', 'monto', 'credito', 'fechaCuota', 'fechaAbono', 'fechaVencimiento', 'fechaPagado', 'mora', 'abono', 'total', 'accion']
+  const centered = ['fecha', 'monto', 'accion', 'credito', 'fechaCuota', 'fechaAbono', 'fechaVencimiento', 'fechaPagado', 'mora', 'abono', 'total']
 
   const tabs = [
     { icon: 'fas fa-building', label: 'Ingresos Capitales', iconBgColor: 'accent-light', value: currencyForDate.ingresosCapitales?.total},
@@ -96,7 +98,9 @@ export default function AdminIngresos(){
           <ButtonPDF tipo={'ingreso'}/>
         </BaseTable>
       </div>
-      
+
+      <CurrencyModalVerImagenes />
+      <CurrencyModalEditar />
     </div>
   )
 }

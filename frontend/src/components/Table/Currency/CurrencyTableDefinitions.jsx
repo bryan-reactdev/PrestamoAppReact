@@ -1,3 +1,6 @@
+import ButtonAcciones from "../ButtonAcciones";
+import CurrencyTableAccionTipos from "./CurrencyTableAccionTipos";
+
 // --- Todos los Créditos ---
 export const ingresoEgresoColumns = [
   {
@@ -32,6 +35,18 @@ export const ingresoEgresoColumns = [
       );
     }
   },
+  {
+    accessorKey: 'accion',
+    header: "Acción",
+    size: 125,
+    enableSorting: false,
+    cell: ({ row }) => <ButtonAcciones row={row} acciones={ingresoEgresoAcciones} />,
+  },
+]
+
+export const ingresoEgresoAcciones = [
+  CurrencyTableAccionTipos.VER_IMAGENES,
+  CurrencyTableAccionTipos.EDITAR
 ]
 
 // --- Cuotas ---

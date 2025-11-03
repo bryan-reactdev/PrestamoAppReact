@@ -7,6 +7,8 @@ import { useSearchParams } from 'react-router-dom'
 import { useCurrencyStore } from '../../stores/useCurrencyStore'
 import { ingresoEgresoColumns } from '../../components/Table/Currency/CurrencyTableDefinitions'
 import FormField from '../../components/Form/FormField'
+import CurrencyModalVerImagenes from '../../components/Modal/Currency/CurrencyModalVerImagenes'
+import CurrencyModalEditar from '../../components/Modal/Currency/CurrencyModalEditar'
 import { getCurrentDate } from '../../utils/dateUtils'
 import TotalCard from '../../components/Cards/TotalCard'
 import ContentTitleWithInfo from '../../components/Content/ContentTitleWithInfo'
@@ -39,7 +41,7 @@ export default function AdminEgresos() {
   }, [saldo, selectedDate])
 
   // Definición de las columnas que estarán centradas
-  const centered = ['fecha', 'monto', 'calificacion', 'montoDesembolsar', 'frecuencia', 'fechaAceptado', 'desembolsado', 'accion']
+  const centered = ['fecha', 'monto', 'accion', 'calificacion', 'montoDesembolsar', 'frecuencia', 'fechaAceptado', 'desembolsado']
 
   const tabs = [
     { icon: 'fas fa-building', label: 'Gastos Empresa', iconBgColor: 'accent-light', value: currencyForDate.gastosEmpresa?.total },
@@ -55,7 +57,7 @@ export default function AdminEgresos() {
 
       <div className="content">
         <ContentTitleWithInfo>
-          <TotalCard icon={'fas fa-chart-line'} iconBgColor='danger' color="accent" title={'Ingresos Totales'} style={{ padding: 0 }}>
+          <TotalCard icon={'fas fa-chart-line'} iconBgColor='danger' color="accent" title={'Egresos Totales'} style={{ padding: 0 }}>
             <i className='fas fa-dollar-sign color-danger' />
             <h3 className='color-danger'>{currencyForDate.totalEgresos}</h3>
           </TotalCard>
@@ -96,6 +98,8 @@ export default function AdminEgresos() {
         </BaseTable>
       </div>
 
+      <CurrencyModalVerImagenes />
+      <CurrencyModalEditar />
     </div>
   )
 }
