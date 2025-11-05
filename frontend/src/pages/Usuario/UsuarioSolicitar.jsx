@@ -20,6 +20,7 @@ export default function UsuarioSolicitar(){
     finalidadCredito: '',
     formaPago: '',
     propiedadANombre: '',
+    direccionPropiedad: '',
     vehiculoANombre: '',
 
     // --- Info personal ---
@@ -35,10 +36,25 @@ export default function UsuarioSolicitar(){
     gastosMensuales: '',
     comoConocio: '',
     conoceAlguien: '',
+    nombrePersonaConocida: '',
+    telefonoPersonaConocida: '',
     enlaceRedSocial: '',
 
     // --- Info laboral ---
     ocupacion: '',
+    // --- Campos Empleado ---
+    empresaTrabajo: '',
+    direccionEmpresa: '',
+    telefonoEmpresa: '',
+    antiguedadLaboral: '',
+    ingresoMensualEmpleado: '',
+    // --- Campos Emprendedor ---
+    actividadEmprendedor: '',
+    ingresoMensualEmprendedor: '',
+    otrosIngresos: '',
+    telefonoNegocio: '',
+    direccionNegocio: '',
+    antiguedadNegocio: '',
 
     // --- Referencias ---
     nombreReferencia1: '',
@@ -59,11 +75,17 @@ export default function UsuarioSolicitar(){
 
     // --- Antecedentes ---
     solicitadoAnteriormente: '',
+    solicitadoEntidad: '',
+    frecuenciaPagoCreditoAnterior: '',
+    solicitadoMonto: '',
+    solicitadoEstado: '',
     atrasosAnteriormente: '',
     reportadoAnteriormente: '',
     cobrosAnteriormente: '',
     empleo: '',
     deudasActualmente: '',
+    otrasDeudasEntidad: '',
+    otrasDeudasMonto: '',
   });
 
   const {currentUsuario} = useUsuarioStore();
@@ -104,16 +126,8 @@ export default function UsuarioSolicitar(){
   // --- Handler para el submit ---
   const handleSubmit = async(e) => {
     e.preventDefault();
-
-    // find which fields are empty
-    // const emptyFields = Object.entries(formData)
-    //   .filter(([key, value]) => value === '' || value === null || value === undefined)
-    //   .map(([key]) => key);
-
-    // if (emptyFields.length > 0) {
-    //   toast.error(`Por favor, completa los siguientes campos: \n- ${emptyFields.join('\n- ')}`);
-    //   return;
-    // }
+    
+    // HTML5 validation will automatically show required// No need for custom validation - the browser handles it!
     
     const res = await submitCredito(formData, true);
     if (res) navigate('/usuario/creditos?tab=Pendientes');
@@ -132,7 +146,7 @@ export default function UsuarioSolicitar(){
         />
 
         {/* Sección 1 */}
-        <div className="form-container">
+        <form className="form-container" onSubmit={handleSubmit}>
           <div className="form-section">
             <div className="form-section-header">
               <i className='fas fa-file-invoice'></i>
@@ -148,6 +162,8 @@ export default function UsuarioSolicitar(){
                 label={'Monto del Crédito'} 
                 type={'money'} 
                 placeholder={'0.00'}
+                required
+                min={1}
               />
 
               <FormSelect 
@@ -155,6 +171,7 @@ export default function UsuarioSolicitar(){
                 name='frecuenciaPago'
                 value={formData.frecuenciaPago}
                 onChange={handleChange}
+                required
               >
                 <option value="Diaria">Diaria</option>
                 <option value="Semanal">Semanal</option>
@@ -167,6 +184,7 @@ export default function UsuarioSolicitar(){
                 name='finalidadCredito'
                 value={formData.finalidadCredito}
                 onChange={handleChange}
+                required
               >
                 <option value="Consumo personal">Consumo personal</option>
                 <option value="Negocio">Negocio</option>
@@ -184,6 +202,7 @@ export default function UsuarioSolicitar(){
                 name='formaPago'
                 value={formData.formaPago}
                 onChange={handleChange}
+                required
               >
                 <option value="efectivo">Efectivo</option>
                 <option value="deposito">Depósito</option>
@@ -191,22 +210,34 @@ export default function UsuarioSolicitar(){
               </FormSelect>
 
               <FormSelect 
-                classNames={'half'}
                 label={'¿Tiene propiedad a su nombre?'}
                 name='propiedadANombre'
                 value={formData.propiedadANombre}
                 onChange={handleChange}
+                required
               >
                 <option value="true">Sí</option>
                 <option value="false">No</option>
               </FormSelect>
 
+              {formData.propiedadANombre === true && (
+                <FormField
+                  name='direccionPropiedad'
+                  value={formData.direccionPropiedad || ''}
+                  onChange={handleChange}
+                  label={'Dirección de la Propiedad'} 
+                  placeholder={'Ingresa la dirección completa de la propiedad...'}
+                  required
+                  minLength={10}
+                />
+              )}
+
               <FormSelect 
-                classNames={'half'}
                 label={'¿Tiene vehículo a su nombre?'}
                 name='vehiculoANombre'
                 value={formData.vehiculoANombre}
                 onChange={handleChange}
+                required
               >
                 <option value="true">Sí</option>
                 <option value="false">No</option>
@@ -228,6 +259,9 @@ export default function UsuarioSolicitar(){
                 value={formData.dui || ''}
                 onChange={handleChange}
                 placeholder='ej. 12345678-9'
+                required
+                pattern='[0-9]{8}-[0-9]'
+                title='Formato: 12345678-9'
               />
 
               <FormField 
@@ -237,6 +271,8 @@ export default function UsuarioSolicitar(){
                 value={formData.nombres || ''}
                 onChange={handleChange}
                 placeholder='ej. Juan Edgardo'
+                required
+                minLength={2}
               />
 
               <FormField 
@@ -246,6 +282,8 @@ export default function UsuarioSolicitar(){
                 value={formData.apellidos || ''}
                 onChange={handleChange}
                 placeholder='ej. Martínez Salazar'
+                required
+                minLength={2}
               />
 
               <FormField 
@@ -256,6 +294,7 @@ export default function UsuarioSolicitar(){
                 onChange={handleChange}
                 type='email'
                 placeholder='ej. juanedgardo123@gmail.com'
+                required
               />
 
               <FormField 
@@ -265,6 +304,7 @@ export default function UsuarioSolicitar(){
                 value={formData.celular || ''}
                 onChange={handleChange}
                 placeholder='ej. 7070 6060'
+                required
               />
 
               <FormField 
@@ -274,6 +314,8 @@ export default function UsuarioSolicitar(){
                 value={formData.direccion || ''}
                 onChange={handleChange}
                 placeholder='Ingresa tu dirección completa...'
+                required
+                minLength={10}
               />
 
               <FormField 
@@ -283,6 +325,7 @@ export default function UsuarioSolicitar(){
                 value={formData.tiempoResidencia || ''}
                 onChange={handleChange}
                 placeholder='ej. 6 meses, 3 años'
+                required
               />
 
               <FormSelect 
@@ -291,9 +334,13 @@ export default function UsuarioSolicitar(){
                 name='estadoCivil'
                 value={formData.estadoCivil}
                 onChange={handleChange}
+                required
               >
-                <option value="soltero">Soltero</option>
-                <option value="casado">Casado</option>
+                <option value="soltero">Soltero/a</option>
+                <option value="casado">Casado/a</option>
+                <option value="divorciado">Divorciado/a</option>
+                <option value="viudo">Viudo/a</option>
+                <option value="union_libre">Unión libre</option>
               </FormSelect>
 
               <FormField 
@@ -303,6 +350,7 @@ export default function UsuarioSolicitar(){
                 value={formData.fechaNacimiento || ''}
                 onChange={handleChange}
                 type='date'
+                required
               />
 
               <FormField 
@@ -313,6 +361,8 @@ export default function UsuarioSolicitar(){
                 onChange={handleChange}
                 type='money'
                 placeholder='0.00'
+                required
+                min={1}
               />
 
               <FormField 
@@ -322,6 +372,7 @@ export default function UsuarioSolicitar(){
                 value={formData.comoConocio || ''}
                 onChange={handleChange}
                 placeholder='ej. Facebook, Amigo, Publicidad'
+                required
               />
 
               <FormSelect 
@@ -330,10 +381,35 @@ export default function UsuarioSolicitar(){
                 name='conoceAlguien'
                 value={formData.conoceAlguien}
                 onChange={handleChange}
+                required
               >
                 <option value="true">Sí</option>
                 <option value="false">No</option>
               </FormSelect>
+
+              {formData.conoceAlguien === true && (
+                <>
+                  <FormField
+                    classNames={'half'}
+                    name='nombrePersonaConocida'
+                    value={formData.nombrePersonaConocida || ''}
+                    onChange={handleChange}
+                    label={'Nombre de la Persona Conocida'} 
+                    placeholder={'Nombre completo'}
+                    required
+                  />
+
+                  <FormField
+                    classNames={'half'}
+                    name='telefonoPersonaConocida'
+                    value={formData.telefonoPersonaConocida || ''}
+                    onChange={handleChange}
+                    label={'Teléfono de la Persona Conocida'} 
+                    placeholder={'Teléfono'}
+                    required
+                  />
+                </>
+              )}
 
               <FormField 
                 classNames={'full'}
@@ -341,7 +417,8 @@ export default function UsuarioSolicitar(){
                 name='enlaceRedSocial'
                 value={formData.enlaceRedSocial || ''}
                 onChange={handleChange}
-                placeholder='Ingresa un enlace...'
+                placeholder='Coloca el link a tu perfil'
+                required
               />
             </div>
           </div>
@@ -359,10 +436,133 @@ export default function UsuarioSolicitar(){
                 name='ocupacion'
                 value={formData.ocupacion}
                 onChange={handleChange}
+                required
               >
                 <option value="Empleado">Empleado</option>
                 <option value="Emprendedor">Emprendedor</option>
               </FormSelect>
+
+              {/* Campos Empleado */}
+              {formData.ocupacion === 'Empleado' && (
+                <>
+                  <FormField
+                    classNames={'half'}
+                    name='empresaTrabajo'
+                    value={formData.empresaTrabajo || ''}
+                    onChange={handleChange}
+                    label={'Empresa de Trabajo'} 
+                    placeholder={'Nombre de la empresa'}
+                    required
+                  />
+
+                  <FormField
+                    classNames={'half'}
+                    name='direccionEmpresa'
+                    value={formData.direccionEmpresa || ''}
+                    onChange={handleChange}
+                    label={'Dirección de la Empresa'} 
+                    placeholder={'Dirección de la empresa'}
+                    required
+                  />
+
+                  <FormField
+                    classNames={'half'}
+                    name='telefonoEmpresa'
+                    value={formData.telefonoEmpresa || ''}
+                    onChange={handleChange}
+                    label={'Número de Contacto de la Empresa'} 
+                    placeholder={'Teléfono'}
+                    required
+                  />
+
+                  <FormField
+                    classNames={'half'}
+                    name='antiguedadLaboral'
+                    value={formData.antiguedadLaboral || ''}
+                    onChange={handleChange}
+                    label={'Antigüedad Laboral'} 
+                    placeholder={'Ej: 3 años'}
+                    required
+                  />
+
+                  <FormField
+                    classNames={'full success'}
+                    name='ingresoMensualEmpleado'
+                    value={formData.ingresoMensualEmpleado || ''}
+                    onChange={handleChange}
+                    label={'Ingreso Mensual Aproximado'} 
+                    type={'money'}
+                    placeholder={'0.00'}
+                    required
+                  />
+                </>
+              )}
+
+              {/* Campos Emprendedor */}
+              {formData.ocupacion === 'Emprendedor' && (
+                <>
+                  <FormField
+                    classNames={'half'}
+                    name='actividadEmprendedor'
+                    value={formData.actividadEmprendedor || ''}
+                    onChange={handleChange}
+                    label={'A qué se dedica'} 
+                    placeholder={'Ej: venta de ropa, accesorios, tortas'}
+                    required
+                  />
+
+                  <FormField
+                    classNames={'half success'}
+                    name='ingresoMensualEmprendedor'
+                    value={formData.ingresoMensualEmprendedor || ''}
+                    onChange={handleChange}
+                    label={'Ingreso Mensual Aproximado'} 
+                    type={'money'}
+                    placeholder={'0.00'}
+                    required
+                  />
+
+                  <FormField
+                    classNames={'full'}
+                    name='otrosIngresos'
+                    value={formData.otrosIngresos || ''}
+                    onChange={handleChange}
+                    label={'Otros Ingresos (detalle y monto)'} 
+                    placeholder={'Detalle y monto'}
+                    required
+                  />
+
+                  <FormField
+                    classNames={'half'}
+                    name='telefonoNegocio'
+                    value={formData.telefonoNegocio || ''}
+                    onChange={handleChange}
+                    label={'Número de Contacto del Negocio'} 
+                    placeholder={'Teléfono del negocio'}
+                    required
+                  />
+
+                  <FormField
+                    classNames={'half'}
+                    name='direccionNegocio'
+                    value={formData.direccionNegocio || ''}
+                    onChange={handleChange}
+                    label={'Dirección del Negocio'} 
+                    placeholder={'Dirección del negocio'}
+                    required
+                  />
+
+                  <FormField
+                    classNames={'full'}
+                    name='antiguedadNegocio'
+                    value={formData.antiguedadNegocio || ''}
+                    onChange={handleChange}
+                    label={'Antigüedad del Negocio'} 
+                    placeholder={'Ej: 2 años'}
+                    required
+                  />
+                </>
+              )}
             </div>
           </div>
 
@@ -379,6 +579,7 @@ export default function UsuarioSolicitar(){
                 value={formData.nombreReferencia1 || ''}
                 onChange={handleChange}
                 placeholder='Nombre Completo'
+                required
               />
 
               <FormField 
@@ -387,6 +588,7 @@ export default function UsuarioSolicitar(){
                 value={formData.celularReferencia1 || ''}
                 onChange={handleChange}
                 placeholder='Ej. 7070 6060'
+                required
               />
 
               <FormField 
@@ -395,6 +597,7 @@ export default function UsuarioSolicitar(){
                 value={formData.parentescoReferencia1 || ''}
                 onChange={handleChange}
                 placeholder='Ej. Familiar, Amigo'
+                required
               />
 
               <FormField 
@@ -403,6 +606,7 @@ export default function UsuarioSolicitar(){
                 value={formData.nombreReferencia2 || ''}
                 onChange={handleChange}
                 placeholder='Nombre Completo'
+                required
               />
 
               <FormField 
@@ -411,6 +615,7 @@ export default function UsuarioSolicitar(){
                 value={formData.celularReferencia2 || ''}
                 onChange={handleChange}
                 placeholder='Ej. 7070 6060'
+                required
               />
 
               <FormField 
@@ -419,6 +624,7 @@ export default function UsuarioSolicitar(){
                 value={formData.parentescoReferencia2 || ''}
                 onChange={handleChange}
                 placeholder='Ej. Familiar, Amigo'
+                required
               />
             </div>
           </div>
@@ -437,6 +643,7 @@ export default function UsuarioSolicitar(){
                 value={formData.nombreCodeudor}
                 onChange={handleChange}
                 placeholder='Nombre Completo'
+                required
               />
 
               <FormField
@@ -446,6 +653,7 @@ export default function UsuarioSolicitar(){
                 value={formData.duiCodeudor}
                 onChange={handleChange}
                 placeholder='Ej. 98765432-1'
+                required
               />
 
               <FormField
@@ -455,6 +663,7 @@ export default function UsuarioSolicitar(){
                 value={formData.direccionCodeudor}
                 onChange={handleChange}
                 placeholder='Ingresa la dirección completa'
+                required
               />
 
               <FormField
@@ -465,6 +674,7 @@ export default function UsuarioSolicitar(){
                 onChange={handleChange}
                 type='money'
                 placeholder='0.00'
+                required
               />
 
               <FormField
@@ -475,6 +685,7 @@ export default function UsuarioSolicitar(){
                 value={formData.duiDelanteCodeudor}
                 onChange={handleChange}
                 type='file'
+                required
               />
 
               <FormField
@@ -485,6 +696,7 @@ export default function UsuarioSolicitar(){
                 value={formData.duiAtrasCodeudor}
                 onChange={handleChange}
                 type='file'
+                required
               />
 
               <FormField
@@ -495,6 +707,7 @@ export default function UsuarioSolicitar(){
                 value={formData.fotoRecibo}
                 onChange={handleChange}
                 type='file'
+                required
               />
             </div>
 
@@ -514,10 +727,59 @@ export default function UsuarioSolicitar(){
                 name='solicitadoAnteriormente'
                 value={formData.solicitadoAnteriormente}
                 onChange={handleChange}
+                required
               >
                 <option value="true">Sí</option>
                 <option value="false">No</option>
               </FormSelect>
+
+              {formData.solicitadoAnteriormente === true && (
+                <>
+                  <FormField
+                    classNames={'full'}
+                    name='solicitadoEntidad'
+                    value={formData.solicitadoEntidad || ''}
+                    onChange={handleChange}
+                    label={'Entidad Financiera Anterior'} 
+                    placeholder={'Nombre de la entidad financiera'}
+                    required
+                  />
+
+                  <FormField
+                    classNames={'full'}
+                    name='frecuenciaPagoCreditoAnterior'
+                    value={formData.frecuenciaPagoCreditoAnterior || ''}
+                    onChange={handleChange}
+                    label={'Frecuencia de Pago en Crédito Anterior'} 
+                    placeholder={'ejemplo: diario, semanal, quincenal, mensual'}
+                    required
+                  />
+
+                  <FormField
+                    classNames={'full success'}
+                    name='solicitadoMonto'
+                    value={formData.solicitadoMonto || ''}
+                    onChange={handleChange}
+                    label={'Monto de Crédito Anterior'} 
+                    type={'money'}
+                    placeholder={'0.00'}
+                    required
+                  />
+
+                  <FormSelect 
+                    classNames={'full'}
+                    label={'Estado del Crédito Anterior'}
+                    name='solicitadoEstado'
+                    value={formData.solicitadoEstado}
+                    onChange={handleChange}
+                    required
+                  >
+                    <option value="pagado">Pagado</option>
+                    <option value="en_curso">En curso</option>
+                    <option value="incumplido">Incumplido</option>
+                  </FormSelect>
+                </>
+              )}
 
               <FormSelect 
                 classNames={'full'}
@@ -525,6 +787,7 @@ export default function UsuarioSolicitar(){
                 name='atrasosAnteriormente'
                 value={formData.atrasosAnteriormente}
                 onChange={handleChange}
+                required
               >
                 <option value="nunca">Nunca</option>
                 <option value="uno_a_dos">1 a 2 veces</option>
@@ -537,6 +800,7 @@ export default function UsuarioSolicitar(){
                 name='reportadoAnteriormente'
                 value={formData.reportadoAnteriormente}
                 onChange={handleChange}
+                required
               >
                 <option value="true">Sí</option>
                 <option value="false">No</option>
@@ -548,6 +812,7 @@ export default function UsuarioSolicitar(){
                 name='cobrosAnteriormente'
                 value={formData.cobrosAnteriormente}
                 onChange={handleChange}
+                required
               >
                 <option value="true">Sí</option>
                 <option value="false">No</option>
@@ -559,6 +824,7 @@ export default function UsuarioSolicitar(){
                 name='empleo'
                 value={formData.empleo}
                 onChange={handleChange}
+                required
               >
                 <option value="empleo_fijo">Empleo fijo</option>
                 <option value="negocio_propio">Negocio propio</option>
@@ -571,10 +837,36 @@ export default function UsuarioSolicitar(){
                 name='deudasActualmente'
                 value={formData.deudasActualmente}
                 onChange={handleChange}
+                required
               >
                 <option value="true">Sí</option>
                 <option value="false">No</option>
               </FormSelect>
+
+              {formData.deudasActualmente === true && (
+                <>
+                  <FormField
+                    classNames={'full'}
+                    name='otrasDeudasEntidad'
+                    value={formData.otrasDeudasEntidad || ''}
+                    onChange={handleChange}
+                    label={'Entidad de estas Deudas'} 
+                    placeholder={'Nombre de la entidad'}
+                    required
+                  />
+
+                  <FormField
+                    classNames={'full success'}
+                    name='otrasDeudasMonto'
+                    value={formData.otrasDeudasMonto || ''}
+                    onChange={handleChange}
+                    label={'Monto Mensual de estas Deudas'} 
+                    type={'money'}
+                    placeholder={'0.00'}
+                    required
+                  />
+                </>
+              )}
             </div>
 
           </div>
@@ -582,10 +874,10 @@ export default function UsuarioSolicitar(){
           <div className="form-button-container">
             {isSubmittingCredito
               ? <div className="spinner"></div>
-              : <button className='btn-submit' onClick={handleSubmit}>ENVIAR SOLICITUD<i className='fas fa-paper-plane'/></button>            
+              : <button type="submit" className='btn-submit'>ENVIAR SOLICITUD<i className='fas fa-paper-plane'/></button>            
             }
           </div>
-        </div>
+        </form>
 
       </div>
     </div>
