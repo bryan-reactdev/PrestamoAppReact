@@ -10,6 +10,7 @@ import FormField from '../../components/Form/FormField'
 import CurrencyModalIngreso from '../../components/Modal/Currency/CurrencyModalIngreso'
 import CurrencyModalEgreso from '../../components/Modal/Currency/CurrencyModalEgreso'
 import { getCurrentDate } from '../../utils/dateUtils'
+import Layout from '../../Layout'
 
 export default function AdminCajaChica(){
   const { saldo, getBalance, currencyForDate, selectedDate, setSelectedDate, getCurrencyForDate } = useCurrencyStore();
@@ -26,12 +27,9 @@ export default function AdminCajaChica(){
   }, [saldo])
 
   return(
-    <div className="page">
+    <Layout>
       <CurrencyModalIngreso/>
       <CurrencyModalEgreso/>
-
-      <Navbar/>
-      <Sidebar activePage={'caja'}/>
 
       <div className="content">
         <ContentTitle title={"Caja Chica"} subtitle={"Caja Chica de Multipréstamos Atlas"} />
@@ -109,6 +107,6 @@ export default function AdminCajaChica(){
 
       </div>
       
-    </div>
+    </Layout>
   )
 }

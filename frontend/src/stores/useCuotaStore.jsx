@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { axiosData } from "../utils/axiosWrapper";
 import toast from 'react-hot-toast';
 import { descargarPDFConPrint } from '../utils/generalUtil';
+import { getCurrentDate } from '../utils/dateUtils';
 
 const estadoInicial = {
     cuota: null,
@@ -12,10 +13,11 @@ const estadoInicial = {
     cuotasPagadas: [],
     cuotasVencidas: [],
     cuotasEnRevision: [],
+    cuotasPendientesForMapeo: [],
+    cuotasPendientesForMapeoUnfiltered: [],
     isFetchingCuotas: false,
 
-    selectedDate: null,
-    cuotasPendientesForMapeo: [],
+    selectedDate: getCurrentDate(),
 
     isUpdatingCuota: false,
     isPagandoCuota: false,
@@ -91,6 +93,7 @@ export const useCuotaStore = create((set, get) => ({
             cuotasVencidas: [],
             cuotasEnRevision: [],
             cuotasPendientesForMapeo: [],
+            cuotasPendientesForMapeoUnfiltered: [],
         })
         let res = null;
         
@@ -117,11 +120,16 @@ export const useCuotaStore = create((set, get) => ({
 
         set({ cuotas: todas ?? [] });
         set({ cuotasPendientes: pendientes ?? [] });
-        set({ cuotasPendientesForMapeo: (pendientes ?? []).concat(vencidas ?? []) });
         set({ cuotasPagadas: pagadas ?? [] });
         set({ cuotasVencidas: vencidas ?? [] });
         set({ cuotasEnRevision: enRevision ?? [] });
         set({ isFetchingCuotas: false });
+
+        // Fetch cuotas pendientes for mapeo with new DTO
+        const resMapeo = await axiosData("/cuotaTest/pendientes-mapeo", { method: "GET" });
+        const mapeoData = resMapeo?.data ?? [];
+        set({ cuotasPendientesForMapeoUnfiltered: mapeoData });
+        get().filterCuotasPendientesForMapeo(get().selectedDate);
     },
 
     getUsuarioCuotas: async (usuarioId) => {
@@ -138,10 +146,15 @@ export const useCuotaStore = create((set, get) => ({
 
         set({ cuotas: todas ?? [] });
         set({ cuotasPendientes: pendientes ?? [] });
-        set({ cuotasPendientesForMapeo: (pendientes ?? []).concat(vencidas ?? []) });
         set({ cuotasPagadas: pagadas ?? [] });
         set({ cuotasVencidas: vencidas ?? [] });
         set({ cuotasEnRevision: enRevision ?? [] });
+
+        // Fetch cuotas pendientes for mapeo with new DTO
+        const resMapeo = await axiosData("/cuotaTest/pendientes-mapeo", { method: "GET" });
+        const mapeoData = resMapeo?.data ?? [];
+        set({ cuotasPendientesForMapeoUnfiltered: mapeoData });
+        get().filterCuotasPendientesForMapeo(get().selectedDate);
 
         set({isFetchingCuotas: false})
     },
@@ -241,15 +254,23 @@ export const useCuotaStore = create((set, get) => ({
     },
 
     filterCuotasPendientesForMapeo: async (date) => {
-        const {cuotasPendientes, cuotasVencidas} = get();
-        if (date == null) {
-            set({ cuotasPendientesForMapeo: (cuotasPendientes ?? []).concat(cuotasVencidas ?? []) });
+        const {cuotasPendientesForMapeoUnfiltered} = get();
+        if (date == null || !cuotasPendientesForMapeoUnfiltered?.length) {
+            // No filtering needed, use all data
+            set({ cuotasPendientesForMapeo: cuotasPendientesForMapeoUnfiltered ?? [] });
             return;
         }
 
-        const resultPendientes = cuotasPendientes.filter((cuota) => cuota.fechaVencimiento?.startsWith(date));
-        const resultVencidas = cuotasVencidas.filter((cuota) => cuota.fechaVencimiento?.startsWith(date));
-        set({cuotasPendientesForMapeo: resultPendientes.concat(resultVencidas ?? [])});
+        // Filter by cuotaVencimiento (from new DTO structure)
+        const filtered = cuotasPendientesForMapeoUnfiltered.filter((cuota) => {
+            if (!cuota.cuotaVencimiento) return false;
+            // Handle both string and Date formats
+            const fechaStr = typeof cuota.cuotaVencimiento === 'string' 
+                ? cuota.cuotaVencimiento 
+                : cuota.cuotaVencimiento.split('T')[0];
+            return fechaStr.startsWith(date);
+        });
+        set({cuotasPendientesForMapeo: filtered});
     },
 
     setSelectedDate: (date) => {

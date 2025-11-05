@@ -142,6 +142,56 @@ public class UsuarioImpl implements UsuarioService {
                                         .orElse(null);
         } 
 
+        // Get credito monto from first active credito
+        BigDecimal creditoMonto = creditosActivos.stream()
+                .findFirst()
+                .map(CreditoEntity::getMonto)
+                .orElse(BigDecimal.ZERO);
+
+        // Count pending cuotas
+        int cuotasPendientesCount = cuotasPendientes.size();
+
+        // Get referencias and parentesco from UsuarioSolicitud
+        String referencias = "";
+        String parentesco = "";
+        if (!creditosActivos.isEmpty() && creditosActivos.get(0).getUsuarioSolicitud() != null) {
+            var solicitud = creditosActivos.get(0).getUsuarioSolicitud();
+            
+            // Build referencias string: "nombre1\nnombre2"
+            StringBuilder refs = new StringBuilder();
+            if (solicitud.getReferencia1() != null && !solicitud.getReferencia1().trim().isEmpty()) {
+                refs.append(solicitud.getReferencia1());
+            }
+            if (solicitud.getReferencia2() != null && !solicitud.getReferencia2().trim().isEmpty()) {
+                if (refs.length() > 0) refs.append(";\n");
+                refs.append(solicitud.getReferencia2());
+            }
+            referencias = refs.toString();
+            
+            // Build parentesco string: "parentesco1\nparentesco2"
+            StringBuilder parentescos = new StringBuilder();
+            if (solicitud.getParentesco1() != null && !solicitud.getParentesco1().trim().isEmpty()) {
+                parentescos.append(solicitud.getParentesco1());
+            }
+            if (solicitud.getParentesco2() != null && !solicitud.getParentesco2().trim().isEmpty()) {
+                if (parentescos.length() > 0) parentescos.append(";\n");
+                parentescos.append(solicitud.getParentesco2());
+            }
+            parentesco = parentescos.toString();
+        }
+
+        // Combine all notas from all cuotas
+        List<CreditoCuotaEntity> allCuotas = new java.util.ArrayList<>();
+        allCuotas.addAll(cuotasPendientes);
+        allCuotas.addAll(cuotasVencidas);
+        allCuotas.addAll(cuotasPagadas);
+        
+        String notas = allCuotas.stream()
+                .flatMap(cuota -> cuota.getNotas().stream())
+                .map(nota -> nota.getContenido())
+                .filter(contenido -> contenido != null && !contenido.trim().isEmpty())
+                .collect(Collectors.joining("; "));
+
         return new UsuarioCuotasDTO(
                 usuario.getId(),
                 usuario.getCalificacion(),
@@ -155,9 +205,14 @@ public class UsuarioImpl implements UsuarioService {
                 oldestCuota != null ? oldestCuota.getPagoMora() : BigDecimal.ZERO,
                 oldestCuota != null ? oldestCuota.getAbono() : BigDecimal.ZERO,
                 oldestCuota != null ? oldestCuota.getTotal() : BigDecimal.ZERO,
+                creditoMonto,
+                cuotasPendientesCount,
                 cobrarPendiente,
                 totalPagar,
                 totalPagadas,
+                referencias,
+                parentesco,
+                notas,
                 CreditoDTOs.mapearACreditoDTOs(creditosActivos)
         );
     }

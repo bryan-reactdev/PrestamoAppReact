@@ -21,6 +21,7 @@ import CuotaModalAbonar from '../../components/Modal/Cuota/CuotaModalAbonar'
 import CuotaModalNotas from '../../components/Modal/Cuota/CuotaModalNotas'
 import CuotaModalEditar from '../../components/Modal/Cuota/CuotaModalEditar'
 import { formatCurrencySV } from '../../utils/currencyUtils'
+import Layout from '../../Layout'
 
 export default function AdminCobros(){
   const {usuariosConVencidas, isFetchingUsuariosConVencidas, getUsuariosConVencidas, descargarPDFCobros} = useUsuarioStore();
@@ -38,20 +39,15 @@ export default function AdminCobros(){
   }, [getUsuariosConVencidas, getCuotasTotales, getCuotas]);
   
   // Definición de las columnas que estarán centradas
-  const centered = ['calificacion', 'estado', 'celular', 'fechaVencimiento', 'cuotaVencimiento', 'cuotaMonto', 'cuotaMora', 'cuotaAbono', 'cuotaTotal', 'monto', 'mora', 'abono', 'total', 'accion']
+  const centered = ['calificacion', 'estado', 'celular', 'fechaVencimiento', 'cuotaVencimiento', 'cuotaMonto', 'cuotaMora', 'cuotaAbono', 'cuotaTotal', 'monto', 'mora', 'abono', 'total', 'totalPagar', 'creditoMonto', 'cuotasPendientes', 'direccion', 'referencias', 'parentesco', 'accion']
 
   const tabs = [
-    { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Lista de Usuarios con Cuotas Vencidas', text: usuariosConVencidas.length ?? '0', isLoading: isFetchingUsuariosConVencidas},
     { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Cuotas con Clientes', text: cuotasPendientesForMapeo.length ?? '0', isLoading: isFetchingCuotas, data: cuotasPendientesForMapeo, card: CuotasPendientesCard, columnDefinitions: cuotasCobrosColumns},
+    { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Lista de Usuarios con Cuotas Vencidas', text: usuariosConVencidas.length ?? '0', isLoading: isFetchingUsuariosConVencidas},
   ];
 
   return(
-    <div className="page">
-      <Navbar/>
-      <Sidebar activePage={'cobros'}/>
-
-      {/* Mobile */}
-
+    <Layout>
       <UsuarioModalVerDetalles/>
       <UsuarioModalVerDetallesCobro/>
 
@@ -80,6 +76,21 @@ export default function AdminCobros(){
           </TotalCard>
         </ContentTitleWithInfo>
 
+        <BaseTable 
+          data={usuariosConVencidas} 
+          card={UsuariosCard}
+          columns={usuariosConVencidasColumns} 
+          centered={centered} 
+          flexable={''} 
+          loading={isFetchingUsuariosConVencidas}
+          customHeaderHeight={50}
+          tabs={tabs} 
+          currentTab={currentTab}
+          onTabChange={setCurrentTab}
+          isCardTabs={true}
+          hideSearch={currentTab === "Mapeo de Cuotas con Clientes"}
+        >
+
         {currentTab === "Mapeo de Cuotas con Clientes" &&
           <div className="date-controls">
             <FormField
@@ -98,20 +109,6 @@ export default function AdminCobros(){
             </button>
           </div>
         }
-
-        <BaseTable 
-          data={usuariosConVencidas} 
-          card={UsuariosCard}
-          columns={usuariosConVencidasColumns} 
-          centered={centered} 
-          flexable='usuario' 
-          loading={isFetchingUsuariosConVencidas}
-          customHeaderHeight={50}
-          tabs={tabs} 
-          currentTab={currentTab}
-          onTabChange={setCurrentTab}
-          isCardTabs={true}
-        >
           {currentTab === "Lista de Usuarios con Cuotas Vencidas" && (
             <button className='btn-danger' onClick={() => descargarPDFCobros()}>
               <i className='fas fa-print'/>PDF
@@ -120,6 +117,6 @@ export default function AdminCobros(){
         </BaseTable>
 
       </div>
-    </div>
+    </Layout>
   )
 }

@@ -69,9 +69,16 @@ public class UsuarioDTOs {
         private BigDecimal cuotaAbono;
         private BigDecimal cuotaTotal;
 
+        private BigDecimal creditoMonto;
+        private Integer cuotasPendientes;
+        
         private BigDecimal cobrarPendiente;
         private BigDecimal totalPagar;
         private BigDecimal totalPagadas;
+        
+        private String referencias;
+        private String parentesco;
+        private String notas;
         
         private List<CreditoDTO> creditos;
     }

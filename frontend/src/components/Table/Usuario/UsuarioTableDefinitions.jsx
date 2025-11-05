@@ -80,6 +80,7 @@ export const usuariosConVencidasColumns = [
   {
     accessorKey: 'usuario',
     header: "Usuario",
+    size: 400,
     cell: (props) => <p>{props.getValue()}</p>
   },
   {
@@ -98,11 +99,10 @@ export const usuariosConVencidasColumns = [
       );
     }
   },
-
   {
     accessorKey: 'cuotaVencimiento',
-    header: "Cuota Vencimiento",
-    size: 110,
+    header: "Vencimiento de la Cuota",
+    size: 125,
     cell: (props) => {
       const value = props.getValue();
 
@@ -113,47 +113,8 @@ export const usuariosConVencidasColumns = [
     }
   },
   {
-    accessorKey: 'cuotaMonto',
-    header: "Cuota Monto",
-    size: 90,
-    cell: (props) => {
-      const value = props.getValue();
-      return (
-        <span>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </span>
-      );
-    }
-  },
-  {
-    accessorKey: 'cuotaMora',
-    header: "Cuota Mora",
-    size: 90,
-    cell: (props) => {
-      const value = props.getValue();
-      return (
-        <span>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </span>
-      );
-    }
-  },
-  {
-    accessorKey: 'cuotaAbono',
-    header: "Cuota Abono",
-    size: 90,
-    cell: (props) => {
-      const value = props.getValue();
-      return (
-        <span>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </span>
-      );
-    }
-  },
-  {
     accessorKey: 'cuotaTotal',
-    header: "Cuota Total",
+    header: "Total de la Cuota",
     size: 90,
     cell: (props) => {
       const value = props.getValue();
@@ -163,6 +124,82 @@ export const usuariosConVencidasColumns = [
         </span>
       );
     }
+  },
+  {
+    accessorKey: 'direccion',
+    header: "Dirección",
+    size: 350,
+    cell: (props) => <p>{props.getValue()}</p>
+  },
+  {
+    accessorKey: 'creditoMonto',
+    header: "Crédito Monto",
+    size: 90,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'cuotasPendientes',
+    size: 115,
+    header: "Cuotas Pendientes",
+    cell: (props) => <p>{props.getValue()}</p>
+  },
+  {
+    accessorKey: 'totalPagar',
+    header: "Total Pagar",
+    size: 105,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'referencias',
+    header: "Referencias",
+    size: 300,
+    cell: (props) => {
+      const value = props.getValue();
+      if (!value) return <p className="empty">N/A</p>;
+      return (
+        <div>
+          {value.split('\n').map((line, index) => (
+            <p key={index}>{line}</p>
+          ))}
+        </div>
+      );
+    }
+  },
+  {
+    accessorKey: 'parentesco',
+    header: "Parentesco",
+    size: 125,
+    cell: (props) => {
+      const value = props.getValue();
+      if (!value) return <p className="empty">N/A</p>;
+      return (
+        <div>
+          {value.split('\n').map((line, index) => (
+            <p key={index}>{line}</p>
+          ))}
+        </div>
+      );
+    }
+  },
+  {
+    accessorKey: 'notas',
+    header: "Notas",
+    size: 300,
+    cell: (props) => <p>{props.getValue()}</p>
   },
   {
     accessorKey: 'accion',

@@ -2,6 +2,7 @@ package com.biovizion.prestamo911.controller;
 
 import static com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.mapearACuotaDTO;
 import static com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.mapearACuotaTablaDTOs;
+import static com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.mapearACuotaPendienteDTOs;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.biovizion.prestamo911.ScheduledTasks;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaDTO;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaTablaDTO;
+import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaPendienteDTO;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.NotaDTO;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaRequestDTOs.AbonoRequest;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaRequestDTOs.CuotaEditRequest;
@@ -86,6 +88,27 @@ public class CuotaControllerTest {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             ApiResponse<String> response = new ApiResponse<>("Error al obtener las cuotas: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @GetMapping("/pendientes-mapeo")
+    public ResponseEntity<ApiResponse> getCuotasPendientesMapeo() {
+        try {
+            List<CreditoCuotaEntity> cuotasPendientes = cuotaService.findPendientes();
+            List<CreditoCuotaEntity> cuotasVencidas = cuotaService.findVencidas();
+            
+            // Combine pendientes and vencidas for mapeo
+            List<CreditoCuotaEntity> cuotasMapeo = new java.util.ArrayList<>();
+            cuotasMapeo.addAll(cuotasPendientes);
+            cuotasMapeo.addAll(cuotasVencidas);
+            
+            List<CuotaPendienteDTO> mapeoDTOs = mapearACuotaPendienteDTOs(cuotasMapeo, cuotasPendientes, cuotasVencidas);
+           
+            ApiResponse<List<CuotaPendienteDTO>> response = new ApiResponse<>("FETCH Cuotas pendientes para mapeo obtenidas exitosamente", mapeoDTOs);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse<String> response = new ApiResponse<>("Error al obtener las cuotas pendientes para mapeo: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }
     }

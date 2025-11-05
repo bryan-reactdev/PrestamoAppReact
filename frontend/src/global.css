@@ -72,6 +72,27 @@
   --border-width-lg: 8px;
 }
 
+main{
+  width: 100%;
+  min-height: 100vh;
+}
+.page{
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  margin: 0;
+  padding: 0;
+}
+.content{
+  width: 100%;
+  min-height: 100vh;
+}
+
 /* --- General --- */
 *{
   font-family: 'Poppins', sans-serif;  
@@ -134,7 +155,7 @@ button, a {
   padding-bottom: var(--space-sm);
   gap: var(--space-sm);
 
-  font-weight: 600;
+  font-weight: 500;
   font-size: var(--font-sm);
 
   border-radius: var(--border-lg);
@@ -164,6 +185,7 @@ button.sm, a.sm{
   padding-inline: var(--space-md);
   padding-top: var(--space-xs);
   padding-bottom: var(--space-xs);
+  
 
   font-size: var(--font-xs);
 }
@@ -174,11 +196,6 @@ button.lg, a.lg{
   padding-bottom: var(--space-md);
 
   font-size: var(--font-md);
-}
-
-/* --- Extras --- */
-.hidden{
-  display: none !important;
 }
 
 .primary{

@@ -5,17 +5,15 @@ import MenuButton from '../../components/Content/Layout/MenuButton'
 import UsuarioSidebar from '../../components/Sidebar/UsuarioSidebar'
 import { useUsuarioModalStore } from '../../stores/Modal/useUsuarioModalStore'
 import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
+import Layout from '../../Layout'
 
 export default function UsuarioDashboard(){
-  const {verDetalles, openModal} = useUsuarioModalStore();
+  const { openModal } = useUsuarioModalStore();
 
   return(
-    <div className="page">
+    <Layout>
       <UsuarioModalVerDetalles/>
 
-      <Navbar/>
-
-      <UsuarioSidebar activePage={'dashboard'}/>
       <div className="content">
         <ContentTitle title={"Inicio"} />
 
@@ -51,6 +49,6 @@ export default function UsuarioDashboard(){
         </div>
       </div>
       
-    </div>
+    </Layout>
   )
 }

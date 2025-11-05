@@ -21,6 +21,7 @@ export default function BaseTable({
   currentTab,
   onTabChange,
   isCardTabs,
+  hideSearch,
   hideSearchbar,
   hidePagination,
     selectedRowId,
@@ -81,11 +82,13 @@ export default function BaseTable({
     }, [initialTab]);
 
     const activeTab = tabs.find(tab => tab.label === currentTab) || {};
+    const activeColumns = activeTab.columnDefinitions ?? columns;
+    const activeData = activeTab.data ?? data;
     
     // --- Inicialiazación de la tabla ---
     const table = useReactTable({
-        data: activeTab.data ?? data,
-        columns: activeTab.columnDefinitions ?? columns, 
+        data: activeData,
+        columns: activeColumns, 
         card: activeTab.card ?? card,
         state: {
             pagination,
@@ -107,7 +110,9 @@ export default function BaseTable({
             <div className="search-tabs-container">
                 {children}
 
-                <SearchBar placeholder={searchBarPlaceholder} globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}/>
+                {!hideSearch &&
+                    <SearchBar placeholder={searchBarPlaceholder} globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}/>
+                }
 
                 {tabs.length > 0 &&
                     isCardTabs
@@ -142,7 +147,7 @@ export default function BaseTable({
 
             {/* --- Estado de carga durante fetch --- */}
             {loading && (
-                <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
+                <div style={{maxWidth: '100%', display: 'flex', justifyContent: 'center'}}>
                     <div className="spinner"></div>
                 </div>
             )}
@@ -179,77 +184,92 @@ export default function BaseTable({
             }
         </div>
         :
-        <div className="table" style={{width: '100%'}}>
-            {table.getHeaderGroups().map((headerGroup) =>(
-                <div className="tr header" key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => (
-                        <div 
-                            className={`th ${centered.includes(header.column.id) ? 'column-centered' : ''}`}
-                            style={{
-                            ...(flexable.includes(header.column.id)
-                                ? { flex: 1 }
-                                : { width: header.getSize() }),
-                            ...(customHeaderHeight ? { minHeight: customHeaderHeight } : {})
-                            }}
-                            key={header.id}
-                        >
-                            <span>{header.column.columnDef.header}</span>
-                            {header.column.getCanSort() && (
-                                <i
-                                    className={
-                                    header.column.getIsSorted() === "asc"
-                                        ? "fas fa-sort-up"
-                                        : header.column.getIsSorted() === "desc"
-                                        ? "fas fa-sort-down"
-                                        : "fas fa-sort"
-                                    }
-                                    onClick={header.column.getToggleSortingHandler()}
-                                ></i>
-                            )}
+        <div>
+            <div className="table" style={{maxWidth: '100%', overflowX: 'auto'}} key={`table-${currentTab}-${activeColumns?.length || 0}`}>
+                {table.getHeaderGroups().map((headerGroup) =>(
+                    <div className="tr header" key={headerGroup.id}>
+                        {headerGroup.headers.map((header) => {
+                            const columnSize = header.column.getSize();
+                            const isFlexable = typeof flexable === 'string' 
+                                ? flexable === header.column.id 
+                                : Array.isArray(flexable) && flexable.includes(header.column.id);
+                            
+                            return (
+                            <div 
+                                className={`th ${centered.includes(header.column.id) ? 'column-centered' : ''}`}
+                                style={{
+                                ...(isFlexable
+                                    ? { flex: 1 }
+                                    : { width: columnSize, minWidth: columnSize, maxWidth: columnSize }),
+                                ...(customHeaderHeight ? { minHeight: customHeaderHeight } : {})
+                                }}
+                                key={header.id}
+                            >
+                                <span>{header.column.columnDef.header}</span>
+                                {header.column.getCanSort() && (
+                                    <i
+                                        className={
+                                        header.column.getIsSorted() === "asc"
+                                            ? "fas fa-sort-up"
+                                            : header.column.getIsSorted() === "desc"
+                                            ? "fas fa-sort-down"
+                                            : "fas fa-sort"
+                                        }
+                                        onClick={header.column.getToggleSortingHandler()}
+                                    ></i>
+                                )}
 
-                        </div>
-                    ))}
-                </div>
-            ))}
-
-            {table.getRowModel().rows.map((row) =>(
-                <div
-                    className={`tr ${row.id === selectedRowId ? 'selected-row' : ''}`}
-                    key={row.id}
-                    onClick={() => onRowSelect?.(row.original)}
-                    style={{ cursor: onRowSelect ? 'pointer' : 'default' }}
-                >
-                    {row.getVisibleCells().map((cell) =>(
-                        <div 
-                            className={`td ${centered.includes(cell.column.id) ? 'column-centered' : ''}`}
-                            style={flexable.includes(cell.column.id) 
-                                ? {flex: 1} 
-                                : {width: cell.column.getSize()}} key={cell.id}
-                        >
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </div>
-                    ))}
-                </div>
-            ))}
-
-            {/* --- Estado de carga durante fetch --- */}
-            {loading && (
-                <div className="tr">
-                    <div className="td" style={{width: table.getTotalSize(), justifyContent: 'center', height: 100, flex: 1}}>
-                        <div className="spinner"></div>
+                            </div>
+                        )})}
                     </div>
-                </div>
-            )}
+                ))}
 
-            {/* --- Estado vacío --- */}
-            {!loading && (activeTab?.data?.length <= 0 || !activeTab?.data && data?.length <= 0) && (
-                <div className="tr">
-                    <div className="td" style={{width: table.getTotalSize(), justifyContent: 'center', flex: 1}}>
-                        <h3>ESTA SECCIÓN ESTÁ VACÍA.</h3>
+                {table.getRowModel().rows.map((row) =>(
+                    <div
+                        className={`tr ${row.id === selectedRowId ? 'selected-row' : ''}`}
+                        key={row.id}
+                        onClick={() => onRowSelect?.(row.original)}
+                        style={{ cursor: onRowSelect ? 'pointer' : 'default' }}
+                    >
+                        {row.getVisibleCells().map((cell) => {
+                            const columnSize = cell.column.getSize();
+                            const isFlexable = typeof flexable === 'string' 
+                                ? flexable === cell.column.id 
+                                : Array.isArray(flexable) && flexable.includes(cell.column.id);
+                            
+                            return (
+                            <div 
+                                className={`td ${centered.includes(cell.column.id) ? 'column-centered' : ''} p-1 py-2`}
+                                style={isFlexable 
+                                    ? {flex: 1} 
+                                    : {width: columnSize, minWidth: columnSize, maxWidth: columnSize}} 
+                                key={cell.id}
+                            >
+                                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                            </div>
+                        )})}
                     </div>
-                </div>
-            )}
+                ))}
 
+                {/* --- Estado de carga durante fetch --- */}
+                {loading && (
+                    <div className="tr">
+                        <div className="td" style={{width: table.getTotalSize(), justifyContent: 'center', height: 100, flex: 1}}>
+                            <div className="spinner"></div>
+                        </div>
+                    </div>
+                )}
+
+                {/* --- Estado vacío --- */}
+                {!loading && (activeTab?.data?.length <= 0 || !activeTab?.data && data?.length <= 0) && (
+                    <div className="tr">
+                        <div className="td" style={{width: table.getTotalSize(), justifyContent: 'center', flex: 1}}>
+                            <h3>ESTA SECCIÓN ESTÁ VACÍA.</h3>
+                        </div>
+                    </div>
+                )}
+
+            </div>      
             {!hidePagination &&
             <div className="pagination">
                 <button
@@ -273,7 +293,7 @@ export default function BaseTable({
                 </button>
             </div>
             }
-        </div>      
+        </div>
         }
 
         </>

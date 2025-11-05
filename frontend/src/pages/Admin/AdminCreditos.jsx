@@ -1,5 +1,4 @@
-import Sidebar from '../../components/Sidebar/Sidebar'
-import Navbar from '../../components/Navbar/Navbar'
+import Layout from '../../Layout'
 import { useEffect, useState } from 'react'
 
 import { useCreditoStore } from '../../stores/useCreditoStore'
@@ -87,16 +86,11 @@ export default function AdminCreditos(){
   ];
 
   return(
-    <div className="page">
+    <Layout>
       <CreditoModalGenerarDocumentos/>      
       <CreditoModalDesembolsar/>
       <CreditoModalAceptar/>      
       <CreditoModalRechazar/>      
-
-      {/* Mobile */}
-
-      <Navbar/>
-      <Sidebar activePage={'creditos'}/>
 
       <div className="content">
         <ContentTitleWithInfo>
@@ -127,6 +121,6 @@ export default function AdminCreditos(){
           isCardTabs={false}
         />
       </div>
-    </div>
+    </Layout>
   )
 }

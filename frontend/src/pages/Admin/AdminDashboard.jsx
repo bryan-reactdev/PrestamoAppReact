@@ -1,22 +1,18 @@
-import Sidebar from '../../components/Sidebar/Sidebar'
-import Navbar from '../../components/Navbar/Navbar'
 import ContentTitle from '../../components/Content/ContentTitle'
 import MenuButton from '../../components/Content/Layout/MenuButton'
 import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
 import { useUsuarioModalStore } from '../../stores/Modal/useUsuarioModalStore'
+import Layout from '../../Layout'
 
 export default function AdminDashboard(){
-  const {verDetalles, openModal} = useUsuarioModalStore();
+  const { openModal } = useUsuarioModalStore();
   
   return(
-    <div className="page">
+    <Layout>
       <UsuarioModalVerDetalles/>
 
-      <Navbar/>
-
-      <Sidebar activePage={'dashboard'}/>
       <div className="content">
-        <ContentTitle title={"Panel de Control"} subtitle={"Panel de Control de Multipréstamos Atlas"} />
+        <ContentTitle title={"Panel de Control"} />
 
         <div className="menu-container">
           <MenuButton 
@@ -78,6 +74,6 @@ export default function AdminDashboard(){
         </div>
       </div>
       
-    </div>
+    </Layout>
   )
 }

@@ -1,5 +1,3 @@
-import Sidebar from '../../components/Sidebar/Sidebar'
-import Navbar from '../../components/Navbar/Navbar'
 import ContentTitle from '../../components/Content/ContentTitle'
 import BaseTable from '../../components/Table/BaseTable'
 
@@ -9,6 +7,7 @@ import { usuariosTodosColumns } from '../../components/Table/Usuario/UsuarioTabl
 import { UsuariosCard } from '../../components/Card/Usuario/UsuarioCardDefinitions'
 import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
 import { Link } from 'react-router-dom'
+import Layout from '../../Layout'
 
 export default function AdminUsuarios(){
   const {usuarios, isFetchingUsuarios, getUsuarios} = useUsuarioStore();
@@ -24,10 +23,7 @@ export default function AdminUsuarios(){
   const centered = ['calificacion', 'dui', 'celular', 'accion']
 
   return(
-    <div className="page">
-      <Navbar/>
-      <Sidebar activePage={'usuarios'}/>
-
+    <Layout>
       <UsuarioModalVerDetalles/>
 
       <div className="content">
@@ -46,6 +42,6 @@ export default function AdminUsuarios(){
         </BaseTable>
       </div>
       
-    </div>
+    </Layout>
   )
 }

@@ -5,7 +5,9 @@ import { useEffect, useState } from 'react'
 
 import { useHistorialStore } from '../../stores/useHistorialStore'
 import { historialColumns } from '../../components/Table/Historial/HistorialTableDefinitions'
+import { HistorialCard } from '../../components/Card/Historial/HistorialCardDefinitions'
 import BaseTable from '../../components/Table/BaseTable'
+import Layout from '../../Layout'
 
 export default function AdminHistorial(){
   const [currentTab, setCurrentTab] = useState('Todos'); // Default to 'Todos'
@@ -44,15 +46,13 @@ export default function AdminHistorial(){
   ];
 
   return(
-    <div className="page">
-      <Navbar/>
-      <Sidebar activePage={'historial'}/>
-
+    <Layout>
       <div className="content">
         <ContentTitle title={'Historial'} subtitle={'Gestión de Historial'}/>
         
         <BaseTable 
           data={historial}
+          card={HistorialCard}
           columns={historialColumns} 
           centered={centered} 
           flexable='accion' 
@@ -63,6 +63,6 @@ export default function AdminHistorial(){
           onTabChange={setCurrentTab}
         />
       </div>
-    </div>
+    </Layout>
   )
 }
