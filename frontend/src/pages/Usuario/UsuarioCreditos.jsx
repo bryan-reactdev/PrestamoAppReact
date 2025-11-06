@@ -1,5 +1,4 @@
-import Sidebar from '../../components/Sidebar/Sidebar'
-import Navbar from '../../components/Navbar/Navbar'
+
 import { useEffect, useState } from 'react'
 
 import { useCreditoStore } from '../../stores/useCreditoStore'
@@ -12,7 +11,7 @@ import CreditoModalGenerarDocumentos from '../../components/Modal/Credito/Credit
 import CreditoModalRechazar from '../../components/Modal/Credito/CreditoModalRechazar'
 import { useParams } from 'react-router-dom'
 import ContentTitle from '../../components/Content/ContentTitle'
-import UsuarioSidebar from '../../components/Sidebar/UsuarioSidebar'
+import Layout from '../../Layout'
 
 export default function UsuarioCreditos(){
   const { usuarioId } = useParams();
@@ -35,16 +34,13 @@ export default function UsuarioCreditos(){
   ];
 
   return(
-    <div className="page">
+    <Layout>
       <CreditoModalGenerarDocumentos/>      
       <CreditoModalDesembolsar/>
       <CreditoModalAceptar/>      
       <CreditoModalRechazar/>      
 
       {/* Mobile */}
-
-      <Navbar/>
-      <UsuarioSidebar activePage={'creditos'}/>
 
       <div className="content">
         <ContentTitle title={'Tus Créditos'} subtitle={'Gestión de tus créditos'}/>
@@ -61,6 +57,6 @@ export default function UsuarioCreditos(){
           onTabChange={setCurrentTab}
         />
       </div>
-    </div>
+    </Layout>
   )
 }

@@ -16,6 +16,7 @@ import { creditosAceptadosColumns } from '../../components/Table/Credito/Credito
 import { CreditosAceptadosCard } from '../../components/Card/Credito/CreditoCardDefinitions'
 import { IngresoEgresoCard } from '../../components/Card/Currency/CurrencyCardDefinitions'
 import { ButtonPDF } from '../../components/Content/Layout/Stats/StatButtons'
+import Layout from '../../Layout'
 export default function AdminEgresos() {
   const { saldo, getBalance, currencyForDate, selectedDate, setSelectedDate, getCurrencyForDate, isFetchingBalance } = useCurrencyStore();
   const [searchParams] = useSearchParams();
@@ -51,10 +52,7 @@ export default function AdminEgresos() {
   ];
 
   return (
-    <div className="page">
-      <Navbar />
-      <Sidebar activePage={'caja'} />
-
+    <Layout>
       <div className="content">
         <ContentTitleWithInfo>
           <TotalCard icon={'fas fa-chart-line'} iconBgColor='danger' color="accent" title={'Egresos Totales'} style={{ padding: 0 }}>
@@ -62,24 +60,6 @@ export default function AdminEgresos() {
             <h3 className='color-danger'>{currencyForDate.totalEgresos}</h3>
           </TotalCard>
         </ContentTitleWithInfo>
-
-        <div className="date-controls">
-          <FormField
-            classNames={'simple'}
-            label={'Fecha'}
-            type="date"
-            value={selectedDate.split('T')[0]}
-            onChange={(e) => setSelectedDate(e.target.value)}
-          />
-
-          <button
-            className='btn-primary sm'
-            onClick={() => setSelectedDate(getCurrentDate())}
-          >
-            <i className='fas fa-rotate' />
-            IR A HOY
-          </button>
-        </div>
 
         <BaseTable
           data={currencyForDate.gastosEmpresa?.data ?? []}
@@ -93,13 +73,32 @@ export default function AdminEgresos() {
           currentTab={currentTab}
           onTabChange={setCurrentTab}
           isCardTabs={true}
+          showTabsAtTop={true}
         >
+          <div className="date-controls">
+            <FormField
+              classNames={'simple !p-0'}
+              label={'Fecha'}
+              type="date"
+              value={selectedDate.split('T')[0]}
+              onChange={(e) => setSelectedDate(e.target.value)}
+            />
+
+            <button
+              className='btn-primary'
+              onClick={() => setSelectedDate(getCurrentDate())}
+            >
+              <i className='fas fa-rotate' />
+              IR A HOY
+            </button>
+          </div>
+
           <ButtonPDF tipo={'egreso'}/>
         </BaseTable>
       </div>
 
       <CurrencyModalVerImagenes />
       <CurrencyModalEditar />
-    </div>
+    </Layout>
   )
 }

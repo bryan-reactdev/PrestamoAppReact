@@ -28,7 +28,7 @@ export default function StatsChart({
   data, 
   minValue = 0, 
   maxValue = 10000,
-  type = 'week', // 'week' or 'month'
+  type = 'week', // 'week', 'month', or 'multiMonth'
   className = 'stats-chart',
   onDateClick = null, // Callback function for date clicks
   saldo = 0
@@ -38,7 +38,11 @@ export default function StatsChart({
     if (!data || data.length === 0) return null;
     
     return {
-      labels: data.map(day => type === 'week' ? day.dayName : day.dayNumber),
+      labels: data.map(day => {
+        if (type === 'week') return day.dayName;
+        if (type === 'multiMonth') return day.monthName ? day.monthName.charAt(0).toUpperCase() + day.monthName.slice(1) : `${day.monthNumber}/${day.year}`;
+        return day.dayNumber;
+      }),
       datasets: [
         {
           label: 'Ingresos',
@@ -140,6 +144,11 @@ export default function StatsChart({
             const dataIndex = context[0].dataIndex;
             const clickedData = data[dataIndex];
             if (clickedData) {
+              // For multiMonth views, show month name directly
+              if (type === 'multiMonth' && clickedData.monthName) {
+                return clickedData.monthName.charAt(0).toUpperCase() + clickedData.monthName.slice(1);
+              }
+              
               // Parse date string directly without timezone conversion
               const dateStr = clickedData.date;
               if (dateStr) {
@@ -224,7 +233,7 @@ export default function StatsChart({
         max: maxValue
       }
     }
-  }), [minValue, maxValue, data, onDateClick, saldo]);
+  }), [minValue, maxValue, data, onDateClick, saldo, type]);
 
   // Don't render chart if no data
   if (!data || data.length === 0 || !chartData) {

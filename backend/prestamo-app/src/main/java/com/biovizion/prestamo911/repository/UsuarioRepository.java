@@ -35,13 +35,21 @@ public interface UsuarioRepository extends JpaRepository<UsuarioEntity, Long> {
     @Query("""
         SELECT u
         FROM UsuarioEntity u
-        WHERE EXISTS (
-            SELECT 1
-            FROM CreditoEntity c
-            JOIN c.cuotas cc
-            WHERE c.usuario = u
-            AND (cc.estado = 'Pendiente' OR cc.estado = 'Vencido')
-        )
+        WHERE 
+            EXISTS (
+                SELECT 1
+                FROM CreditoEntity c
+                JOIN c.cuotas cc
+                WHERE c.usuario = u
+                AND cc.estado = 'Pendiente'
+            )
+            AND NOT EXISTS (
+                SELECT 1
+                FROM CreditoEntity c2
+                JOIN c2.cuotas cc2
+                WHERE c2.usuario = u
+                AND cc2.estado = 'Vencido'
+            )
     """)
     List<UsuarioEntity> findAllWithCuotas();
 

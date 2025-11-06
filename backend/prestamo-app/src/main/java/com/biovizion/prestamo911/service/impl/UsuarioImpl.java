@@ -153,6 +153,7 @@ public class UsuarioImpl implements UsuarioService {
 
         // Get referencias and parentesco from UsuarioSolicitud
         String referencias = "";
+        String referenciasCelular = "";
         String parentesco = "";
         if (!creditosActivos.isEmpty() && creditosActivos.get(0).getUsuarioSolicitud() != null) {
             var solicitud = creditosActivos.get(0).getUsuarioSolicitud();
@@ -168,6 +169,17 @@ public class UsuarioImpl implements UsuarioService {
             }
             referencias = refs.toString();
             
+            // Build referenciasCelular string: "telefono1;\ntelefono2"
+            StringBuilder refsCelular = new StringBuilder();
+            if (solicitud.getTelefonoReferencia1() != null && !solicitud.getTelefonoReferencia1().trim().isEmpty()) {
+                refsCelular.append(solicitud.getTelefonoReferencia1());
+            }
+            if (solicitud.getTelefonoReferencia2() != null && !solicitud.getTelefonoReferencia2().trim().isEmpty()) {
+                if (refsCelular.length() > 0) refsCelular.append(";\n");
+                refsCelular.append(solicitud.getTelefonoReferencia2());
+            }
+            referenciasCelular = refsCelular.toString();
+            
             // Build parentesco string: "parentesco1\nparentesco2"
             StringBuilder parentescos = new StringBuilder();
             if (solicitud.getParentesco1() != null && !solicitud.getParentesco1().trim().isEmpty()) {
@@ -178,6 +190,23 @@ public class UsuarioImpl implements UsuarioService {
                 parentescos.append(solicitud.getParentesco2());
             }
             parentesco = parentescos.toString();
+        }
+
+        // Get codeudor information from UsuarioSolicitud
+        String codeudorNombre = "";
+        String codeudorDui = "";
+        String codeudorDireccion = "";
+        if (!creditosActivos.isEmpty() && creditosActivos.get(0).getUsuarioSolicitud() != null) {
+            var solicitud = creditosActivos.get(0).getUsuarioSolicitud();
+            if (solicitud.getCodeudorNombre() != null && !solicitud.getCodeudorNombre().trim().isEmpty()) {
+                codeudorNombre = solicitud.getCodeudorNombre();
+            }
+            if (solicitud.getCodeudorDui() != null && !solicitud.getCodeudorDui().trim().isEmpty()) {
+                codeudorDui = solicitud.getCodeudorDui();
+            }
+            if (solicitud.getCodeudorDireccion() != null && !solicitud.getCodeudorDireccion().trim().isEmpty()) {
+                codeudorDireccion = solicitud.getCodeudorDireccion();
+            }
         }
 
         // Combine all notas from all cuotas
@@ -211,8 +240,12 @@ public class UsuarioImpl implements UsuarioService {
                 totalPagar,
                 totalPagadas,
                 referencias,
+                referenciasCelular,
                 parentesco,
                 notas,
+                codeudorNombre,
+                codeudorDui,
+                codeudorDireccion,
                 CreditoDTOs.mapearACreditoDTOs(creditosActivos)
         );
     }

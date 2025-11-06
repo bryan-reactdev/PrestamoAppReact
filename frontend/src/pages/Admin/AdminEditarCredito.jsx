@@ -1,5 +1,4 @@
-import Sidebar from '../../components/Sidebar/Sidebar'
-import Navbar from '../../components/Navbar/Navbar'
+
 import ContentTitle from '../../components/Content/ContentTitle'
 
 import { useEffect, useState } from 'react'
@@ -8,6 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import FormField from '../../components/Form/FormField'
 import FormSelect from '../../components/Form/FormSelect'
 import { useCreditoStore } from '../../stores/useCreditoStore'
+import Layout from '../../Layout'
 
 export default function AdminEditarCredito(){
   const {id} = useParams();
@@ -131,10 +131,7 @@ export default function AdminEditarCredito(){
   // --- Estado de Carga ---
   if (isFetchingCredito || !credito){
     return(
-      <div className="page">
-        <Navbar/>
-        <Sidebar activePage={'creditos'}/>
-
+      <Layout>
         <div className="content">
           <ContentTitle 
             title={`Cargando...`}
@@ -142,15 +139,12 @@ export default function AdminEditarCredito(){
           />
         </div>
         
-      </div>
+      </Layout>
     )
   }
 
   return(
-    <div className="page">
-      <Navbar/>
-      <Sidebar activePage={'creditos'}/>
-
+    <Layout>
       <div className="content">
         <ContentTitle 
           title={`Editar Crédito`}
@@ -611,6 +605,6 @@ export default function AdminEditarCredito(){
         </div>
 
       </div>
-    </div>
+    </Layout>
   )
 }

@@ -7,7 +7,8 @@ import ChartSummary from '../../components/Charts/ChartSummary'
 import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useCurrencyStore } from '../../stores/useCurrencyStore'
-import { getWeekLabel, getMonthLabel } from '../../utils/dateUtils'
+import { getWeekLabel, getMonthLabel, getMultiMonthLabel } from '../../utils/dateUtils'
+import Layout from '../../Layout'
 
 export default function AdminEstadisticas(){
   const {
@@ -15,21 +16,24 @@ export default function AdminEstadisticas(){
     getBalance, 
     getWeekData, 
     getMonthData,
+    getMultiMonthData,
     isFetchingBalance, 
     ingresosCapitales, 
     gastosEmpresa
   } = useCurrencyStore();
   
   const navigate = useNavigate();
-  const [currentView, setCurrentView] = useState('Semanal'); // 'Semanal' or 'Mensual'
+  const [currentView, setCurrentView] = useState('Semanal'); // 'Semanal', 'Mensual', '3Meses', '6Meses', 'Anual'
   const [currentWeekData, setCurrentWeekData] = useState([]);
   const [currentMonthData, setCurrentMonthData] = useState([]);
+  const [currentMultiMonthData, setCurrentMultiMonthData] = useState([]);
   const [minValue, setMinValue] = useState(0);
   const [maxValue, setMaxValue] = useState(5000);
   
   // Navigation state
   const [currentWeekOffset, setCurrentWeekOffset] = useState(0); // 0 = current week, -1 = previous week, etc.
   const [currentMonthOffset, setCurrentMonthOffset] = useState(0); // 0 = current month, -1 = previous month, etc.
+  const [currentYearOffset, setCurrentYearOffset] = useState(0); // 0 = current year, -1 = previous year, etc.
   
   // Customization menu state
   const [isCustomizationMenuOpen, setIsCustomizationMenuOpen] = useState(false);
@@ -48,7 +52,7 @@ export default function AdminEstadisticas(){
     let maxEgresos = Math.max(...data.map(day => day.totalEgresos || 0));
     maxIngresos = maxIngresos * 1.1;
     maxEgresos = maxEgresos * 1.1;
-    return Math.max(maxIngresos, maxEgresos);
+    return Math.floor(Math.max(maxIngresos, maxEgresos));
   };
 
 
@@ -60,11 +64,30 @@ export default function AdminEstadisticas(){
       setCurrentWeekData(weekData);
       setCurrentMonthData(monthData);
       
+      // Generate multi-month data based on view
+      let multiMonthData = [];
+      if (currentView === '3Meses') {
+        multiMonthData = getMultiMonthData(3, currentMonthOffset, 0);
+      } else if (currentView === '6Meses') {
+        multiMonthData = getMultiMonthData(6, currentMonthOffset, 0);
+      } else if (currentView === 'Anual') {
+        // For yearly view, use year offset instead of month offset
+        multiMonthData = getMultiMonthData(12, 0, currentYearOffset);
+      }
+      setCurrentMultiMonthData(multiMonthData);
+      
       // Auto-set max value based on current view
-      const currentData = currentView === 'Semanal' ? weekData : monthData;
+      let currentData = [];
+      if (currentView === 'Semanal') {
+        currentData = weekData;
+      } else if (currentView === 'Mensual') {
+        currentData = monthData;
+      } else {
+        currentData = multiMonthData;
+      }
       setMaxValue(getMaxValue(currentData));
     }
-  }, [ingresosCapitales, gastosEmpresa, getWeekData, getMonthData, currentView, currentWeekOffset, currentMonthOffset]);
+  }, [ingresosCapitales, gastosEmpresa, getWeekData, getMonthData, getMultiMonthData, currentView, currentWeekOffset, currentMonthOffset, currentYearOffset]);
 
   // Click outside to close customization menu
   useEffect(() => {
@@ -93,7 +116,14 @@ export default function AdminEstadisticas(){
 
   const handleReset = () => {
     setMinValue(0);
-    const currentData = currentView === 'Semanal' ? currentWeekData : currentMonthData;
+    let currentData = [];
+    if (currentView === 'Semanal') {
+      currentData = currentWeekData;
+    } else if (currentView === 'Mensual') {
+      currentData = currentMonthData;
+    } else {
+      currentData = currentMultiMonthData;
+    }
     setMaxValue(getMaxValue(currentData));
   };
 
@@ -103,26 +133,84 @@ export default function AdminEstadisticas(){
     navigate(`${targetPage}?date=${date}`);
   };
 
+  // Check if there's data for the previous period
+  const hasDataForPreviousPeriod = () => {
+    if (!ingresosCapitales || !gastosEmpresa) return false;
+    
+    if (currentView === 'Semanal') {
+      // Check if there's data for the previous week
+      const prevWeekData = getWeekData(currentWeekOffset - 1);
+      return prevWeekData && prevWeekData.length > 0 && prevWeekData.some(day => day.totalIngresos > 0 || day.totalEgresos > 0);
+    } else if (currentView === 'Mensual') {
+      // Check if there's data for the previous month
+      const prevMonthData = getMonthData(currentMonthOffset - 1);
+      return prevMonthData && prevMonthData.length > 0 && prevMonthData.some(day => day.totalIngresos > 0 || day.totalEgresos > 0);
+    } else if (currentView === 'Anual') {
+      // Check if there's data for the previous year
+      const prevYearData = getMultiMonthData(12, 0, currentYearOffset - 1);
+      return prevYearData && prevYearData.length > 0 && prevYearData.some(month => month.totalIngresos > 0 || month.totalEgresos > 0);
+    } else {
+      // For 3 months and 6 months views, check if there's data for the previous period (3 or 6 months back)
+      const numberOfMonths = currentView === '3Meses' ? 3 : 6;
+      const prevMonthData = getMultiMonthData(numberOfMonths, currentMonthOffset - numberOfMonths, 0);
+      return prevMonthData && prevMonthData.length > 0 && prevMonthData.some(month => month.totalIngresos > 0 || month.totalEgresos > 0);
+    }
+  };
+
   // Navigation handlers
   const handlePrevious = () => {
+    // Don't allow navigation if there's no data for the previous period
+    if (!hasDataForPreviousPeriod()) return;
+    
     if (currentView === 'Semanal') {
       setCurrentWeekOffset(prev => prev - 1);
+    } else if (currentView === 'Anual') {
+      setCurrentYearOffset(prev => prev - 1);
+    } else if (currentView === '3Meses') {
+      // Navigate 3 months at a time
+      setCurrentMonthOffset(prev => prev - 3);
+    } else if (currentView === '6Meses') {
+      // Navigate 6 months at a time
+      setCurrentMonthOffset(prev => prev - 6);
     } else {
+      // Monthly view navigates 1 month at a time
       setCurrentMonthOffset(prev => prev - 1);
     }
   };
 
   const handleNext = () => {
+    // Don't allow navigation into the future
+    if (currentView === 'Semanal' && currentWeekOffset >= 0) return;
+    if (currentView === 'Anual' && currentYearOffset >= 0) return;
+    if ((currentView === 'Mensual' || currentView === '3Meses' || currentView === '6Meses') && currentMonthOffset >= 0) return;
+    
     if (currentView === 'Semanal') {
       setCurrentWeekOffset(prev => prev + 1);
+    } else if (currentView === 'Anual') {
+      setCurrentYearOffset(prev => prev + 1);
+    } else if (currentView === '3Meses') {
+      // Navigate 3 months at a time
+      setCurrentMonthOffset(prev => prev + 3);
+    } else if (currentView === '6Meses') {
+      // Navigate 6 months at a time
+      setCurrentMonthOffset(prev => prev + 6);
     } else {
+      // Monthly view navigates 1 month at a time
       setCurrentMonthOffset(prev => prev + 1);
     }
+  };
+
+  // Check if we can navigate to next period
+  const canNavigateNext = () => {
+    if (currentView === 'Semanal') return currentWeekOffset < 0;
+    if (currentView === 'Anual') return currentYearOffset < 0;
+    return currentMonthOffset < 0;
   };
 
   const handleResetNavigation = () => {
     setCurrentWeekOffset(0);
     setCurrentMonthOffset(0);
+    setCurrentYearOffset(0);
   };
 
   // Customization menu handlers
@@ -134,10 +222,38 @@ export default function AdminEstadisticas(){
     setIsCustomizationMenuOpen(false);
   };
 
-  const currentData = currentView === 'Semanal' ? currentWeekData : currentMonthData;
-  const chartTitle = currentView === 'Semanal' ? getWeekLabel(currentWeekOffset) : getMonthLabel(currentMonthOffset);
-  const pageTitle = currentView === 'Semanal' ? 'Estadísticas Semanales' : 'Estadísticas Mensuales';
-  const pageSubtitle = currentView === 'Semanal' ? 'Ingresos y Egresos por Semana' : 'Ingresos y Egresos por Mes';
+  // Get current data based on view
+  let currentData = [];
+  let chartTitle = '';
+  let pageTitle = '';
+  let pageSubtitle = '';
+  
+  if (currentView === 'Semanal') {
+    currentData = currentWeekData;
+    chartTitle = getWeekLabel(currentWeekOffset);
+    pageTitle = 'Estadísticas Semanales';
+    pageSubtitle = 'Ingresos y Egresos por Semana';
+  } else if (currentView === 'Mensual') {
+    currentData = currentMonthData;
+    chartTitle = getMonthLabel(currentMonthOffset);
+    pageTitle = 'Estadísticas Mensuales';
+    pageSubtitle = 'Ingresos y Egresos por Mes';
+  } else if (currentView === '3Meses') {
+    currentData = currentMultiMonthData;
+    chartTitle = getMultiMonthLabel(3, currentMonthOffset);
+    pageTitle = 'Estadísticas - 3 Meses';
+    pageSubtitle = 'Ingresos y Egresos por Mes (3 meses)';
+  } else if (currentView === '6Meses') {
+    currentData = currentMultiMonthData;
+    chartTitle = getMultiMonthLabel(6, currentMonthOffset);
+    pageTitle = 'Estadísticas - 6 Meses';
+    pageSubtitle = 'Ingresos y Egresos por Mes (6 meses)';
+  } else if (currentView === 'Anual') {
+    currentData = currentMultiMonthData;
+    chartTitle = getMultiMonthLabel(12, 0, currentYearOffset);
+    pageTitle = 'Estadísticas Anuales';
+    pageSubtitle = 'Ingresos y Egresos por Mes (12 meses)';
+  }
 
   // Custom tab handler for view tabs
   const handleViewTabChange = (tab) => {
@@ -153,14 +269,23 @@ export default function AdminEstadisticas(){
     {
       label: 'Mensual',
       icon: 'fas fa-calendar-alt'
+    },
+    {
+      label: '3Meses',
+      icon: 'fas fa-calendar'
+    },
+    {
+      label: '6Meses',
+      icon: 'fas fa-calendar-days'
+    },
+    {
+      label: 'Anual',
+      icon: 'fas fa-calendar-check'
     }
   ];
 
   return(
-    <div className="page">
-      <Navbar/>
-      <Sidebar activePage={'caja'}/>
-
+    <Layout>
       <div className="content">
         <ContentTitle 
           title={pageTitle} 
@@ -173,21 +298,25 @@ export default function AdminEstadisticas(){
               <button 
                 className="nav-button prev"
                 onClick={handlePrevious}
-                title={currentView === 'Semanal' ? 'Semana anterior' : 'Mes anterior'}
+                disabled={!hasDataForPreviousPeriod()}
+                title={currentView === 'Semanal' ? 'Semana anterior' : 'Período anterior'}
+                style={{ opacity: hasDataForPreviousPeriod() ? 1 : 0.5, cursor: hasDataForPreviousPeriod() ? 'pointer' : 'not-allowed' }}
               >
                 <i className="fas fa-chevron-left"></i>
               </button>
               <button 
                 className="nav-button"
                 onClick={handleResetNavigation}
-                title="Volver a la semana/mes actual"
+                title="Volver al período actual"
               >
                 <i className="fas fa-undo"></i>
               </button>
               <button 
                 className="nav-button next"
                 onClick={handleNext}
-                title={currentView === 'Semanal' ? 'Próxima semana' : 'Próximo mes'}
+                disabled={!canNavigateNext()}
+                title={currentView === 'Semanal' ? 'Próxima semana' : 'Próximo período'}
+                style={{ opacity: canNavigateNext() ? 1 : 0.5, cursor: canNavigateNext() ? 'pointer' : 'not-allowed' }}
               >
                 <i className="fas fa-chevron-right"></i>
               </button>
@@ -281,8 +410,8 @@ export default function AdminEstadisticas(){
             data={currentData}
             minValue={minValue}
             maxValue={maxValue}
-            type={currentView === 'Semanal' ? 'week' : 'month'}
-            className={currentView === 'Semanal' ? 'weekly-stats-chart' : 'monthly-stats-chart'}
+            type={currentView === 'Semanal' ? 'week' : (currentView === 'Mensual' ? 'month' : 'multiMonth')}
+            className={currentView === 'Semanal' ? 'weekly-stats-chart' : (currentView === 'Mensual' ? 'monthly-stats-chart' : 'multimonth-stats-chart')}
             onDateClick={handleDateClick}
             saldo={saldo}
           />
@@ -290,6 +419,6 @@ export default function AdminEstadisticas(){
           <ChartSummary data={currentData} saldo={saldo} viewType={currentView} />
         </div>
       </div>
-    </div>
+    </Layout>
   )
 }

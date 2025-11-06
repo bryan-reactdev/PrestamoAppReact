@@ -1,5 +1,4 @@
-import Sidebar from '../../components/Sidebar/Sidebar'
-import Navbar from '../../components/Navbar/Navbar'
+
 import ContentTitle from '../../components/Content/ContentTitle'
 
 import { useEffect, useState } from 'react'
@@ -9,6 +8,7 @@ import FormField from '../../components/Form/FormField'
 import FormSelect from '../../components/Form/FormSelect'
 import { useCreditoStore } from '../../stores/useCreditoStore'
 import toast from 'react-hot-toast'
+import Layout from '../../Layout'
 
 export default function AdminCrearCredito(){
   const {id} = useParams();
@@ -173,10 +173,7 @@ export default function AdminCrearCredito(){
   // --- Estado de Carga ---
   if (isLoadingData || (isFetchingUsuario && !usuario)){
     return(
-      <div className="page">
-        <Navbar/>
-        <Sidebar activePage={'usuarios'}/>
-
+      <Layout>
         <div className="content">
           <ContentTitle 
             title={`Cargando...`}
@@ -184,15 +181,12 @@ export default function AdminCrearCredito(){
           />
         </div>
         
-      </div>
+      </Layout>
     )
   }
 
   return(
-    <div className="page">
-      <Navbar/>
-      <Sidebar activePage={'usuarios'}/>
-
+    <Layout>
       <div className="content">
         <ContentTitle 
           title={`Crear Crédito`}
@@ -894,6 +888,6 @@ export default function AdminCrearCredito(){
         </form>
 
       </div>
-    </div>
+    </Layout>
   )
 }

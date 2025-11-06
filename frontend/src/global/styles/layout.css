@@ -741,7 +741,6 @@
 
 /* --- Caja Chica --- */
 .date-controls{
-  height: 75px;
   display: flex;
 
   align-items:last baseline;
@@ -1151,15 +1150,19 @@
 }
 
 /* React Charts Styles */
-.weekly-stats-chart {
+.weekly-stats-chart,
+.monthly-stats-chart,
+.multimonth-stats-chart {
   width: 100%;
 }
 
 /* Chart.js default styling */
 
 .weekly-stats-chart .chart-container,
-.monthly-stats-chart .chart-container {
+.monthly-stats-chart .chart-container,
+.multimonth-stats-chart .chart-container {
   height: 375px;
+  width: 100%;
 }
 
 .weekly-stats-chart .chart-legend {

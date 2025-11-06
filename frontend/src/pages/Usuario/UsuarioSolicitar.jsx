@@ -1,5 +1,4 @@
-import Sidebar from '../../components/Sidebar/Sidebar'
-import Navbar from '../../components/Navbar/Navbar'
+import Layout from '../../Layout'
 import ContentTitle from '../../components/Content/ContentTitle'
 
 import { useEffect, useState } from 'react'
@@ -8,7 +7,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import FormField from '../../components/Form/FormField'
 import FormSelect from '../../components/Form/FormSelect'
 import { useCreditoStore } from '../../stores/useCreditoStore'
-import UsuarioSidebar from '../../components/Sidebar/UsuarioSidebar'
+
 
 export default function UsuarioSolicitar(){
   const navigate = useNavigate();
@@ -135,10 +134,7 @@ export default function UsuarioSolicitar(){
 
 
   return(
-    <div className="page">
-      <Navbar/>
-      <UsuarioSidebar activePage={'solicitar'}/>
-
+    <Layout>
       <div className="content">
         <ContentTitle 
           title={`Solicitud de Crédito`}
@@ -880,6 +876,6 @@ export default function UsuarioSolicitar(){
         </form>
 
       </div>
-    </div>
+    </Layout>
   )
 }

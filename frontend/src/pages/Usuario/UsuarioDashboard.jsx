@@ -1,8 +1,5 @@
-import Sidebar from '../../components/Sidebar/Sidebar'
-import Navbar from '../../components/Navbar/Navbar'
 import ContentTitle from '../../components/Content/ContentTitle'
 import MenuButton from '../../components/Content/Layout/MenuButton'
-import UsuarioSidebar from '../../components/Sidebar/UsuarioSidebar'
 import { useUsuarioModalStore } from '../../stores/Modal/useUsuarioModalStore'
 import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
 import Layout from '../../Layout'

@@ -64,3 +64,37 @@ export function getMonthLabel(monthOffset = 0) {
   const monthStr = targetDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
   return monthStr.charAt(0).toUpperCase() + monthStr.slice(1);
 }
+
+export function getMultiMonthLabel(numberOfMonths = 3, monthOffset = 0, yearOffset = 0) {
+  const today = new Date();
+  
+  if (numberOfMonths === 12) {
+    // For yearly view, show from January through current month (or full year for past/future years)
+    const targetYear = today.getFullYear() + yearOffset;
+    const isCurrentYear = yearOffset === 0;
+    const endMonth = isCurrentYear ? today.getMonth() : 11; // 0-11, 11 = December
+    
+    const startMonth = new Date(targetYear, 0, 1); // January
+    const endMonthDate = new Date(targetYear, endMonth, 1);
+    
+    const startStr = startMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    const endStr = endMonthDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+    
+    if (yearOffset === 0) return `Año Actual: ${startStr.charAt(0).toUpperCase() + startStr.slice(1)} - ${endStr.charAt(0).toUpperCase() + endStr.slice(1)}`;
+    if (yearOffset === -1) return `Año Anterior: ${startStr.charAt(0).toUpperCase() + startStr.slice(1)} - ${endStr.charAt(0).toUpperCase() + endStr.slice(1)}`;
+    if (yearOffset === 1) return `Próximo Año: ${startStr.charAt(0).toUpperCase() + startStr.slice(1)} - ${endStr.charAt(0).toUpperCase() + endStr.slice(1)}`;
+    return `Año ${targetYear}: ${startStr.charAt(0).toUpperCase() + startStr.slice(1)} - ${endStr.charAt(0).toUpperCase() + endStr.slice(1)}`;
+  }
+  
+  // For 3 and 6 month views, show the last N months
+  const startMonth = new Date(today.getFullYear() + yearOffset, today.getMonth() + monthOffset - (numberOfMonths - 1), 1);
+  const endMonth = new Date(today.getFullYear() + yearOffset, today.getMonth() + monthOffset, 1);
+  
+  const startStr = startMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+  const endStr = endMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+  
+  if (numberOfMonths === 3) return `3 Meses: ${startStr.charAt(0).toUpperCase() + startStr.slice(1)} - ${endStr.charAt(0).toUpperCase() + endStr.slice(1)}`;
+  if (numberOfMonths === 6) return `6 Meses: ${startStr.charAt(0).toUpperCase() + startStr.slice(1)} - ${endStr.charAt(0).toUpperCase() + endStr.slice(1)}`;
+  
+  return `${numberOfMonths} Meses: ${startStr.charAt(0).toUpperCase() + startStr.slice(1)} - ${endStr.charAt(0).toUpperCase() + endStr.slice(1)}`;
+}

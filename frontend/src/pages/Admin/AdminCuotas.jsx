@@ -1,5 +1,4 @@
-import Sidebar from '../../components/Sidebar/Sidebar'
-import Navbar from '../../components/Navbar/Navbar'
+
 import ContentTitle from '../../components/Content/ContentTitle'
 import BaseTable from '../../components/Table/BaseTable'
 
@@ -12,6 +11,7 @@ import { useParams } from 'react-router-dom'
 import { CuotasPendientesCard, CuotasPagadasCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
 import CuotaModalNotas from '../../components/Modal/Cuota/CuotaModalNotas'
 import CuotaModalEditar from '../../components/Modal/Cuota/CuotaModalEditar'
+import Layout from '../../Layout'
 
 export default function AdminCuotas(){
   const {id} = useParams();
@@ -41,7 +41,7 @@ export default function AdminCuotas(){
   ];
 
   return(
-    <div className="page">
+    <Layout>
       <CuotaModalMarcarPagado/>
       <CuotaModalAbonar/>
       <CuotaModalNotas/>
@@ -49,9 +49,6 @@ export default function AdminCuotas(){
 
       {/* Mobile */}
       
-      <Navbar/>
-      <Sidebar activePage={!id ? 'cobros' : 'creditos'}/>
-
       <div className="content">
         <ContentTitle
           title={
@@ -90,6 +87,6 @@ export default function AdminCuotas(){
         </BaseTable>
       </div>
       
-    </div>
+    </Layout>
   )
 }

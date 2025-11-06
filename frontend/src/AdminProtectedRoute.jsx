@@ -1,5 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useUsuarioStore } from './stores/useUsuarioStore';
+import toast from 'react-hot-toast';
 
 export default function AdminProtectedRoute() {
   const { currentUsuario, isAuthenticating } = useUsuarioStore();

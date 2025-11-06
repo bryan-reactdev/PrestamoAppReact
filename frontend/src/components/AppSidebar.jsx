@@ -1,11 +1,14 @@
 import { Link } from "react-router-dom";
 import React from "react";
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "./ui/sidebar";
-import { BadgeDollarSign, CreditCard, History, Home, Receipt, Users } from "lucide-react";
+import { useUsuarioStore } from "../stores/useUsuarioStore";
 
 export default function AppSidebar() {
+  const { currentUsuario } = useUsuarioStore();
 
-  const menuItems = [
+  const isAdmin = currentUsuario?.rol === 'ADMIN' || currentUsuario?.rol === 'ROLE_ADMIN';
+
+  const adminMenuItems = [
     {
       label: "Panel de Control",
       icon: "fas fa-home",
@@ -36,7 +39,27 @@ export default function AppSidebar() {
       icon: "fas fa-users",
       to: "/admin/usuarios",
     },
-  ]
+  ];
+
+  const userMenuItems = [
+    {
+      label: "Inicio",
+      icon: "fas fa-home",
+      to: "/usuario/",
+    },
+    {
+      label: "Solicitar Crédito",
+      icon: "fas fa-file",
+      to: "/usuario/solicitar",
+    },
+    {
+      label: "Tus Créditos",
+      icon: "fas fa-credit-card",
+      to: "/usuario/creditos",
+    },
+  ];
+
+  const menuItems = isAdmin ? adminMenuItems : userMenuItems;
 
   return (
     <Sidebar className="border-none">

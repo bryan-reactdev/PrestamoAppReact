@@ -21,6 +21,7 @@ export default function BaseTable({
   currentTab,
   onTabChange,
   isCardTabs,
+  showTabsAtTop = false,
   hideSearch,
   hideSearchbar,
   hidePagination,
@@ -106,6 +107,26 @@ export default function BaseTable({
 
     return (
         <>
+        {showTabsAtTop && 
+            tabs.length > 0 && (
+                isCardTabs
+                ?
+                <TabsTotals
+                    className="mb-4"
+                    tabs={tabs}
+                    currentTab={currentTab} 
+                    setCurrentTab={(tab) => onTabChange(tab.label)} 
+                />
+                :
+                <Tabs
+                    className="mb-4" 
+                    tabs={tabs}
+                    currentTab={currentTab} 
+                    setCurrentTab={(tab) => onTabChange(tab.label)} 
+                />
+            )
+        }
+        
         {!hideSearchbar &&
             <div className="search-tabs-container">
                 {children}
@@ -114,7 +135,7 @@ export default function BaseTable({
                     <SearchBar placeholder={searchBarPlaceholder} globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}/>
                 }
 
-                {tabs.length > 0 &&
+                {!showTabsAtTop && tabs.length > 0 && (
                     isCardTabs
                     ?
                     <TabsTotals
@@ -128,7 +149,7 @@ export default function BaseTable({
                         currentTab={currentTab} 
                         setCurrentTab={(tab) => onTabChange(tab.label)} 
                     />
-                }
+                )}
             </div>
         }
 

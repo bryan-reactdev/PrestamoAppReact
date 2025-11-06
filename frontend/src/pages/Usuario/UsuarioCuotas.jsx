@@ -1,5 +1,4 @@
-import Sidebar from '../../components/Sidebar/Sidebar'
-import Navbar from '../../components/Navbar/Navbar'
+
 import ContentTitle from '../../components/Content/ContentTitle'
 import BaseTable from '../../components/Table/BaseTable'
 
@@ -8,7 +7,7 @@ import { useCuotaStore } from '../../stores/useCuotaStore'
 import { cuotasPendientesColumns, cuotasTodosColumns } from '../../components/Table/Cuota/CuotaTableDefinitions'
 import { CuotasPendientesCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
 import { useParams } from 'react-router-dom'
-import UsuarioSidebar from '../../components/Sidebar/UsuarioSidebar'
+import Layout from '../../Layout'
 
 export default function UsuarioCuotas(){
   const {id} = useParams();
@@ -33,12 +32,9 @@ export default function UsuarioCuotas(){
   ];
 
   return(
-    <div className="page">
+    <Layout>
       {/* Mobile */}
       
-      <Navbar/>
-      <UsuarioSidebar activePage={'creditos'}/>
-
       <div className="content">
         <ContentTitle
           title={`Cuotas del Crédito ${cuotas[0] != null ? 'de $' + cuotas[0]?.credito : ''}`}
@@ -58,6 +54,6 @@ export default function UsuarioCuotas(){
         />
       </div>
       
-    </div>
+    </Layout>
   )
 }

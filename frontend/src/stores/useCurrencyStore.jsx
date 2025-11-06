@@ -414,6 +414,191 @@ export const useCurrencyStore = create((set, get) => ({
         return monthData;
     },
 
+    // --- Multi-Month Data Generation (3, 6, 12 months) ---
+    getMultiMonthData: (numberOfMonths = 3, monthOffset = 0, yearOffset = 0) => {
+        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados, historialBalance } = get();
+        
+        const today = new Date();
+        const multiMonthData = [];
+        
+        // For yearly view (12 months), show from January through current month (or full year for past/future years)
+        if (numberOfMonths === 12) {
+            const targetYear = today.getFullYear() + yearOffset;
+            const isCurrentYear = yearOffset === 0;
+            const endMonth = isCurrentYear ? today.getMonth() : 11; // 0-11, 11 = December
+            
+            // Generate data from January (0) through endMonth
+            for (let monthIndex = 0; monthIndex <= endMonth; monthIndex++) {
+                const targetMonth = new Date(targetYear, monthIndex, 1);
+                const startOfMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1);
+                const endOfMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0);
+            
+                // Aggregate all data for this month
+                let monthIngresosCapitales = 0;
+                let monthIngresosVarios = 0;
+                let monthCuotasAbonos = 0;
+                let monthCuotasPagadas = 0;
+                let monthGastosEmpresa = 0;
+                let monthEgresosVarios = 0;
+                let monthEgresosCuotasRetiros = 0;
+                let monthCreditosDesembolsados = 0;
+                let monthHistorialBalance = 0;
+                
+                // Loop through all days in the month
+                for (let day = 1; day <= endOfMonth.getDate(); day++) {
+                    const date = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), day);
+                    
+                    // Skip if date is in the future (for current month)
+                    if (monthIndex === 0 && monthOffset === 0 && yearOffset === 0 && date > today) break;
+                    
+                    const dateString = date.toISOString().split('T')[0];
+                    
+                    // Calculate totals for this specific date
+                    const ingresosCapitalesForDate = filtrarPorFecha(ingresosCapitales, dateString);
+                    const ingresosVariosForDate = filtrarPorFecha(ingresosVarios, dateString);
+                    const cuotasAbonosForDate = filtrarPorFecha(cuotasAbonos, dateString);
+                    const cuotasPagadasForDate = filtrarPorFecha(cuotasPagadas, dateString);
+                    
+                    const gastosEmpresaForDate = filtrarPorFecha(gastosEmpresa, dateString);
+                    const egresosVariosForDate = filtrarPorFecha(egresosVarios, dateString);
+                    const egresosCuotasRetirosForDate = filtrarPorFecha(egresosCuotasRetiros, dateString);
+                    const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, dateString);
+                    const historialBalanceForDate = filtrarPorFecha(historialBalance, dateString);
+                    
+                    // Accumulate month totals
+                    monthIngresosCapitales += ingresosCapitalesForDate?.total || 0;
+                    monthIngresosVarios += ingresosVariosForDate?.total || 0;
+                    monthCuotasAbonos += cuotasAbonosForDate?.total || 0;
+                    monthCuotasPagadas += cuotasPagadasForDate?.total || 0;
+                    monthGastosEmpresa += gastosEmpresaForDate?.total || 0;
+                    monthEgresosVarios += egresosVariosForDate?.total || 0;
+                    monthEgresosCuotasRetiros += egresosCuotasRetirosForDate?.total || 0;
+                    monthCreditosDesembolsados += creditosDesembolsadosForDate?.total || 0;
+                    monthHistorialBalance += historialBalanceForDate?.data?.[0]?.monto || 0;
+                }
+                
+                const totalIngresos = 
+                    monthIngresosCapitales +
+                    monthIngresosVarios +
+                    monthCuotasAbonos +
+                    monthCuotasPagadas;
+                
+                const totalEgresos = 
+                    monthGastosEmpresa +
+                    monthEgresosVarios +
+                    monthEgresosCuotasRetiros +
+                    monthCreditosDesembolsados;
+                
+                multiMonthData.push({
+                    date: startOfMonth.toISOString().split('T')[0],
+                    monthName: targetMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }),
+                    monthNumber: targetMonth.getMonth() + 1,
+                    year: targetMonth.getFullYear(),
+                    // Detailed breakdown for tooltips
+                    ingresosCapitales: monthIngresosCapitales,
+                    ingresosVarios: monthIngresosVarios,
+                    cuotasAbonos: monthCuotasAbonos,
+                    cuotasPagadas: monthCuotasPagadas,
+                    gastosEmpresa: monthGastosEmpresa,
+                    egresosVarios: monthEgresosVarios,
+                    egresosCuotasRetiros: monthEgresosCuotasRetiros,
+                    creditosDesembolsados: monthCreditosDesembolsados,
+                    historialBalance: monthHistorialBalance,
+                    // Totals
+                    totalIngresos: totalIngresos,
+                    totalEgresos: totalEgresos,
+                    balance: totalIngresos - totalEgresos
+                });
+            }
+        } else {
+            // For 3 and 6 month views, show the last N months (including current month)
+            for (let monthIndex = numberOfMonths - 1; monthIndex >= 0; monthIndex--) {
+                const targetMonth = new Date(today.getFullYear() + yearOffset, today.getMonth() + monthOffset - monthIndex, 1);
+                const startOfMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1);
+                const endOfMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0);
+                
+                // Aggregate all data for this month
+                let monthIngresosCapitales = 0;
+                let monthIngresosVarios = 0;
+                let monthCuotasAbonos = 0;
+                let monthCuotasPagadas = 0;
+                let monthGastosEmpresa = 0;
+                let monthEgresosVarios = 0;
+                let monthEgresosCuotasRetiros = 0;
+                let monthCreditosDesembolsados = 0;
+                let monthHistorialBalance = 0;
+                
+                // Loop through all days in the month
+                for (let day = 1; day <= endOfMonth.getDate(); day++) {
+                    const date = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), day);
+                    
+                    // Skip if date is in the future (for current month)
+                    if (monthIndex === 0 && monthOffset === 0 && yearOffset === 0 && date > today) break;
+                    
+                    const dateString = date.toISOString().split('T')[0];
+                    
+                    // Calculate totals for this specific date
+                    const ingresosCapitalesForDate = filtrarPorFecha(ingresosCapitales, dateString);
+                    const ingresosVariosForDate = filtrarPorFecha(ingresosVarios, dateString);
+                    const cuotasAbonosForDate = filtrarPorFecha(cuotasAbonos, dateString);
+                    const cuotasPagadasForDate = filtrarPorFecha(cuotasPagadas, dateString);
+                    
+                    const gastosEmpresaForDate = filtrarPorFecha(gastosEmpresa, dateString);
+                    const egresosVariosForDate = filtrarPorFecha(egresosVarios, dateString);
+                    const egresosCuotasRetirosForDate = filtrarPorFecha(egresosCuotasRetiros, dateString);
+                    const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, dateString);
+                    const historialBalanceForDate = filtrarPorFecha(historialBalance, dateString);
+                    
+                    // Accumulate month totals
+                    monthIngresosCapitales += ingresosCapitalesForDate?.total || 0;
+                    monthIngresosVarios += ingresosVariosForDate?.total || 0;
+                    monthCuotasAbonos += cuotasAbonosForDate?.total || 0;
+                    monthCuotasPagadas += cuotasPagadasForDate?.total || 0;
+                    monthGastosEmpresa += gastosEmpresaForDate?.total || 0;
+                    monthEgresosVarios += egresosVariosForDate?.total || 0;
+                    monthEgresosCuotasRetiros += egresosCuotasRetirosForDate?.total || 0;
+                    monthCreditosDesembolsados += creditosDesembolsadosForDate?.total || 0;
+                    monthHistorialBalance += historialBalanceForDate?.data?.[0]?.monto || 0;
+                }
+                
+                const totalIngresos = 
+                    monthIngresosCapitales +
+                    monthIngresosVarios +
+                    monthCuotasAbonos +
+                    monthCuotasPagadas;
+                
+                const totalEgresos = 
+                    monthGastosEmpresa +
+                    monthEgresosVarios +
+                    monthEgresosCuotasRetiros +
+                    monthCreditosDesembolsados;
+                
+                multiMonthData.push({
+                    date: startOfMonth.toISOString().split('T')[0],
+                    monthName: targetMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }),
+                    monthNumber: targetMonth.getMonth() + 1,
+                    year: targetMonth.getFullYear(),
+                    // Detailed breakdown for tooltips
+                    ingresosCapitales: monthIngresosCapitales,
+                    ingresosVarios: monthIngresosVarios,
+                    cuotasAbonos: monthCuotasAbonos,
+                    cuotasPagadas: monthCuotasPagadas,
+                    gastosEmpresa: monthGastosEmpresa,
+                    egresosVarios: monthEgresosVarios,
+                    egresosCuotasRetiros: monthEgresosCuotasRetiros,
+                    creditosDesembolsados: monthCreditosDesembolsados,
+                    historialBalance: monthHistorialBalance,
+                    // Totals
+                    totalIngresos: totalIngresos,
+                    totalEgresos: totalEgresos,
+                    balance: totalIngresos - totalEgresos
+                });
+            }
+        }
+        
+        return multiMonthData;
+    },
+
     editHistorial: async (id, formData, existingImages = [], newImages = []) => {
         set({ isUpdatingHistorial: true });
         toast.loading('Editando registro...', { id: 'editar-historial' });

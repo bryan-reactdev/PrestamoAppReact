@@ -180,6 +180,22 @@ export const usuariosConVencidasColumns = [
     }
   },
   {
+    accessorKey: 'referenciasCelular',
+    header: "Referencias Celular",
+    size: 200,
+    cell: (props) => {
+      const value = props.getValue();
+      if (!value) return <p className="empty">N/A</p>;
+      return (
+        <div>
+          {value.split(';\n').map((line, index) => (
+            <p key={index}>{line}</p>
+          ))}
+        </div>
+      );
+    }
+  },
+  {
     accessorKey: 'parentesco',
     header: "Parentesco",
     size: 125,
@@ -193,6 +209,36 @@ export const usuariosConVencidasColumns = [
           ))}
         </div>
       );
+    }
+  },
+  {
+    accessorKey: 'codeudorNombre',
+    header: "Codeudor Nombre",
+    size: 300,
+    cell: (props) => {
+      const value = props.getValue();
+      if (!value) return <p className="empty">N/A</p>;
+      return <p>{value}</p>;
+    }
+  },
+  {
+    accessorKey: 'codeudorDui',
+    header: "Codeudor DUI",
+    size: 150,
+    cell: (props) => {
+      const value = props.getValue();
+      if (!value) return <p className="empty">N/A</p>;
+      return <p>{value}</p>;
+    }
+  },
+  {
+    accessorKey: 'codeudorDireccion',
+    header: "Codeudor Dirección",
+    size: 350,
+    cell: (props) => {
+      const value = props.getValue();
+      if (!value) return <p className="empty">N/A</p>;
+      return <p>{value}</p>;
     }
   },
   {

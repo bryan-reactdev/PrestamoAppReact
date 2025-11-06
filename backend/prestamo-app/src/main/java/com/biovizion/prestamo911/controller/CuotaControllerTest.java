@@ -92,27 +92,6 @@ public class CuotaControllerTest {
         }
     }
 
-    @GetMapping("/pendientes-mapeo")
-    public ResponseEntity<ApiResponse> getCuotasPendientesMapeo() {
-        try {
-            List<CreditoCuotaEntity> cuotasPendientes = cuotaService.findPendientes();
-            List<CreditoCuotaEntity> cuotasVencidas = cuotaService.findVencidas();
-            
-            // Combine pendientes and vencidas for mapeo
-            List<CreditoCuotaEntity> cuotasMapeo = new java.util.ArrayList<>();
-            cuotasMapeo.addAll(cuotasPendientes);
-            cuotasMapeo.addAll(cuotasVencidas);
-            
-            List<CuotaPendienteDTO> mapeoDTOs = mapearACuotaPendienteDTOs(cuotasMapeo, cuotasPendientes, cuotasVencidas);
-           
-            ApiResponse<List<CuotaPendienteDTO>> response = new ApiResponse<>("FETCH Cuotas pendientes para mapeo obtenidas exitosamente", mapeoDTOs);
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            ApiResponse<String> response = new ApiResponse<>("Error al obtener las cuotas pendientes para mapeo: " + e.getMessage());
-            return ResponseEntity.status(500).body(response);
-        }
-    }
-    
     @GetMapping("/usuario/{id}")
     public ResponseEntity<ApiResponse> getUsuarioCuotas(@PathVariable Long id) {
         try {
@@ -140,6 +119,29 @@ public class CuotaControllerTest {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             ApiResponse<String> response = new ApiResponse<>("Error al obtener las cuotas del usuario: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    @GetMapping("/mapeo")
+    public ResponseEntity<ApiResponse> getCuotasForMapeo() {
+        try {
+            List<CreditoCuotaEntity> cuotasPendientes = cuotaService.findPendientes();
+            List<CreditoCuotaEntity> cuotasVencidas = cuotaService.findVencidas();
+            List<CreditoCuotaEntity> cuotasPagadas = cuotaService.findPagadas();
+            
+            // Combine pendientes, vencidas, and pagadas for mapeo
+            List<CreditoCuotaEntity> cuotasMapeo = new java.util.ArrayList<>();
+            cuotasMapeo.addAll(cuotasPendientes);
+            cuotasMapeo.addAll(cuotasVencidas);
+            cuotasMapeo.addAll(cuotasPagadas);
+            
+            List<CuotaPendienteDTO> mapeoDTOs = mapearACuotaPendienteDTOs(cuotasMapeo, cuotasPendientes, cuotasVencidas);
+           
+            ApiResponse<List<CuotaPendienteDTO>> response = new ApiResponse<>("FETCH Cuotas para mapeo obtenidas exitosamente", mapeoDTOs);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            ApiResponse<String> response = new ApiResponse<>("Error al obtener las cuotas para mapeo: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }
     }

@@ -13,8 +13,8 @@ const estadoInicial = {
     cuotasPagadas: [],
     cuotasVencidas: [],
     cuotasEnRevision: [],
-    cuotasPendientesForMapeo: [],
-    cuotasPendientesForMapeoUnfiltered: [],
+    cuotasForMapeo: [],
+    cuotasForMapeoUnfiltered: [],
     isFetchingCuotas: false,
 
     selectedDate: getCurrentDate(),
@@ -39,7 +39,7 @@ export const useCuotaStore = create((set, get) => ({
             cuotasPendientes: state.cuotasPendientes.map((cuota) =>
                 cuota.id === id ? { ...cuota, [key]: value } : cuota
             ),
-            cuotasPendientesForMapeo: state.cuotasPendientesForMapeo.map((cuota) =>
+            cuotasForMapeo: state.cuotasForMapeo.map((cuota) =>
                 cuota.id === id ? { ...cuota, [key]: value } : cuota
             ),
             cuotasPagadas: state.cuotasPagadas.map((cuota) =>
@@ -58,7 +58,7 @@ export const useCuotaStore = create((set, get) => ({
         set((state) => ({
             cuotas: state.cuotas.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
             cuotasPendientes: state.cuotasPendientes.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
-            cuotasPendientesForMapeo: state.cuotasPendientesForMapeo.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
+            cuotasForMapeo: state.cuotasForMapeo.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
             cuotasPagadas: state.cuotasPagadas.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
             cuotasVencidas: state.cuotasVencidas.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
             cuotasEnRevision: state.cuotasEnRevision.map((c) => c.id === id ? { ...c, ...updatedFields } : c),
@@ -92,8 +92,8 @@ export const useCuotaStore = create((set, get) => ({
             cuotasPagadas: [],
             cuotasVencidas: [],
             cuotasEnRevision: [],
-            cuotasPendientesForMapeo: [],
-            cuotasPendientesForMapeoUnfiltered: [],
+            cuotasForMapeo: [],
+            cuotasForMapeoUnfiltered: [],
         })
         let res = null;
         
@@ -123,13 +123,14 @@ export const useCuotaStore = create((set, get) => ({
         set({ cuotasPagadas: pagadas ?? [] });
         set({ cuotasVencidas: vencidas ?? [] });
         set({ cuotasEnRevision: enRevision ?? [] });
-        set({ isFetchingCuotas: false });
 
-        // Fetch cuotas pendientes for mapeo with new DTO
-        const resMapeo = await axiosData("/cuotaTest/pendientes-mapeo", { method: "GET" });
+        // Fetch cuotas for mapeo with new DTO (includes pendientes, vencidas, and pagadas)
+        const resMapeo = await axiosData("/cuotaTest/mapeo", { method: "GET" });
         const mapeoData = resMapeo?.data ?? [];
-        set({ cuotasPendientesForMapeoUnfiltered: mapeoData });
-        get().filterCuotasPendientesForMapeo(get().selectedDate);
+        set({ cuotasForMapeoUnfiltered: mapeoData });
+        get().filterCuotasForMapeo(get().selectedDate);
+        
+        set({ isFetchingCuotas: false });
     },
 
     getUsuarioCuotas: async (usuarioId) => {
@@ -150,13 +151,13 @@ export const useCuotaStore = create((set, get) => ({
         set({ cuotasVencidas: vencidas ?? [] });
         set({ cuotasEnRevision: enRevision ?? [] });
 
-        // Fetch cuotas pendientes for mapeo with new DTO
-        const resMapeo = await axiosData("/cuotaTest/pendientes-mapeo", { method: "GET" });
+        // Fetch cuotas for mapeo with new DTO (includes pendientes, vencidas, and pagadas)
+        const resMapeo = await axiosData("/cuotaTest/mapeo", { method: "GET" });
         const mapeoData = resMapeo?.data ?? [];
-        set({ cuotasPendientesForMapeoUnfiltered: mapeoData });
-        get().filterCuotasPendientesForMapeo(get().selectedDate);
+        set({ cuotasForMapeoUnfiltered: mapeoData });
+        get().filterCuotasForMapeo(get().selectedDate);
 
-        set({isFetchingCuotas: false})
+        set({ isFetchingCuotas: false });
     },
 
     updateCuota: async (id, formData) => {
@@ -253,16 +254,16 @@ export const useCuotaStore = create((set, get) => ({
         }
     },
 
-    filterCuotasPendientesForMapeo: async (date) => {
-        const {cuotasPendientesForMapeoUnfiltered} = get();
-        if (date == null || !cuotasPendientesForMapeoUnfiltered?.length) {
+    filterCuotasForMapeo: async (date) => {
+        const {cuotasForMapeoUnfiltered} = get();
+        if (date == null || !cuotasForMapeoUnfiltered?.length) {
             // No filtering needed, use all data
-            set({ cuotasPendientesForMapeo: cuotasPendientesForMapeoUnfiltered ?? [] });
+            set({ cuotasForMapeo: cuotasForMapeoUnfiltered ?? [] });
             return;
         }
 
         // Filter by cuotaVencimiento (from new DTO structure)
-        const filtered = cuotasPendientesForMapeoUnfiltered.filter((cuota) => {
+        const filtered = cuotasForMapeoUnfiltered.filter((cuota) => {
             if (!cuota.cuotaVencimiento) return false;
             // Handle both string and Date formats
             const fechaStr = typeof cuota.cuotaVencimiento === 'string' 
@@ -270,12 +271,12 @@ export const useCuotaStore = create((set, get) => ({
                 : cuota.cuotaVencimiento.split('T')[0];
             return fechaStr.startsWith(date);
         });
-        set({cuotasPendientesForMapeo: filtered});
+        set({cuotasForMapeo: filtered});
     },
 
     setSelectedDate: (date) => {
-        const {filterCuotasPendientesForMapeo} = get();
+        const {filterCuotasForMapeo} = get();
         set({selectedDate: date});
-        filterCuotasPendientesForMapeo(date);
+        filterCuotasForMapeo(date);
     }
 }))

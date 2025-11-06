@@ -1,7 +1,7 @@
 import { isMobile } from "react-device-detect";
 import { useNavigate } from "react-router-dom";
 
-export default function Tabs({ tabs, currentTab, setCurrentTab }) {
+export default function Tabs({ tabs, currentTab, setCurrentTab, className }) {
   const navigate = useNavigate();
 
   const handleEstadoChange = (tab) => {
@@ -20,7 +20,7 @@ export default function Tabs({ tabs, currentTab, setCurrentTab }) {
   }
 
   return (
-    <div className="tabs-container">
+    <div className={`tabs-container ${className}`}>
       {tabs.map((tab) => (
         <button
           key={tab.label}

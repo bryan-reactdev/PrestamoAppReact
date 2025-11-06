@@ -77,8 +77,13 @@ public class UsuarioDTOs {
         private BigDecimal totalPagadas;
         
         private String referencias;
+        private String referenciasCelular;
         private String parentesco;
         private String notas;
+        
+        private String codeudorNombre;
+        private String codeudorDui;
+        private String codeudorDireccion;
         
         private List<CreditoDTO> creditos;
     }
