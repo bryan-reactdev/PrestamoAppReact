@@ -126,7 +126,6 @@ export default function CurrencyModalIngreso() {
                 accept={'image/*'}
                 multiple
                 onChange={handleChange}
-                required
               />
             </div>
           </div>
