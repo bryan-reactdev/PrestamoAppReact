@@ -78,6 +78,12 @@ export const usuarioConVencidasAcciones = [
 // --- Usuarios Todos ---
 export const usuariosConVencidasColumns = [
   {
+    accessorKey: 'accion',
+    header: "Acción",
+    size: 125,
+    cell: ({ row }) => <ButtonAcciones row={row} acciones={usuarioConVencidasAcciones} />,
+  },
+  {
     accessorKey: 'usuario',
     header: "Usuario",
     size: 400,
@@ -222,16 +228,6 @@ export const usuariosConVencidasColumns = [
     }
   },
   {
-    accessorKey: 'codeudorDui',
-    header: "Codeudor DUI",
-    size: 150,
-    cell: (props) => {
-      const value = props.getValue();
-      if (!value) return <p className="empty">N/A</p>;
-      return <p>{value}</p>;
-    }
-  },
-  {
     accessorKey: 'codeudorDireccion',
     header: "Codeudor Dirección",
     size: 350,
@@ -246,11 +242,5 @@ export const usuariosConVencidasColumns = [
     header: "Notas",
     size: 300,
     cell: (props) => <p>{props.getValue()}</p>
-  },
-  {
-    accessorKey: 'accion',
-    header: "Acción",
-    size: 125,
-    cell: ({ row }) => <ButtonAcciones row={row} acciones={usuarioConVencidasAcciones} />,
   },
 ]

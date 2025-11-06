@@ -537,6 +537,12 @@ export const getAccionesByEstado = (estado) => {
 // --- Cuotas Cobros ---
 export const cuotasCobrosColumns = [
   {
+    accessorKey: 'accion',
+    header: "Acción",
+    size: 125,
+    cell: ({ row }) => <ButtonAcciones row={row} acciones={cuotasCobrosAcciones} />,
+  },
+  {
     accessorKey: 'estado',
     header: "Estado",
     size: 125,
@@ -692,16 +698,6 @@ export const cuotasCobrosColumns = [
     }
   },
   {
-    accessorKey: 'codeudorDui',
-    header: "Codeudor DUI",
-    size: 150,
-    cell: (props) => {
-      const value = props.getValue();
-      if (!value) return <p className="empty">N/A</p>;
-      return <p>{value}</p>;
-    }
-  },
-  {
     accessorKey: 'codeudorDireccion',
     header: "Codeudor Dirección",
     size: 350,
@@ -716,12 +712,6 @@ export const cuotasCobrosColumns = [
     header: "Notas",
     size: 300,
     cell: (props) => <p>{props.getValue()}</p>
-  },
-  {
-    accessorKey: 'accion',
-    header: "Acción",
-    size: 125,
-    cell: ({ row }) => <ButtonAcciones row={row} acciones={cuotasCobrosAcciones} />,
   },
 ]
 

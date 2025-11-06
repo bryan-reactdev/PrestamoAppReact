@@ -10,11 +10,68 @@ export default function ButtonAcciones({ acciones, row, open: controlledOpen, se
   const setOpen = setControlledOpen ?? setUncontrolledOpen;
   
   const [dropUp, setDropUp] = useState(false); // new state
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
 
   const toggleDropdown = () => setOpen(!open);
   const closeDropdown = () => setOpen(false);
+
+  // --- Calculate dropdown position based on button position ---
+  useEffect(() => {
+    if (open && buttonRef.current && !modalMode) {
+      const updatePosition = () => {
+        if (buttonRef.current && dropdownRef.current) {
+          const buttonRect = buttonRef.current.getBoundingClientRect();
+          const dropdownHeight = dropdownRef.current.offsetHeight;
+          const spaceBelow = window.innerHeight - buttonRect.bottom;
+          const spaceAbove = buttonRect.top;
+          
+          // Determine if we should drop up or down
+          const shouldDropUp = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
+          setDropUp(shouldDropUp);
+          
+          // Calculate position
+          if (shouldDropUp) {
+            setDropdownPosition({
+              top: buttonRect.top - dropdownHeight,
+              right: window.innerWidth - buttonRect.right
+            });
+          } else {
+            setDropdownPosition({
+              top: buttonRect.bottom,
+              right: window.innerWidth - buttonRect.right
+            });
+          }
+        } else if (buttonRef.current) {
+          // Initial position estimate before dropdown is rendered
+          const buttonRect = buttonRef.current.getBoundingClientRect();
+          setDropdownPosition({
+            top: buttonRect.bottom,
+            right: window.innerWidth - buttonRect.right
+          });
+        }
+      };
+      
+      // Initial position
+      updatePosition();
+      
+      // Recalculate after a short delay to get actual dropdown height
+      const timeoutId = setTimeout(() => {
+        updatePosition();
+      }, 0);
+      
+      // Update position on scroll/resize
+      window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('resize', updatePosition);
+      
+      return () => {
+        clearTimeout(timeoutId);
+        window.removeEventListener('scroll', updatePosition, true);
+        window.removeEventListener('resize', updatePosition);
+      };
+    }
+  }, [open, modalMode]);
 
   // --- Detect click outside ---
   useEffect(() => {
@@ -37,20 +94,6 @@ export default function ButtonAcciones({ acciones, row, open: controlledOpen, se
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [open, containerRef, modalMode]);
-
-  // --- Check if dropdown fits below, otherwise flip ---
-  useEffect(() => {
-    if (open && dropdownRef.current && !modalMode) {
-      const containerElement = containerRef?.current || buttonRef.current;
-      if (containerElement) {
-        const containerRect = containerElement.getBoundingClientRect();
-        const dropdownHeight = dropdownRef.current.offsetHeight;
-        const spaceBelow = window.innerHeight - containerRect.bottom;
-
-        setDropUp(spaceBelow < dropdownHeight);
-      }
-    }
   }, [open, containerRef, modalMode]);
 
   const filteredAcciones = acciones.filter((Btn) => {
@@ -82,7 +125,24 @@ export default function ButtonAcciones({ acciones, row, open: controlledOpen, se
     return createPortal(modalContent, document.body);
   }
 
-  // Dropdown mode - original behavior
+  // Dropdown mode - render dropdown via portal with fixed positioning
+  const dropdownContent = open && (
+    <div
+      ref={dropdownRef}
+      className={`dropdown ${dropUp ? "drop-up" : ""}`}
+      style={{
+        position: 'fixed',
+        top: `${dropdownPosition.top}px`,
+        right: `${dropdownPosition.right}px`,
+        zIndex: 1000
+      }}
+    >
+      {filteredAcciones.map((Btn, index) => (
+        <Btn key={index} row={row} />
+      ))}
+    </div>
+  );
+
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
       {!hideButton && (
@@ -96,16 +156,7 @@ export default function ButtonAcciones({ acciones, row, open: controlledOpen, se
         </button>
       )}
 
-      {open && (
-        <div
-          ref={dropdownRef}
-          className={`dropdown ${dropUp ? "drop-up" : ""}`}
-        >
-          {filteredAcciones.map((Btn, index) => (
-            <Btn key={index} row={row} />
-          ))}
-        </div>
-      )}
+      {dropdownContent && createPortal(dropdownContent, document.body)}
     </div>
   );
 }

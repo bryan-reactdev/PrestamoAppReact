@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 
 export default function NavbarLanding({activePage = 'inicio'}) {
   return (
-    <div className="navbar">
+    <div className="navbar flex flex-row justify-between items-center">
       <div className="navbar-header">
         <Link to={'/'}>
           <img className="logo" src="/images/logo.png" alt="Multipréstamos ATLAS"/>

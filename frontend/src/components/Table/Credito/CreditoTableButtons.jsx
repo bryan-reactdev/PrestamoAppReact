@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useCreditoModalStore } from "../../../stores/Modal/useCreditoModalStore";
 import { useCreditoStore } from "../../../stores/useCreditoStore";
-import Switch from "../../Elements/Switch";
+import { Switch } from "../../ui/switch";
 
 export const ButtonDesembolsarCredito = ({row}) => {
   const { openModal } = useCreditoModalStore();
@@ -90,11 +90,15 @@ export const ButtonEditableCredito = ({row}) => {
   const { toggleCreditoEditable } = useCreditoStore();
 
   return (
-    <Switch 
-      title={'Editable'}  
-      checked={row.original.editable}  
-      onClick={() => toggleCreditoEditable(row.original.id, row.original.editable)}
-    />
+    <div className="flex items-center gap-2">
+      <label className="text-sm font-medium" title="Editable">
+        Editable
+      </label>
+      <Switch 
+        checked={row.original.editable}  
+        onCheckedChange={(checked) => toggleCreditoEditable(row.original.id, !checked)}
+      />
+    </div>
   )
 }
 ButtonEditableCredito.visibleIf = (row, role) => { 
@@ -105,10 +109,15 @@ export const ButtonDescargableCredito = ({row}) => {
   const { toggleCreditoDescargable } = useCreditoStore();
 
   return (
-    <Switch 
-      title={'Descargable'} 
-      checked={row.original.descargable} 
-      onClick={() => toggleCreditoDescargable(row.original.id, row.original.descargable)}/>
+    <div className="flex items-center gap-2">
+      <label className="text-sm font-medium" title="Descargable">
+        Descargable
+      </label>
+      <Switch 
+        checked={row.original.descargable} 
+        onCheckedChange={(checked) => toggleCreditoDescargable(row.original.id, !checked)}
+      />
+    </div>
   )
 }
 ButtonDescargableCredito.visibleIf = (row, role) => { 
@@ -119,10 +128,15 @@ export const ButtonDesembolsableCredito = ({row}) => {
   const { toggleCreditoDesembolsable } = useCreditoStore();
 
   return (
-    <Switch 
-      title={'Desembolsable'} 
-      checked={row.original.desembolsable} 
-      onClick={() => toggleCreditoDesembolsable(row.original.id, row.original.desembolsable)}/>
+    <div className="flex items-center gap-2">
+      <label className="text-sm font-medium" title="Desembolsable">
+        Desembolsable
+      </label>
+      <Switch 
+        checked={row.original.desembolsable} 
+        onCheckedChange={(checked) => toggleCreditoDesembolsable(row.original.id, !checked)}
+      />
+    </div>
   )
 }
 ButtonDesembolsableCredito.visibleIf = (row, role) => { 

@@ -6,7 +6,7 @@
       },
       {
         "path": "./jsconfig.node.json"
-      }
+      },
     ],
     "compilerOptions": {
       "baseUrl": ".",

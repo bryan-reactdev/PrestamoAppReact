@@ -3,7 +3,7 @@ import { ButtonGroup } from "@/components/ui/button-group";
 import { useUsuarioStore } from "../stores/useUsuarioStore";
 
 export default function AppNavbar() {
-    const { currentUsuario, logout } = useUsuarioStore();
+    const { logout } = useUsuarioStore();
 
     return (
         <div className="w-full border-none">
