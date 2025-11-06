@@ -148,8 +148,9 @@ public class UsuarioImpl implements UsuarioService {
                 .map(CreditoEntity::getMonto)
                 .orElse(BigDecimal.ZERO);
 
-        // Count pending cuotas
+        // Count pending and vencidas cuotas
         int cuotasPendientesCount = cuotasPendientes.size();
+        int cuotasVencidasCount = cuotasVencidas.size();
 
         // Get referencias and parentesco from UsuarioSolicitud
         String referencias = "";
@@ -236,6 +237,7 @@ public class UsuarioImpl implements UsuarioService {
                 oldestCuota != null ? oldestCuota.getTotal() : BigDecimal.ZERO,
                 creditoMonto,
                 cuotasPendientesCount,
+                cuotasVencidasCount,
                 cobrarPendiente,
                 totalPagar,
                 totalPagadas,

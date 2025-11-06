@@ -2,7 +2,7 @@ import BaseTable from '../../components/Table/BaseTable'
 
 import { useEffect, useState } from 'react'
 import { useUsuarioStore } from '../../stores/useUsuarioStore'
-import { usuariosConVencidasColumns } from '../../components/Table/Usuario/UsuarioTableDefinitions'
+import { usuariosConVencidasColumns, usuariosConVencidasMorososColumns } from '../../components/Table/Usuario/UsuarioTableDefinitions'
 import { UsuariosCard } from '../../components/Card/Usuario/UsuarioCardDefinitions'
 import TotalCard from '../../components/Cards/TotalCard'
 import ContentTitleWithInfo from '../../components/Content/ContentTitleWithInfo'
@@ -40,12 +40,12 @@ export default function AdminCobros(){
   }, [getUsuariosConVencidas, getUsuariosConCuotas, getCuotasTotales, getCuotas]);
   
   // Definición de las columnas que estarán centradas
-  const centered = ['calificacion', 'estado', 'celular', 'fechaVencimiento', 'cuotaVencimiento', 'cuotaMonto', 'cuotaMora', 'cuotaAbono', 'cuotaTotal', 'monto', 'mora', 'abono', 'total', 'totalPagar', 'creditoMonto', 'cuotasPendientes', 'direccion', 'referencias', 'parentesco', 'referenciasCelular', 'accion']
+  const centered = ['calificacion', 'estado', 'celular', 'fechaVencimiento', 'cuotaVencimiento', 'cuotaMonto', 'cuotaMora', 'cuotaAbono', 'cuotaTotal', 'monto', 'mora', 'abono', 'total', 'totalPagar', 'creditoMonto', 'cuotasPendientes', 'cuotasVencidas', 'direccion', 'referencias', 'parentesco', 'referenciasCelular', 'accion']
 
   const tabs = [
     { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Cuotas', text: cuotasForMapeo.length ?? '0', isLoading: isFetchingCuotas, data: cuotasForMapeo, card: CuotasPendientesCard, columnDefinitions: cuotasCobrosColumns},
     { icon: 'fas fa-check', iconBgColor: 'success', label: 'Listado de Clientes Al Día', text: usuariosConCuotas.length ?? '0', isLoading: isFetchingUsuariosConCuotas, data: usuariosConCuotas, card: UsuariosCard, columnDefinitions: usuariosConVencidasColumns},
-    { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Listado de Clientes Morosos', text: usuariosConVencidas.length ?? '0', isLoading: isFetchingUsuariosConVencidas, data: usuariosConVencidas, card: UsuariosCard, columnDefinitions: usuariosConVencidasColumns},
+    { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Listado de Clientes Morosos', text: usuariosConVencidas.length ?? '0', isLoading: isFetchingUsuariosConVencidas, data: usuariosConVencidas, card: UsuariosCard, columnDefinitions: usuariosConVencidasMorososColumns},
   ];
 
   return(

@@ -218,3 +218,147 @@ export const usuariosConVencidasColumns = [
     cell: (props) => <p>{props.getValue()}</p>
   },
 ]
+
+// --- Usuarios Con Vencidas (Morosos) ---
+export const usuariosConVencidasMorososColumns = [
+  {
+    accessorKey: 'accion',
+    header: "Acción",
+    size: 125,
+    cell: ({ row }) => <ButtonAcciones row={row} acciones={usuarioConVencidasAcciones} />,
+  },
+  {
+    accessorKey: 'usuario',
+    header: "Usuario",
+    size: 400,
+    cell: (props) => <p>{props.getValue()}</p>
+  },
+  {
+    accessorKey: 'celular',
+    header: "Celular",
+    size:150,
+    cell: ({getValue}) => {
+      const value = getValue();
+      if (!value) return <p className="empty">N/A</p>
+
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <p style={{ margin: 0 }}>{value}</p>
+          <WhatsAppIcon phoneNumber={value} size={24} />
+        </div>
+      );
+    }
+  },
+  {
+    accessorKey: 'direccion',
+    header: "Dirección",
+    size: 350,
+    cell: (props) => <p>{props.getValue()}</p>
+  },
+  {
+    accessorKey: 'creditoMonto',
+    header: "Crédito Monto",
+    size: 105,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'cuotasVencidas',
+    size: 115,
+    header: "Cuotas Vencidas",
+    cell: (props) => <p>{props.getValue()}</p>
+  },
+  {
+    accessorKey: 'totalPagar',
+    header: "Total Pagar",
+    size: 105,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
+    accessorKey: 'referencias',
+    header: "Referencias",
+    size: 300,
+    cell: (props) => {
+      const value = props.getValue();
+      if (!value) return <p className="empty">N/A</p>;
+      return (
+        <div>
+          {value.split('\n').map((line, index) => (
+            <p key={index}>{line}</p>
+          ))}
+        </div>
+      );
+    }
+  },
+  {
+    accessorKey: 'referenciasCelular',
+    header: "Referencias Celular",
+    size: 200,
+    cell: (props) => {
+      const value = props.getValue();
+      if (!value) return <p className="empty">N/A</p>;
+      return (
+        <div>
+          {value.split(';\n').map((line, index) => (
+            <p key={index}>{line}</p>
+          ))}
+        </div>
+      );
+    }
+  },
+  {
+    accessorKey: 'parentesco',
+    header: "Parentesco",
+    size: 125,
+    cell: (props) => {
+      const value = props.getValue();
+      if (!value) return <p className="empty">N/A</p>;
+      return (
+        <div>
+          {value.split('\n').map((line, index) => (
+            <p key={index}>{line}</p>
+          ))}
+        </div>
+      );
+    }
+  },
+  {
+    accessorKey: 'codeudorNombre',
+    header: "Codeudor Nombre",
+    size: 300,
+    cell: (props) => {
+      const value = props.getValue();
+      if (!value) return <p className="empty">N/A</p>;
+      return <p>{value}</p>;
+    }
+  },
+  {
+    accessorKey: 'codeudorDireccion',
+    header: "Codeudor Dirección",
+    size: 350,
+    cell: (props) => {
+      const value = props.getValue();
+      if (!value) return <p className="empty">N/A</p>;
+      return <p>{value}</p>;
+    }
+  },
+  {
+    accessorKey: 'notas',
+    header: "Notas",
+    size: 300,
+    cell: (props) => <p>{props.getValue()}</p>
+  },
+]

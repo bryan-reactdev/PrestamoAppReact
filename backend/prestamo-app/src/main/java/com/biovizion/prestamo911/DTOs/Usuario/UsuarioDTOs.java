@@ -71,6 +71,7 @@ public class UsuarioDTOs {
 
         private BigDecimal creditoMonto;
         private Integer cuotasPendientes;
+        private Integer cuotasVencidas;
         
         private BigDecimal cobrarPendiente;
         private BigDecimal totalPagar;
