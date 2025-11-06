@@ -44,7 +44,7 @@ export default function AdminCobros(){
 
   const tabs = [
     { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Cuotas', text: cuotasForMapeo.length ?? '0', isLoading: isFetchingCuotas, data: cuotasForMapeo, card: CuotasPendientesCard, columnDefinitions: cuotasCobrosColumns},
-    { icon: 'fas fa-check', iconBgColor: 'success', label: 'Listado de Clientes Al Día', value: cuotasTotales?.totalPendientes, isLoading: isFetchingUsuariosConCuotas, data: usuariosConCuotas, card: UsuariosCard, columnDefinitions: usuariosConVencidasColumns},
+    { icon: 'fas fa-check', iconBgColor: 'warning', label: 'Listado de Clientes Al Día', value: cuotasTotales?.totalPendientes, isLoading: isFetchingUsuariosConCuotas, data: usuariosConCuotas, card: UsuariosCard, columnDefinitions: usuariosConVencidasColumns},
     { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Listado de Clientes Morosos', value: cuotasTotales?.totalVencidas, isLoading: isFetchingUsuariosConVencidas, data: usuariosConVencidas, card: UsuariosCard, columnDefinitions: usuariosConVencidasMorososColumns},
   ];
 
