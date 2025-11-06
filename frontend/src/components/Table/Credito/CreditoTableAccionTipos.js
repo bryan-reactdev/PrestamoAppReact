@@ -1,9 +1,6 @@
 import { 
   ButtonAceptarCredito, 
-  ButtonDescargableCredito, 
-  ButtonDesembolsableCredito, 
   ButtonDesembolsarCredito, 
-  ButtonEditableCredito, 
   ButtonEditarCredito, 
   ButtonGenerarDocumentosCredito, 
   ButtonRechazarCredito, 
@@ -17,9 +14,6 @@ const CreditoTableAccionTipos = {
   RECHAZAR: ButtonRechazarCredito,
   GENERAR_DOCUMENTOS: ButtonGenerarDocumentosCredito,
   EDITAR: ButtonEditarCredito,
-  EDITABLE: ButtonEditableCredito,
-  DESCARGABLE: ButtonDescargableCredito,
-  DESEMBOLSABLE: ButtonDesembolsableCredito,
 };
 
 export default CreditoTableAccionTipos;

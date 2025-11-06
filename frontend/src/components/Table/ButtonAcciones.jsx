@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useUsuarioStore } from "../../stores/useUsuarioStore";
 import { BaseModal } from "../Modal/ModalUtils";
@@ -9,7 +9,6 @@ export default function ButtonAcciones({ acciones, row, open: controlledOpen, se
   const open = controlledOpen ?? uncontrolledOpen;
   const setOpen = setControlledOpen ?? setUncontrolledOpen;
   
-  const [dropUp, setDropUp] = useState(false); // new state
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const dropdownRef = useRef(null);
   const buttonRef = useRef(null);
@@ -17,60 +16,77 @@ export default function ButtonAcciones({ acciones, row, open: controlledOpen, se
   const toggleDropdown = () => setOpen(!open);
   const closeDropdown = () => setOpen(false);
 
-  // --- Calculate dropdown position based on button position ---
-  useEffect(() => {
-    if (open && buttonRef.current && !modalMode) {
-      const updatePosition = () => {
-        if (buttonRef.current && dropdownRef.current) {
-          const buttonRect = buttonRef.current.getBoundingClientRect();
-          const dropdownHeight = dropdownRef.current.offsetHeight;
-          const spaceBelow = window.innerHeight - buttonRect.bottom;
-          const spaceAbove = buttonRect.top;
-          
-          // Determine if we should drop up or down
-          const shouldDropUp = spaceBelow < dropdownHeight && spaceAbove > spaceBelow;
-          setDropUp(shouldDropUp);
-          
-          // Calculate position
-          if (shouldDropUp) {
-            setDropdownPosition({
-              top: buttonRect.top - dropdownHeight,
-              right: window.innerWidth - buttonRect.right
-            });
-          } else {
-            setDropdownPosition({
-              top: buttonRect.bottom,
-              right: window.innerWidth - buttonRect.right
-            });
-          }
-        } else if (buttonRef.current) {
-          // Initial position estimate before dropdown is rendered
-          const buttonRect = buttonRef.current.getBoundingClientRect();
-          setDropdownPosition({
-            top: buttonRect.bottom,
-            right: window.innerWidth - buttonRect.right
-          });
-        }
-      };
-      
-      // Initial position
-      updatePosition();
-      
-      // Recalculate after a short delay to get actual dropdown height
-      const timeoutId = setTimeout(() => {
-        updatePosition();
-      }, 0);
-      
-      // Update position on scroll/resize
-      window.addEventListener('scroll', updatePosition, true);
-      window.addEventListener('resize', updatePosition);
-      
-      return () => {
-        clearTimeout(timeoutId);
-        window.removeEventListener('scroll', updatePosition, true);
-        window.removeEventListener('resize', updatePosition);
-      };
+  // Calculate dropdown position after render
+  useLayoutEffect(() => {
+    if (!open || !buttonRef.current || !dropdownRef.current || modalMode) {
+      return;
     }
+
+    const calculatePosition = () => {
+      if (!buttonRef.current || !dropdownRef.current) return;
+      
+      const buttonRect = buttonRef.current.getBoundingClientRect();
+      const dropdownRect = dropdownRef.current.getBoundingClientRect();
+      
+      const viewportHeight = window.innerHeight;
+      const viewportWidth = window.innerWidth;
+      
+      // Get dropdown dimensions - use getBoundingClientRect first, fallback to offsetHeight
+      const dropdownHeight = dropdownRect.height > 0 
+        ? dropdownRect.height 
+        : dropdownRef.current.offsetHeight;
+      
+      // If dropdown doesn't have dimensions yet, skip calculation
+      if (dropdownHeight <= 0) return;
+      
+      // Calculate space available
+      const spaceBelow = viewportHeight - buttonRect.bottom;
+      const spaceAbove = buttonRect.top;
+      
+      // Determine vertical position
+      let top;
+      if (spaceBelow >= dropdownHeight) {
+        // Enough space below - position below button
+        top = buttonRect.bottom;
+      } else if (spaceAbove >= dropdownHeight) {
+        // Not enough space below but enough above - position above button
+        top = buttonRect.top - dropdownHeight;
+      } else {
+        // Not enough space in either direction - position where there's more space
+        if (spaceBelow > spaceAbove) {
+          top = buttonRect.bottom;
+        } else {
+          top = buttonRect.top - dropdownHeight;
+        }
+      }
+      
+      // Ensure dropdown doesn't go off top or bottom of viewport
+      top = Math.max(0, Math.min(top, viewportHeight - dropdownHeight));
+      
+      // Calculate horizontal position (right-aligned to button)
+      let right = viewportWidth - buttonRect.right;
+      
+      // Ensure dropdown doesn't go off right edge
+      if (right < 0) {
+        right = viewportWidth - buttonRect.left;
+      }
+      
+      setDropdownPosition({ top, right });
+    };
+
+    calculatePosition();
+
+    // Update on scroll and resize
+    const handleScroll = () => calculatePosition();
+    const handleResize = () => calculatePosition();
+
+    window.addEventListener('scroll', handleScroll, true);
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll, true);
+      window.removeEventListener('resize', handleResize);
+    };
   }, [open, modalMode]);
 
   // --- Detect click outside ---
@@ -97,6 +113,8 @@ export default function ButtonAcciones({ acciones, row, open: controlledOpen, se
   }, [open, containerRef, modalMode]);
 
   const filteredAcciones = acciones.filter((Btn) => {
+    // Filter out undefined/null values
+    if (!Btn) return false;
     const roleOk = !Btn.allowedRoles || Btn.allowedRoles.includes(currentUsuario.rol);
     const visibleOk = !Btn.visibleIf || Btn.visibleIf(row, currentUsuario.rol);
     return roleOk && visibleOk;
@@ -129,12 +147,12 @@ export default function ButtonAcciones({ acciones, row, open: controlledOpen, se
   const dropdownContent = open && (
     <div
       ref={dropdownRef}
-      className={`dropdown ${dropUp ? "drop-up" : ""}`}
+      className="dropdown"
       style={{
         position: 'fixed',
         top: `${dropdownPosition.top}px`,
         right: `${dropdownPosition.right}px`,
-        zIndex: 1000
+        zIndex: 20
       }}
     >
       {filteredAcciones.map((Btn, index) => (

@@ -279,9 +279,6 @@ export const creditosAceptadosAcciones = [
   CreditoTableAccionTipos.VER_CUOTAS,
   CreditoTableAccionTipos.GENERAR_DOCUMENTOS, 
   CreditoTableAccionTipos.EDITAR,
-  CreditoTableAccionTipos.EDITABLE,
-  CreditoTableAccionTipos.DESCARGABLE,
-  CreditoTableAccionTipos.DESEMBOLSABLE,
 ]
 
 // --- Créditos Pendientes ---
@@ -345,8 +342,6 @@ export const creditosPendientesAcciones = [
   CreditoTableAccionTipos.RECHAZAR, 
   CreditoTableAccionTipos.GENERAR_DOCUMENTOS, 
   CreditoTableAccionTipos.EDITAR,
-  CreditoTableAccionTipos.DESCARGABLE,
-  CreditoTableAccionTipos.EDITABLE
 ]
 
 // --- Créditos Rechazados ---
@@ -485,6 +480,4 @@ export const creditosFinalizadosColumns = [
 export const creditosDefaultAcciones = [
   CreditoTableAccionTipos.GENERAR_DOCUMENTOS, 
   CreditoTableAccionTipos.EDITAR,
-  CreditoTableAccionTipos.EDITABLE,
-  CreditoTableAccionTipos.DESCARGABLE,
 ]

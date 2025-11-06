@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { formatCurrencySV } from "../../../../utils/currencyUtils";
 
 export default function StatCard({ title, titleIcon, value, color, actions, to, children }) {
   const navigate = useNavigate();
@@ -26,7 +27,7 @@ export default function StatCard({ title, titleIcon, value, color, actions, to, 
         <div className={`stat-value color-${color} ${value < 0 && 'color-danger'}`}>
           {(value === null) || (value === undefined) || (isNaN(value))
             ? <div> <i className="fas fa-dollar-sign" /> <div className="spinner" /> </div>
-            : <p><i className='fas fa-dollar-sign' /> <strong>{value}</strong></p>
+            : <p><i className='fas fa-dollar-sign' /> <strong>{formatCurrencySV(value)}</strong></p>
           }
         </div>
 

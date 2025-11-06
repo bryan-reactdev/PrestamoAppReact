@@ -106,32 +106,6 @@ export const usuariosConVencidasColumns = [
     }
   },
   {
-    accessorKey: 'cuotaVencimiento',
-    header: "Vencimiento de la Cuota",
-    size: 125,
-    cell: (props) => {
-      const value = props.getValue();
-
-      if (!value) return <p className="empty">N/A</p>;
-
-      const [y, m, d] = value.split('T')[0].split('-');
-      return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
-    }
-  },
-  {
-    accessorKey: 'cuotaTotal',
-    header: "Total de la Cuota",
-    size: 90,
-    cell: (props) => {
-      const value = props.getValue();
-      return (
-        <span>
-          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-        </span>
-      );
-    }
-  },
-  {
     accessorKey: 'direccion',
     header: "Dirección",
     size: 350,
@@ -140,7 +114,7 @@ export const usuariosConVencidasColumns = [
   {
     accessorKey: 'creditoMonto',
     header: "Crédito Monto",
-    size: 90,
+    size: 105,
     cell: (props) => {
       const value = props.getValue();
       return (

@@ -173,10 +173,24 @@ export const useCuotaStore = create((set, get) => ({
             cuotasEnRevision: [...cuotasEnRevision],
         };
 
+        // Get existing cuota to use abono if not in formData
+        const { cuotasForMapeo } = get();
+        const existingCuota = cuotas.find(c => c.id === id) || 
+                             cuotasPendientes.find(c => c.id === id) ||
+                             cuotasPagadas.find(c => c.id === id) ||
+                             cuotasVencidas.find(c => c.id === id) ||
+                             cuotasEnRevision.find(c => c.id === id) ||
+                             cuotasForMapeo.find(c => c.id === id);
+
         // Optimistically update all arrays
         // Work around to get the total calculated
-        formData.total =
-            (Number(formData.monto) + Number(formData.mora)) - Number(formData.abono);
+        // Handle missing values by defaulting to 0 to avoid NaN
+        const monto = Number(formData.monto) || 0;
+        const mora = Number(formData.mora) || 0;
+        const abonoValue = formData.abono ?? existingCuota?.abono;
+        const abono = Number(abonoValue) || 0;
+        
+        formData.total = monto + mora - abono;
 
         get().updateCuotaOptimistic(id, formData);
 

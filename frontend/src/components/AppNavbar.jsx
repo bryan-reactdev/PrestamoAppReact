@@ -15,7 +15,7 @@ export default function AppNavbar() {
                 </ButtonGroup>
 
                 <div className="flex flex-row">
-                    <Button onClick={() => logout()}>Cerrar sesión</Button>
+                    {/* <Button variant={"secondary"} onClick={() => logout()}>Cerrar sesión</Button> */}
                 </div>
             </ButtonGroup>
         </div>
