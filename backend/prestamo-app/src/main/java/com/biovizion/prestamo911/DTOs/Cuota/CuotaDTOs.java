@@ -112,6 +112,7 @@ public class CuotaDTOs {
         private String referencias;
         private String parentesco;
         private String notas;
+        private Long userId;
     }
 
     public static AbonoDTO mapearAAbonoDTO(AbonoCuotaEntity abono){
@@ -298,7 +299,8 @@ public class CuotaDTOs {
                 totalPagar,
                 referencias,
                 parentesco,
-                notas
+                notas,
+                usuario.getId()
         );
     }
 
