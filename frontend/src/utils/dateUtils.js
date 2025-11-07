@@ -44,12 +44,13 @@ export function getWeekLabel(weekOffset = 0) {
   const endOfWeek = new Date(startOfWeek);
   endOfWeek.setDate(startOfWeek.getDate() + 6);
   
-  if (weekOffset === 0) return 'Semana Actual';
-  if (weekOffset === -1) return 'Semana Anterior';
-  if (weekOffset === 1) return 'Próxima Semana';
-  
   const startStr = startOfWeek.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
   const endStr = endOfWeek.toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit' });
+  const dateRange = `(${startStr} - ${endStr})`;
+  
+  if (weekOffset === 0) return `Semana Actual ${dateRange}`;
+  if (weekOffset === 1) return 'Próxima Semana';
+  
   return `Semana del ${startStr} al ${endStr}`;
 }
 
@@ -57,12 +58,13 @@ export function getMonthLabel(monthOffset = 0) {
   const today = new Date();
   const targetDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
   
-  if (monthOffset === 0) return 'Mes Actual';
-  if (monthOffset === -1) return 'Mes Anterior';
+  const monthStr = targetDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+  const monthName = monthStr.charAt(0).toUpperCase() + monthStr.slice(1);
+  
+  if (monthOffset === 0) return `Mes Actual (${monthName})`;
   if (monthOffset === 1) return 'Próximo Mes';
   
-  const monthStr = targetDate.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
-  return monthStr.charAt(0).toUpperCase() + monthStr.slice(1);
+  return monthName;
 }
 
 export function getMultiMonthLabel(numberOfMonths = 3, monthOffset = 0, yearOffset = 0) {

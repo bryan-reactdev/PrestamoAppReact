@@ -310,11 +310,12 @@ export const useCurrencyStore = create((set, get) => ({
             const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, dateString);
             const historialBalanceForDate = filtrarPorFecha(historialBalance, dateString);
             
-            const totalIngresos = 
-                (ingresosCapitalesForDate?.total || 0) +
+            const ingresosCapitalesAmount = ingresosCapitalesForDate?.total || 0;
+            const totalIngresosSinCapitales = 
                 (ingresosVariosForDate?.total || 0) +
                 (cuotasAbonosForDate?.total || 0) +
                 (cuotasPagadasForDate?.total || 0);
+            const totalIngresos = ingresosCapitalesAmount + totalIngresosSinCapitales;
             
             const totalEgresos = 
                 (gastosEmpresaForDate?.total || 0) +
@@ -326,7 +327,7 @@ export const useCurrencyStore = create((set, get) => ({
                 date: dateString,
                 dayName: date.toLocaleDateString('es-ES', { weekday: 'short' }),
                 // Detailed breakdown for tooltips
-                ingresosCapitales: ingresosCapitalesForDate?.total || 0,
+                ingresosCapitales: ingresosCapitalesAmount,
                 ingresosVarios: ingresosVariosForDate?.total || 0,
                 cuotasAbonos: cuotasAbonosForDate?.total || 0,
                 cuotasPagadas: cuotasPagadasForDate?.total || 0,
@@ -336,7 +337,8 @@ export const useCurrencyStore = create((set, get) => ({
                 creditosDesembolsados: creditosDesembolsadosForDate?.total || 0,
                 historialBalance: historialBalanceForDate?.data?.[0]?.monto || 0,
                 // Totals
-                totalIngresos: totalIngresos,
+                totalIngresosCapitales: ingresosCapitalesAmount,
+                totalIngresos: totalIngresosSinCapitales,
                 totalEgresos: totalEgresos,
                 balance: totalIngresos - totalEgresos
             });
@@ -379,11 +381,12 @@ export const useCurrencyStore = create((set, get) => ({
             const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, dateString);
             const historialBalanceForDate = filtrarPorFecha(historialBalance, dateString);
             
-            const totalIngresos = 
-                (ingresosCapitalesForDate?.total || 0) +
+            const ingresosCapitalesAmount = ingresosCapitalesForDate?.total || 0;
+            const totalIngresosSinCapitales = 
                 (ingresosVariosForDate?.total || 0) +
                 (cuotasAbonosForDate?.total || 0) +
                 (cuotasPagadasForDate?.total || 0);
+            const totalIngresos = ingresosCapitalesAmount + totalIngresosSinCapitales;
             
             const totalEgresos = 
                 (gastosEmpresaForDate?.total || 0) +
@@ -395,7 +398,7 @@ export const useCurrencyStore = create((set, get) => ({
                 date: dateString,
                 dayNumber: date.getDate(),
                 // Detailed breakdown for tooltips
-                ingresosCapitales: ingresosCapitalesForDate?.total || 0,
+                ingresosCapitales: ingresosCapitalesAmount,
                 ingresosVarios: ingresosVariosForDate?.total || 0,
                 cuotasAbonos: cuotasAbonosForDate?.total || 0,
                 cuotasPagadas: cuotasPagadasForDate?.total || 0,
@@ -405,7 +408,8 @@ export const useCurrencyStore = create((set, get) => ({
                 creditosDesembolsados: creditosDesembolsadosForDate?.total || 0,
                 historialBalance: historialBalanceForDate?.data?.[0]?.monto || 0,
                 // Totals
-                totalIngresos: totalIngresos,
+                totalIngresosCapitales: ingresosCapitalesAmount,
+                totalIngresos: totalIngresosSinCapitales,
                 totalEgresos: totalEgresos,
                 balance: totalIngresos - totalEgresos
             });
@@ -477,11 +481,11 @@ export const useCurrencyStore = create((set, get) => ({
                     monthHistorialBalance += historialBalanceForDate?.data?.[0]?.monto || 0;
                 }
                 
-                const totalIngresos = 
-                    monthIngresosCapitales +
+                const totalIngresosSinCapitales = 
                     monthIngresosVarios +
                     monthCuotasAbonos +
                     monthCuotasPagadas;
+                const totalIngresos = monthIngresosCapitales + totalIngresosSinCapitales;
                 
                 const totalEgresos = 
                     monthGastosEmpresa +
@@ -505,7 +509,8 @@ export const useCurrencyStore = create((set, get) => ({
                     creditosDesembolsados: monthCreditosDesembolsados,
                     historialBalance: monthHistorialBalance,
                     // Totals
-                    totalIngresos: totalIngresos,
+                    totalIngresosCapitales: monthIngresosCapitales,
+                    totalIngresos: totalIngresosSinCapitales,
                     totalEgresos: totalEgresos,
                     balance: totalIngresos - totalEgresos
                 });
@@ -561,11 +566,11 @@ export const useCurrencyStore = create((set, get) => ({
                     monthHistorialBalance += historialBalanceForDate?.data?.[0]?.monto || 0;
                 }
                 
-                const totalIngresos = 
-                    monthIngresosCapitales +
+                const totalIngresosSinCapitales = 
                     monthIngresosVarios +
                     monthCuotasAbonos +
                     monthCuotasPagadas;
+                const totalIngresos = monthIngresosCapitales + totalIngresosSinCapitales;
                 
                 const totalEgresos = 
                     monthGastosEmpresa +
@@ -589,7 +594,8 @@ export const useCurrencyStore = create((set, get) => ({
                     creditosDesembolsados: monthCreditosDesembolsados,
                     historialBalance: monthHistorialBalance,
                     // Totals
-                    totalIngresos: totalIngresos,
+                    totalIngresosCapitales: monthIngresosCapitales,
+                    totalIngresos: totalIngresosSinCapitales,
                     totalEgresos: totalEgresos,
                     balance: totalIngresos - totalEgresos
                 });

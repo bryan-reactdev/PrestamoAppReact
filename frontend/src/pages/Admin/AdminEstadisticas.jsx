@@ -48,11 +48,13 @@ export default function AdminEstadisticas(){
   // Helper function to calculate max value from data
   const getMaxValue = (data) => {
     if (!data || data.length === 0) return 5000;
+    let maxIngresosCapitales = Math.max(...data.map(day => day.totalIngresosCapitales || 0));
     let maxIngresos = Math.max(...data.map(day => day.totalIngresos || 0));
     let maxEgresos = Math.max(...data.map(day => day.totalEgresos || 0));
+    maxIngresosCapitales = maxIngresosCapitales * 1.1;
     maxIngresos = maxIngresos * 1.1;
     maxEgresos = maxEgresos * 1.1;
-    return Math.floor(Math.max(maxIngresos, maxEgresos));
+    return Math.floor(Math.max(maxIngresosCapitales, maxIngresos, maxEgresos));
   };
 
 
@@ -137,23 +139,23 @@ export default function AdminEstadisticas(){
   const hasDataForPreviousPeriod = () => {
     if (!ingresosCapitales || !gastosEmpresa) return false;
     
-    if (currentView === 'Semanal') {
+      if (currentView === 'Semanal') {
       // Check if there's data for the previous week
       const prevWeekData = getWeekData(currentWeekOffset - 1);
-      return prevWeekData && prevWeekData.length > 0 && prevWeekData.some(day => day.totalIngresos > 0 || day.totalEgresos > 0);
+      return prevWeekData && prevWeekData.length > 0 && prevWeekData.some(day => day.totalIngresosCapitales > 0 || day.totalIngresos > 0 || day.totalEgresos > 0);
     } else if (currentView === 'Mensual') {
       // Check if there's data for the previous month
       const prevMonthData = getMonthData(currentMonthOffset - 1);
-      return prevMonthData && prevMonthData.length > 0 && prevMonthData.some(day => day.totalIngresos > 0 || day.totalEgresos > 0);
+      return prevMonthData && prevMonthData.length > 0 && prevMonthData.some(day => day.totalIngresosCapitales > 0 || day.totalIngresos > 0 || day.totalEgresos > 0);
     } else if (currentView === 'Anual') {
       // Check if there's data for the previous year
       const prevYearData = getMultiMonthData(12, 0, currentYearOffset - 1);
-      return prevYearData && prevYearData.length > 0 && prevYearData.some(month => month.totalIngresos > 0 || month.totalEgresos > 0);
+      return prevYearData && prevYearData.length > 0 && prevYearData.some(month => month.totalIngresosCapitales > 0 || month.totalIngresos > 0 || month.totalEgresos > 0);
     } else {
       // For 3 months and 6 months views, check if there's data for the previous period (3 or 6 months back)
       const numberOfMonths = currentView === '3Meses' ? 3 : 6;
       const prevMonthData = getMultiMonthData(numberOfMonths, currentMonthOffset - numberOfMonths, 0);
-      return prevMonthData && prevMonthData.length > 0 && prevMonthData.some(month => month.totalIngresos > 0 || month.totalEgresos > 0);
+      return prevMonthData && prevMonthData.length > 0 && prevMonthData.some(month => month.totalIngresosCapitales > 0 || month.totalIngresos > 0 || month.totalEgresos > 0);
     }
   };
 

@@ -2,13 +2,14 @@ import React from 'react';
 import { formatCurrencySV } from '../../utils/currencyUtils';
 
 export default function ChartSummary({ data, saldo, viewType = 'Semanal' }) {
-  // Calculate totals
-  const totalIngresos = data.reduce((sum, day) => sum + day.totalIngresos, 0);
+  // Calculate detailed breakdowns
+  const ingresosCapitales = data.reduce((sum, day) => sum + (day.totalIngresosCapitales || 0), 0);
+  const totalIngresosSinCapitales = data.reduce((sum, day) => sum + (day.totalIngresos || 0), 0);
+  const totalIngresos = ingresosCapitales + totalIngresosSinCapitales;
   const totalEgresos = data.reduce((sum, day) => sum + day.totalEgresos, 0);
   const balanceNeto = totalIngresos - totalEgresos;
 
-  // Calculate detailed breakdowns
-  const ingresosCapitales = data.reduce((sum, day) => sum + (day.ingresosCapitales || 0), 0);
+  // Calculate detailed breakdowns for tooltips
   const ingresosVarios = data.reduce((sum, day) => sum + (day.ingresosVarios || 0), 0);
   const cuotasAbonos = data.reduce((sum, day) => sum + (day.cuotasAbonos || 0), 0);
   const cuotasPagadas = data.reduce((sum, day) => sum + (day.cuotasPagadas || 0), 0);
@@ -61,7 +62,7 @@ export default function ChartSummary({ data, saldo, viewType = 'Semanal' }) {
           {cajaChicaInicial !== null ? `$${formatCurrencySV(cajaChicaInicial)}` : 'N/A'}
         </span>
       </div>
-      <div className="summary-item" title={`💰 Ingresos Capitales: $${ingresosCapitales.toLocaleString()}\n💰 Ingresos Varios: $${ingresosVarios.toLocaleString()}\n💰 Abonos a Cuotas: $${cuotasAbonos.toLocaleString()}\n💰 Cuotas Pagadas: $${cuotasPagadas.toLocaleString()}`}>
+      <div className="summary-item" title={`💰 Ingresos Capitales: $${ingresosCapitales.toLocaleString()}\n💰 Ingresos Varios: $${ingresosVarios.toLocaleString()}\n💰 Abonos a Cuotas: $${cuotasAbonos.toLocaleString()}\n💰 Cuotas Pagadas: $${cuotasPagadas.toLocaleString()}\n\nTotal: $${totalIngresos.toLocaleString()}`}>
         <h4>Total Ingresos {viewType}</h4>
         <span className="color-success">
           ${formatCurrencySV(totalIngresos)}

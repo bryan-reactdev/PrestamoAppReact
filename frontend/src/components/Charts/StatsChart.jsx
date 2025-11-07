@@ -45,6 +45,21 @@ export default function StatsChart({
       }),
       datasets: [
         {
+          label: 'Ingresos Capitales',
+          data: data.map(day => day.totalIngresosCapitales || 0),
+          borderColor: '#3b82f6',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          tension: 0.1,
+          pointRadius: 8,
+          pointHoverRadius: 12,
+          pointBackgroundColor: '#3b82f6',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+          pointHoverBackgroundColor: '#2563eb',
+          pointHoverBorderColor: '#ffffff',
+          pointHoverBorderWidth: 3
+        },
+        {
           label: 'Ingresos',
           data: data.map(day => day.totalIngresos || 0),
           borderColor: '#22c55e',
@@ -87,7 +102,9 @@ export default function StatsChart({
         const dataIndex = element.index;
         const clickedData = data[dataIndex];
         if (clickedData) {
-          onDateClick(clickedData.date, element.datasetIndex === 0 ? 'ingresos' : 'egresos');
+          // datasetIndex 0 = Ingresos Capitales, 1 = Ingresos, 2 = Egresos
+          const type = element.datasetIndex === 2 ? 'egresos' : 'ingresos';
+          onDateClick(clickedData.date, type);
         }
       }
     },
@@ -183,9 +200,10 @@ export default function StatsChart({
           afterLabel: function(context) {
             const dataIndex = context.dataIndex;
             const clickedData = data[dataIndex];
-            const isIngresos = context.dataset.label === 'Ingresos';
+            const datasetLabel = context.dataset.label;
             
             if (!clickedData) return '';
+            
             // date check logic
             let showSaldo = false;
             let balanceToShow = null;
@@ -206,15 +224,20 @@ export default function StatsChart({
             
             const balanceDisplay = balanceToShow !== null ? `$${balanceToShow.toLocaleString()}` : 'N/A';
             
-            if (isIngresos) {
+            if (datasetLabel === 'Ingresos Capitales') {
               return [
                 `  • Ingresos Capitales: $${(clickedData.ingresosCapitales || 0).toLocaleString()}`,
+                `  • Balance: ${balanceDisplay}`
+              ];
+            } else if (datasetLabel === 'Ingresos') {
+              return [
                 `  • Ingresos Varios: $${(clickedData.ingresosVarios || 0).toLocaleString()}`,
                 `  • Abonos a Cuotas: $${(clickedData.cuotasAbonos || 0).toLocaleString()}`,
                 `  • Cuotas Pagadas: $${(clickedData.cuotasPagadas || 0).toLocaleString()}`,
                 `  • Balance: ${balanceDisplay}`
               ];
             } else {
+              // Egresos
               return [
                 `  • Gastos Empresa: $${(clickedData.gastosEmpresa || 0).toLocaleString()}`,
                 `  • Egresos Varios: $${(clickedData.egresosVarios || 0).toLocaleString()}`,
