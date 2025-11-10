@@ -29,6 +29,8 @@ import com.biovizion.prestamo911.DTOs.Usuario.UsuarioDTOs.UsuarioDTO;
 import com.biovizion.prestamo911.entities.UsuarioEntity;
 import com.biovizion.prestamo911.service.UsuarioService;
 import com.biovizion.prestamo911.utils.FileUtils;
+import com.biovizion.prestamo911.utils.AccionLogger;
+import com.biovizion.prestamo911.utils.AccionTipo;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -42,6 +44,9 @@ public class AuthController {
 
     @Autowired 
     PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private AccionLogger accionLogger;
 
     private final AuthenticationManager authenticationManager;
 
@@ -128,6 +133,9 @@ public class AuthController {
             FileUtils.tryUploadFotoDUI(usuario, "atras", registerRequest.getDuiAtras());
 
             usuarioService.save(usuario);
+
+            // Log action - user self-registration
+            accionLogger.logAccion(AccionTipo.SOLICITUD_CREADO, usuario);
 
             UsuarioDTO usuarioDTO = mapearAUsuarioDTO(usuario);
 

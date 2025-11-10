@@ -3,6 +3,9 @@ import Navbar from '../../components/Navbar/Navbar'
 import ContentTitle from '../../components/Content/ContentTitle'
 import StatsChart from '../../components/Charts/StatsChart'
 import ChartSummary from '../../components/Charts/ChartSummary'
+import BaseTable from '../../components/Table/BaseTable'
+import { getStatsColumns } from '../../components/Table/Stats/StatsTableDefinitions'
+import StatsCard from '../../components/Card/Stats/StatsCard'
 
 import React, { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -24,6 +27,7 @@ export default function AdminEstadisticas(){
   
   const navigate = useNavigate();
   const [currentView, setCurrentView] = useState('Semanal'); // 'Semanal', 'Mensual', '3Meses', '6Meses', 'Anual'
+  const [displayMode, setDisplayMode] = useState('chart'); // 'chart' or 'table'
   const [currentWeekData, setCurrentWeekData] = useState([]);
   const [currentMonthData, setCurrentMonthData] = useState([]);
   const [currentMultiMonthData, setCurrentMultiMonthData] = useState([]);
@@ -58,13 +62,21 @@ export default function AdminEstadisticas(){
   };
 
 
+  // Helper function to add IDs to data for table compatibility
+  const addIdsToData = (data) => {
+    return data.map((item, index) => ({
+      ...item,
+      id: item.id || `${item.date || index}-${index}`
+    }));
+  };
+
   // Generate data and auto-set max value when data loads or navigation changes
   useEffect(() => {
     if (ingresosCapitales && gastosEmpresa) {
       const weekData = getWeekData(currentWeekOffset);
       const monthData = getMonthData(currentMonthOffset);
-      setCurrentWeekData(weekData);
-      setCurrentMonthData(monthData);
+      setCurrentWeekData(addIdsToData(weekData));
+      setCurrentMonthData(addIdsToData(monthData));
       
       // Generate multi-month data based on view
       let multiMonthData = [];
@@ -76,7 +88,7 @@ export default function AdminEstadisticas(){
         // For yearly view, use year offset instead of month offset
         multiMonthData = getMultiMonthData(12, 0, currentYearOffset);
       }
-      setCurrentMultiMonthData(multiMonthData);
+      setCurrentMultiMonthData(addIdsToData(multiMonthData));
       
       // Auto-set max value based on current view
       let currentData = [];
@@ -345,6 +357,27 @@ export default function AdminEstadisticas(){
                       </button>
                     </div>
                     
+                    {/* Display Mode Selection */}
+                    <div className="customization-section">
+                      <h5>Modo de Visualización</h5>
+                      <div className="view-selection">
+                        <button
+                          className={`view-option ${displayMode === 'chart' ? 'active' : ''}`}
+                          onClick={() => setDisplayMode('chart')}
+                        >
+                          <i className="fas fa-chart-line"></i>
+                          Gráfico
+                        </button>
+                        <button
+                          className={`view-option ${displayMode === 'table' ? 'active' : ''}`}
+                          onClick={() => setDisplayMode('table')}
+                        >
+                          <i className="fas fa-table"></i>
+                          Tabla
+                        </button>
+                      </div>
+                    </div>
+                    
                     {/* View Selection */}
                     <div className="customization-section">
                       <h5>Vista</h5>
@@ -362,43 +395,47 @@ export default function AdminEstadisticas(){
                       </div>
                     </div>
                     
-                    {/* Range Controls */}
-                    <div className="customization-section">
-                      <h5>Rango de Valores</h5>
-                      <div className="range-inputs">
-                        <div className="range-input-group">
-                          <label>Valor Mínimo</label>
-                          <input
-                            type="number"
-                            value={minValue}
-                            onChange={(e) => handleMinChange(Number(e.target.value))}
-                            min="0"
-                            step="100"
-                          />
-                        </div>
-                        
-                        <div className="range-input-group">
-                          <label>Valor Máximo</label>
-                          <input
-                            type="number"
-                            value={maxValue}
-                            onChange={(e) => handleMaxChange(Number(e.target.value))}
-                            min="1000"
-                            step="100"
-                          />
+                    {/* Range Controls - Only show for chart mode */}
+                    {displayMode === 'chart' && (
+                      <div className="customization-section">
+                        <h5>Rango de Valores</h5>
+                        <div className="range-inputs">
+                          <div className="range-input-group">
+                            <label>Valor Mínimo</label>
+                            <input
+                              type="number"
+                              value={minValue}
+                              onChange={(e) => handleMinChange(Number(e.target.value))}
+                              min="0"
+                              step="100"
+                            />
+                          </div>
+                          
+                          <div className="range-input-group">
+                            <label>Valor Máximo</label>
+                            <input
+                              type="number"
+                              value={maxValue}
+                              onChange={(e) => handleMaxChange(Number(e.target.value))}
+                              min="1000"
+                              step="100"
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    )}
                     
-                    <div className="customization-menu-actions">
-                      <button 
-                        className="reset-customization-btn"
-                        onClick={handleReset}
-                      >
-                        <i className="fas fa-undo"></i>
-                        Resetear Rango
-                      </button>
-                    </div>
+                    {displayMode === 'chart' && (
+                      <div className="customization-menu-actions">
+                        <button 
+                          className="reset-customization-btn"
+                          onClick={handleReset}
+                        >
+                          <i className="fas fa-undo"></i>
+                          Resetear Rango
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -408,17 +445,37 @@ export default function AdminEstadisticas(){
           
           <h3>{chartTitle}</h3>
 
-          <StatsChart
-            data={currentData}
-            minValue={minValue}
-            maxValue={maxValue}
-            type={currentView === 'Semanal' ? 'week' : (currentView === 'Mensual' ? 'month' : 'multiMonth')}
-            className={currentView === 'Semanal' ? 'weekly-stats-chart' : (currentView === 'Mensual' ? 'monthly-stats-chart' : 'multimonth-stats-chart')}
-            onDateClick={handleDateClick}
-            saldo={saldo}
-          />
-
-          <ChartSummary data={currentData} saldo={saldo} viewType={currentView} />
+          {displayMode === 'chart' ? (
+            <>
+              <StatsChart
+                data={currentData}
+                minValue={minValue}
+                maxValue={maxValue}
+                type={currentView === 'Semanal' ? 'week' : (currentView === 'Mensual' ? 'month' : 'multiMonth')}
+                className={currentView === 'Semanal' ? 'weekly-stats-chart' : (currentView === 'Mensual' ? 'monthly-stats-chart' : 'multimonth-stats-chart')}
+                onDateClick={handleDateClick}
+                saldo={saldo}
+              />
+              <ChartSummary data={currentData} saldo={saldo} viewType={currentView} />
+            </>
+          ) : (
+            <>
+              <BaseTable
+                data={currentData}
+                columns={getStatsColumns(currentView === 'Semanal' ? 'week' : (currentView === 'Mensual' ? 'month' : 'multiMonth'))}
+                card={(props) => <StatsCard {...props} viewType={currentView === 'Semanal' ? 'week' : (currentView === 'Mensual' ? 'month' : 'multiMonth')} />}
+                centered={['date', 'totalIngresosCapitales', 'totalIngresos', 'totalEgresos', 'balance', 'historialBalance']}
+                loading={isFetchingBalance}
+                hideSearch={true}
+                hidePagination={false}
+                onRowSelect={(row) => {
+                  const type = row.totalEgresos > 0 ? 'egresos' : 'ingresos';
+                  handleDateClick(row.date, type);
+                }}
+              />
+              <ChartSummary data={currentData} saldo={saldo} viewType={currentView} />
+            </>
+          )}
         </div>
       </div>
     </Layout>

@@ -17,6 +17,7 @@ import { CreditosAceptadosCard } from '../../components/Card/Credito/CreditoCard
 import { IngresoEgresoCard } from '../../components/Card/Currency/CurrencyCardDefinitions'
 import { ButtonPDF } from '../../components/Content/Layout/Stats/StatButtons'
 import Layout from '../../Layout'
+import { formatCurrencySV } from '../../utils/currencyUtils'
 export default function AdminEgresos() {
   const { saldo, getBalance, currencyForDate, selectedDate, setSelectedDate, getCurrencyForDate, isFetchingBalance } = useCurrencyStore();
   const [searchParams] = useSearchParams();
@@ -55,10 +56,16 @@ export default function AdminEgresos() {
     <Layout>
       <div className="content">
         <ContentTitleWithInfo>
-          <TotalCard icon={'fas fa-chart-line'} iconBgColor='danger' color="accent" title={'Egresos Totales'} style={{ padding: 0 }}>
-            <i className='fas fa-dollar-sign color-danger' />
-            <h3 className='color-danger'>{currencyForDate.totalEgresos}</h3>
-          </TotalCard>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <TotalCard icon={'fas fa-chart-line'} iconBgColor='primary' title={'Balance de Capital'} style={{ padding: 0 }}>
+              <i className='fas fa-dollar-sign'/>
+              <h3>{currencyForDate.balance?.saldo !== null && currencyForDate.balance?.saldo !== undefined ? formatCurrencySV(currencyForDate.balance.saldo) : 'N/A'}</h3>
+            </TotalCard>
+            <TotalCard icon={'fas fa-chart-line'} iconBgColor='danger' color="accent" title={'Egresos Totales'} style={{ padding: 0 }}>
+              <i className='fas fa-dollar-sign color-danger' />
+              <h3 className='color-danger'>{currencyForDate.totalEgresos}</h3>
+            </TotalCard>
+          </div>
         </ContentTitleWithInfo>
 
         <BaseTable

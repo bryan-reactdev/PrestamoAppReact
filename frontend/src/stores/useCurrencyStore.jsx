@@ -394,6 +394,12 @@ export const useCurrencyStore = create((set, get) => ({
                 (egresosCuotasRetirosForDate?.total || 0) +
                 (creditosDesembolsadosForDate?.total || 0);
             
+            // Get balance value - use null if not available (not 0) to match multi-month views
+            const balanceValue = historialBalanceForDate?.data?.[0]?.monto;
+            const historialBalanceValue = (balanceValue !== null && balanceValue !== undefined && balanceValue !== 0) 
+                ? balanceValue 
+                : null;
+            
             monthData.push({
                 date: dateString,
                 dayNumber: date.getDate(),
@@ -406,7 +412,7 @@ export const useCurrencyStore = create((set, get) => ({
                 egresosVarios: egresosVariosForDate?.total || 0,
                 egresosCuotasRetiros: egresosCuotasRetirosForDate?.total || 0,
                 creditosDesembolsados: creditosDesembolsadosForDate?.total || 0,
-                historialBalance: historialBalanceForDate?.data?.[0]?.monto || 0,
+                historialBalance: historialBalanceValue,
                 // Totals
                 totalIngresosCapitales: ingresosCapitalesAmount,
                 totalIngresos: totalIngresosSinCapitales,
@@ -420,9 +426,11 @@ export const useCurrencyStore = create((set, get) => ({
 
     // --- Multi-Month Data Generation (3, 6, 12 months) ---
     getMultiMonthData: (numberOfMonths = 3, monthOffset = 0, yearOffset = 0) => {
-        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados, historialBalance } = get();
+        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados, historialBalance, saldo } = get();
         
         const today = new Date();
+        today.setUTCHours(0, 0, 0, 0);
+        const todayStr = today.toISOString().split('T')[0];
         const multiMonthData = [];
         
         // For yearly view (12 months), show from January through current month (or full year for past/future years)
@@ -446,14 +454,15 @@ export const useCurrencyStore = create((set, get) => ({
                 let monthEgresosVarios = 0;
                 let monthEgresosCuotasRetiros = 0;
                 let monthCreditosDesembolsados = 0;
-                let monthHistorialBalance = 0;
+                let monthHistorialBalance = null;
+                let lastDateWithData = null;
                 
                 // Loop through all days in the month
                 for (let day = 1; day <= endOfMonth.getDate(); day++) {
                     const date = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), day);
                     
                     // Skip if date is in the future (for current month)
-                    if (monthIndex === 0 && monthOffset === 0 && yearOffset === 0 && date > today) break;
+                    if (monthIndex === endMonth && isCurrentYear && date > today) break;
                     
                     const dateString = date.toISOString().split('T')[0];
                     
@@ -478,7 +487,18 @@ export const useCurrencyStore = create((set, get) => ({
                     monthEgresosVarios += egresosVariosForDate?.total || 0;
                     monthEgresosCuotasRetiros += egresosCuotasRetirosForDate?.total || 0;
                     monthCreditosDesembolsados += creditosDesembolsadosForDate?.total || 0;
-                    monthHistorialBalance += historialBalanceForDate?.data?.[0]?.monto || 0;
+                    
+                    // Track the last available balance (not sum them)
+                    const balanceValue = historialBalanceForDate?.data?.[0]?.monto;
+                    if (balanceValue !== null && balanceValue !== undefined && balanceValue !== 0) {
+                        monthHistorialBalance = balanceValue;
+                        lastDateWithData = dateString;
+                    }
+                }
+                
+                // For the last month (current month if current year), use current saldo since it's the most up-to-date value
+                if (monthIndex === endMonth && isCurrentYear) {
+                    monthHistorialBalance = saldo;
                 }
                 
                 const totalIngresosSinCapitales = 
@@ -493,8 +513,14 @@ export const useCurrencyStore = create((set, get) => ({
                     monthEgresosCuotasRetiros +
                     monthCreditosDesembolsados;
                 
+                // Use the last day of the month for the date since the balance is from the end of the month
+                const lastDayOfMonth = monthIndex === endMonth && isCurrentYear 
+                    ? today 
+                    : endOfMonth;
+                const dateForMonth = lastDayOfMonth.toISOString().split('T')[0];
+                
                 multiMonthData.push({
-                    date: startOfMonth.toISOString().split('T')[0],
+                    date: dateForMonth,
                     monthName: targetMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }),
                     monthNumber: targetMonth.getMonth() + 1,
                     year: targetMonth.getFullYear(),
@@ -517,10 +543,12 @@ export const useCurrencyStore = create((set, get) => ({
             }
         } else {
             // For 3 and 6 month views, show the last N months (including current month)
+            const isCurrentPeriod = monthOffset === 0 && yearOffset === 0;
             for (let monthIndex = numberOfMonths - 1; monthIndex >= 0; monthIndex--) {
                 const targetMonth = new Date(today.getFullYear() + yearOffset, today.getMonth() + monthOffset - monthIndex, 1);
                 const startOfMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), 1);
                 const endOfMonth = new Date(targetMonth.getFullYear(), targetMonth.getMonth() + 1, 0);
+                const isCurrentMonth = monthIndex === 0 && isCurrentPeriod;
                 
                 // Aggregate all data for this month
                 let monthIngresosCapitales = 0;
@@ -531,14 +559,15 @@ export const useCurrencyStore = create((set, get) => ({
                 let monthEgresosVarios = 0;
                 let monthEgresosCuotasRetiros = 0;
                 let monthCreditosDesembolsados = 0;
-                let monthHistorialBalance = 0;
+                let monthHistorialBalance = null;
+                let lastDateWithData = null;
                 
                 // Loop through all days in the month
                 for (let day = 1; day <= endOfMonth.getDate(); day++) {
                     const date = new Date(targetMonth.getFullYear(), targetMonth.getMonth(), day);
                     
                     // Skip if date is in the future (for current month)
-                    if (monthIndex === 0 && monthOffset === 0 && yearOffset === 0 && date > today) break;
+                    if (isCurrentMonth && date > today) break;
                     
                     const dateString = date.toISOString().split('T')[0];
                     
@@ -563,7 +592,18 @@ export const useCurrencyStore = create((set, get) => ({
                     monthEgresosVarios += egresosVariosForDate?.total || 0;
                     monthEgresosCuotasRetiros += egresosCuotasRetirosForDate?.total || 0;
                     monthCreditosDesembolsados += creditosDesembolsadosForDate?.total || 0;
-                    monthHistorialBalance += historialBalanceForDate?.data?.[0]?.monto || 0;
+                    
+                    // Track the last available balance (not sum them)
+                    const balanceValue = historialBalanceForDate?.data?.[0]?.monto;
+                    if (balanceValue !== null && balanceValue !== undefined && balanceValue !== 0) {
+                        monthHistorialBalance = balanceValue;
+                        lastDateWithData = dateString;
+                    }
+                }
+                
+                // For the current month, use current saldo since it's the most up-to-date value
+                if (isCurrentMonth) {
+                    monthHistorialBalance = saldo;
                 }
                 
                 const totalIngresosSinCapitales = 
@@ -578,8 +618,14 @@ export const useCurrencyStore = create((set, get) => ({
                     monthEgresosCuotasRetiros +
                     monthCreditosDesembolsados;
                 
+                // Use the last day of the month for the date since the balance is from the end of the month
+                const lastDayOfMonth = isCurrentMonth 
+                    ? today 
+                    : endOfMonth;
+                const dateForMonth = lastDayOfMonth.toISOString().split('T')[0];
+                
                 multiMonthData.push({
-                    date: startOfMonth.toISOString().split('T')[0],
+                    date: dateForMonth,
                     monthName: targetMonth.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' }),
                     monthNumber: targetMonth.getMonth() + 1,
                     year: targetMonth.getFullYear(),

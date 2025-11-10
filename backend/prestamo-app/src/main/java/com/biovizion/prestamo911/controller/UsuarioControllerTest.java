@@ -29,6 +29,8 @@ import com.biovizion.prestamo911.service.CreditoService;
 import com.biovizion.prestamo911.service.PdfService;
 import com.biovizion.prestamo911.service.UsuarioService;
 import com.biovizion.prestamo911.utils.FileUtils;
+import com.biovizion.prestamo911.utils.AccionLogger;
+import com.biovizion.prestamo911.utils.AccionTipo;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -54,6 +56,9 @@ public class UsuarioControllerTest {
     
     @Autowired
     private PdfService pdfService;
+
+    @Autowired
+    private AccionLogger accionLogger;
 
     @GetMapping("/")
     public ResponseEntity<ApiResponse> getUsuarios() {
@@ -96,6 +101,13 @@ public class UsuarioControllerTest {
 
             usuarioService.update(usuario);
 
+            // Log action - check if it's a worker (ADMIN role) or regular user
+            if ("ADMIN".equals(usuario.getRol()) || "TRABAJADOR".equals(usuario.getRol())) {
+                accionLogger.logAccion(AccionTipo.CREADO_TRABAJADOR_ADMIN, usuario);
+            } else {
+                accionLogger.logAccion(AccionTipo.CREADO_USUARIO_ADMIN, usuario);
+            }
+
             return ResponseEntity.ok(new ApiResponse<>("Usuario editado exitosamente"));
 
         } catch (Exception e) {
@@ -129,6 +141,13 @@ public class UsuarioControllerTest {
             FileUtils.tryUploadFotoDUI(usuario, "atras", registerRequest.getDuiAtras());
 
             usuarioService.save(usuario);
+
+            // Log action - check if it's a worker (ADMIN role) or regular user
+            if ("ADMIN".equals(usuario.getRol()) || "TRABAJADOR".equals(usuario.getRol())) {
+                accionLogger.logAccion(AccionTipo.CREADO_TRABAJADOR_ADMIN, usuario);
+            } else {
+                accionLogger.logAccion(AccionTipo.CREADO_USUARIO_ADMIN, usuario);
+            }
 
             UsuarioDTO usuarioDTO = mapearAUsuarioDTO(usuario);
 
@@ -274,6 +293,9 @@ public class UsuarioControllerTest {
         Optional<UsuarioEntity> usuarioOpt = usuarioService.findById(usuarioId);
         UsuarioEntity usuario = usuarioOpt.get();
 
+        // Log action
+        accionLogger.logAccion(AccionTipo.DESCARGADO_USUARIO_PDF_ADMIN, usuario);
+
         List<CreditoEntity> creditos = creditoService.findByUsuarioId(usuarioId);
         
         pdfService.generarUsuarioInformePDF(usuario, creditos, response);
@@ -282,6 +304,9 @@ public class UsuarioControllerTest {
     // --- Cobros PDF ---
     @PostMapping("/cobros/pdf")
     public void getPDFCobros(HttpServletResponse response) {
+        // Log action
+        accionLogger.logAccion(AccionTipo.DESCARGADO_REPORTE_PDF_ADMIN, (UsuarioEntity) null);
+
         List<UsuarioCuotasDTO> usuarios = usuarioService.findAllConCuotasVencidas();
 
         pdfService.generarUsuarioVencidas(usuarios, response);

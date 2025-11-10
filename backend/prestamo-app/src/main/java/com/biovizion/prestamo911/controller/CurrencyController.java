@@ -27,6 +27,7 @@ import com.biovizion.prestamo911.entities.CreditoEntity;
 import com.biovizion.prestamo911.entities.HistorialBalanceEntity;
 import com.biovizion.prestamo911.entities.HistorialGastoEntity;
 import com.biovizion.prestamo911.entities.HistorialSaldoEntity;
+import com.biovizion.prestamo911.entities.UsuarioEntity;
 import com.biovizion.prestamo911.service.AbonoCuotaService;
 import com.biovizion.prestamo911.service.BalanceService;
 import com.biovizion.prestamo911.service.CreditoCuotaService;
@@ -36,6 +37,8 @@ import com.biovizion.prestamo911.service.HistorialGastoService;
 import com.biovizion.prestamo911.service.HistorialSaldoService;
 import com.biovizion.prestamo911.service.PdfService;
 import com.biovizion.prestamo911.utils.CurrencyUtils;
+import com.biovizion.prestamo911.utils.AccionLogger;
+import com.biovizion.prestamo911.utils.AccionTipo;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -85,6 +88,9 @@ public class CurrencyController {
 
     @Autowired
     private PdfService pdfService;
+
+    @Autowired
+    private AccionLogger accionLogger;
 
 
     @GetMapping("/cuotas")
@@ -165,6 +171,9 @@ public class CurrencyController {
             
             currencyUtils.addFondos(request.getMonto());
 
+            // Log action
+            accionLogger.logAccion(AccionTipo.REGISTRADO_INGRESO_ADMIN, (UsuarioEntity) null);
+
             ApiResponse<HistorialSaldoEntity> response = 
                 new ApiResponse<>("Ingreso realizado exitosamente", ingreso);
 
@@ -207,6 +216,9 @@ public class CurrencyController {
             }
             
             currencyUtils.removeFondos(request.getMonto());
+
+            // Log action
+            accionLogger.logAccion(AccionTipo.REGISTRADO_GASTO_ADMIN, (UsuarioEntity) null);
 
             ApiResponse<HistorialGastoEntity> response = 
                 new ApiResponse<>("Egreso realizado exitosamente", egreso);
@@ -274,6 +286,9 @@ public class CurrencyController {
                     currencyUtils.addFondos(request.getMonto());
                 }
                 
+                // Log action
+                accionLogger.logAccion(AccionTipo.REGISTRADO_INGRESO_ADMIN, (UsuarioEntity) null);
+                
                 ApiResponse<String> response = new ApiResponse<>("Ingreso editado exitosamente");
                 return ResponseEntity.ok(response);
             }
@@ -331,6 +346,9 @@ public class CurrencyController {
                     currencyUtils.removeFondos(request.getMonto());
                 }
                 
+                // Log action
+                accionLogger.logAccion(AccionTipo.REGISTRADO_GASTO_ADMIN, (UsuarioEntity) null);
+                
                 ApiResponse<String> response = new ApiResponse<>("Egreso editado exitosamente");
                 return ResponseEntity.ok(response);
             }
@@ -351,6 +369,9 @@ public class CurrencyController {
         List<AbonoCuotaEntity> abonos = abonoService.findAllByFecha(fecha);
         List<HistorialSaldoEntity> ingresos = historialSaldoService.findAllByFecha(fecha);
         
+        // Log action
+        accionLogger.logAccion(AccionTipo.DESCARGADO_REPORTE_PDF_ADMIN, (UsuarioEntity) null);
+        
         pdfService.generarReporteDiarioIngreso(GetCurrentCurrency().getSaldo(), cuotas, abonos, ingresos, fecha, response);
     }
 
@@ -358,6 +379,9 @@ public class CurrencyController {
     public void getPDFEgreso(@PathVariable LocalDate fecha, Long usuarioId, HttpServletResponse response) {
         List<CreditoEntity> creditos = creditoService.findAllByDesembolsadoAndFechaDesembolsado(true, fecha);
         List<HistorialGastoEntity> gastos = gastoService.findAllByFecha(fecha);
+
+        // Log action
+        accionLogger.logAccion(AccionTipo.DESCARGADO_REPORTE_PDF_ADMIN, (UsuarioEntity) null);
 
         pdfService.generarReporteDiarioEgreso(GetCurrentCurrency().getSaldo(), creditos, gastos, fecha, response);
     }

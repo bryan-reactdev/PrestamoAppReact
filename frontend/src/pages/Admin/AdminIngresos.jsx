@@ -17,6 +17,7 @@ import { IngresoEgresoCard } from '../../components/Card/Currency/CurrencyCardDe
 import { ButtonPDF } from '../../components/Content/Layout/Stats/StatButtons'
 import { CuotasPagadasCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
 import Layout from '../../Layout'
+import { formatCurrencySV } from '../../utils/currencyUtils'
 
 export default function AdminIngresos(){
   const {saldo, getBalance, currencyForDate, selectedDate, setSelectedDate, getCurrencyForDate, isFetchingBalance} = useCurrencyStore();
@@ -57,10 +58,16 @@ export default function AdminIngresos(){
 
       <div className="content">
         <ContentTitleWithInfo>
-          <TotalCard icon={'fas fa-chart-line'} color="accent" title={'Ingresos Totales'} style={{padding: 0}}>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <TotalCard icon={'fas fa-chart-line'} iconBgColor='primary' title={'Balance de Capital'} style={{padding: 0}}>
+              <i className='fas fa-dollar-sign'/>
+              <h3>{currencyForDate.balance?.saldo !== null && currencyForDate.balance?.saldo !== undefined ? formatCurrencySV(currencyForDate.balance.saldo) : 'N/A'}</h3>
+            </TotalCard>
+            <TotalCard icon={'fas fa-chart-line'} color="accent" title={'Ingresos Totales'} style={{padding: 0}}>
               <i className='fas fa-dollar-sign color-success'/>
               <h3 className='color-success'>{currencyForDate.totalIngresos}</h3>
-          </TotalCard>
+            </TotalCard>
+          </div>
         </ContentTitleWithInfo>
 
         <BaseTable 

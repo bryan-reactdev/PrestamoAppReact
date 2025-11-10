@@ -26,11 +26,14 @@ import com.biovizion.prestamo911.DTOs.GlobalDTOs.GroupDTO;
 import com.biovizion.prestamo911.entities.AbonoCuotaEntity;
 import com.biovizion.prestamo911.entities.CreditoCuotaEntity;
 import com.biovizion.prestamo911.entities.NotaEntity;
+import com.biovizion.prestamo911.entities.UsuarioEntity;
 import com.biovizion.prestamo911.service.AbonoCuotaService;
 import com.biovizion.prestamo911.service.CreditoCuotaService;
 import com.biovizion.prestamo911.service.PdfService;
 import com.biovizion.prestamo911.utils.CuotaUtils;
 import com.biovizion.prestamo911.utils.CurrencyUtils;
+import com.biovizion.prestamo911.utils.AccionLogger;
+import com.biovizion.prestamo911.utils.AccionTipo;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -60,6 +63,9 @@ public class CuotaControllerTest {
 
     @Autowired
     private PdfService pdfService;
+
+    @Autowired
+    private AccionLogger accionLogger;
     
     @GetMapping("/")
     public ResponseEntity<ApiResponse> getCuotas() {
@@ -175,10 +181,12 @@ public class CuotaControllerTest {
             }
             
             CreditoCuotaEntity cuota = cuotaOpt.get();
-            Boolean isPagado = "Pagado".equals(cuota.getEstado());
+            Boolean wasPagado = "Pagado".equals(cuota.getEstado());
+            BigDecimal oldTotal = cuota.getTotal();
 
-            if (isPagado){
-                currencyUtils.removeFondos(cuota.getTotal());
+            // Remove funds if it was previously paid
+            if (wasPagado){
+                currencyUtils.removeFondos(oldTotal);
             }
 
             cuota.setEstado(request.getEstado());
@@ -199,11 +207,17 @@ public class CuotaControllerTest {
             cuota.setPagoMora(mora);
             cuota.setTotal(total);
 
-            if (isPagado){
+            // Add funds if it's now paid (check NEW estado)
+            Boolean isNowPagado = "Pagado".equals(cuota.getEstado());
+            if (isNowPagado){
                 currencyUtils.addFondos(total);
             }
 
             cuotaService.update(cuota);
+           
+            // Log action
+            UsuarioEntity usuarioAfectado = cuota.getCredito().getUsuario();
+            accionLogger.logAccion(AccionTipo.EDITADO_CUOTA_ADMIN, usuarioAfectado);
            
             ApiResponse<CuotaDTO> response = new ApiResponse<>("Cuota editada exitosamente");
             return ResponseEntity.ok(response);
@@ -224,6 +238,10 @@ public class CuotaControllerTest {
 
             CreditoCuotaEntity cuota = cuotaOpt.get();
             cuotaUtils.pagarCuota(cuota);
+
+            // Log action
+            UsuarioEntity usuarioAfectado = cuota.getCredito().getUsuario();
+            accionLogger.logAccion(AccionTipo.MARCADO_PAGADO_CUOTA_ADMIN, usuarioAfectado);
 
             ApiResponse<CreditoCuotaEntity> response = new ApiResponse<>("Cuota pagada exitosamente", cuota);
             return ResponseEntity.ok(response);
@@ -264,6 +282,10 @@ public class CuotaControllerTest {
 
             cuotaService.save(cuota);
             abonoService.save(abono);
+
+            // Log action
+            UsuarioEntity usuarioAfectado = cuota.getCredito().getUsuario();
+            accionLogger.logAccion(AccionTipo.ABONO_CUOTA, usuarioAfectado);
 
             ApiResponse<CreditoCuotaEntity> response = new ApiResponse<>("Cuota abonada exitosamente", cuota);
             return ResponseEntity.ok(response);
@@ -307,6 +329,13 @@ public class CuotaControllerTest {
     @PostMapping("/pdf/{id}")
     public void getPDFCuota(@PathVariable Long id, HttpServletResponse response){
         List<CreditoCuotaEntity> cuotas = cuotaService.findByCreditoId(id);
+        
+        // Get usuario from first cuota for logging
+        if (!cuotas.isEmpty()) {
+            UsuarioEntity usuarioAfectado = cuotas.get(0).getCredito().getUsuario();
+            // Log action
+            accionLogger.logAccion(AccionTipo.DESCARGADO_CUOTAS_PDF_ADMIN, usuarioAfectado);
+        }
 
         pdfService.generarCuotasPDF(cuotas, false, false, response);
     }

@@ -3,6 +3,7 @@ import ButtonAcciones from "../ButtonAcciones";
 import CuotaTableAccionTipos from "./CuotaTableAccionTipos";
 import WhatsAppIcon from '../../Elements/WhatsAppIcon';
 import UsuarioTableAccionTipos from "../Usuario/UsuarioTableAccionTipos";
+import { DateTimeToDate } from "../../../utils/dateUtils";
 
 // --- Todas las Cuotas ---
 export const cuotasTodosColumns = [
@@ -49,6 +50,17 @@ export const cuotasTodosColumns = [
 
       const [y, m, d] = value.split('T')[0].split('-');
       return <p>{`${d}/${m}/${y.slice(-2)}`}</p>;
+    }
+  },
+  {
+    accessorKey: 'fechaPagado',
+    header: "Fecha Pagado",
+    size: 110,
+    cell: (props) => {
+      const value = props.getValue();
+
+      if (!value) return <p className="empty">N/A</p>;
+      return <p>{DateTimeToDate(value)}</p>;
     }
   },
   {

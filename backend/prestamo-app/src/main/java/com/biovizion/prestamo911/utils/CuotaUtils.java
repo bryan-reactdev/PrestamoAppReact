@@ -23,6 +23,11 @@ public class CuotaUtils {
     private CreditoService creditoService;
     
     public void pagarCuota(CreditoCuotaEntity cuota){
+        // Prevent double payment - if already paid, don't add funds again
+        if ("Pagado".equals(cuota.getEstado())) {
+            return;
+        }
+        
         currencyUtils.addFondos(cuota.getTotal());
         cuota.setEstado("Pagado");
         cuota.setFechaPago(LocalDateTime.now());

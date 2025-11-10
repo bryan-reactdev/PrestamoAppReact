@@ -32,6 +32,8 @@ import com.biovizion.prestamo911.service.UsuarioService;
 import com.biovizion.prestamo911.utils.AuthUtils;
 import com.biovizion.prestamo911.utils.CreditoUtils;
 import com.biovizion.prestamo911.utils.FileUtils;
+import com.biovizion.prestamo911.utils.AccionLogger;
+import com.biovizion.prestamo911.utils.AccionTipo;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -51,6 +53,9 @@ public class UsuarioControllerText {
 
     @Autowired
     private CreditoUtils creditoUtils;
+
+    @Autowired
+    private AccionLogger accionLogger;
 
     @GetMapping("/creditos")
     public ResponseEntity<ApiResponse> getCreditos(){
@@ -130,6 +135,9 @@ public class UsuarioControllerText {
                     .orElseThrow(() -> new RuntimeException("User not found"));
 
             creditoUtils.CreateRequestCredito(request, usuario);
+
+            // Log action - user self-request
+            accionLogger.logAccion(AccionTipo.SOLICITUD_CREADO, usuario);
 
             ApiResponse<String> response = new ApiResponse<>("Crédito solicitado exitosamente");
             return ResponseEntity.ok(response);

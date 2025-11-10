@@ -47,6 +47,8 @@ import com.biovizion.prestamo911.service.UsuarioService;
 import com.biovizion.prestamo911.utils.CreditoUtils;
 import com.biovizion.prestamo911.utils.CuotaUtils;
 import com.biovizion.prestamo911.utils.CurrencyUtils;
+import com.biovizion.prestamo911.utils.AccionLogger;
+import com.biovizion.prestamo911.utils.AccionTipo;
 
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -82,6 +84,9 @@ public class CreditoControllerTest {
 
     @Autowired
     private CreditoUtils creditoUtils;
+
+    @Autowired
+    private AccionLogger accionLogger;
 
     // --- Get ---
     @GetMapping("/")
@@ -219,6 +224,9 @@ public class CreditoControllerTest {
 
             creditoUtils.CreateRequestCredito(request, usuario);
 
+            // Log action
+            accionLogger.logAccion(AccionTipo.CREADO_CREDITO_ADMIN, usuario);
+
             ApiResponse<String> response = new ApiResponse<>("Crédito creado exitosamente");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -234,7 +242,14 @@ public class CreditoControllerTest {
     @PutMapping(value = "/{id}", consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse> editCredito(@PathVariable Long id, @ModelAttribute CreditoFullDTO request) {
         try {
+            CreditoEntity credito = creditoService.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Credito no encontrado"));
+            UsuarioEntity usuarioAfectado = credito.getUsuario();
+            
             creditoUtils.UpdateCredito(id, request);
+            
+            // Log action
+            accionLogger.logAccion(AccionTipo.EDITADO_CREDITO_ADMIN, usuarioAfectado);
             
             ApiResponse<String> response = new ApiResponse<>("Credito editado exitosamente");
             return ResponseEntity.ok(response);
@@ -339,6 +354,9 @@ public class CreditoControllerTest {
 
             creditoService.save(credito);
 
+            // Log action
+            accionLogger.logAccion(AccionTipo.ACEPTADO_CREDITO_ADMIN, credito.getUsuario());
+
             ApiResponse<String> response = new ApiResponse<>("Crédito aceptado exitosamente!");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
@@ -358,6 +376,9 @@ public class CreditoControllerTest {
             credito.setEstado("Rechazado");
             credito.setFechaRechazado(LocalDateTime.now());
             creditoService.save(credito);
+
+            // Log action
+            accionLogger.logAccion(AccionTipo.RECHAZADO_CREDITO_ADMIN, credito.getUsuario());
 
             ApiResponse<String> response = new ApiResponse<>("Crédito rechazado exitosamente!");           
             return ResponseEntity.ok(response);
@@ -397,6 +418,13 @@ public class CreditoControllerTest {
 
             creditoService.save(credito);
 
+            // Log action
+            if (request.isDesembolsar()) {
+                accionLogger.logAccion(AccionTipo.DESEMBOLSADO_CREDITO_ADMIN, credito.getUsuario());
+            } else {
+                accionLogger.logAccion(AccionTipo.REVERTIR_DESEMBOLSADO_CREDITO_ADMIN, credito.getUsuario());
+            }
+
             ApiResponse<String> response = new ApiResponse<>(
                 request.isDesembolsar()
                 ? "Crédito marcado como desembolsado exitosamente"
@@ -422,6 +450,9 @@ public class CreditoControllerTest {
             CreditoEntity credito = optionalCredito.get();
             credito.setEditable(request.isEditable());
             creditoService.save(credito);
+
+            // Log action
+            accionLogger.logAccion(AccionTipo.EDITABLE_CREDITO_ADMIN, credito.getUsuario());
 
             ApiResponse<String> response = new ApiResponse<>(
                 request.isEditable()
@@ -449,6 +480,9 @@ public class CreditoControllerTest {
             credito.setDescargable(request.isDescargable());
             creditoService.save(credito);
 
+            // Log action
+            accionLogger.logAccion(AccionTipo.DESCARGABLE_CREDITO_ADMIN, credito.getUsuario());
+
             ApiResponse<String> response = new ApiResponse<>(
                 request.isDescargable()
                 ? "Crédito marcado como descargable exitosamente"
@@ -475,6 +509,9 @@ public class CreditoControllerTest {
             credito.setDesembolsable(request.isDesembolsable());
             creditoService.save(credito);
 
+            // Log action
+            accionLogger.logAccion(AccionTipo.DESEMBOLSABLE_CREDITO_ADMIN, credito.getUsuario());
+
             ApiResponse<String> response = new ApiResponse<>(
                 request.isDesembolsable()
                 ? "Crédito marcado como desembolsable exitosamente"
@@ -498,6 +535,9 @@ public class CreditoControllerTest {
 
         credito.setDescargable(false);
         creditoService.save(credito);
+
+        // Log action
+        accionLogger.logAccion(AccionTipo.DESCARGADO_PDF_ADMIN, usuario);
 
         pdfService.generarUsuarioSolicitudPDF(usuarioSolicitud, usuario, credito,  tipo, response);
     }
