@@ -24,6 +24,7 @@ import UsuarioCuotas from './pages/Usuario/UsuarioCuotas';
 import AdminEditarCredito from './pages/Admin/AdminEditarCredito';
 import AdminRegistrarUsuario from './pages/Admin/AdminRegistrarUsuario';
 import AdminEstadisticas from './pages/Admin/AdminEstadisticas';
+import AdminEstadisticasDashboard from './pages/Admin/AdminEstadisticasDashboard';
 
 export default function App(){
     const {authenticate } = useUsuarioStore();
@@ -53,6 +54,7 @@ export default function App(){
                 {/* Admin Protected */}
                 <Route element={<AdminProtectedRoute />}>
                     <Route path="/admin/" element={<AdminDashboard />} />
+                    <Route path="/admin/estadisticas" element={<AdminEstadisticasDashboard />} />
                     <Route path="/admin/creditos" element={<AdminCreditos />} />
                     <Route path="/admin/creditos/:id/cuotas" element={<AdminCuotas />} />
                     <Route path="/admin/creditos/:id/editar" element={<AdminEditarCredito />} />
