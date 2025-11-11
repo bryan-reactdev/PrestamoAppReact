@@ -30,6 +30,7 @@ public class CreditoDTOs {
 
         private BigDecimal monto;
         private BigDecimal montoDesembolsar;
+        private BigDecimal mora;
         
         private String frecuencia;
 
@@ -59,7 +60,8 @@ public class CreditoDTOs {
 
         private BigDecimal monto;
         private BigDecimal montoDesembolsar;
-        
+        private BigDecimal mora;
+
         private String frecuencia;
 
         private LocalDate fechaSolicitud;
@@ -91,6 +93,7 @@ public class CreditoDTOs {
 
             credito.getMonto(),
             credito.getMontoDado(),
+            credito.getMora(),
             credito.getPlazoFrecuencia(),
 
             credito.getFechaAceptado(),
@@ -121,7 +124,8 @@ public class CreditoDTOs {
 
             credito.getMonto(),
             credito.getMontoDado(),
-
+            credito.getMora(),
+            
             credito.getPlazoFrecuencia(),
             
             credito.getUsuarioSolicitud().getFechaSolicitud(),

@@ -27,7 +27,7 @@ export default function AdminCreditos(){
     filterCreditos(currentTipo);
   }, [currentTipo])
 
-  const centered = ['estado', 'calificacion', 'monto', 'montoDesembolsar', 'frecuencia', 'fechaAceptado', 'fechaSolicitud', 'fechaRechazado', 'desembolsado', 'accion']
+  const centered = ['estado', 'calificacion', 'monto', 'montoDesembolsar', 'mora', 'frecuencia', 'fechaAceptado', 'fechaSolicitud', 'fechaRechazado', 'desembolsado', 'accion']
 
   // Main tipo tabs (higher level)
   const tipoTabs = [

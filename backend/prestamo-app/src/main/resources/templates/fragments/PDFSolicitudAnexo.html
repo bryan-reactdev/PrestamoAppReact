@@ -83,7 +83,7 @@
     Entre Multipréstamos ATLAS, representada por su propietario y representante legal
     Edgar Addrual Cerna Hernández, en adelante “LA EMPRESA”,
     y
-    <span class="underline" th:text="${usuario.nombre + ' ' + usuario.apellido}"></span>,
+    <span class="underline" th:text="${(usuario.nombre != null ? usuario.nombre : '') + ' ' + (usuario.apellido != null ? usuario.apellido : '')}"></span>,
     identificado con DUI No. <span class="underline" th:text="${usuario.dui}"></span>,
     en adelante “EL CLIENTE”.
 </div>
@@ -148,7 +148,7 @@
 
 <div class="pdf-field"><strong>EL CLIENTE</strong></div>
 
-<div class="pdf-field">Nombre: <span class="underline" th:text="${usuario.nombre + ' ' + usuario.apellido}"></span></div>
+<div class="pdf-field">Nombre: <span class="underline" th:text="${(usuario.nombre != null ? usuario.nombre : '') + ' ' + (usuario.apellido != null ? usuario.apellido : '')}"></span></div>
 <div class="pdf-field">DUI: <span class="underline" th:text="${usuario.dui}"></span></div>
 <div class="pdf-field">Firma: ______________________________</div>
 <div class="pdf-field">

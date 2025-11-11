@@ -116,7 +116,7 @@
     <tbody>
         <tr th:if="${not #lists.isEmpty(creditos)}" th:each="credito : ${creditos}">
             <td>
-                <span th:text="${credito.usuario?.nombre + ' ' + credito.usuario?.apellido}"></span>
+                <span th:text="${(credito.usuario?.nombre != null ? credito.usuario.nombre : '') + ' ' + (credito.usuario?.apellido != null ? credito.usuario.apellido : '')}"></span>
             </td>
             <td th:text="${credito.usuario?.dui}"></td>
             <td th:text="${'$' + credito.monto}"></td>

@@ -13,7 +13,7 @@ import FormField from '../../components/Form/FormField'
 import { getCurrentDate } from '../../utils/dateUtils'
 import { useCuotaStore } from '../../stores/useCuotaStore'
 import { cuotasCobrosColumns } from '../../components/Table/Cuota/CuotaTableDefinitions'
-import { CuotasPendientesCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
+import { CuotasPendientesCard, CuotasCobrosCard } from '../../components/Card/Cuota/CuotaCardDefinitions'
 import CuotaModalMarcarPagado from '../../components/Modal/Cuota/CuotaModalMarcarPagado'
 import CuotaModalAbonar from '../../components/Modal/Cuota/CuotaModalAbonar'
 import CuotaModalNotas from '../../components/Modal/Cuota/CuotaModalNotas'
@@ -43,9 +43,9 @@ export default function AdminCobros(){
   const centered = ['calificacion', 'estado', 'celular', 'fechaVencimiento', 'cuotaVencimiento', 'cuotaMonto', 'cuotaMora', 'cuotaAbono', 'cuotaTotal', 'monto', 'mora', 'abono', 'total', 'totalPagar', 'creditoMonto', 'cuotasPendientes', 'cuotasVencidas', 'direccion', 'referencias', 'parentesco', 'referenciasCelular', 'accion']
 
   const tabs = [
-    { icon: 'fas fa-users',  iconBgColor: 'warning', label: 'Mapeo de Cuotas', text: cuotasForMapeo.length ?? '0', isLoading: isFetchingCuotas, data: cuotasForMapeo, card: CuotasPendientesCard, columnDefinitions: cuotasCobrosColumns},
-    { icon: 'fas fa-check', iconBgColor: 'warning', label: 'Listado de Clientes Al Día', value: cuotasTotales?.totalPendientes, isLoading: isFetchingUsuariosConCuotas, data: usuariosConCuotas, card: UsuariosCard, columnDefinitions: usuariosConVencidasColumns},
-    { icon: 'fas fa-warning', iconBgColor: 'danger', label: 'Listado de Clientes Morosos', value: cuotasTotales?.totalVencidas, isLoading: isFetchingUsuariosConVencidas, data: usuariosConVencidas, card: UsuariosCard, columnDefinitions: usuariosConVencidasMorososColumns},
+    { icon: 'fas fa-users',  iconBgColor: 'warning', color: 'warning', label: 'Mapeo de Cuotas', text: cuotasForMapeo?.length ?? 0, isLoading: isFetchingCuotas, data: cuotasForMapeo, card: CuotasCobrosCard, columnDefinitions: cuotasCobrosColumns},
+    { icon: 'fas fa-check', iconBgColor: 'warning', color: 'warning', label: 'Listado de Clientes Al Día', value: cuotasTotales?.totalPendientes, isLoading: isFetchingUsuariosConCuotas, data: usuariosConCuotas, card: UsuariosCard, columnDefinitions: usuariosConVencidasColumns},
+    { icon: 'fas fa-warning', iconBgColor: 'danger', color: 'danger', label: 'Listado de Clientes Morosos', value: cuotasTotales?.totalVencidas, isLoading: isFetchingUsuariosConVencidas, data: usuariosConVencidas, card: UsuariosCard, columnDefinitions: usuariosConVencidasMorososColumns},
   ];
 
   return(

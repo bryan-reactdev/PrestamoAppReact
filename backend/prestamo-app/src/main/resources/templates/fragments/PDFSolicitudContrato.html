@@ -87,7 +87,7 @@
 
 <div class="pdf-field">
     <p>Entre MULTIPRÉSTAMOS ATLAS, en adelante "El Acreedor", y el señor(a)
-        <span class="underline" th:text="${usuario.nombre + ' ' + usuario.apellido}"></span>,
+        <span class="underline" th:text="${(usuario.nombre != null ? usuario.nombre : '') + ' ' + (usuario.apellido != null ? usuario.apellido : '')}"></span>,
         con Documento Único de Identidad (DUI) N° <span class="underline" th:text="${usuario.dui}"></span>,
         en adelante "El Deudor Principal", se celebra el presente Contrato Integral de Préstamo, con la intervención del señor(a)
         <span class="underline" th:text="${usuarioSolicitud.codeudorNombre}"></span>,
@@ -173,7 +173,7 @@
 <div class="signatures" style="text-align: left;">
     <div class="signature-block">
         <strong>El Deudor Principal</strong><br />
-        Nombre: <span class="underline" th:text="${usuario.nombre + ' ' + usuario.apellido}"></span><br />
+        Nombre: <span class="underline" th:text="${(usuario.nombre != null ? usuario.nombre : '') + ' ' + (usuario.apellido != null ? usuario.apellido : '')}"></span><br />
         DUI: <span class="underline" th:text="${usuario.dui}"></span><br />
         Dirección: <span class="underline" th:text="${usuario.direccion}"></span><br />
         Firma: _______________________________

@@ -82,7 +82,7 @@
 <div class="pdf-section">Información del Cliente</div>
 
 <div class="pdf-field">
-    <p><strong>Nombre completo:</strong> <span class="underline" th:text="${usuario.nombre + ' ' + usuario.apellido}"></span></p>
+    <p><strong>Nombre completo:</strong> <span class="underline" th:text="${(usuario.nombre != null ? usuario.nombre : '') + ' ' + (usuario.apellido != null ? usuario.apellido : '')}"></span></p>
 </div>
 
 <div class="pdf-field">

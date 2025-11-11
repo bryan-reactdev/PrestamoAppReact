@@ -144,6 +144,19 @@ export const creditosAceptadosColumns = [
     }
   },
   {
+    accessorKey: 'mora',
+    header: "Mora Asignada",
+    size: 115,
+    cell: (props) => {
+      const value = props.getValue();
+      return (
+        <span>
+          <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        </span>
+      );
+    }
+  },
+  {
     accessorKey: 'frecuencia',
     header: "Frecuencia",
     size: 115,

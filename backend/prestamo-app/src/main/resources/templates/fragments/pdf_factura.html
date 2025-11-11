@@ -110,11 +110,11 @@
         </div>
         <div class="detail-row">
             <div class="detail-label">Fecha de Vencimiento:</div>
-            <div class="detail-value" th:text="${#temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy HH:mm')}"></div>
+            <div class="detail-value" th:text="${cuota.fechaVencimiento != null ? #temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy HH:mm') : 'N/A'}"></div>
         </div>
         <div class="detail-row">
             <div class="detail-label">Fecha de Pago:</div>
-            <div class="detail-value" th:text="${#temporals.format(cuota.fechaPago, 'dd/MM/yyyy HH:mm')}"></div>
+            <div class="detail-value" th:text="${cuota.fechaPago != null ? #temporals.format(cuota.fechaPago, 'dd/MM/yyyy HH:mm') : 'N/A'}"></div>
         </div>
         <div class="detail-row">
             <div class="detail-label">Monto Pagado:</div>

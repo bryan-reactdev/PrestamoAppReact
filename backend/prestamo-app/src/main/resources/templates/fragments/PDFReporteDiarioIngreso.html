@@ -118,7 +118,7 @@
     <tbody>
         <tr th:if="${not #lists.isEmpty(cuotas)}" th:each="cuota : ${cuotas}">
             <td>
-                <span th:text="${cuota.credito.usuario?.nombre + ' ' + cuota.credito.usuario?.apellido}"></span>
+                <span th:text="${(cuota.credito.usuario?.nombre != null ? cuota.credito.usuario.nombre : '') + ' ' + (cuota.credito.usuario?.apellido != null ? cuota.credito.usuario.apellido : '')}"></span>
             </td>
             <td th:text="${cuota.credito.usuario?.dui}"></td>
             <td th:text="${cuota.fechaPago != null ? #temporals.format(cuota.fechaPago, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
@@ -144,7 +144,7 @@
     <tbody>
         <tr th:if="${not #lists.isEmpty(abonos)}" th:each="abono : ${abonos}">
             <td>
-                <span th:text="${abono.creditoCuota.credito.usuario?.nombre + ' ' + abono.creditoCuota.credito.usuario?.apellido}"></span>
+                <span th:text="${(abono.creditoCuota.credito.usuario?.nombre != null ? abono.creditoCuota.credito.usuario.nombre : '') + ' ' + (abono.creditoCuota.credito.usuario?.apellido != null ? abono.creditoCuota.credito.usuario.apellido : '')}"></span>
             </td>
             <td th:text="${abono.fechaAbono != null ? #temporals.format(abono.fechaAbono, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
             <td th:text="${'$' + #numbers.formatDecimal(abono.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>

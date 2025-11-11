@@ -87,7 +87,7 @@
 <div class="pdf-section">1. INFORMACION PERSONAL</div>
 
 <div class="pdf-field">
-    <strong>Nombre completo:</strong> <span class="underline" th:text="${usuario?.nombre + ' ' + usuario?.apellido}"></span>
+    <strong>Nombre completo:</strong> <span class="underline" th:text="${(usuario?.nombre != null ? usuario.nombre : '') + ' ' + (usuario?.apellido != null ? usuario.apellido : '')}"></span>
 </div>
 <div class="pdf-field">
     <strong>DUI:</strong> <span class="underline" th:text="${usuario?.dui}"></span>
@@ -96,7 +96,7 @@
     <strong>Fecha de nacimiento:</strong> <span class="underline" th:text="${usuario?.fechaNacimiento}"></span>
 </div>
 <div class="pdf-field">
-    <strong>Estado civil:</strong> <span class="underline" th:text="${#strings.capitalize(usuario?.estadoCivil)}"></span>
+    <strong>Estado civil:</strong> <span class="underline" th:text="${usuario?.estadoCivil != null ? #strings.capitalize(usuario.estadoCivil) : 'No especificado'}"></span>
 </div>
 <div class="pdf-field">
     <strong>Dirección completa:</strong> <span class="underline" th:text="${usuario?.direccion}"></span>

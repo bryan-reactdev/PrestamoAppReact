@@ -109,7 +109,7 @@
 <div class="pdf-section">1. INFORMACIÓN PERSONAL</div>
 
 <div class="pdf-field">
-    <strong>Nombre completo:</strong> <span class="underline" th:text="${usuario?.nombre + ' ' + usuario?.apellido}"></span>
+    <strong>Nombre completo:</strong> <span class="underline" th:text="${(usuario?.nombre != null ? usuario.nombre : '') + ' ' + (usuario?.apellido != null ? usuario.apellido : '')}"></span>
 </div>
 <div class="pdf-field">
     <strong>DUI:</strong> <span class="underline" th:text="${usuario?.dui}"></span>
@@ -124,7 +124,7 @@
     <strong>Fecha de nacimiento:</strong> <span class="underline" th:text="${usuario?.fechaNacimiento}"></span>
 </div>
 <div class="pdf-field">
-    <strong>Estado civil:</strong> <span class="underline" th:text="${#strings.capitalize(usuario?.estadoCivil)}"></span>
+    <strong>Estado civil:</strong> <span class="underline" th:text="${usuario?.estadoCivil != null ? #strings.capitalize(usuario.estadoCivil) : 'No especificado'}"></span>
 </div>
 
 <!-- 2. INFORMACIÓN DE CONTACTO Y RESIDENCIA -->
@@ -184,11 +184,11 @@
 <div class="pdf-field" th:if="${usuarioSolicitud?.solicitado != null && usuarioSolicitud?.solicitado}">
     <strong>Entidad donde solicitó:</strong> <span class="underline" th:text="${usuarioSolicitud?.solicitadoEntidad}"></span>
     <strong>Monto solicitado:</strong> US$ <span class="underline" th:text="${usuarioSolicitud?.solicitadoMonto}"></span>
-    <strong>Estado:</strong> <span class="underline" th:text="${#strings.capitalize(usuarioSolicitud?.solicitadoEstado.replace('_', ' '))}"></span>
+    <strong>Estado:</strong> <span class="underline" th:text="${usuarioSolicitud?.solicitadoEstado != null ? #strings.capitalize(usuarioSolicitud.solicitadoEstado.replace('_', ' ')) : 'No especificado'}"></span>
 </div>
 
 <div class="pdf-field">
-    <strong>Historial de atrasos:</strong> <span class="underline" th:text="${#strings.capitalize(usuarioSolicitud?.atrasos.replace('_', ' '))}"></span>
+    <strong>Historial de atrasos:</strong> <span class="underline" th:text="${usuarioSolicitud?.atrasos != null ? #strings.capitalize(usuarioSolicitud.atrasos.replace('_', ' ')) : 'No especificado'}"></span>
 </div>
 
 <div class="pdf-field">
@@ -294,7 +294,7 @@
 
                 ></td>
                 <td>
-                    <span th:text="${credito.usuario?.nombre + ' ' + credito.usuario?.apellido}"></span>
+                    <span th:text="${(credito.usuario?.nombre != null ? credito.usuario.nombre : '') + ' ' + (credito.usuario?.apellido != null ? credito.usuario.apellido : '')}"></span>
                 </td>
                 <td th:text="${credito.usuario?.dui}"></td>
                 <td th:text="${'$' + credito.monto}"></td>
@@ -338,7 +338,7 @@
                     
                     <td th:text="${cuota.observaciones}"></td>
                     
-                    <td th:text="${#temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy')}">20/01/2024</td>
+                    <td th:text="${cuota.fechaVencimiento != null ? #temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
                     
                     <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
                     

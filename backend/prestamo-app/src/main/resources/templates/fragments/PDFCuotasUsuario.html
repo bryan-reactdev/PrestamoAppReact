@@ -102,7 +102,7 @@
     <div class="company-header">MULTIPRÉSTAMOS ATLAS</div>
 </div>
 
-<div class="pdf-title" th:text="'CUOTAS DEL CREDITO DE: ' + ${usuario.nombre} + ' ' + ${usuario.apellido}"></div>
+<div class="pdf-title" th:text="'CUOTAS DEL CREDITO DE: ' + ${usuario.nombre != null ? usuario.nombre : ''} + ' ' + ${usuario.apellido != null ? usuario.apellido : ''}"></div>
 
 <div class="pdf-section">1. CUOTAS</div>
 <table>
@@ -127,7 +127,7 @@
            
            <td th:if="${mostrarObservaciones}" th:text="${cuota.observaciones}"></td>
            
-           <td th:text="${#temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy')}">20/01/2024</td>
+           <td th:text="${cuota.fechaVencimiento != null ? #temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
             
             <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
             
