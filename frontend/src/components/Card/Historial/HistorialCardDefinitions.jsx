@@ -12,7 +12,7 @@ export const HistorialCard = ({row}) => {
 
                 <div className="card-date">
                     <i className='fas fa-calendar'/>
-                    {DateTimeToDate(row.original.fechaAccion)}
+                    {row.original.fechaAccion ? DateTimeToDate(row.original.fechaAccion) : 'N/A'}
                 </div>
             </div>
 

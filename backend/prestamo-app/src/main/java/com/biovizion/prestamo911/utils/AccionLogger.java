@@ -11,6 +11,7 @@ import com.biovizion.prestamo911.entities.UsuarioEntity;
 import com.biovizion.prestamo911.service.UsuarioAccionService;
 import com.biovizion.prestamo911.service.UsuarioService;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Component
@@ -54,6 +55,7 @@ public class AccionLogger {
                 .accion(accion)
                 .usuario(usuario)
                 .usuarioAfectado(usuarioAfectadoFinal)
+                .fecha(LocalDateTime.now())
                 .build();
             
             usuarioAccionService.save(usuarioAccion);

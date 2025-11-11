@@ -34,7 +34,7 @@ export default function AdminHistorial(){
 
     setHistorialHoy(
       historial.filter(a => {
-        return a.fechaAccion.startsWith(hoy)
+        return a.fechaAccion && a.fechaAccion.startsWith(hoy)
       })
     );
   }, [historial]);
