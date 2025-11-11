@@ -9,14 +9,17 @@ import com.biovizion.prestamo911.entities.UsuarioEntity;
 public class AccionResolver {
     public static String resolveAccion(UsuarioAccionEntity usuarioAccion) {
         try {
-            if (usuarioAccion.getUsuarioAfectado() != null){
+            String descripcion = usuarioAccion.getAccion().getDescripcion();
+            
+            // Only append user name if the description ends with ": " (indicating it expects a user name)
+            if (usuarioAccion.getUsuarioAfectado() != null && descripcion.endsWith(": ")){
                 UsuarioEntity usuarioAfectado = usuarioAccion.getUsuarioAfectado();
                 String usuarioAfectadoNombreCompleto = (usuarioAfectado.getNombre() + ' ' + usuarioAfectado.getApellido());
 
-                return usuarioAccion.getAccion().getDescripcion() + usuarioAfectadoNombreCompleto;
+                return descripcion + usuarioAfectadoNombreCompleto;
             }
             
-            return usuarioAccion.getAccion().getDescripcion();
+            return descripcion;
         } catch (IllegalArgumentException e) {
             return "Acción desconocida";
         }

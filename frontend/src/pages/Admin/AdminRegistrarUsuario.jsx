@@ -48,7 +48,7 @@ export default function AdminRegistrarUsuario() {
                             <h1 style={{ fontSize: 'var(--font-3xl)', margin: 0, padding: 0 }}>Registrar Nuevo Usuario</h1>
                         </div>
 
-                        <form style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
+                        <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
                             <div className="two-column-container" style={{gap: 'var(--space-md'}}>
                             <FormField
                                 label="Nombres"
@@ -132,7 +132,7 @@ export default function AdminRegistrarUsuario() {
                             />
                             </div>
 
-                            <button style={{ width: '100%', padding: 'var(--space-md)', cursor: isAuthenticating ? 'not-allowed' : '', pointerEvents: isAuthenticating ? 'none' : '' }} className="btn-primary" onClick={onSubmit} disabled={isAuthenticating}>
+                            <button type="submit" style={{ width: '100%', padding: 'var(--space-md)', cursor: isAuthenticating ? 'not-allowed' : '', pointerEvents: isAuthenticating ? 'none' : '' }} className="btn-primary" disabled={isAuthenticating}>
                                 {isAuthenticating
                                     ? <span className="spinner small"/>
                                     : <span>REGISTRAR</span>
