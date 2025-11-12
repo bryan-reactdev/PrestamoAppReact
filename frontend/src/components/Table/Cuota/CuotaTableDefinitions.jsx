@@ -622,7 +622,7 @@ export const cuotasCobrosColumns = [
   {
     accessorKey: 'creditoMonto',
     header: "Crédito Monto",
-    size: 90,
+    size: 105,
     cell: (props) => {
       const value = props.getValue();
       return (
