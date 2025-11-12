@@ -293,77 +293,83 @@ export default function AdminEstadisticasDashboard(){
             IR A HOY
           </button>
         </div>
-        
+
         <div className='grid grid-cols-10 grid-rows-4 gap-4 max-h-[calc(100vh-250px)] w-full overflow-hidden'>
-          <div className='flex flex-col items-center justify-center gap-2 bg-white p-4 rounded-lg text-2xl overflow-hidden col-span-3 row-span-2'>
-            <h3 className='text-xl'>Ingresos</h3>
-            
-            <ChartContainer config={chartConfig} className="h-full w-full">
-              <BarChart 
-                layout="vertical"
-                accessibilityLayer 
-                data={chartData}
-                onClick={(data, index, e) => {
-                  console.log("Clicked data:", data);
-                  console.log("Data index:", index);
-                }}
-              >
-                <CartesianGrid horizontal={false} />
-                <XAxis type="number" tickLine={false} tickMargin={10} axisLine={true} />
-                <YAxis dataKey={"category"} type="category" tickLine={false} tickMargin={10} axisLine={true} width={80} />
+          <div className='flex flex-col gap-2 col-span-10 row-span-2'>
+            <h1 className='text-2xl font-bold'>Caja Chica</h1>
 
-                <ChartTooltip content={<ChartTooltipContent />} />
+            <div className='grid grid-cols-10 gap-4 h-full w-full'>
+              <div className='flex flex-col items-center justify-center gap-2 bg-white p-4 rounded-lg text-2xl overflow-hidden col-span-3'>
+                <h3 className='text-xl'>Ingresos</h3>
+                
+                <ChartContainer config={chartConfig} className="h-full w-full">
+                  <BarChart 
+                    layout="vertical"
+                    accessibilityLayer 
+                    data={chartData}
+                    onClick={(data, index, e) => {
+                      console.log("Clicked data:", data);
+                      console.log("Data index:", index);
+                    }}
+                  >
+                    <CartesianGrid horizontal={false} />
+                    <XAxis type="number" tickLine={false} tickMargin={10} axisLine={true} />
+                    <YAxis dataKey={"category"} type="category" tickLine={false} tickMargin={10} axisLine={true} width={80} />
 
-                <Bar dataKey={"value"} radius={1} fill="var(--color-value)" barSize={200} />
-              </BarChart>
-            </ChartContainer>
-          </div>
+                    <ChartTooltip content={<ChartTooltipContent />} />
 
-          <div className='flex flex-col items-center justify-center gap-2 bg-white p-4 rounded-lg text-2xl overflow-hidden col-span-3 row-span-2'>
-            <h3 className='text-xl'>Egresos</h3>
-            
-            <ChartContainer config={chartConfig} className="h-full w-full">
-              <BarChart 
-                layout="vertical"
-                accessibilityLayer 
-                data={chartDataEgresos}
-                onClick={(data, index, e) => {
-                  console.log("Clicked data:", data);
-                  console.log("Data index:", index);
-                }}
-              >
-                <CartesianGrid horizontal={false} />
-                <XAxis type="number" tickLine={false} tickMargin={10} axisLine={true} />
-                <YAxis dataKey={"category"} type="category" tickLine={false} tickMargin={10} axisLine={true} width={80} />
+                    <Bar dataKey={"value"} radius={1} fill="var(--color-value)" barSize={200} />
+                  </BarChart>
+                </ChartContainer>
+              </div>
 
-                <ChartTooltip content={<ChartTooltipContent nameKey="valueEgresos" />} />
+              <div className='flex flex-col items-center justify-center gap-2 bg-white p-4 rounded-lg text-2xl overflow-hidden col-span-3'>
+                <h3 className='text-xl'>Egresos</h3>
+                
+                <ChartContainer config={chartConfig} className="h-full w-full">
+                  <BarChart 
+                    layout="vertical"
+                    accessibilityLayer 
+                    data={chartDataEgresos}
+                    onClick={(data, index, e) => {
+                      console.log("Clicked data:", data);
+                      console.log("Data index:", index);
+                    }}
+                  >
+                    <CartesianGrid horizontal={false} />
+                    <XAxis type="number" tickLine={false} tickMargin={10} axisLine={true} />
+                    <YAxis dataKey={"category"} type="category" tickLine={false} tickMargin={10} axisLine={true} width={80} />
 
-                <Bar dataKey={"value"} radius={1} fill="var(--color-valueEgresos)" barSize={200} />
-              </BarChart>
-            </ChartContainer>
-          </div>
+                    <ChartTooltip content={<ChartTooltipContent nameKey="valueEgresos" />} />
 
-          <div className='flex flex-col items-center justify-center gap-2 bg-white p-4 rounded-lg text-2xl overflow-hidden col-span-4 row-span-2'>
-            <h3 className='text-xl'>Caja Chica Balance</h3>
-            
-            <ChartContainer config={chartConfig} className="h-full w-full">
-              <LineChart 
-                accessibilityLayer 
-                data={chartData2}
-                onClick={(data, index, e) => {
-                  console.log("Clicked data:", data);
-                  console.log("Data index:", index);
-                }}
-              >
-                <CartesianGrid vertical={false} />
-                <XAxis dataKey={"fecha"} tickLine={false} tickMargin={10} axisLine={true} />
+                    <Bar dataKey={"value"} radius={1} fill="var(--color-valueEgresos)" barSize={200} />
+                  </BarChart>
+                </ChartContainer>
+              </div>
 
-                <ChartTooltip content={<ChartTooltipContent />} />
-                <ChartLegend content={<ChartLegendContent />} />
+              <div className='flex flex-col items-center justify-center gap-2 bg-white p-4 rounded-lg text-2xl overflow-hidden col-span-4'>
+                <h3 className='text-xl'>Caja Chica Balance</h3>
+                
+                <ChartContainer config={chartConfig} className="h-full w-full">
+                  <LineChart 
+                    accessibilityLayer 
+                    data={chartData2}
+                    onClick={(data, index, e) => {
+                      console.log("Clicked data:", data);
+                      console.log("Data index:", index);
+                    }}
+                  >
+                    <CartesianGrid vertical={false} />
+                    <XAxis dataKey={"fecha"} tickLine={false} tickMargin={10} axisLine={true} />
 
-                <Line dataKey={"saldo"} radius={1} stroke="var(--color-saldo)" strokeWidth={4} fill="var(--color-saldo)" barSize={200} />
-              </LineChart>
-            </ChartContainer>
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <ChartLegend content={<ChartLegendContent />} />
+
+                    <Line dataKey={"saldo"} radius={1} stroke="var(--color-saldo)" strokeWidth={4} fill="var(--color-saldo)" barSize={200} />
+                  </LineChart>
+                </ChartContainer>
+              </div>
+            </div>
           </div>
 
           <div className='flex flex-col gap-2 bg-white p-4 rounded-lg text-2xl overflow-hidden col-span-10 row-span-2'>
