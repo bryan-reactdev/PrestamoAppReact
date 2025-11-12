@@ -47,6 +47,24 @@ const estadoInicial = {
         totalEgresos: null,
     },
 
+    currencyForRange: {
+        balance: null,
+
+        // Ingresos
+        ingresosCapitales: null,
+        ingresosVarios: null,
+        cuotasAbonos: null,
+        cuotasPagadas: null,
+        totalIngresos: null,
+
+        // Egresos
+        gastosEmpresa: null,
+        egresosVarios: null,
+        egresosCuotasRetiros: null,
+        creditosDesembolsados: null,
+        totalEgresos: null,
+    },
+
     // Fetching
     isFetchingBalance: false,
     isRealizandoIngreso: false,
@@ -55,6 +73,10 @@ const estadoInicial = {
 
     // Sorting
     selectedDate: getCurrentDate(),
+    selectedDateRange: {
+        startDate: getCurrentDate(-6),
+        endDate: getCurrentDate(),
+    },
 }
 
 // --- Definición de Store --- //
@@ -103,8 +125,9 @@ export const useCurrencyStore = create((set, get) => ({
 
         set({ isFetchingBalance: false });
 
-        // Recalculate filtered arrays for selected date
+        // Recalculate filtered arrays for selected date and range
         get().getCurrencyForDate();
+        get().getCurrencyForRange();
     },
 
     realizarIngreso: async (formData, images = []) => {
@@ -256,6 +279,64 @@ export const useCurrencyStore = create((set, get) => ({
         })
     },
 
+    getCurrencyForRange: () => {
+        const { filtrarPorRango, selectedDateRange, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados, historialBalance, saldo } = get();
+
+        const { startDate, endDate } = selectedDateRange;
+        const isCurrentDateInRange = endDate >= getCurrentDate() && startDate <= getCurrentDate();
+
+        const ingresosCapitalesForRange = filtrarPorRango(ingresosCapitales, startDate, endDate);
+        const ingresosVariosForRange = filtrarPorRango(ingresosVarios, startDate, endDate);
+        const cuotasAbonosForRange = filtrarPorRango(cuotasAbonos, startDate, endDate);
+        const cuotasPagadasForRange = filtrarPorRango(cuotasPagadas, startDate, endDate);
+
+        const gastosEmpresaForRange = filtrarPorRango(gastosEmpresa, startDate, endDate);
+        const egresosVariosForRange = filtrarPorRango(egresosVarios, startDate, endDate);
+        const egresosCuotasRetirosForRange = filtrarPorRango(egresosCuotasRetiros, startDate, endDate);
+        const creditosDesembolsadosForRange = filtrarPorRango(creditosDesembolsados, startDate, endDate);
+
+        const historialBalanceForRange = filtrarPorRango(historialBalance, startDate, endDate);
+
+        // Calculate totals from filtered data
+        const calculatedTotalIngresos = 
+            ingresosCapitalesForRange?.total +
+            ingresosVariosForRange?.total +
+            cuotasAbonosForRange?.total +
+            cuotasPagadasForRange?.total;
+
+        const calculatedTotalEgresos = 
+            gastosEmpresaForRange?.total +
+            egresosVariosForRange?.total +
+            egresosCuotasRetirosForRange?.total +
+            creditosDesembolsadosForRange?.total;
+
+        // For range, balance should be the array of historial balances
+        const balance = historialBalanceForRange?.data || [];
+
+        set({
+            currencyForRange: {
+                balance: balance,
+
+                ingresosCapitales: ingresosCapitalesForRange,
+                ingresosVarios: ingresosVariosForRange,
+                cuotasAbonos: cuotasAbonosForRange,
+                cuotasPagadas: cuotasPagadasForRange,
+                totalIngresos: calculatedTotalIngresos,
+
+                gastosEmpresa: gastosEmpresaForRange,
+                egresosVarios: egresosVariosForRange,
+                egresosCuotasRetiros: egresosCuotasRetirosForRange,
+                creditosDesembolsados: creditosDesembolsadosForRange,
+                totalEgresos: calculatedTotalEgresos,
+            },
+        })
+    },
+
+    setSelectedDateRange: (startDate, endDate) => {
+        set({ selectedDateRange: { startDate, endDate } });
+        get().getCurrencyForRange();
+    },
+
     filtrarPorFecha: (objects, selectedDate) => {
         if (!Array.isArray(objects)) return;
 
@@ -271,6 +352,35 @@ export const useCurrencyStore = create((set, get) => ({
             }
 
             return console.warn(`Object doesn't contain a valid date`, object)
+        })
+
+        const total = get().calcularTotal(filteredObjects);
+        return { data: filteredObjects, total: total }
+    },
+
+    filtrarPorRango: (objects, startDate, endDate) => {
+        // Handle case where objects might be an object with data property (like historialBalance)
+        const arrayToFilter = Array.isArray(objects) ? objects : (objects?.data && Array.isArray(objects.data) ? objects.data : null);
+        
+        if (!arrayToFilter) return;
+
+        const filteredObjects = arrayToFilter.filter((object) => {
+            let objectDate = null;
+            
+            if (object?.fecha) {
+                objectDate = object.fecha.split('T')[0];
+            }
+            else if (object?.fechaPagado) {
+                objectDate = object.fechaPagado.split('T')[0];
+            }
+            else if (object?.fechaDesembolsado) {
+                objectDate = object.fechaDesembolsado.split('T')[0];
+            }
+            else {
+                return console.warn(`Object doesn't contain a valid date`, object);
+            }
+
+            return objectDate >= startDate && objectDate <= endDate;
         })
 
         const total = get().calcularTotal(filteredObjects);
@@ -730,6 +840,24 @@ export const useCurrencyStore = create((set, get) => ({
             creditosDesembolsados: null,
 
             currencyForDate: {
+                balance: null,
+
+                // Ingresos
+                ingresosCapitales: null,
+                ingresosVarios: null,
+                cuotasAbonos: null,
+                cuotasPagadas: null,
+                totalIngresos: null,
+
+                // Egresos
+                gastosEmpresa: null,
+                egresosVarios: null,
+                egresosCuotasRetiros: null,
+                creditosDesembolsados: null,
+                totalEgresos: null,
+            },
+
+            currencyForRange: {
                 balance: null,
 
                 // Ingresos

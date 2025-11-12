@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { axiosData } from "../utils/axiosWrapper";
 import { descargarPDFConPrint } from '../utils/generalUtil';
 import toast from 'react-hot-toast';
+import { getCurrentDate } from '../utils/dateUtils';
 
 const estadoInicial = {
     credito: null,
@@ -27,6 +28,19 @@ const estadoInicial = {
         totalPrendarios: null,
         totalHipotecarios: null,
     },
+
+    creditosForDate: {
+        creditos: [],
+        creditosPendientes: [],
+        creditosAceptados: [],
+        creditosRechazados: [],
+        creditosFinalizados: [],
+        totalRapicash: null,
+        totalPrendarios: null,
+        totalHipotecarios: null,
+    },
+
+    selectedDate: getCurrentDate(),
 
     isDesembolsandoCredito: false,
     isAceptandoCredito: false,
@@ -164,6 +178,9 @@ export const useCreditoStore = create((set, get) => ({
         }));
 
         get().filterCreditos('rapi-cash');
+
+        // Recalculate filtered arrays for selected date
+        get().getCreditosForDate();
 
         set({ isFetchingCreditos: false });
     },
@@ -565,6 +582,17 @@ export const useCreditoStore = create((set, get) => ({
                 totalPrendarios: null,
                 totalHipotecarios: null,
             },
+
+            creditosForDate: {
+                creditos: [],
+                creditosPendientes: [],
+                creditosAceptados: [],
+                creditosRechazados: [],
+                creditosFinalizados: [],
+                totalRapicash: null,
+                totalPrendarios: null,
+                totalHipotecarios: null,
+            },
         })
     },
 
@@ -589,5 +617,60 @@ export const useCreditoStore = create((set, get) => ({
 
             return sum;
         }, 0)
+    },
+
+    setSelectedDate: (date) => {
+        set({ selectedDate: date });
+        get().getCreditosForDate();
+    },
+
+    // --- Totales Calculations ---
+    getCreditosForDate: () => {
+        const { filtrarPorFecha, selectedDate, creditos, creditosPendientes, creditosAceptados, creditosRechazados, creditosFinalizados } = get();
+
+        const creditosForDate = filtrarPorFecha(creditos, selectedDate);
+        const creditosPendientesForDate = filtrarPorFecha(creditosPendientes, selectedDate);
+        const creditosAceptadosForDate = filtrarPorFecha(creditosAceptados, selectedDate);
+        const creditosRechazadosForDate = filtrarPorFecha(creditosRechazados, selectedDate);
+        const creditosFinalizadosForDate = filtrarPorFecha(creditosFinalizados, selectedDate);
+
+        set((state) => ({
+            creditosForDate: {
+                creditos: creditosForDate || [],
+                creditosPendientes: creditosPendientesForDate || [],
+                creditosAceptados: creditosAceptadosForDate || [],
+                creditosRechazados: creditosRechazadosForDate || [],
+                creditosFinalizados: creditosFinalizadosForDate || [],
+                totalRapicash: state.getTotalesTipos(creditosForDate || [], 'rapi-cash'),
+                totalPrendarios: state.getTotalesTipos(creditosForDate || [], 'prendario'),
+                totalHipotecarios: state.getTotalesTipos(creditosForDate || [], 'hipotecario'),
+            },
+        }))
+    },
+
+    filtrarPorFecha: (objects, selectedDate) => {
+        if (!Array.isArray(objects)) return [];
+
+        const filteredObjects = objects.filter((object) => {
+            if (object?.fecha) {
+                return object.fecha.startsWith(selectedDate)
+            }
+            else if (object?.fechaCreacion) {
+                return object.fechaCreacion.startsWith(selectedDate)
+            }
+            else if (object?.fechaAceptado) {
+                return object.fechaAceptado.startsWith(selectedDate)
+            }
+            else if (object?.fechaRechazado) {
+                return object.fechaRechazado.startsWith(selectedDate)
+            }
+            else if (object?.fechaDesembolsado) {
+                return object.fechaDesembolsado.startsWith(selectedDate);
+            }
+
+            return false;
+        })
+
+        return filteredObjects;
     },
 }))

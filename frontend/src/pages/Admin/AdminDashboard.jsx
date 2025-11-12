@@ -61,14 +61,12 @@ export default function AdminDashboard(){
           />
 
           <MenuButton 
-            icon={'fas fa-user-pen'}
-            color={'orange'}
-            title={'Editar Cuenta'} 
-            subtitle={'Gestiona tu cuenta'} 
-            footer={'Edita tu cuenta'}
-            onClick={() => {
-              openModal('verDetalles', null)
-            }}
+            icon={'fas fa-chart-line'}
+            color={'accent-light'}
+            title={'Estadísticas'} 
+            subtitle={'Gestiona las estadísticas'} 
+            footer={'Mostrar estadísticas'}
+            to={'./estadisticas'}
           />
 
         </div>

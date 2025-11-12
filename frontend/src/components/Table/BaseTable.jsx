@@ -27,7 +27,7 @@ export default function BaseTable({
   hidePagination,
     selectedRowId,
     onRowSelect,
-
+  pageSize = !isMobile ? 8 : 6,
 }) {
     const [searchParams] = useSearchParams();
     const initialTab = searchParams.get('tab');
@@ -35,7 +35,7 @@ export default function BaseTable({
     const [globalFilter, setGlobalFilter] = useState('')
     const [pagination, setPagination] = useState({
         pageIndex: 0,
-        pageSize: !isMobile ? 8 : 6,
+        pageSize: pageSize,
     });
 
     const globalFilterFn = (row, columnId, filterValue) => {
@@ -81,6 +81,13 @@ export default function BaseTable({
             }
         }
     }, [initialTab]);
+
+    useEffect(() => {
+        setPagination({
+            pageIndex: 0,
+            pageSize: pageSize
+        });
+    }, [pageSize]);
 
     const activeTab = tabs.find(tab => tab.label === currentTab) || {};
     const activeColumns = activeTab.columnDefinitions ?? columns;

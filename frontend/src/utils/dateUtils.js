@@ -1,5 +1,9 @@
-export function getCurrentDate(){
-  return new Date().toLocaleDateString('sv-ES').split('-').join('-');
+export function getCurrentDate(daysOffset = 0){
+  const date = new Date();
+  if (daysOffset !== 0) {
+    date.setDate(date.getDate() + daysOffset);
+  }
+  return date.toLocaleDateString('sv-ES').split('-').join('-');
 }
 
 export function DateTimeToDateAndTime(fecha) {
