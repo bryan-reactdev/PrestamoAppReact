@@ -9,6 +9,7 @@ import { getCurrentDate } from '../../utils/dateUtils'
 import FormField from '../../components/Form/FormField'
 import { useCreditoStore } from '../../stores/useCreditoStore'
 import BaseTable from '../../components/Table/BaseTable'
+import { formatCurrencySVWithSymbol } from '../../utils/currencyUtils'
 
 export default function AdminEstadisticasDashboard(){
   const {creditos, getCreditos, creditosForDate, setSelectedDate: setSelectedDateCredito} = useCreditoStore();
@@ -296,7 +297,7 @@ export default function AdminEstadisticasDashboard(){
 
         <div className='grid grid-cols-10 grid-rows-4 gap-4 max-h-[calc(100vh-250px)] w-full overflow-hidden'>
           <div className='flex flex-col gap-2 col-span-10 row-span-2'>
-            <h1 className='text-2xl font-bold'>Caja Chica</h1>
+            <h1 className='text-2xl font-bold'>Caja Chica: {currencyForDate?.balance?.saldo ? formatCurrencySVWithSymbol(currencyForDate?.balance?.saldo) : 'N/A'}</h1>
 
             <div className='grid grid-cols-10 gap-4 h-full w-full'>
               <div className='flex flex-col items-center justify-center gap-2 bg-white p-4 rounded-lg text-2xl overflow-hidden col-span-3'>
