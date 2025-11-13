@@ -1,3 +1,5 @@
+// frontend/src/pages/Admin/AdminEstadisticasDashboard.jsx
+
 import ContentTitle from '../../components/Content/ContentTitle'
 import Layout from '../../Layout'
 
@@ -8,16 +10,19 @@ import { useCurrencyStore } from '../../stores/useCurrencyStore'
 import { getCurrentDate } from '../../utils/dateUtils'
 import FormField from '../../components/Form/FormField'
 import { useCreditoStore } from '../../stores/useCreditoStore'
+import { useCuotaStore } from '../../stores/useCuotaStore'
 import BaseTable from '../../components/Table/BaseTable'
 import { formatCurrencySVWithSymbol } from '../../utils/currencyUtils'
 
 export default function AdminEstadisticasDashboard(){
   const {creditos, getCreditos, creditosForDate, setSelectedDate: setSelectedDateCredito} = useCreditoStore();
   const { saldo, getBalance, currencyForDate, currencyForRange, getCurrencyForDate, getCurrencyForRange, selectedDate, setSelectedDate } = useCurrencyStore();
+  const { proyeccionData, getCuotas, calcularProyeccion, isFetchingProyeccion, setSelectedDate: setSelectedDateCuota } = useCuotaStore();
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
     setSelectedDateCredito(date);
+    setSelectedDateCuota(date);
   };
 
   useEffect(() => {
@@ -26,14 +31,18 @@ export default function AdminEstadisticasDashboard(){
     }
   }, [getCreditos])
 
-  console.log(creditosForDate.creditosAceptados.length);
-  console.log(creditosForDate.creditosRechazados.length);
-
   useEffect(() => {
     if (!saldo){
       getBalance();
     }
   }, [getBalance, saldo])
+
+  // Obtener cuotas y calcular proyección inicial
+  useEffect(() => {
+    getCuotas().then(() => {
+      calcularProyeccion(selectedDate);
+    });
+  }, [getCuotas, calcularProyeccion, selectedDate])
   
   const [chartData, setChartData] = useState([
     { 
@@ -230,6 +239,7 @@ export default function AdminEstadisticasDashboard(){
       tipo: credito.tipo || 'N/A',
       estado: credito.estado || 'N/A',
       monto: credito.monto || 0,
+      motivo: credito.motivo || 'N/A',
       documento: credito.usuarioSolicitud?.dui || credito.dui || 'N/A'
     }));
   }, [creditosForDate]);
@@ -275,10 +285,19 @@ export default function AdminEstadisticasDashboard(){
     },
   ], []);
 
+  // Métricas fijas para futuras implementaciones
+  const metricasFijas = {
+    roi: 15.8, // Porcentaje fijo
+    recuperacion: 87.3, // Porcentaje fijo
+    ganancias: 12500.00 // Monto fijo
+  };
+
   return(
     <Layout>
       <div className="content">
-        <div className="date-controls">
+        <ContentTitle title="Dashboard de Estadísticas" />
+        
+        <div className="date-controls mb-4">
           <FormField 
             classNames={'simple'}
             label={'Fecha'} 
@@ -295,151 +314,208 @@ export default function AdminEstadisticasDashboard(){
           </button>
         </div>
 
-        <div className='grid grid-cols-10 grid-rows-4 gap-4 max-h-[calc(100vh-250px)] w-full overflow-hidden'>
-          <div className='flex flex-col gap-2 col-span-10 row-span-2'>
-            <h1 className='text-2xl font-bold'>Caja Chica: {currencyForDate?.balance?.saldo ? formatCurrencySVWithSymbol(currencyForDate?.balance?.saldo) : 'N/A'}</h1>
-
-            <div className='grid grid-cols-10 gap-4 h-full w-full'>
-              <div className='flex flex-col items-center justify-center gap-2 bg-white p-4 rounded-lg text-2xl overflow-hidden col-span-3'>
-                <h3 className='text-xl'>Ingresos</h3>
-                
-                <ChartContainer config={chartConfig} className="h-full w-full">
-                  <BarChart 
-                    layout="vertical"
-                    accessibilityLayer 
-                    data={chartData}
-                    onClick={(data, index, e) => {
-                      console.log("Clicked data:", data);
-                      console.log("Data index:", index);
-                    }}
-                  >
-                    <CartesianGrid horizontal={false} />
-                    <XAxis type="number" tickLine={false} tickMargin={10} axisLine={true} />
-                    <YAxis dataKey={"category"} type="category" tickLine={false} tickMargin={10} axisLine={true} width={80} />
-
-                    <ChartTooltip content={<ChartTooltipContent />} />
-
-                    <Bar dataKey={"value"} radius={1} fill="var(--color-value)" barSize={200} />
-                  </BarChart>
-                </ChartContainer>
-              </div>
-
-              <div className='flex flex-col items-center justify-center gap-2 bg-white p-4 rounded-lg text-2xl overflow-hidden col-span-3'>
-                <h3 className='text-xl'>Egresos</h3>
-                
-                <ChartContainer config={chartConfig} className="h-full w-full">
-                  <BarChart 
-                    layout="vertical"
-                    accessibilityLayer 
-                    data={chartDataEgresos}
-                    onClick={(data, index, e) => {
-                      console.log("Clicked data:", data);
-                      console.log("Data index:", index);
-                    }}
-                  >
-                    <CartesianGrid horizontal={false} />
-                    <XAxis type="number" tickLine={false} tickMargin={10} axisLine={true} />
-                    <YAxis dataKey={"category"} type="category" tickLine={false} tickMargin={10} axisLine={true} width={80} />
-
-                    <ChartTooltip content={<ChartTooltipContent nameKey="valueEgresos" />} />
-
-                    <Bar dataKey={"value"} radius={1} fill="var(--color-valueEgresos)" barSize={200} />
-                  </BarChart>
-                </ChartContainer>
-              </div>
-
-              <div className='flex flex-col items-center justify-center gap-2 bg-white p-4 rounded-lg text-2xl overflow-hidden col-span-4'>
-                <h3 className='text-xl'>Caja Chica Balance</h3>
-                
-                <ChartContainer config={chartConfig} className="h-full w-full">
-                  <LineChart 
-                    accessibilityLayer 
-                    data={chartData2}
-                    onClick={(data, index, e) => {
-                      console.log("Clicked data:", data);
-                      console.log("Data index:", index);
-                    }}
-                  >
-                    <CartesianGrid vertical={false} />
-                    <XAxis dataKey={"fecha"} tickLine={false} tickMargin={10} axisLine={true} />
-
-                    <ChartTooltip content={<ChartTooltipContent />} />
-                    <ChartLegend content={<ChartLegendContent />} />
-
-                    <Line dataKey={"saldo"} radius={1} stroke="var(--color-saldo)" strokeWidth={4} fill="var(--color-saldo)" barSize={200} />
-                  </LineChart>
-                </ChartContainer>
-              </div>
+        {/* Sección superior: Balance y Métricas */}
+        <div className="grid grid-cols-6 gap-4 mb-6">
+          {/* Balance de Caja Chica */}
+          <div className="bg-white p-4 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold mb-2">Balance Caja Chica</h3>
+            <div className="text-2xl font-bold text-blue-600">
+              {currencyForDate?.balance?.saldo ? formatCurrencySVWithSymbol(currencyForDate?.balance?.saldo) : 'N/A'}
             </div>
           </div>
 
-          <div className='flex flex-col gap-2 bg-white p-4 rounded-lg text-2xl overflow-hidden col-span-10 row-span-2'>
-            <h3 className='text-xl'>Créditos Aceptados vs Rechazados</h3>
-            
-            <div className='flex gap-4 h-full w-full'>
-              <div className='flex-1 flex items-center justify-center'>
-                {chartDataPie.every(entry => entry.value === 0) ? (
-                  <div className='flex items-center justify-center h-full w-full text-muted-foreground'>
-                    <p className='text-lg'>No hay datos disponibles</p>
+          {/* Proyección de Cuotas - Contenedor pequeño */}
+          <div className="bg-white p-4 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold mb-2">Proyección de Cuotas</h3>
+            {isFetchingProyeccion ? (
+              <div className="text-center py-2">
+                <span className="text-sm text-gray-600">Cargando...</span>
+              </div>
+            ) : proyeccionData ? (
+              <div className="grid grid-cols-3 gap-2 text-center">
+                <div className="p-2 bg-green-50 rounded">
+                  <div className="text-green-600 font-bold text-lg">{proyeccionData.cuotasCobradas?.cantidad || 0}</div>
+                  <div className="text-xs text-gray-600">Cobradas</div>
+                  <div className="text-xs font-medium">
+                    {formatCurrencySVWithSymbol(proyeccionData.cuotasCobradas?.montoTotal || 0)}
                   </div>
-                ) : (
-                  <ChartContainer config={chartConfig} className="h-full w-full">
-                    <PieChart>
-                      <ChartTooltip 
-                        content={
-                          <ChartTooltipContent 
-                            nameKey="name" 
-                            labelKey="name"
-                            formatter={(value, name, item, labelFormatter, payload) => {
-                              const totalMonto = item.payload?.totalMonto || 0;
-                              return [
-                                <div key="tooltip" className="w-full flex flex-col gap-1">
-                                  <div className='w-full flex justify-between'>
-                                    <span className="text-muted-foreground">Cantidad</span>
-                                    <span className="font-medium">{value}</span>
-                                  </div>
-                                  <div className='w-full flex justify-between'>
-                                    <span className="text-muted-foreground">Total</span>
-                                    <span className="font-medium">${Number(totalMonto).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                                  </div>
-                                </div>,
-                              ];
-                            }}
-                          />
-                        } 
-                      />
-                      <ChartLegend content={<ChartLegendContent nameKey="name" />} />
-                      <Pie
-                        data={chartDataPie}
-                        dataKey="value"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={140}
-                        label={renderCustomLabel}
-                        labelLine={false}
-                        fill="#8884d8"
-                      >
-                        {chartDataPie.map((entry) => (
-                          <Cell key={`cell-${entry.name}`} fill={chartConfig[entry.name]?.color || "#8884d8"} />
-                        ))}
-                      </Pie>
-                    </PieChart>
-                  </ChartContainer>
-                )}
+                </div>
+                <div className="p-2 bg-amber-50 rounded">
+                  <div className="text-amber-600 font-bold text-lg">{proyeccionData.cuotasPorCobrar?.cantidad || 0}</div>
+                  <div className="text-xs text-gray-600">Por Cobrar</div>
+                  <div className="text-xs font-medium">
+                    {formatCurrencySVWithSymbol(proyeccionData.cuotasPorCobrar?.montoTotal || 0)}
+                  </div>
+                </div>
+                <div className="p-2 bg-blue-50 rounded">
+                  <div className="text-blue-600 font-bold text-lg">{proyeccionData.totalGeneral?.cantidad || 0}</div>
+                  <div className="text-xs text-gray-600">Total</div>
+                  <div className="text-xs font-medium">
+                    {formatCurrencySVWithSymbol(proyeccionData.totalGeneral?.montoTotal || 0)}
+                  </div>
+                </div>
               </div>
+            ) : (
+              <div className="text-center py-2">
+                <span className="text-sm text-gray-600">Sin datos disponibles</span>
+              </div>
+            )}
+          </div>
 
-              <div className='flex-1 overflow-auto'>
-                <BaseTable
-                  data={creditosTableData}
-                  columns={creditosTableColumns}
-                  customHeaderHeight={50}
-                  hideSearchbar={true}
-                  centered={['tipo', 'estado', 'monto', 'motivo', 'documento']}
-                  flexable={['monto']}
-                  pageSize={5}
+          {/* ROI (Return on Investment) */}
+          <div className="bg-white p-4 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold mb-2">ROI</h3>
+            <div className="text-2xl font-bold text-purple-600">
+              {metricasFijas.roi}%
+            </div>
+            <div className="text-xs text-gray-600 mt-1">Return on Investment</div>
+          </div>
+
+          {/* Tasa de Recuperación */}
+          <div className="bg-white p-4 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold mb-2">Recuperación</h3>
+            <div className="text-2xl font-bold text-green-600">
+              {metricasFijas.recuperacion}%
+            </div>
+            <div className="text-xs text-gray-600 mt-1">Tasa de Recuperación</div>
+          </div>
+
+          {/* Ganancias */}
+          <div className="bg-white p-4 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold mb-2">Ganancias</h3>
+            <div className="text-2xl font-bold text-emerald-600">
+              {formatCurrencySVWithSymbol(metricasFijas.ganancias)}
+            </div>
+            <div className="text-xs text-gray-600 mt-1">Ganancias Netas</div>
+          </div>
+          
+        </div>
+
+        {/* Sección de gráficos principales */}
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          {/* Gráfico de Ingresos */}
+          <div className="bg-white p-4 rounded-lg shadow-sm border col-span-1">
+            <h3 className="text-lg font-semibold mb-4 text-center">Ingresos</h3>
+            <ChartContainer config={chartConfig} className="h-64">
+              <BarChart 
+                layout="vertical"
+                accessibilityLayer 
+                data={chartData}
+              >
+                <CartesianGrid horizontal={false} />
+                <XAxis type="number" tickLine={false} tickMargin={10} axisLine={true} />
+                <YAxis dataKey={"category"} type="category" tickLine={false} tickMargin={10} axisLine={true} width={80} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Bar dataKey={"value"} radius={4} fill="var(--color-value)" />
+              </BarChart>
+            </ChartContainer>
+          </div>
+
+          {/* Gráfico de Egresos */}
+          <div className="bg-white p-4 rounded-lg shadow-sm border col-span-1">
+            <h3 className="text-lg font-semibold mb-4 text-center">Egresos</h3>
+            <ChartContainer config={chartConfig} className="h-64">
+              <BarChart 
+                layout="vertical"
+                accessibilityLayer 
+                data={chartDataEgresos}
+              >
+                <CartesianGrid horizontal={false} />
+                <XAxis type="number" tickLine={false} tickMargin={10} axisLine={true} />
+                <YAxis dataKey={"category"} type="category" tickLine={false} tickMargin={10} axisLine={true} width={80} />
+                <ChartTooltip content={<ChartTooltipContent nameKey="valueEgresos" />} />
+                <Bar dataKey={"value"} radius={4} fill="var(--color-valueEgresos)" />
+              </BarChart>
+            </ChartContainer>
+          </div>
+
+          {/* Gráfico de Balance */}
+          <div className="bg-white p-4 rounded-lg shadow-sm border col-span-1">
+            <h3 className="text-lg font-semibold mb-4 text-center">Evolución del Balance</h3>
+            <ChartContainer config={chartConfig} className="h-64">
+              <LineChart accessibilityLayer data={chartData2}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey={"fecha"} tickLine={false} tickMargin={10} axisLine={true} />
+                <ChartTooltip content={<ChartTooltipContent />} />
+                <Line 
+                  dataKey={"saldo"} 
+                  stroke="var(--color-saldo)" 
+                  strokeWidth={2} 
+                  dot={{ fill: "var(--color-saldo)", r: 3 }}
                 />
-              </div>
+              </LineChart>
+            </ChartContainer>
+          </div>
+        </div>
+
+        {/* Sección inferior: Créditos y Tabla */}
+        <div className="bg-white p-6 rounded-lg shadow-sm border">
+          <h3 className="text-xl font-semibold mb-4">Créditos Aceptados vs Rechazados</h3>
+          
+          <div className="grid grid-cols-2 gap-6">
+            {/* Gráfico de Pie */}
+            <div className="flex items-center justify-center">
+              {chartDataPie.every(entry => entry.value === 0) ? (
+                <div className="flex items-center justify-center h-64 w-full text-muted-foreground">
+                  <p className="text-lg">No hay datos disponibles</p>
+                </div>
+              ) : (
+                <ChartContainer config={chartConfig} className="h-64 w-full">
+                  <PieChart>
+                    <ChartTooltip 
+                      content={
+                        <ChartTooltipContent 
+                          nameKey="name" 
+                          labelKey="name"
+                          formatter={(value, name, item, labelFormatter, payload) => {
+                            const totalMonto = item.payload?.totalMonto || 0;
+                            return [
+                              <div key="tooltip" className="w-full flex flex-col gap-1">
+                                <div className='w-full flex justify-between'>
+                                  <span className="text-muted-foreground">Cantidad</span>
+                                  <span className="font-medium">{value}</span>
+                                </div>
+                                <div className='w-full flex justify-between'>
+                                  <span className="text-muted-foreground">Total</span>
+                                  <span className="font-medium">${Number(totalMonto).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                                </div>
+                              </div>,
+                            ];
+                          }}
+                        />
+                      } 
+                    />
+                    <ChartLegend content={<ChartLegendContent nameKey="name" />} />
+                    <Pie
+                      data={chartDataPie}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={100}
+                      label={renderCustomLabel}
+                      labelLine={false}
+                    >
+                      {chartDataPie.map((entry) => (
+                        <Cell key={`cell-${entry.name}`} fill={chartConfig[entry.name]?.color || "#8884d8"} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ChartContainer>
+              )}
+            </div>
+
+            {/* Tabla de Créditos */}
+            <div className="overflow-auto">
+              <BaseTable
+                data={creditosTableData}
+                columns={creditosTableColumns}
+                customHeaderHeight={50}
+                hideSearchbar={true}
+                centered={['tipo', 'estado', 'monto', 'motivo', 'documento']}
+                flexable={['monto']}
+                pageSize={5}
+              />
             </div>
           </div>
         </div>

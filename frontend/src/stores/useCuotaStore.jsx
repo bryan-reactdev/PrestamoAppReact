@@ -1,3 +1,5 @@
+// stores/useCuotaStore.jsx (actualizado)
+
 import { create } from 'zustand';
 import { axiosData } from "../utils/axiosWrapper";
 import toast from 'react-hot-toast';
@@ -7,7 +9,7 @@ import { getCurrentDate } from '../utils/dateUtils';
 const estadoInicial = {
     cuota: null,
     isFetchingCuota: false,
-    
+
     cuotas: [],
     cuotasPendientes: [],
     cuotasPagadas: [],
@@ -22,8 +24,12 @@ const estadoInicial = {
     isUpdatingCuota: false,
     isPagandoCuota: false,
     isGuardandoNotas: false,
-    
+
     wasGlobalFetch: false,
+
+    // Nuevos estados para proyección
+    proyeccionData: null,
+    isFetchingProyeccion: false,
 }
 
 // --- Definición de Store --- //
@@ -66,26 +72,26 @@ export const useCuotaStore = create((set, get) => ({
     },
 
     getCuota: async (cuotaId) => {
-        set({isFetchingCuota: true})
+        set({ isFetchingCuota: true })
 
-        set({cuota: null})
-        const res = await axiosData(`/cuotaTest/${cuotaId}`, {method:"GET"});
-        
-        set({cuota: res?.data ?? null})
+        set({ cuota: null })
+        const res = await axiosData(`/cuotaTest/${cuotaId}`, { method: "GET" });
 
-        set({isFetchingCuota: false})
+        set({ cuota: res?.data ?? null })
+
+        set({ isFetchingCuota: false })
     },
 
-    getCuotas: async (creditoId = null, isUsuario = false) =>{
+    getCuotas: async (creditoId = null, isUsuario = false) => {
         const isCurrentGlobal = (creditoId === null || creditoId === 0)
-        const {wasGlobalFetch, cuotas} = get();
+        const { wasGlobalFetch, cuotas } = get();
 
-        if (isCurrentGlobal && wasGlobalFetch && cuotas.length !== 0){
+        if (isCurrentGlobal && wasGlobalFetch && cuotas.length !== 0) {
             return
         }
 
-        set({isFetchingCuotas: true});
-        
+        set({ isFetchingCuotas: true });
+
         set({
             cuotas: [],
             cuotasPendientes: [],
@@ -96,19 +102,19 @@ export const useCuotaStore = create((set, get) => ({
             cuotasForMapeoUnfiltered: [],
         })
         let res = null;
-        
-        if (isCurrentGlobal){
+
+        if (isCurrentGlobal) {
             res = await axiosData("/cuotaTest/", { method: "GET" });
-            set({wasGlobalFetch: true})
+            set({ wasGlobalFetch: true })
         }
-        else if (!isCurrentGlobal){
-            if (isUsuario){
+        else if (!isCurrentGlobal) {
+            if (isUsuario) {
                 res = await axiosData(`/usuarioText/${creditoId}/cuotas`, { method: "GET" });
             }
-            else{
+            else {
                 res = await axiosData(`/creditoTest/${creditoId}/cuotas`, { method: "GET" });
             }
-            set({wasGlobalFetch: false})
+            set({ wasGlobalFetch: false })
         }
 
         const cuotaGroups = res?.data;
@@ -129,14 +135,17 @@ export const useCuotaStore = create((set, get) => ({
         const mapeoData = resMapeo?.data ?? [];
         set({ cuotasForMapeoUnfiltered: mapeoData });
         get().filterCuotasForMapeo(get().selectedDate);
-        
+
+        // Calcular proyección después de obtener las cuotas
+        get().calcularProyeccion(get().selectedDate);
+
         set({ isFetchingCuotas: false });
     },
 
     getUsuarioCuotas: async (usuarioId) => {
-        set({isFetchingCuotas: true})
+        set({ isFetchingCuotas: true })
 
-        const res = await axiosData(`/cuotaTest/usuario/${usuarioId}`, {method: "GET"})
+        const res = await axiosData(`/cuotaTest/usuario/${usuarioId}`, { method: "GET" })
 
         const cuotaGroups = res?.data;
         const todas = cuotaGroups?.find(group => group.estado === "Todos")?.data
@@ -157,8 +166,105 @@ export const useCuotaStore = create((set, get) => ({
         set({ cuotasForMapeoUnfiltered: mapeoData });
         get().filterCuotasForMapeo(get().selectedDate);
 
+        // Calcular proyección después de obtener las cuotas
+        get().calcularProyeccion(get().selectedDate);
+
         set({ isFetchingCuotas: false });
     },
+
+    // Nueva función para calcular proyección localmente
+    // stores/useCuotaStore.jsx (función corregida)
+
+    // stores/useCuotaStore.jsx (función corregida)
+
+calcularProyeccion: (fecha = null) => {
+    set({ isFetchingProyeccion: true });
+    
+    const fechaFiltro = fecha || get().selectedDate;
+    const { cuotas } = get(); // Usar solo el array principal de cuotas
+
+    console.log('=== INICIANDO CÁLCULO DE PROYECCIÓN ===');
+    console.log('Fecha filtro:', fechaFiltro);
+    console.log('Total cuotas disponibles:', cuotas.length);
+
+    // Filtrar por fecha usando fechaVencimiento - SOLO LAS CUOTAS PRINCIPALES
+    let cuotasFiltradas = cuotas;
+    if (fechaFiltro && cuotasFiltradas.length > 0) {
+        cuotasFiltradas = cuotas.filter((cuota) => {
+            const fechaVencimiento = cuota.fechaVencimiento;
+            if (!fechaVencimiento) {
+                console.log('Cuota sin fechaVencimiento:', cuota.id);
+                return false;
+            }
+            
+            const fechaStr = typeof fechaVencimiento === 'string' 
+                ? fechaVencimiento 
+                : fechaVencimiento.split('T')[0];
+            
+            const coincide = fechaStr.startsWith(fechaFiltro);
+            console.log(`Cuota ${cuota.id}: ${fechaStr} vs ${fechaFiltro} -> ${coincide ? 'COINCIDE' : 'NO COINCIDE'}`);
+            return coincide;
+        });
+    }
+
+    console.log('Cuotas después del filtro:', cuotasFiltradas.length);
+
+    // Mostrar las cuotas filtradas para debug
+    if (cuotasFiltradas.length > 0) {
+        console.log('Cuotas filtradas:');
+        cuotasFiltradas.forEach(cuota => {
+            console.log(`- ID: ${cuota.id}, Fecha: ${cuota.fechaVencimiento}, Estado: ${cuota.estado}, Total: $${cuota.total}`);
+        });
+    }
+
+    // Calcular cuotas cobradas (estado Pagado)
+    const cuotasCobradas = cuotasFiltradas.filter(cuota => 
+        cuota.estado === 'Pagado' || cuota.estado === 'pagado'
+    );
+
+    // Calcular cuotas por cobrar (otros estados)
+    const cuotasPorCobrar = cuotasFiltradas.filter(cuota => 
+        cuota.estado !== 'Pagado' && cuota.estado !== 'pagado'
+    );
+
+    // Calcular montos totales
+    const calcularMontoTotal = (cuotasArray) => {
+        return cuotasArray.reduce((total, cuota) => {
+            const montoTotal = Number(cuota.total) || 0;
+            return total + montoTotal;
+        }, 0);
+    };
+
+    const montoCobradas = calcularMontoTotal(cuotasCobradas);
+    const montoPorCobrar = calcularMontoTotal(cuotasPorCobrar);
+
+    console.log('=== RESUMEN PROYECCIÓN ===');
+    console.log('Cuotas cobradas:', cuotasCobradas.length, 'Monto total: $', montoCobradas);
+    console.log('Cuotas por cobrar:', cuotasPorCobrar.length, 'Monto total: $', montoPorCobrar);
+    console.log('Total general:', cuotasFiltradas.length, 'Monto total: $', montoCobradas + montoPorCobrar);
+
+    const proyeccionData = {
+        cuotasCobradas: {
+            cantidad: cuotasCobradas.length,
+            montoTotal: montoCobradas
+        },
+        cuotasPorCobrar: {
+            cantidad: cuotasPorCobrar.length,
+            montoTotal: montoPorCobrar
+        },
+        totalGeneral: {
+            cantidad: cuotasFiltradas.length,
+            montoTotal: montoCobradas + montoPorCobrar
+        }
+    };
+
+    set({ 
+        proyeccionData,
+        isFetchingProyeccion: false 
+    });
+
+    return proyeccionData;
+},
 
     updateCuota: async (id, formData) => {
         set({ isUpdatingCuota: true });
@@ -175,12 +281,12 @@ export const useCuotaStore = create((set, get) => ({
 
         // Get existing cuota to use abono if not in formData
         const { cuotasForMapeo } = get();
-        const existingCuota = cuotas.find(c => c.id === id) || 
-                             cuotasPendientes.find(c => c.id === id) ||
-                             cuotasPagadas.find(c => c.id === id) ||
-                             cuotasVencidas.find(c => c.id === id) ||
-                             cuotasEnRevision.find(c => c.id === id) ||
-                             cuotasForMapeo.find(c => c.id === id);
+        const existingCuota = cuotas.find(c => c.id === id) ||
+            cuotasPendientes.find(c => c.id === id) ||
+            cuotasPagadas.find(c => c.id === id) ||
+            cuotasVencidas.find(c => c.id === id) ||
+            cuotasEnRevision.find(c => c.id === id) ||
+            cuotasForMapeo.find(c => c.id === id);
 
         // Optimistically update all arrays
         // Work around to get the total calculated
@@ -189,7 +295,7 @@ export const useCuotaStore = create((set, get) => ({
         const mora = Number(formData.mora) || 0;
         const abonoValue = formData.abono ?? existingCuota?.abono;
         const abono = Number(abonoValue) || 0;
-        
+
         formData.total = monto + mora - abono;
 
         get().updateCuotaOptimistic(id, formData);
@@ -202,6 +308,9 @@ export const useCuotaStore = create((set, get) => ({
             set({ ...previousData });
         }
 
+        // Recalcular proyección después de actualizar
+        get().calcularProyeccion(get().selectedDate);
+
         set({ isUpdatingCuota: false });
 
         return res != null;
@@ -210,17 +319,20 @@ export const useCuotaStore = create((set, get) => ({
     pagarCuota: async (id, row) => {
         const previousEstado = row.original.estado;
 
-        set({isPagandoCuota: true});
+        set({ isPagandoCuota: true });
         get().updateKey(id, 'estado', 'Pagado');
 
-        const res = await axiosData(`/cuotaTest/pagar/${id}`, {method: 'POST'});
+        const res = await axiosData(`/cuotaTest/pagar/${id}`, { method: 'POST' });
 
         // En caso de error
-        if (res === null){
-            get().updateKey(id, 'estado', previousEstado); 
+        if (res === null) {
+            get().updateKey(id, 'estado', previousEstado);
+        } else {
+            // Recalcular proyección después de pagar
+            get().calcularProyeccion(get().selectedDate);
         }
 
-        set({isPagandoCuota: false});
+        set({ isPagandoCuota: false });
     },
 
     abonarCuota: async (id, row, formData) => {
@@ -237,15 +349,18 @@ export const useCuotaStore = create((set, get) => ({
 
         if (res === null) {
             get().updateKey(id, 'abono', montoOriginal)
+        } else {
+            // Recalcular proyección después de abonar
+            get().calcularProyeccion(get().selectedDate);
         }
     },
 
     guardarNotas: async (id, formData) => {
-        set ({isGuardandoNotas: true})
+        set({ isGuardandoNotas: true })
 
-        const res = await axiosData(`/cuotaTest/notas/${id}`, {method: "POST", data: formData})
+        const res = await axiosData(`/cuotaTest/notas/${id}`, { method: "POST", data: formData })
 
-        set ({isGuardandoNotas: false})
+        set({ isGuardandoNotas: false })
 
         return (res != null)
     },
@@ -260,7 +375,7 @@ export const useCuotaStore = create((set, get) => ({
             });
 
             await descargarPDFConPrint(res);
-            
+
             toast.success('PDF de cuotas listo para imprimir', { id: 'pdf-toast' });
         } catch (err) {
             console.error("Error descargando PDF:", err);
@@ -269,7 +384,7 @@ export const useCuotaStore = create((set, get) => ({
     },
 
     filterCuotasForMapeo: async (date) => {
-        const {cuotasForMapeoUnfiltered} = get();
+        const { cuotasForMapeoUnfiltered } = get();
         if (date == null || !cuotasForMapeoUnfiltered?.length) {
             // No filtering needed, use all data
             set({ cuotasForMapeo: cuotasForMapeoUnfiltered ?? [] });
@@ -280,17 +395,19 @@ export const useCuotaStore = create((set, get) => ({
         const filtered = cuotasForMapeoUnfiltered.filter((cuota) => {
             if (!cuota.cuotaVencimiento) return false;
             // Handle both string and Date formats
-            const fechaStr = typeof cuota.cuotaVencimiento === 'string' 
-                ? cuota.cuotaVencimiento 
+            const fechaStr = typeof cuota.cuotaVencimiento === 'string'
+                ? cuota.cuotaVencimiento
                 : cuota.cuotaVencimiento.split('T')[0];
             return fechaStr.startsWith(date);
         });
-        set({cuotasForMapeo: filtered});
+        set({ cuotasForMapeo: filtered });
     },
 
     setSelectedDate: (date) => {
-        const {filterCuotasForMapeo} = get();
-        set({selectedDate: date});
+        const { filterCuotasForMapeo, calcularProyeccion } = get();
+        set({ selectedDate: date });
         filterCuotasForMapeo(date);
+        // Actualizar proyección cuando cambia la fecha
+        calcularProyeccion(date);
     }
 }))
