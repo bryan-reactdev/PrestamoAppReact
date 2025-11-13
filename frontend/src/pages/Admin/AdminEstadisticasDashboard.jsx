@@ -1,8 +1,5 @@
 // frontend/src/pages/Admin/AdminEstadisticasDashboard.jsx
-
-import ContentTitle from '../../components/Content/ContentTitle'
 import Layout from '../../Layout'
-
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart"
 import { Bar, BarChart, CartesianGrid, Line, LineChart, Cell, Pie, PieChart, XAxis, YAxis } from "recharts"
 import { useEffect, useState, useMemo } from 'react'
@@ -14,8 +11,8 @@ import { useCuotaStore } from '../../stores/useCuotaStore'
 import BaseTable from '../../components/Table/BaseTable'
 import { formatCurrencySVWithSymbol } from '../../utils/currencyUtils'
 
-export default function AdminEstadisticasDashboard(){
-  const {creditos, getCreditos, creditosForDate, setSelectedDate: setSelectedDateCredito} = useCreditoStore();
+export default function AdminEstadisticasDashboard() {
+  const { creditos, getCreditos, creditosForDate, setSelectedDate: setSelectedDateCredito } = useCreditoStore();
   const { saldo, getBalance, currencyForDate, currencyForRange, getCurrencyForDate, getCurrencyForRange, selectedDate, setSelectedDate } = useCurrencyStore();
   const { proyeccionData, getCuotas, calcularProyeccion, isFetchingProyeccion, setSelectedDate: setSelectedDateCuota } = useCuotaStore();
 
@@ -32,94 +29,97 @@ export default function AdminEstadisticasDashboard(){
   }, [getCreditos])
 
   useEffect(() => {
-    if (!saldo){
+    if (!saldo) {
       getBalance();
     }
-  }, [getBalance, saldo])
+    // Asegurar que los datos de la fecha se obtengan al actualizar el saldo o la fecha
+    getCurrencyForDate();
+  }, [getBalance, saldo, getCurrencyForDate, selectedDate])
 
   // Obtener cuotas y calcular proyección inicial
   useEffect(() => {
     getCuotas().then(() => {
       calcularProyeccion(selectedDate);
     });
-  }, [getCuotas, calcularProyeccion, selectedDate])
-  
+    // Se agregan las dependencias necesarias
+  }, [getCuotas, calcularProyeccion, selectedDate, saldo])
+
   const [chartData, setChartData] = useState([
-    { 
-      category: "Ingresos Capitales", 
-      value: 0 
+    {
+      category: "Ingresos Capitales",
+      value: 0
     },
-    { 
-      category: "Ingresos Varios", 
-      value: 0 
+    {
+      category: "Ingresos Varios",
+      value: 0
     },
-    { 
-      category: "Abonos a Cuotas", 
-      value: 0 
+    {
+      category: "Abonos a Cuotas",
+      value: 0
     },
-    { 
-      category: "Pagos de Cuotas", 
-      value: 0 
+    {
+      category: "Pagos de Cuotas",
+      value: 0
     },
   ])
 
   useEffect(() => {
     setChartData([
-      { 
-        category: "Ingresos Capitales", 
-        value: currencyForDate?.ingresosCapitales?.total || 0 
+      {
+        category: "Ingresos Capitales",
+        value: currencyForDate?.ingresosCapitales?.total || 0
       },
-      { 
-        category: "Ingresos Varios", 
-        value: currencyForDate?.ingresosVarios?.total || 0 
+      {
+        category: "Ingresos Varios",
+        value: currencyForDate?.ingresosVarios?.total || 0
       },
-      { 
-        category: "Abonos a Cuotas", 
-        value: currencyForDate?.cuotasAbonos?.total || 0 
+      {
+        category: "Abonos a Cuotas",
+        value: currencyForDate?.cuotasAbonos?.total || 0
       },
-      { 
-        category: "Pagos de Cuotas", 
-        value: currencyForDate?.cuotasPagadas?.total || 0 
+      {
+        category: "Pagos de Cuotas",
+        value: currencyForDate?.cuotasPagadas?.total || 0
       },
     ])
   }, [currencyForDate, currencyForRange])
 
   const [chartDataEgresos, setChartDataEgresos] = useState([
-    { 
-      category: "Gastos de Empresa", 
-      value: 0 
+    {
+      category: "Gastos de Empresa",
+      value: 0
     },
-    { 
-      category: "Egresos Varios", 
-      value: 0 
+    {
+      category: "Egresos Varios",
+      value: 0
     },
-    { 
-      category: "Retiro de Cuotas", 
-      value: 0 
+    {
+      category: "Retiro de Cuotas",
+      value: 0
     },
-    { 
-      category: "Créditos Desembolsados", 
-      value: 0 
+    {
+      category: "Créditos Desembolsados",
+      value: 0
     },
   ])
 
   useEffect(() => {
     setChartDataEgresos([
-      { 
-        category: "Gastos de Empresa", 
-        value: currencyForDate?.gastosEmpresa?.total || 0 
+      {
+        category: "Gastos de Empresa",
+        value: currencyForDate?.gastosEmpresa?.total || 0
       },
-      { 
-        category: "Egresos Varios", 
-        value: currencyForDate?.egresosVarios?.total || 0 
+      {
+        category: "Egresos Varios",
+        value: currencyForDate?.egresosVarios?.total || 0
       },
-      { 
-        category: "Retiro de Cuotas", 
-        value: currencyForDate?.egresosCuotasRetiros?.total || 0 
+      {
+        category: "Retiro de Cuotas",
+        value: currencyForDate?.egresosCuotasRetiros?.total || 0
       },
-      { 
-        category: "Créditos Desembolsados", 
-        value: currencyForDate?.creditosDesembolsados?.total || 0 
+      {
+        category: "Créditos Desembolsados",
+        value: currencyForDate?.creditosDesembolsados?.total || 0
       },
     ])
   }, [currencyForDate])
@@ -134,7 +134,7 @@ export default function AdminEstadisticasDashboard(){
           saldo: item.monto || 0
         }))
         .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
-      
+
       setChartData2(formattedData);
     } else {
       setChartData2([]);
@@ -179,22 +179,22 @@ export default function AdminEstadisticasDashboard(){
 
     return (
       <g>
-        <text 
-          x={x} 
-          y={y - 8} 
-          fill="white" 
-          textAnchor={x > ncx ? 'start' : 'end'} 
+        <text
+          x={x}
+          y={y - 8}
+          fill="white"
+          textAnchor={x > ncx ? 'start' : 'end'}
           dominantBaseline="central"
           fontSize={13}
           fontWeight="bold"
         >
           {`${payload.value} crédito${payload.value !== 1 ? 's' : ''}`}
         </text>
-        <text 
-          x={x} 
-          y={y + 8} 
-          fill="white" 
-          textAnchor={x > ncx ? 'start' : 'end'} 
+        <text
+          x={x}
+          y={y + 8}
+          fill="white"
+          textAnchor={x > ncx ? 'start' : 'end'}
           dominantBaseline="central"
           fontSize={11}
         >
@@ -285,110 +285,204 @@ export default function AdminEstadisticasDashboard(){
     },
   ], []);
 
+  // Capital Pendiente por Recuperar
+  const recuperacionCalculada = useMemo(() => {
+    const totalCuotasPagadas = Number(currencyForDate?.cuotasPagadas?.total || 0);
+    const totalIngresoACapital = Number(currencyForDate?.ingresosCapitales?.total || 0);
+
+    // Capital Pendiente = Capital Invertido - Total Cuotas Cobradas. 
+    // Muestra 0 si el capital ya se recuperó.
+    const capitalPendiente = totalIngresoACapital - totalCuotasPagadas;
+    return Math.max(0, capitalPendiente);
+  }, [currencyForDate]);
+
+  // Ganancia después de la recuperación del capital (Ganancia Neta + Proyectada)
+  const gananciaDespuesRecuperacion = useMemo(() => {
+    const totalCuotasPagadas = Number(currencyForDate?.cuotasPagadas?.total || 0);
+    const totalIngresoACapital = Number(currencyForDate?.ingresosCapitales?.total || 0);
+    // NUEVO: Obtener el monto por cobrar de la proyección
+    const totalPorCobrar = Number(proyeccionData?.cuotasPorCobrar?.montoTotal || 0);
+
+    // LÓGICA SOLICITADA: (Cuotas Pagadas + Monto Por Cobrar) - Capital Invertido
+    // Esto representa la ganancia total (realizada + proyectada) una vez recuperado el principal.
+    const totalFlujoEsperado = totalCuotasPagadas + totalPorCobrar;
+    const ganancia = totalFlujoEsperado - totalIngresoACapital;
+
+    // Muestra 0 si la ganancia es negativa (aún falta por cubrir el capital).
+    return Math.max(0, ganancia);
+  }, [currencyForDate, proyeccionData]); // Se añade proyeccionData a las dependencias
+
+  // ROI en porcentaje
+  const roiCalculado = useMemo(() => {
+    const totalCuotasPagadas = Number(currencyForDate?.cuotasPagadas?.total || 0);
+    const totalIngresoACapital = Number(currencyForDate?.ingresosCapitales?.total || 0);
+
+    if (totalIngresoACapital > 0) {
+      return ((totalCuotasPagadas - totalIngresoACapital) / totalIngresoACapital) * 100;
+    }
+
+    return 0;
+  }, [currencyForDate]);
+
   // Métricas fijas para futuras implementaciones
   const metricasFijas = {
-    roi: 15.8, // Porcentaje fijo
-    recuperacion: 87.3, // Porcentaje fijo
-    ganancias: 12500.00 // Monto fijo
+    roi: roiCalculado, // Usar el valor calculado
+    ganancias: gananciaDespuesRecuperacion // Usar el valor calculado
   };
 
-  return(
+  return (
     <Layout>
       <div className="content">
-        <ContentTitle title="Dashboard de Estadísticas" />
-        
         <div className="date-controls mb-4">
-          <FormField 
+          <FormField
             classNames={'simple'}
-            label={'Fecha'} 
+            label={'Fecha'}
             type="date"
             value={selectedDate}
             onChange={(e) => handleDateChange(e.target.value)}
           />
-          <button 
-            className='btn-primary sm' 
+          <button
+            className='btn-primary sm'
             onClick={() => handleDateChange(getCurrentDate())}
           >
-            <i className='fas fa-rotate'/>
+            <i className='fas fa-rotate' />
             IR A HOY
           </button>
         </div>
 
-        {/* Sección superior: Balance y Métricas */}
-        <div className="grid grid-cols-6 gap-4 mb-6">
-          {/* Balance de Caja Chica */}
-          <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-semibold mb-2">Balance Caja Chica</h3>
-            <div className="text-2xl font-bold text-blue-600">
-              {currencyForDate?.balance?.saldo ? formatCurrencySVWithSymbol(currencyForDate?.balance?.saldo) : 'N/A'}
-            </div>
-          </div>
-
-          {/* Proyección de Cuotas - Contenedor pequeño */}
-          <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-semibold mb-2">Proyección de Cuotas</h3>
-            {isFetchingProyeccion ? (
-              <div className="text-center py-2">
-                <span className="text-sm text-gray-600">Cargando...</span>
-              </div>
-            ) : proyeccionData ? (
-              <div className="grid grid-cols-3 gap-2 text-center">
-                <div className="p-2 bg-green-50 rounded">
-                  <div className="text-green-600 font-bold text-lg">{proyeccionData.cuotasCobradas?.cantidad || 0}</div>
-                  <div className="text-xs text-gray-600">Cobradas</div>
-                  <div className="text-xs font-medium">
-                    {formatCurrencySVWithSymbol(proyeccionData.cuotasCobradas?.montoTotal || 0)}
-                  </div>
+        {/* Contenedor unificado para Caja Chica con Ingresos y Egresos */}
+        <div className="bg-white p-4 rounded-lg shadow-sm border mb-4">
+          <div className="grid grid-cols-3 gap-4">
+            {/* Balance Caja Chica - Arriba */}
+            <div className="col-span-3 mb-3">
+              <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <h3 className="text-lg font-semibold mb-1 text-center">Balance Caja Chica</h3>
+                <div className="text-2xl font-bold text-blue-600 text-center">
+                  {currencyForDate?.balance?.saldo ? formatCurrencySVWithSymbol(currencyForDate?.balance?.saldo) : 'N/A'}
                 </div>
-                <div className="p-2 bg-amber-50 rounded">
-                  <div className="text-amber-600 font-bold text-lg">{proyeccionData.cuotasPorCobrar?.cantidad || 0}</div>
-                  <div className="text-xs text-gray-600">Por Cobrar</div>
-                  <div className="text-xs font-medium">
-                    {formatCurrencySVWithSymbol(proyeccionData.cuotasPorCobrar?.montoTotal || 0)}
-                  </div>
+                <div className="text-sm text-gray-600 text-center">Saldo actual disponible</div>
+              </div>
+            </div>
+
+            {/* Ingresos y Egresos - Abajo */}
+            <div className="col-span-1">
+              <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                <h3 className="text-md font-semibold mb-1 text-center">Total Ingresos</h3>
+                <div className="text-xl font-bold text-green-600 text-center">
+                  {formatCurrencySVWithSymbol((currencyForDate?.ingresosCapitales?.total || 0) + (currencyForDate?.ingresosVarios?.total || 0))}
                 </div>
-                <div className="p-2 bg-blue-50 rounded">
-                  <div className="text-blue-600 font-bold text-lg">{proyeccionData.totalGeneral?.cantidad || 0}</div>
-                  <div className="text-xs text-gray-600">Total</div>
-                  <div className="text-xs font-medium">
-                    {formatCurrencySVWithSymbol(proyeccionData.totalGeneral?.montoTotal || 0)}
-                  </div>
+                <div className="text-xs text-gray-600 text-center">Ingresos del día</div>
+              </div>
+            </div>
+
+            <div className="col-span-1">
+              <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                <h3 className="text-md font-semibold mb-1 text-center">Total Egresos</h3>
+                <div className="text-xl font-bold text-red-600 text-center">
+                  {formatCurrencySVWithSymbol((currencyForDate?.gastosEmpresa?.total || 0) + (currencyForDate?.egresosVarios?.total || 0))}
+                </div>
+                <div className="text-xs text-gray-600 text-center">Egresos del día</div>
+              </div>
+            </div>
+
+            <div className="col-span-1">
+              <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
+                <h3 className="text-md font-semibold mb-1 text-center">Neto del Día</h3>
+                <div className="text-xl font-bold text-purple-600 text-center">
+                  {formatCurrencySVWithSymbol(
+                    ((currencyForDate?.ingresosCapitales?.total || 0) + (currencyForDate?.ingresosVarios?.total || 0)) - 
+                    ((currencyForDate?.gastosEmpresa?.total || 0) + (currencyForDate?.egresosVarios?.total || 0))
+                  )}
+                </div>
+                <div className="text-xs text-gray-600 text-center">Ingresos - Egresos</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Contenedor unificado para Inversiones */}
+        <div className="bg-white p-4 rounded-lg shadow-sm border mb-4">
+          <div className="grid grid-cols-3 gap-4">
+            {/* Ingreso Capitales - Arriba */}
+            <div className="col-span-3 mb-3">
+              <div className="bg-amber-50 p-3 rounded-lg border border-amber-200">
+                <h3 className="text-lg font-semibold mb-1 text-center">Ingreso Capitales</h3>
+                <div className="text-2xl font-bold text-amber-600 text-center">
+                  {currencyForDate?.ingresosCapitales?.total ? formatCurrencySVWithSymbol(currencyForDate.ingresosCapitales.total) : '$0.00'}
+                </div>
+                <div className="text-sm text-gray-600 text-center">Capital total invertido</div>
+              </div>
+            </div>
+
+            {/* Por Recuperar y Ganancia - Abajo */}
+            <div className="col-span-1">
+              <div className="bg-red-50 p-3 rounded-lg border border-red-200">
+                <h3 className="text-md font-semibold mb-1 text-center">Por recuperar</h3>
+                <div className="text-xl font-bold text-red-600 text-center">
+                  {formatCurrencySVWithSymbol(recuperacionCalculada)}
+                </div>
+                <div className="text-xs text-gray-600 text-center">Pendiente del capital</div>
+              </div>
+            </div>
+
+            <div className="col-span-1">
+              <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+                <h3 className="text-md font-semibold mb-1 text-center">Ganancia</h3>
+                <div className="text-xl font-bold text-emerald-600 text-center">
+                  {formatCurrencySVWithSymbol(metricasFijas.ganancias)}
+                </div>
+                <div className="text-xs text-gray-600 text-center">Ganancia neta proyectada</div>
+              </div>
+            </div>
+
+            <div className="col-span-1">
+              <div className="bg-purple-50 p-3 rounded-lg border border-purple-200">
+                <h3 className="text-md font-semibold mb-1 text-center">ROI</h3>
+                <div className="text-xl font-bold text-purple-600 text-center">
+                  {Number(metricasFijas.roi).toFixed(2)}%
+                </div>
+                <div className="text-xs text-gray-600 text-center">Retorno de inversión</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Proyección de Cuotas */}
+        <div className="bg-white p-4 rounded-lg shadow-sm border mb-4">
+          <h3 className="text-lg font-semibold mb-3 text-center">Proyección de Cuotas</h3>
+          {isFetchingProyeccion ? (
+            <div className="text-center py-2">
+              <span className="text-sm text-gray-600">Cargando...</span>
+            </div>
+          ) : proyeccionData ? (
+            <div className="grid grid-cols-3 gap-3 text-center">
+              <div className="p-3 bg-green-50 rounded border border-green-200">
+                <div className="text-green-600 font-bold text-lg">{proyeccionData.cuotasCobradas?.cantidad || 0}</div>
+                <div className="text-sm text-gray-600">Cobradas</div>
+                <div className="text-sm font-medium">
+                  {formatCurrencySVWithSymbol(proyeccionData.cuotasCobradas?.montoTotal || 0)}
                 </div>
               </div>
-            ) : (
-              <div className="text-center py-2">
-                <span className="text-sm text-gray-600">Sin datos disponibles</span>
+              <div className="p-3 bg-amber-50 rounded border border-amber-200">
+                <div className="text-amber-600 font-bold text-lg">{proyeccionData.cuotasPorCobrar?.cantidad || 0}</div>
+                <div className="text-sm text-gray-600">Por Cobrar</div>
+                <div className="text-sm font-medium">
+                  {formatCurrencySVWithSymbol(proyeccionData.cuotasPorCobrar?.montoTotal || 0)}
+                </div>
               </div>
-            )}
-          </div>
-
-          {/* ROI (Return on Investment) */}
-          <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-semibold mb-2">ROI</h3>
-            <div className="text-2xl font-bold text-purple-600">
-              {metricasFijas.roi}%
+              <div className="p-3 bg-blue-50 rounded border border-blue-200">
+                <div className="text-blue-600 font-bold text-lg">{proyeccionData.totalGeneral?.cantidad || 0}</div>
+                <div className="text-sm text-gray-600">Total</div>
+                <div className="text-sm font-medium">
+                  {formatCurrencySVWithSymbol(proyeccionData.totalGeneral?.montoTotal || 0)}
+                </div>
+              </div>
             </div>
-            <div className="text-xs text-gray-600 mt-1">Return on Investment</div>
-          </div>
-
-          {/* Tasa de Recuperación */}
-          <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-semibold mb-2">Recuperación</h3>
-            <div className="text-2xl font-bold text-green-600">
-              {metricasFijas.recuperacion}%
+          ) : (
+            <div className="text-center py-2">
+              <span className="text-sm text-gray-600">Sin datos disponibles</span>
             </div>
-            <div className="text-xs text-gray-600 mt-1">Tasa de Recuperación</div>
-          </div>
-
-          {/* Ganancias */}
-          <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-semibold mb-2">Ganancias</h3>
-            <div className="text-2xl font-bold text-emerald-600">
-              {formatCurrencySVWithSymbol(metricasFijas.ganancias)}
-            </div>
-            <div className="text-xs text-gray-600 mt-1">Ganancias Netas</div>
-          </div>
-          
+          )}
         </div>
 
         {/* Sección de gráficos principales */}
@@ -397,9 +491,9 @@ export default function AdminEstadisticasDashboard(){
           <div className="bg-white p-4 rounded-lg shadow-sm border col-span-1">
             <h3 className="text-lg font-semibold mb-4 text-center">Ingresos</h3>
             <ChartContainer config={chartConfig} className="h-64">
-              <BarChart 
+              <BarChart
                 layout="vertical"
-                accessibilityLayer 
+                accessibilityLayer
                 data={chartData}
               >
                 <CartesianGrid horizontal={false} />
@@ -415,9 +509,9 @@ export default function AdminEstadisticasDashboard(){
           <div className="bg-white p-4 rounded-lg shadow-sm border col-span-1">
             <h3 className="text-lg font-semibold mb-4 text-center">Egresos</h3>
             <ChartContainer config={chartConfig} className="h-64">
-              <BarChart 
+              <BarChart
                 layout="vertical"
-                accessibilityLayer 
+                accessibilityLayer
                 data={chartDataEgresos}
               >
                 <CartesianGrid horizontal={false} />
@@ -437,10 +531,10 @@ export default function AdminEstadisticasDashboard(){
                 <CartesianGrid vertical={false} />
                 <XAxis dataKey={"fecha"} tickLine={false} tickMargin={10} axisLine={true} />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Line 
-                  dataKey={"saldo"} 
-                  stroke="var(--color-saldo)" 
-                  strokeWidth={2} 
+                <Line
+                  dataKey={"saldo"}
+                  stroke="var(--color-saldo)"
+                  strokeWidth={2}
                   dot={{ fill: "var(--color-saldo)", r: 3 }}
                 />
               </LineChart>
@@ -451,7 +545,7 @@ export default function AdminEstadisticasDashboard(){
         {/* Sección inferior: Créditos y Tabla */}
         <div className="bg-white p-6 rounded-lg shadow-sm border">
           <h3 className="text-xl font-semibold mb-4">Créditos Aceptados vs Rechazados</h3>
-          
+
           <div className="grid grid-cols-2 gap-6">
             {/* Gráfico de Pie */}
             <div className="flex items-center justify-center">
@@ -462,10 +556,10 @@ export default function AdminEstadisticasDashboard(){
               ) : (
                 <ChartContainer config={chartConfig} className="h-64 w-full">
                   <PieChart>
-                    <ChartTooltip 
+                    <ChartTooltip
                       content={
-                        <ChartTooltipContent 
-                          nameKey="name" 
+                        <ChartTooltipContent
+                          nameKey="name"
                           labelKey="name"
                           formatter={(value, name, item, labelFormatter, payload) => {
                             const totalMonto = item.payload?.totalMonto || 0;
@@ -483,7 +577,7 @@ export default function AdminEstadisticasDashboard(){
                             ];
                           }}
                         />
-                      } 
+                      }
                     />
                     <ChartLegend content={<ChartLegendContent nameKey="name" />} />
                     <Pie
