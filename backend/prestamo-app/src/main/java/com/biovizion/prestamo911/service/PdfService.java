@@ -316,7 +316,7 @@ public class PdfService {
             List<CreditoCuotaEntity> cuotasPendientesGlobal,
             List<CreditoCuotaEntity> cuotasVencidasGlobal,
             List<CreditoCuotaEntity> cuotasPagadasGlobal,
-            List<HistorialCobrosEntity> historialCobros,
+            HistorialCobrosEntity historialCobros,
             BigDecimal totalIngresosCapitalesGlobal,
             BigDecimal totalCuotasPagadasGlobalValue,
             HttpServletResponse response) {
@@ -456,21 +456,15 @@ public class PdfService {
             int cantidadCuotasPagadasGlobal = 0;
             boolean hasHistorialCobros = false;
 
-            if (historialCobros != null && !historialCobros.isEmpty()) {
+            if (historialCobros != null) {
                 // Use historical data
                 hasHistorialCobros = true;
-                for (HistorialCobrosEntity historial : historialCobros) {
-                    if ("Pendientes".equals(historial.getTipo())) {
-                        totalCuotasPendientesGlobal = historial.getMonto();
-                        cantidadCuotasPendientesGlobal = historial.getCantidad();
-                    } else if ("Vencidas".equals(historial.getTipo())) {
-                        totalCuotasVencidasGlobal = historial.getMonto();
-                        cantidadCuotasVencidasGlobal = historial.getCantidad();
-                    } else if ("Pagadas".equals(historial.getTipo())) {
-                        totalCuotasPagadasGlobal = historial.getMonto();
-                        cantidadCuotasPagadasGlobal = historial.getCantidad();
-                    }
-                }
+                totalCuotasPendientesGlobal = historialCobros.getMontoPendientes() != null ? historialCobros.getMontoPendientes() : BigDecimal.ZERO;
+                cantidadCuotasPendientesGlobal = historialCobros.getCantidadPendientes() != null ? historialCobros.getCantidadPendientes() : 0;
+                totalCuotasVencidasGlobal = historialCobros.getMontoVencidas() != null ? historialCobros.getMontoVencidas() : BigDecimal.ZERO;
+                cantidadCuotasVencidasGlobal = historialCobros.getCantidadVencidas() != null ? historialCobros.getCantidadVencidas() : 0;
+                totalCuotasPagadasGlobal = historialCobros.getMontoPagadas() != null ? historialCobros.getMontoPagadas() : BigDecimal.ZERO;
+                cantidadCuotasPagadasGlobal = historialCobros.getCantidadPagadas() != null ? historialCobros.getCantidadPagadas() : 0;
             } else if (cuotasPendientesGlobal != null && cuotasVencidasGlobal != null && cuotasPagadasGlobal != null) {
                 // Use current global data
                 totalCuotasPendientesGlobal = cuotasPendientesGlobal.stream()

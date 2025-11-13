@@ -16,17 +16,35 @@ public class HistorialCobrosEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    // Pendientes
     @Column
-    private String tipo; // Pendientes, Vencidas, Pagadas
-
-    @Column
-    private Integer cantidad; // Number of cuotas
+    private Integer cantidadPendientes;
 
     @Column(precision = 10, scale = 2)
-    private BigDecimal monto; // Total amount
+    private BigDecimal montoPendientes;
 
     @Column
-    private Integer usuarios; // Number of unique users
+    private Integer usuariosPendientes;
+
+    // Vencidas
+    @Column
+    private Integer cantidadVencidas;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal montoVencidas;
+
+    @Column
+    private Integer usuariosVencidas;
+
+    // Pagadas
+    @Column
+    private Integer cantidadPagadas;
+
+    @Column(precision = 10, scale = 2)
+    private BigDecimal montoPagadas;
+
+    @Column
+    private Integer usuariosPagadas;
 
     @Column(columnDefinition = "DATE")
     private LocalDate fecha;

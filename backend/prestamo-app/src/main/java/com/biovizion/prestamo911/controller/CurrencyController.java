@@ -408,7 +408,7 @@ public class CurrencyController {
 
         // Cuotas globales - check if date is today or if we have historical data
         LocalDate today = LocalDate.now();
-        List<HistorialCobrosEntity> historialCobros = null;
+        HistorialCobrosEntity historialCobros = null;
         List<CreditoCuotaEntity> cuotasPendientesGlobal = null;
         List<CreditoCuotaEntity> cuotasVencidasGlobal = null;
         List<CreditoCuotaEntity> cuotasPagadasGlobal = null;
@@ -420,7 +420,7 @@ public class CurrencyController {
             cuotasPagadasGlobal = cuotaService.findPagadas();
         } else {
             // If not today, try to get historical data
-            historialCobros = historialCobrosService.findAllByFecha(fecha);
+            historialCobros = historialCobrosService.findByFecha(fecha).orElse(null);
         }
 
         // Totals for ROI (non-date filtered)

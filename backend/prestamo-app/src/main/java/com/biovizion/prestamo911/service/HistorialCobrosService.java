@@ -8,9 +8,7 @@ import com.biovizion.prestamo911.entities.HistorialCobrosEntity;
 public interface HistorialCobrosService {
     HistorialCobrosEntity save(HistorialCobrosEntity entidad);
     List<HistorialCobrosEntity> findAll();
-    List<HistorialCobrosEntity> findAllByTipo(String tipo);
-    List<HistorialCobrosEntity> findAllByFecha(LocalDate fecha);
-    HistorialCobrosEntity findByFechaAndTipo(LocalDate fecha, String tipo);
+    Optional<HistorialCobrosEntity> findByFecha(LocalDate fecha);
     Optional<HistorialCobrosEntity> findById(Long id);
     void update(HistorialCobrosEntity entidad);
     void delete(Long id);

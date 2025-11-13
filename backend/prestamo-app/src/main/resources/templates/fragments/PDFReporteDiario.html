@@ -161,7 +161,6 @@
     <thead>
         <tr>
             <th>Usuario</th>
-            <th>DUI</th>
             <th>Fecha Pago</th>
             <th>Monto</th>
             <th>Mora</th>
@@ -174,7 +173,6 @@
             <td>
                 <span th:text="${(cuota.credito.usuario?.nombre.toUpperCase() != null ? cuota.credito.usuario.nombre.toUpperCase() : '') + ' ' + (cuota.credito.usuario?.apellido.toUpperCase() != null ? cuota.credito.usuario.apellido.toUpperCase() : '')}"></span>
             </td>
-            <td th:text="${cuota.credito.usuario?.dui}"></td>
             <td th:text="${cuota.fechaPago != null ? #temporals.format(cuota.fechaPago, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
             <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
             <td th:text="${'$' + #numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')}">$100.00</td>                    
@@ -271,10 +269,10 @@
     <thead>
         <tr>
             <th>Usuario</th>
-            <th>DUI</th>
             <th>Monto</th>
             <th>Monto A Dar</th>
             <th>Frecuencia de Pago</th>
+            <th>Nota</th>
         </tr>
     </thead>
     <tbody>
@@ -282,10 +280,10 @@
             <td>
                 <span th:text="${(credito.usuario?.nombre != null ? credito.usuario.nombre : '') + ' ' + (credito.usuario?.apellido != null ? credito.usuario.apellido : '')}"></span>
             </td>
-            <td th:text="${credito.usuario?.dui}"></td>
             <td th:text="${'$' + #numbers.formatDecimal(credito.monto, 1, 'COMMA', 2, 'POINT')}"></td>
             <td th:text="${credito.montoDado != null ? '$' + #numbers.formatDecimal(credito.montoDado, 1, 'COMMA', 2, 'POINT') : ''}"></td>
             <td th:text="${credito.plazoFrecuencia}"></td>
+            <td th:text="${credito.nota != null ? credito.nota : ''}"></td>
         </tr>
     </tbody>    
 </table>
@@ -394,10 +392,10 @@
     <thead>
         <tr>
             <th>Usuario</th>
-            <th>DUI</th>
             <th>Monto</th>
             <th>Tipo</th>
             <th>Fecha Aceptado</th>
+            <th>Nota</th>
         </tr>
     </thead>
     <tbody>
@@ -405,10 +403,10 @@
             <td>
                 <span th:text="${(credito.usuario?.nombre != null ? credito.usuario.nombre : '') + ' ' + (credito.usuario?.apellido != null ? credito.usuario.apellido : '')}"></span>
             </td>
-            <td th:text="${credito.usuario?.dui}"></td>
             <td th:text="${'$' + #numbers.formatDecimal(credito.monto, 1, 'COMMA', 2, 'POINT')}"></td>
             <td th:text="${credito.tipo}"></td>
             <td th:text="${credito.fechaAceptado != null ? #temporals.format(credito.fechaAceptado, 'dd/MM/yyyy') : 'N/A'}"></td>
+            <td th:text="${credito.nota != null ? credito.nota : ''}"></td>
         </tr>
     </tbody>    
 </table>
@@ -425,10 +423,10 @@
     <thead>
         <tr>
             <th>Usuario</th>
-            <th>DUI</th>
             <th>Monto</th>
             <th>Tipo</th>
             <th>Fecha Rechazado</th>
+            <th>Nota</th>
         </tr>
     </thead>
     <tbody>
@@ -436,10 +434,10 @@
             <td>
                 <span th:text="${(credito.usuario?.nombre != null ? credito.usuario.nombre : '') + ' ' + (credito.usuario?.apellido != null ? credito.usuario.apellido : '')}"></span>
             </td>
-            <td th:text="${credito.usuario?.dui}"></td>
             <td th:text="${'$' + #numbers.formatDecimal(credito.monto, 1, 'COMMA', 2, 'POINT')}"></td>
             <td th:text="${credito.tipo}"></td>
             <td th:text="${credito.fechaRechazado != null ? #temporals.format(credito.fechaRechazado, 'dd/MM/yyyy') : 'N/A'}"></td>
+            <td th:text="${credito.nota != null ? credito.nota : ''}"></td>
         </tr>
     </tbody>    
 </table>
@@ -459,7 +457,6 @@
     <thead>
         <tr>
             <th>Usuario</th>
-            <th>DUI</th>
             <th>Fecha Vencimiento</th>
             <th>Monto</th>
             <th>Mora</th>
@@ -472,7 +469,6 @@
             <td>
                 <span th:text="${(cuota.credito.usuario?.nombre != null ? cuota.credito.usuario.nombre : '') + ' ' + (cuota.credito.usuario?.apellido != null ? cuota.credito.usuario.apellido : '')}"></span>
             </td>
-            <td th:text="${cuota.credito.usuario?.dui}"></td>
             <td th:text="${cuota.fechaVencimiento != null ? #temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy') : 'N/A'}"></td>
             <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}"></td>
             <td th:text="${'$' + #numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')}"></td>
@@ -495,7 +491,6 @@
     <thead>
         <tr>
             <th>Usuario</th>
-            <th>DUI</th>
             <th>Fecha Pago</th>
             <th>Monto</th>
             <th>Mora</th>
@@ -508,7 +503,6 @@
             <td>
                 <span th:text="${(cuota.credito.usuario?.nombre != null ? cuota.credito.usuario.nombre : '') + ' ' + (cuota.credito.usuario?.apellido != null ? cuota.credito.usuario.apellido : '')}"></span>
             </td>
-            <td th:text="${cuota.credito.usuario?.dui}"></td>
             <td th:text="${cuota.fechaPago != null ? #temporals.format(cuota.fechaPago, 'dd/MM/yyyy') : 'N/A'}"></td>
             <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}"></td>
             <td th:text="${'$' + #numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')}"></td>

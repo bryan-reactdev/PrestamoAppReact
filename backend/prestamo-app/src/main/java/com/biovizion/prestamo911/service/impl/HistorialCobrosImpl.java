@@ -28,23 +28,13 @@ public class HistorialCobrosImpl implements HistorialCobrosService {
     }
 
     @Override
-    public List<HistorialCobrosEntity> findAllByTipo(String tipo) {
-        return historialCobrosRepository.findAllByTipo(tipo);
-    }
-
-    @Override
     public Optional<HistorialCobrosEntity> findById(Long id) {
         return historialCobrosRepository.findById(id);
     }
 
     @Override
-    public List<HistorialCobrosEntity> findAllByFecha(LocalDate fecha) {
-        return historialCobrosRepository.findAllByFecha(fecha);
-    }
-
-    @Override
-    public HistorialCobrosEntity findByFechaAndTipo(LocalDate fecha, String tipo) {
-        return historialCobrosRepository.findByFechaAndTipo(fecha, tipo);
+    public Optional<HistorialCobrosEntity> findByFecha(LocalDate fecha) {
+        return historialCobrosRepository.findByFecha(fecha);
     }
 
     @Override

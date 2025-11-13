@@ -110,7 +110,7 @@ public class ScheduledTasks {
             List<CreditoCuotaEntity> cuotasVencidasGlobal = creditoCuotaService.findVencidas();
             List<CreditoCuotaEntity> cuotasPagadasGlobal = creditoCuotaService.findPagadas();
             
-            // Calculate and save Pendientes
+            // Calculate Pendientes
             BigDecimal totalPendientes = cuotasPendientesGlobal.stream()
                     .map(CreditoCuotaEntity::getTotal)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -120,15 +120,7 @@ public class ScheduledTasks {
                     .distinct()
                     .count();
             
-            HistorialCobrosEntity historialPendientes = new HistorialCobrosEntity();
-            historialPendientes.setTipo("Pendientes");
-            historialPendientes.setCantidad(cantidadPendientes);
-            historialPendientes.setMonto(totalPendientes);
-            historialPendientes.setUsuarios((int) usuariosPendientes);
-            historialPendientes.setFecha(fechaHistorial);
-            historialCobrosService.save(historialPendientes);
-            
-            // Calculate and save Vencidas
+            // Calculate Vencidas
             BigDecimal totalVencidas = cuotasVencidasGlobal.stream()
                     .map(CreditoCuotaEntity::getTotal)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -138,15 +130,7 @@ public class ScheduledTasks {
                     .distinct()
                     .count();
             
-            HistorialCobrosEntity historialVencidas = new HistorialCobrosEntity();
-            historialVencidas.setTipo("Vencidas");
-            historialVencidas.setCantidad(cantidadVencidas);
-            historialVencidas.setMonto(totalVencidas);
-            historialVencidas.setUsuarios((int) usuariosVencidas);
-            historialVencidas.setFecha(fechaHistorial);
-            historialCobrosService.save(historialVencidas);
-            
-            // Calculate and save Pagadas
+            // Calculate Pagadas
             BigDecimal totalPagadas = cuotasPagadasGlobal.stream()
                     .map(CreditoCuotaEntity::getTotal)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -156,13 +140,19 @@ public class ScheduledTasks {
                     .distinct()
                     .count();
             
-            HistorialCobrosEntity historialPagadas = new HistorialCobrosEntity();
-            historialPagadas.setTipo("Pagadas");
-            historialPagadas.setCantidad(cantidadPagadas);
-            historialPagadas.setMonto(totalPagadas);
-            historialPagadas.setUsuarios((int) usuariosPagadas);
-            historialPagadas.setFecha(fechaHistorial);
-            historialCobrosService.save(historialPagadas);
+            // Save single record with all three types
+            HistorialCobrosEntity historialCobros = new HistorialCobrosEntity();
+            historialCobros.setCantidadPendientes(cantidadPendientes);
+            historialCobros.setMontoPendientes(totalPendientes);
+            historialCobros.setUsuariosPendientes((int) usuariosPendientes);
+            historialCobros.setCantidadVencidas(cantidadVencidas);
+            historialCobros.setMontoVencidas(totalVencidas);
+            historialCobros.setUsuariosVencidas((int) usuariosVencidas);
+            historialCobros.setCantidadPagadas(cantidadPagadas);
+            historialCobros.setMontoPagadas(totalPagadas);
+            historialCobros.setUsuariosPagadas((int) usuariosPagadas);
+            historialCobros.setFecha(fechaHistorial);
+            historialCobrosService.save(historialCobros);
             
             System.out.println("Scheduled task completed successfully");
         } catch (Exception e) {

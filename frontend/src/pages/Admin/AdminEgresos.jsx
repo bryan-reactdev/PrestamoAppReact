@@ -18,6 +18,11 @@ import { IngresoEgresoCard } from '../../components/Card/Currency/CurrencyCardDe
 import { ButtonPDF } from '../../components/Content/Layout/Stats/StatButtons'
 import Layout from '../../Layout'
 import { formatCurrencySV } from '../../utils/currencyUtils'
+import CreditoModalGenerarDocumentos from '../../components/Modal/Credito/CreditoModalGenerarDocumentos'
+import CreditoModalDesembolsar from '../../components/Modal/Credito/CreditoModalDesembolsar'
+import CreditoModalAceptar from '../../components/Modal/Credito/CreditoModalAceptar'
+import CreditoModalRechazar from '../../components/Modal/Credito/CreditoModalRechazar'
+import CreditoModalNotas from '../../components/Modal/Credito/CreditoModalNotas'
 export default function AdminEgresos() {
   const { saldo, getBalance, currencyForDate, selectedDate, setSelectedDate, getCurrencyForDate, isFetchingBalance } = useCurrencyStore();
   const [searchParams] = useSearchParams();
@@ -55,6 +60,12 @@ export default function AdminEgresos() {
 
   return (
     <Layout>
+      <CreditoModalGenerarDocumentos/>      
+      <CreditoModalDesembolsar/>
+      <CreditoModalAceptar/>      
+      <CreditoModalRechazar/>
+      <CreditoModalNotas/>      
+
       <div className="content">
         <ContentTitleWithInfo>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
