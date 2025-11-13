@@ -2,7 +2,6 @@ package com.biovizion.prestamo911;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
@@ -14,12 +13,14 @@ import com.biovizion.prestamo911.entities.BalanceEntity;
 import com.biovizion.prestamo911.entities.CreditoCuotaEntity;
 import com.biovizion.prestamo911.entities.CreditoEntity;
 import com.biovizion.prestamo911.entities.HistorialBalanceEntity;
+import com.biovizion.prestamo911.entities.HistorialCobrosEntity;
 import com.biovizion.prestamo911.entities.HistorialGastoEntity;
 import com.biovizion.prestamo911.entities.HistorialSaldoEntity;
 import com.biovizion.prestamo911.service.BalanceService;
 import com.biovizion.prestamo911.service.CreditoCuotaService;
 import com.biovizion.prestamo911.service.CreditoService;
 import com.biovizion.prestamo911.service.HistorialBalanceService;
+import com.biovizion.prestamo911.service.HistorialCobrosService;
 import com.biovizion.prestamo911.service.HistorialGastoService;
 import com.biovizion.prestamo911.service.HistorialSaldoService;
 
@@ -40,6 +41,9 @@ public class ScheduledTasks {
 
     @Autowired
     private HistorialGastoService historialGastoService;
+    
+    @Autowired
+    private HistorialCobrosService historialCobrosService;
     
     @Autowired
     private BalanceService balanceService;
@@ -97,6 +101,68 @@ public class ScheduledTasks {
             
             // Update credit ratings based on expired cuotas
             creditoService.updateCreditRatings();
+            
+            // --- Historial Cobros (save for previous day) ---
+            LocalDate fechaHistorial = elSalvadorDate.minusDays(1);
+            
+            // Get global cuotas (all, not filtered by date)
+            List<CreditoCuotaEntity> cuotasPendientesGlobal = creditoCuotaService.findPendientes();
+            List<CreditoCuotaEntity> cuotasVencidasGlobal = creditoCuotaService.findVencidas();
+            List<CreditoCuotaEntity> cuotasPagadasGlobal = creditoCuotaService.findPagadas();
+            
+            // Calculate and save Pendientes
+            BigDecimal totalPendientes = cuotasPendientesGlobal.stream()
+                    .map(CreditoCuotaEntity::getTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            int cantidadPendientes = cuotasPendientesGlobal.size();
+            long usuariosPendientes = cuotasPendientesGlobal.stream()
+                    .map(cuota -> cuota.getCredito().getUsuario().getId())
+                    .distinct()
+                    .count();
+            
+            HistorialCobrosEntity historialPendientes = new HistorialCobrosEntity();
+            historialPendientes.setTipo("Pendientes");
+            historialPendientes.setCantidad(cantidadPendientes);
+            historialPendientes.setMonto(totalPendientes);
+            historialPendientes.setUsuarios((int) usuariosPendientes);
+            historialPendientes.setFecha(fechaHistorial);
+            historialCobrosService.save(historialPendientes);
+            
+            // Calculate and save Vencidas
+            BigDecimal totalVencidas = cuotasVencidasGlobal.stream()
+                    .map(CreditoCuotaEntity::getTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            int cantidadVencidas = cuotasVencidasGlobal.size();
+            long usuariosVencidas = cuotasVencidasGlobal.stream()
+                    .map(cuota -> cuota.getCredito().getUsuario().getId())
+                    .distinct()
+                    .count();
+            
+            HistorialCobrosEntity historialVencidas = new HistorialCobrosEntity();
+            historialVencidas.setTipo("Vencidas");
+            historialVencidas.setCantidad(cantidadVencidas);
+            historialVencidas.setMonto(totalVencidas);
+            historialVencidas.setUsuarios((int) usuariosVencidas);
+            historialVencidas.setFecha(fechaHistorial);
+            historialCobrosService.save(historialVencidas);
+            
+            // Calculate and save Pagadas
+            BigDecimal totalPagadas = cuotasPagadasGlobal.stream()
+                    .map(CreditoCuotaEntity::getTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            int cantidadPagadas = cuotasPagadasGlobal.size();
+            long usuariosPagadas = cuotasPagadasGlobal.stream()
+                    .map(cuota -> cuota.getCredito().getUsuario().getId())
+                    .distinct()
+                    .count();
+            
+            HistorialCobrosEntity historialPagadas = new HistorialCobrosEntity();
+            historialPagadas.setTipo("Pagadas");
+            historialPagadas.setCantidad(cantidadPagadas);
+            historialPagadas.setMonto(totalPagadas);
+            historialPagadas.setUsuarios((int) usuariosPagadas);
+            historialPagadas.setFecha(fechaHistorial);
+            historialCobrosService.save(historialPagadas);
             
             System.out.println("Scheduled task completed successfully");
         } catch (Exception e) {

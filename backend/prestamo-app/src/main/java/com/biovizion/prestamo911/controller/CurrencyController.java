@@ -25,6 +25,7 @@ import com.biovizion.prestamo911.entities.BalanceEntity;
 import com.biovizion.prestamo911.entities.CreditoCuotaEntity;
 import com.biovizion.prestamo911.entities.CreditoEntity;
 import com.biovizion.prestamo911.entities.HistorialBalanceEntity;
+import com.biovizion.prestamo911.entities.HistorialCobrosEntity;
 import com.biovizion.prestamo911.entities.HistorialGastoEntity;
 import com.biovizion.prestamo911.entities.HistorialSaldoEntity;
 import com.biovizion.prestamo911.entities.UsuarioEntity;
@@ -33,6 +34,7 @@ import com.biovizion.prestamo911.service.BalanceService;
 import com.biovizion.prestamo911.service.CreditoCuotaService;
 import com.biovizion.prestamo911.service.CreditoService;
 import com.biovizion.prestamo911.service.HistorialBalanceService;
+import com.biovizion.prestamo911.service.HistorialCobrosService;
 import com.biovizion.prestamo911.service.HistorialGastoService;
 import com.biovizion.prestamo911.service.HistorialSaldoService;
 import com.biovizion.prestamo911.service.PdfService;
@@ -82,6 +84,9 @@ public class CurrencyController {
 
     @Autowired
     private HistorialGastoService gastoService;
+
+    @Autowired
+    private HistorialCobrosService historialCobrosService;
 
     @Autowired
     private CreditoService creditoService;
@@ -395,11 +400,69 @@ public class CurrencyController {
         List<HistorialGastoEntity> gastos = gastoService.findAllByFecha(fecha);
         List<CreditoEntity> creditosOtorgados = creditoService.findAllByEstadoAndFechaAceptado("aceptado", fecha);
         List<CreditoEntity> creditosDenegados = creditoService.findAllByEstadoAndFechaRechazado("rechazado", fecha);
+        
+        // Cuotas del día
+        List<CreditoCuotaEntity> cuotasPendientesDia = cuotaService.findAllByEstadoAndFechaVencimiento("Pendiente", fecha);
+        List<CreditoCuotaEntity> cuotasVencidasDia = cuotaService.findAllByEstadoAndFechaVencimiento("Vencido", fecha);
+        List<CreditoCuotaEntity> cuotasPagadasDia = cuotaService.findAllByEstadoAndFechaPago("Pagado", fecha);
+
+        // Cuotas globales - check if date is today or if we have historical data
+        LocalDate today = LocalDate.now();
+        List<HistorialCobrosEntity> historialCobros = null;
+        List<CreditoCuotaEntity> cuotasPendientesGlobal = null;
+        List<CreditoCuotaEntity> cuotasVencidasGlobal = null;
+        List<CreditoCuotaEntity> cuotasPagadasGlobal = null;
+
+        if (fecha.equals(today)) {
+            // If today, use current global data
+            cuotasPendientesGlobal = cuotaService.findPendientes();
+            cuotasVencidasGlobal = cuotaService.findVencidas();
+            cuotasPagadasGlobal = cuotaService.findPagadas();
+        } else {
+            // If not today, try to get historical data
+            historialCobros = historialCobrosService.findAllByFecha(fecha);
+        }
+
+        // Totals for ROI (non-date filtered)
+        BigDecimal totalIngresosCapitalesGlobal = historialSaldoService.findAllByTipo("Capital").stream()
+                .map(HistorialSaldoEntity::getMonto)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        BigDecimal totalCuotasPagadasGlobalValue;
+        if (cuotasPagadasGlobal != null) {
+            totalCuotasPagadasGlobalValue = cuotasPagadasGlobal.stream()
+                    .map(CreditoCuotaEntity::getTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        } else {
+            totalCuotasPagadasGlobalValue = cuotaService.findPagadas().stream()
+                    .map(CreditoCuotaEntity::getTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+        }
 
         // Log action
         accionLogger.logAccion(AccionTipo.DESCARGADO_REPORTE_PDF_ADMIN, (UsuarioEntity) null);
 
-        pdfService.generarReporteDiarioCompleto(GetCurrentCurrency().getSaldo(), cuotas, abonos, ingresos, creditos, gastos, creditosOtorgados, creditosDenegados, fecha, response);
+        pdfService.generarReporteDiarioCompleto(
+                GetCurrentCurrency().getSaldo(),
+                cuotas,
+                abonos,
+                ingresos,
+                creditos,
+                gastos,
+                creditosOtorgados,
+                creditosDenegados,
+                fecha,
+                cuotasPendientesDia,
+                cuotasVencidasDia,
+                cuotasPagadasDia,
+                cuotasPendientesGlobal,
+                cuotasVencidasGlobal,
+                cuotasPagadasGlobal,
+                historialCobros,
+                totalIngresosCapitalesGlobal,
+                totalCuotasPagadasGlobalValue,
+                response
+        );
     }
 
 

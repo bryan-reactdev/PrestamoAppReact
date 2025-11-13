@@ -2,6 +2,11 @@ import ContentTitle from '../../components/Content/ContentTitle'
 import MenuButton from '../../components/Content/Layout/MenuButton'
 import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
 import { useUsuarioModalStore } from '../../stores/Modal/useUsuarioModalStore'
+
+import { Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle } from "../../components/ui/card";
+import { Badge } from "../../components/ui/badge";
+import { TrendingUp } from "lucide-react";
+
 import Layout from '../../Layout'
 
 export default function AdminDashboard(){

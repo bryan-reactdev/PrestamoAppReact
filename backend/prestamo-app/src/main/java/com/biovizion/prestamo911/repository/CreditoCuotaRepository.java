@@ -17,6 +17,9 @@ public interface CreditoCuotaRepository extends JpaRepository<CreditoCuotaEntity
     @Query("SELECT c FROM CreditoCuotaEntity c WHERE c.estado = :estado AND DATE(c.fechaPago) = :fecha")
     List<CreditoCuotaEntity> findAllByEstadoAndFechaPago(@Param("estado") String estado, @Param("fecha") LocalDate fecha);
 
+    @Query("SELECT c FROM CreditoCuotaEntity c WHERE LOWER(c.estado) = LOWER(:estado) AND DATE(c.fechaVencimiento) = :fecha")
+    List<CreditoCuotaEntity> findAllByEstadoAndFechaVencimiento(@Param("estado") String estado, @Param("fecha") LocalDate fecha);
+
     List<CreditoCuotaEntity> findAllByOrderByFechaVencimientoAsc();
 
     @Query("SELECT cc FROM CreditoCuotaEntity cc WHERE LOWER(cc.estado) = 'pendiente' ORDER BY cc.fechaVencimiento ASC")

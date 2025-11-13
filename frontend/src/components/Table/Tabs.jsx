@@ -1,5 +1,6 @@
 import { isMobile } from "react-device-detect";
 import { useNavigate } from "react-router-dom";
+import { Badge } from "../ui/badge";
 
 export default function Tabs({ tabs, currentTab, setCurrentTab, className }) {
   const navigate = useNavigate();
@@ -10,7 +11,8 @@ export default function Tabs({ tabs, currentTab, setCurrentTab, className }) {
         label: tab.label ?? 'Todos',
         columns: tab.columnDefinitions ?? null,
         card: tab.card ?? null,
-        data: tab.data ?? null
+        data: tab.data ?? null,
+        value: tab.value ?? null
       },
     );
 
@@ -24,10 +26,16 @@ export default function Tabs({ tabs, currentTab, setCurrentTab, className }) {
       {tabs.map((tab) => (
         <button
           key={tab.label}
-          className={currentTab === tab.label ? 'active-tab' : 'inactive-tab'}
+          className={`flex gap-2 ${currentTab === tab.label ? 'active-tab' : 'inactive-tab'}`}
           onClick={() => handleEstadoChange(tab)}
         >
-          {tab.label}
+          <span className="text-xs font-medium">{tab.label}</span>
+
+          {tab.value && (
+            <Badge className="text-xs font-medium" variant="secondary">
+              {tab.value}
+            </Badge>
+          )}
         </button>
       ))}
     </div>

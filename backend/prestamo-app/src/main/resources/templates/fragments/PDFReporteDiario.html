@@ -380,10 +380,132 @@
     </tbody>    
 </table>
 
+<div style="page-break-inside: avoid;"></div>
+
+<!-- COBROS SECTION -->
+<div class="pdf-section-main" style="margin-top: 20px;">COBROS</div>
+
+<div class="pdf-subsection">1. CUOTAS PENDIENTES DEL DÍA</div>
+<div th:if="${#lists.isEmpty(cuotasPendientesDia)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+    No hubieron cuotas pendientes para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
+</div>
+<table th:if="${not #lists.isEmpty(cuotasPendientesDia)}">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>DUI</th>
+            <th>Fecha Vencimiento</th>
+            <th>Monto</th>
+            <th>Mora</th>
+            <th>Abono</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="cuota : ${cuotasPendientesDia}">
+            <td>
+                <span th:text="${(cuota.credito.usuario?.nombre != null ? cuota.credito.usuario.nombre : '') + ' ' + (cuota.credito.usuario?.apellido != null ? cuota.credito.usuario.apellido : '')}"></span>
+            </td>
+            <td th:text="${cuota.credito.usuario?.dui}"></td>
+            <td th:text="${cuota.fechaVencimiento != null ? #temporals.format(cuota.fechaVencimiento, 'dd/MM/yyyy') : 'N/A'}"></td>
+            <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${'$' + #numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${'$' + #numbers.formatDecimal(cuota.abono, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${'$' + #numbers.formatDecimal(cuota.total, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+    </tbody>    
+</table>
+<div th:if="${not #lists.isEmpty(cuotasPendientesDia)}" style="text-align: right; margin-top: 10px; font-weight: bold;">
+    Total: <span th:text="${'$' + #numbers.formatDecimal(totalCuotasPendientesDia, 1, 'COMMA', 2, 'POINT')}"></span> | Cantidad: <span th:text="${cantidadCuotasPendientesDia}"></span>
+</div>
+
+<div style="page-break-inside: avoid;"></div>
+
+<div class="pdf-subsection">2. CUOTAS PAGADAS DEL DÍA</div>
+<div th:if="${#lists.isEmpty(cuotasPagadasDia)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+    No hubieron cuotas pagadas para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
+</div>
+<table th:if="${not #lists.isEmpty(cuotasPagadasDia)}">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>DUI</th>
+            <th>Fecha Pago</th>
+            <th>Monto</th>
+            <th>Mora</th>
+            <th>Abono</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="cuota : ${cuotasPagadasDia}">
+            <td>
+                <span th:text="${(cuota.credito.usuario?.nombre != null ? cuota.credito.usuario.nombre : '') + ' ' + (cuota.credito.usuario?.apellido != null ? cuota.credito.usuario.apellido : '')}"></span>
+            </td>
+            <td th:text="${cuota.credito.usuario?.dui}"></td>
+            <td th:text="${cuota.fechaPago != null ? #temporals.format(cuota.fechaPago, 'dd/MM/yyyy') : 'N/A'}"></td>
+            <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${'$' + #numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${'$' + #numbers.formatDecimal(cuota.abono, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${'$' + #numbers.formatDecimal(cuota.total, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+    </tbody>    
+</table>
+<div th:if="${not #lists.isEmpty(cuotasPagadasDia)}" style="text-align: right; margin-top: 10px; font-weight: bold;">
+    Total: <span th:text="${'$' + #numbers.formatDecimal(totalCuotasPagadasDia, 1, 'COMMA', 2, 'POINT')}"></span> | Cantidad: <span th:text="${cantidadCuotasPagadasDia}"></span>
+</div>
+
+<div style="page-break-inside: avoid;"></div>
+
+<div class="pdf-subsection">3. COBROS DEL DÍA</div>
+<div th:if="${fecha != #temporals.createToday() and not hasHistorialCobros}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+    El sistema no registró información de cobros para esta fecha.
+</div>
+<table th:if="${fecha == #temporals.createToday() or hasHistorialCobros}" style="width: 100%; margin-top: 20px;">
+    <thead>
+    <tr>
+        <th style="text-align: center; background-color: #f0f0f0; width: 50%;">TIPO</th>
+        <th style="text-align: center; background-color: #f0f0f0; width: 25%;">CANTIDAD</th>
+        <th style="text-align: center; background-color: #f0f0f0; width: 25%;">TOTAL</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td style="text-align: left;">Cuotas Pendientes a Cobrar</td>
+        <td style="text-align: center;" th:text="${cantidadCuotasPendientesGlobal}"></td>
+        <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalCuotasPendientesGlobal, 1, 'COMMA', 2, 'POINT')}"></td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Cuotas Vencidas a Cobrar</td>
+        <td style="text-align: center;" th:text="${cantidadCuotasVencidasGlobal}"></td>
+        <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalCuotasVencidasGlobal, 1, 'COMMA', 2, 'POINT')}"></td>
+    </tr>
+    <tr style="font-weight: bold;">
+        <td style="text-align: left;">Total a Cobrar</td>
+        <td style="text-align: center;" th:text="${cantidadCuotasPendientesGlobal + cantidadCuotasVencidasGlobal}"></td>
+        <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalCuotasPendientesGlobal + totalCuotasVencidasGlobal, 1, 'COMMA', 2, 'POINT')}"></td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Cuotas Pagadas</td>
+        <td style="text-align: center;" th:text="${cantidadCuotasPagadasGlobal}"></td>
+        <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalCuotasPagadasGlobal, 1, 'COMMA', 2, 'POINT')}"></td>
+    </tr>
+    <tr style="font-weight: bold;">
+        <td style="text-align: left;">Cuotas Totales</td>
+        <td style="text-align: center;" th:text="${cantidadCuotasPendientesGlobal + cantidadCuotasVencidasGlobal + cantidadCuotasPagadasGlobal}"></td>
+        <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalCuotasPendientesGlobal + totalCuotasVencidasGlobal + totalCuotasPagadasGlobal, 1, 'COMMA', 2, 'POINT')}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<div style="page-break-inside: avoid;"></div>
+
 <!-- Contenedor que evita que se separen -->
 <div style="page-break-inside: avoid;">
 
     <div class="pdf-section-main">TOTALES</div>
+
+    <div class="pdf-subsection">1. INGRESOS Y EGRESOS</div>
     <table style="width: 100%;">
         <thead>
         <tr>
@@ -427,19 +549,86 @@
         </tbody>
     </table>
 
-    <table style="width: 75%; margin-top: 20px;">
+    <div class="pdf-subsection">2. CUOTAS DEL DÍA</div>
+    <table style="width: 100%; margin-top: 20px;">
         <thead>
         <tr>
-            <th>Total Ingresos</th>
-            <th>Total Egresos</th>
-            <th>Balance General</th>
+            <th style="text-align: center; background-color: #f0f0f0; width: 50%;">TIPO</th>
+            <th style="text-align: center; background-color: #f0f0f0; width: 25%;">CANTIDAD</th>
+            <th style="text-align: center; background-color: #f0f0f0; width: 25%;">TOTAL</th>
         </tr>
         </thead>
         <tbody>
         <tr>
-            <td th:text="${'$' + #numbers.formatDecimal(totalIngresosGeneral, 1, 'COMMA', 2, 'POINT')}"></td>
-            <td th:text="${'$' + #numbers.formatDecimal(totalEgresosGeneral, 1, 'COMMA', 2, 'POINT')}"></td>
-            <td th:text="${'$' + #numbers.formatDecimal(saldo, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td style="text-align: left;">Cuotas Pendientes</td>
+            <td style="text-align: center;" th:text="${cantidadCuotasPendientesDia}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalCuotasPendientesDia, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Cuotas Pagadas</td>
+            <td style="text-align: center;" th:text="${cantidadCuotasPagadasDia}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalCuotasPagadasDia, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="pdf-subsection">3. COBROS DEL DÍA</div>
+    <div th:if="${fecha != #temporals.createToday() and not hasHistorialCobros}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+        El sistema no registró información de cobros para esta fecha.
+    </div>
+    <table th:if="${fecha == #temporals.createToday() or hasHistorialCobros}" style="width: 100%; margin-top: 20px;">
+        <thead>
+        <tr>
+            <th style="text-align: center; background-color: #f0f0f0; width: 50%;">TIPO</th>
+            <th style="text-align: center; background-color: #f0f0f0; width: 25%;">CANTIDAD</th>
+            <th style="text-align: center; background-color: #f0f0f0; width: 25%;">TOTAL</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="text-align: left;">Cuotas Pendientes a Cobrar</td>
+            <td style="text-align: center;" th:text="${cantidadCuotasPendientesGlobal}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalCuotasPendientesGlobal, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Cuotas Vencidas a Cobrar</td>
+            <td style="text-align: center;" th:text="${cantidadCuotasVencidasGlobal}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalCuotasVencidasGlobal, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        <tr style="font-weight: bold;">
+            <td style="text-align: left;">Total a Cobrar</td>
+            <td style="text-align: center;" th:text="${cantidadCuotasPendientesGlobal + cantidadCuotasVencidasGlobal}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalCuotasPendientesGlobal + totalCuotasVencidasGlobal, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Cuotas Pagadas</td>
+            <td style="text-align: center;" th:text="${cantidadCuotasPagadasGlobal}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalCuotasPagadasGlobal, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        <tr style="font-weight: bold;">
+            <td style="text-align: left;">Cuotas Totales</td>
+            <td style="text-align: center;" th:text="${cantidadCuotasPendientesGlobal + cantidadCuotasVencidasGlobal + cantidadCuotasPagadasGlobal}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalCuotasPendientesGlobal + totalCuotasVencidasGlobal + totalCuotasPagadasGlobal, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div class="pdf-subsection">4. ROI</div>
+    <table style="width: 100%; margin-top: 20px;">
+        <thead>
+        <tr>
+            <th style="text-align: center; background-color: #f0f0f0;">Inversión en Capital</th>
+            <th style="text-align: center; background-color: #f0f0f0;">Por Recuperar</th>
+            <th style="text-align: center; background-color: #f0f0f0;">Ganancia Proyectada</th>
+            <th style="text-align: center; background-color: #f0f0f0;">ROI</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="text-align: center;" th:text="${'$' + #numbers.formatDecimal(totalIngresosCapitalesGlobal, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td style="text-align: center;" th:text="${'$' + #numbers.formatDecimal(porRecuperar, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td style="text-align: center;" th:text="${'$' + #numbers.formatDecimal(gananciaProyectada, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td style="text-align: center;" th:text="${roiPorcentaje != null ? #numbers.formatDecimal(roiPorcentaje, 1, 'COMMA', 2, 'POINT') + '%' : 'N/A'}"></td>
         </tr>
         </tbody>
     </table>

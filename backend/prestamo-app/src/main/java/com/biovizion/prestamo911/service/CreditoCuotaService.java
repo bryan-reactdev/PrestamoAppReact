@@ -12,6 +12,7 @@ public interface CreditoCuotaService {
     List<CreditoCuotaEntity> findAll();
     Optional<CreditoCuotaEntity> findById(Long id);
     List<CreditoCuotaEntity> findAllByEstadoAndFechaPago(String estado, LocalDate fecha);
+    List<CreditoCuotaEntity> findAllByEstadoAndFechaVencimiento(String estado, LocalDate fecha);
     void update(CreditoCuotaEntity creditoCuota);
     void delete(Long id);
     void updateCuotasMora();

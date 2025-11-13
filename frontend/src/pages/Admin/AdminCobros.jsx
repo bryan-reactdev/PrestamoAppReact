@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { useUsuarioStore } from '../../stores/useUsuarioStore'
 import { usuariosConVencidasColumns, usuariosConVencidasMorososColumns } from '../../components/Table/Usuario/UsuarioTableDefinitions'
 import { UsuariosCard } from '../../components/Card/Usuario/UsuarioCardDefinitions'
-import TotalCard from '../../components/Cards/TotalCard'
 import ContentTitleWithInfo from '../../components/Content/ContentTitleWithInfo'
+import { Card, CardHeader, CardTitle, CardDescription } from '../../components/ui/card'
 import { useCurrencyStore } from '../../stores/useCurrencyStore'
 import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
 import UsuarioModalVerDetallesCobro from '../../components/Modal/Usuario/UsuarioModalVerDetallesCobro'
@@ -42,10 +42,54 @@ export default function AdminCobros(){
   // Definición de las columnas que estarán centradas
   const centered = ['calificacion', 'estado', 'celular', 'fechaVencimiento', 'cuotaVencimiento', 'cuotaMonto', 'cuotaMora', 'cuotaAbono', 'cuotaTotal', 'monto', 'mora', 'abono', 'total', 'totalPagar', 'creditoMonto', 'cuotasPendientes', 'cuotasVencidas', 'direccion', 'referencias', 'parentesco', 'referenciasCelular', 'accion']
 
+  const getIconBgColor = (iconBgColor) => {
+    const colorMap = {
+      'success': 'var(--color-success)',
+      'success-light': 'var(--color-success-light)',
+      'warning': 'var(--color-warning)',
+      'danger': 'var(--color-danger)',
+      'accent': 'var(--color-accent)',
+      'accent-light': 'var(--color-accent-light)',
+      'primary': 'var(--color-primary)'
+    };
+    return colorMap[iconBgColor] || 'var(--color-warning)';
+  }
+
+  const summaryCards = [
+    {
+      icon: 'fas fa-chart-line',
+      iconBgColor: 'warning',
+      label: 'Pendientes a Cobrar',
+      value: cuotasTotales?.totalPendientes,
+      isLoading: isFetchingCuotasTotales
+    },
+    {
+      icon: 'fas fa-chart-line',
+      iconBgColor: 'danger',
+      label: 'Vencidas a Cobrar',
+      value: cuotasTotales?.totalVencidas,
+      isLoading: isFetchingCuotasTotales
+    },
+    {
+      icon: 'fas fa-chart-line',
+      iconBgColor: 'primary',
+      label: 'Total a Cobrar',
+      value: cuotasTotales?.totalVencidas + cuotasTotales?.totalPendientes,
+      isLoading: isFetchingCuotasTotales
+    },
+    {
+      icon: 'fas fa-chart-line',
+      iconBgColor: 'success',
+      label: 'Pagadas Totales',
+      value: cuotasTotales?.totalPagadas,
+      isLoading: isFetchingCuotasTotales
+    },
+  ];
+
   const tabs = [
-    { icon: 'fas fa-users',  iconBgColor: 'warning', color: 'warning', label: 'Mapeo de Cuotas', text: cuotasForMapeo?.length ?? 0, isLoading: isFetchingCuotas, data: cuotasForMapeo, card: CuotasCobrosCard, columnDefinitions: cuotasCobrosColumns},
-    { icon: 'fas fa-check', iconBgColor: 'warning', color: 'warning', label: 'Listado de Clientes Al Día', value: cuotasTotales?.totalPendientes, isLoading: isFetchingUsuariosConCuotas, data: usuariosConCuotas, card: UsuariosCard, columnDefinitions: usuariosConVencidasColumns},
-    { icon: 'fas fa-warning', iconBgColor: 'danger', color: 'danger', label: 'Listado de Clientes Morosos', value: cuotasTotales?.totalVencidas, isLoading: isFetchingUsuariosConVencidas, data: usuariosConVencidas, card: UsuariosCard, columnDefinitions: usuariosConVencidasMorososColumns},
+    { icon: 'fas fa-users',  iconBgColor: 'warning', color: 'warning', label: 'Mapeo de Cuotas', value: cuotasTotales?.totalPendientes + cuotasTotales?.totalVencidas ?? 0, text: cuotasForMapeo?.length ?? 0, isLoading: isFetchingCuotas, data: cuotasForMapeo, card: CuotasCobrosCard, columnDefinitions: cuotasCobrosColumns},
+    { icon: 'fas fa-check', iconBgColor: 'warning', color: 'warning', label: 'Listado de Clientes Al Día', value: cuotasTotales?.totalPendientes ?? 0, text: usuariosConCuotas?.length ?? 0, isLoading: isFetchingUsuariosConCuotas, data: usuariosConCuotas, card: UsuariosCard, columnDefinitions: usuariosConVencidasColumns},
+    { icon: 'fas fa-warning', iconBgColor: 'danger', color: 'danger', label: 'Listado de Clientes Morosos', value: cuotasTotales?.totalVencidas ?? 0, text: usuariosConVencidas?.length ?? 0, isLoading: isFetchingUsuariosConVencidas, data: usuariosConVencidas, card: UsuariosCard, columnDefinitions: usuariosConVencidasMorososColumns},
   ];
 
   return(
@@ -60,25 +104,44 @@ export default function AdminCobros(){
 
       <div className="content">
         <ContentTitleWithInfo title={''} subtitle={''}>
-          <TotalCard icon={'fas fa-chart-line'} iconBgColor='primary' title={'Total a Cobrar'} style={{padding: 0}} isLoading={isFetchingCuotasTotales}>
-              <i className='fas fa-dollar-sign color-primary'/>
-              <h3 className='color-primary'>{formatCurrencySV(cuotasTotales?.totalVencidas + cuotasTotales?.totalPendientes)}</h3>
-          </TotalCard>
-          <TotalCard icon={'fas fa-chart-line'} iconBgColor='success' title={'Pagadas Totales'} style={{padding: 0}} isLoading={isFetchingCuotasTotales}>
-              <i className='fas fa-dollar-sign color-success'/>
-              <h3 className='color-success'>{formatCurrencySV(cuotasTotales?.totalPagadas)}</h3>
-          </TotalCard>
-        </ContentTitleWithInfo>
+          <div className="w-full flex flex-row gap-2">
+            {summaryCards.map((card) => {
+              const hasValue = card.value !== null && card.value !== undefined;
+              const mainText = hasValue ? formatCurrencySV(card.value) : null;
 
-{/* 
-        <TotalCard icon={'fas fa-chart-line'} iconBgColor='danger' title={'Vencidas Totales'} style={{padding: 0}} isLoading={isFetchingCuotasTotales}>
-              <i className='fas fa-dollar-sign color-danger'/>
-              <h3 className='color-danger'>{formatCurrencySV(cuotasTotales?.totalVencidas)}</h3>
-          </TotalCard>
-          <TotalCard icon={'fas fa-chart-line'} iconBgColor='warning' title={'Pendientes Totales'} style={{padding: 0}} isLoading={isFetchingCuotasTotales}>
-              <i className='fas fa-dollar-sign color-warning'/>
-              <h3 className='color-warning'>{formatCurrencySV(cuotasTotales?.totalPendientes)}</h3>
-          </TotalCard> */}
+              return (
+                <Card
+                  key={card.label}
+                  className="@container/card min-w-[150px] max-w-full flex-1 p-3 relative !bg-transparent !border-none !shadow-none"
+                >
+                  <CardHeader className="flex flex-row p-0">
+                    <div className="flex items-center gap-2 w-full">
+                      <div 
+                        className='flex items-center justify-center p-3 px-4 rounded-md shrink-0'
+                        style={{ backgroundColor: getIconBgColor(card.iconBgColor) }}
+                      >
+                        <i className={`${card.icon} text-white !text-lg`} />
+                      </div>
+
+                      <div className="flex flex-col gap-1 min-w-0 flex-1">
+                        <CardDescription className="whitespace-nowrap truncate">{card.label}</CardDescription>
+                        {card.isLoading ? (
+                          <div className="flex items-center gap-2">
+                            <div className="spinner w-3 h-3"></div>
+                          </div>
+                        ) : mainText ? (
+                          <CardTitle className={`text-2xl font-semibold tabular-nums @[250px]/card:text-xl m-0 p-0 whitespace-nowrap truncate color-${card.iconBgColor}`}>
+                            ${mainText}
+                          </CardTitle>
+                        ) : null}
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              );
+            })}
+          </div>
+        </ContentTitleWithInfo>
 
         <BaseTable 
           data={usuariosConVencidas} 

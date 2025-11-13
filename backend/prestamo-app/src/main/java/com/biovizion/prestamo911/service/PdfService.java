@@ -4,6 +4,7 @@ import com.biovizion.prestamo911.DTOs.Usuario.UsuarioDTOs.UsuarioCuotasDTO;
 import com.biovizion.prestamo911.entities.AbonoCuotaEntity;
 import com.biovizion.prestamo911.entities.CreditoCuotaEntity;
 import com.biovizion.prestamo911.entities.CreditoEntity;
+import com.biovizion.prestamo911.entities.HistorialCobrosEntity;
 import com.biovizion.prestamo911.entities.HistorialGastoEntity;
 import com.biovizion.prestamo911.entities.HistorialSaldoEntity;
 import com.biovizion.prestamo911.entities.UsuarioEntity;
@@ -16,6 +17,7 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.time.temporal.ChronoUnit;
+import java.math.RoundingMode;
 
 import java.io.OutputStream;
 import java.math.BigDecimal;
@@ -293,7 +295,26 @@ public class PdfService {
         }
     }
 
-    public void generarReporteDiarioCompleto(BigDecimal saldo, List<CreditoCuotaEntity> cuotas, List<AbonoCuotaEntity> abonos, List<HistorialSaldoEntity> ingresos, List<CreditoEntity> creditos, List<HistorialGastoEntity> gastos, List<CreditoEntity> creditosOtorgados, List<CreditoEntity> creditosDenegados, LocalDate fecha, HttpServletResponse response) {
+    public void generarReporteDiarioCompleto(
+            BigDecimal saldo,
+            List<CreditoCuotaEntity> cuotas,
+            List<AbonoCuotaEntity> abonos,
+            List<HistorialSaldoEntity> ingresos,
+            List<CreditoEntity> creditos,
+            List<HistorialGastoEntity> gastos,
+            List<CreditoEntity> creditosOtorgados,
+            List<CreditoEntity> creditosDenegados,
+            LocalDate fecha,
+            List<CreditoCuotaEntity> cuotasPendientesDia,
+            List<CreditoCuotaEntity> cuotasVencidasDia,
+            List<CreditoCuotaEntity> cuotasPagadasDia,
+            List<CreditoCuotaEntity> cuotasPendientesGlobal,
+            List<CreditoCuotaEntity> cuotasVencidasGlobal,
+            List<CreditoCuotaEntity> cuotasPagadasGlobal,
+            List<HistorialCobrosEntity> historialCobros,
+            BigDecimal totalIngresosCapitalesGlobal,
+            BigDecimal totalCuotasPagadasGlobalValue,
+            HttpServletResponse response) {
         try {
             // 🔢 Calculate totals for ingresos
             BigDecimal totalCuotas = cuotas.stream()
@@ -383,6 +404,100 @@ public class PdfService {
             // Creditos Otorgados y Denegados
             context.setVariable("creditosOtorgados", creditosOtorgados);
             context.setVariable("creditosDenegados", creditosDenegados);
+
+            // Cuotas del día - calcular totals y cantidades
+            BigDecimal totalCuotasPendientesDia = cuotasPendientesDia.stream()
+                    .map(CreditoCuotaEntity::getTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            int cantidadCuotasPendientesDia = cuotasPendientesDia.size();
+
+            BigDecimal totalCuotasVencidasDia = cuotasVencidasDia.stream()
+                    .map(CreditoCuotaEntity::getTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            int cantidadCuotasVencidasDia = cuotasVencidasDia.size();
+
+            BigDecimal totalCuotasPagadasDia = cuotasPagadasDia.stream()
+                    .map(CreditoCuotaEntity::getTotal)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            int cantidadCuotasPagadasDia = cuotasPagadasDia.size();
+
+            context.setVariable("cuotasPendientesDia", cuotasPendientesDia);
+            context.setVariable("cuotasVencidasDia", cuotasVencidasDia);
+            context.setVariable("cuotasPagadasDia", cuotasPagadasDia);
+            context.setVariable("totalCuotasPendientesDia", totalCuotasPendientesDia);
+            context.setVariable("totalCuotasVencidasDia", totalCuotasVencidasDia);
+            context.setVariable("totalCuotasPagadasDia", totalCuotasPagadasDia);
+            context.setVariable("cantidadCuotasPendientesDia", cantidadCuotasPendientesDia);
+            context.setVariable("cantidadCuotasVencidasDia", cantidadCuotasVencidasDia);
+            context.setVariable("cantidadCuotasPagadasDia", cantidadCuotasPagadasDia);
+
+            // Cuotas globales - calcular totals y cantidades
+            // Check if we have historical data or current data
+            BigDecimal totalCuotasPendientesGlobal = BigDecimal.ZERO;
+            BigDecimal totalCuotasVencidasGlobal = BigDecimal.ZERO;
+            BigDecimal totalCuotasPagadasGlobal = BigDecimal.ZERO;
+            int cantidadCuotasPendientesGlobal = 0;
+            int cantidadCuotasVencidasGlobal = 0;
+            int cantidadCuotasPagadasGlobal = 0;
+            boolean hasHistorialCobros = false;
+
+            if (historialCobros != null && !historialCobros.isEmpty()) {
+                // Use historical data
+                hasHistorialCobros = true;
+                for (HistorialCobrosEntity historial : historialCobros) {
+                    if ("Pendientes".equals(historial.getTipo())) {
+                        totalCuotasPendientesGlobal = historial.getMonto();
+                        cantidadCuotasPendientesGlobal = historial.getCantidad();
+                    } else if ("Vencidas".equals(historial.getTipo())) {
+                        totalCuotasVencidasGlobal = historial.getMonto();
+                        cantidadCuotasVencidasGlobal = historial.getCantidad();
+                    } else if ("Pagadas".equals(historial.getTipo())) {
+                        totalCuotasPagadasGlobal = historial.getMonto();
+                        cantidadCuotasPagadasGlobal = historial.getCantidad();
+                    }
+                }
+            } else if (cuotasPendientesGlobal != null && cuotasVencidasGlobal != null && cuotasPagadasGlobal != null) {
+                // Use current global data
+                totalCuotasPendientesGlobal = cuotasPendientesGlobal.stream()
+                        .map(CreditoCuotaEntity::getTotal)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                cantidadCuotasPendientesGlobal = cuotasPendientesGlobal.size();
+
+                totalCuotasVencidasGlobal = cuotasVencidasGlobal.stream()
+                        .map(CreditoCuotaEntity::getTotal)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                cantidadCuotasVencidasGlobal = cuotasVencidasGlobal.size();
+
+                totalCuotasPagadasGlobal = cuotasPagadasGlobal.stream()
+                        .map(CreditoCuotaEntity::getTotal)
+                        .reduce(BigDecimal.ZERO, BigDecimal::add);
+                cantidadCuotasPagadasGlobal = cuotasPagadasGlobal.size();
+            }
+
+            context.setVariable("totalCuotasPendientesGlobal", totalCuotasPendientesGlobal);
+            context.setVariable("totalCuotasVencidasGlobal", totalCuotasVencidasGlobal);
+            context.setVariable("totalCuotasPagadasGlobal", totalCuotasPagadasGlobal);
+            context.setVariable("cantidadCuotasPendientesGlobal", cantidadCuotasPendientesGlobal);
+            context.setVariable("cantidadCuotasVencidasGlobal", cantidadCuotasVencidasGlobal);
+            context.setVariable("cantidadCuotasPagadasGlobal", cantidadCuotasPagadasGlobal);
+            context.setVariable("hasHistorialCobros", hasHistorialCobros);
+
+            BigDecimal totalACobrar = totalCuotasPendientesGlobal.add(totalCuotasVencidasGlobal);
+            BigDecimal porRecuperar = totalIngresosCapitalesGlobal.subtract(totalCuotasPagadasGlobalValue);
+            BigDecimal gananciaProyectada = totalACobrar.subtract(porRecuperar);
+            BigDecimal roiPorcentaje = null;
+            if (totalIngresosCapitalesGlobal.compareTo(BigDecimal.ZERO) > 0) {
+                roiPorcentaje = totalCuotasPagadasGlobalValue.subtract(totalIngresosCapitalesGlobal)
+                        .divide(totalIngresosCapitalesGlobal, 4, RoundingMode.HALF_UP)
+                        .multiply(BigDecimal.valueOf(100));
+            }
+
+            context.setVariable("totalIngresosCapitalesGlobal", totalIngresosCapitalesGlobal);
+            context.setVariable("totalCuotasPagadasGlobalValue", totalCuotasPagadasGlobalValue);
+            context.setVariable("totalACobrar", totalACobrar);
+            context.setVariable("porRecuperar", porRecuperar);
+            context.setVariable("gananciaProyectada", gananciaProyectada);
+            context.setVariable("roiPorcentaje", roiPorcentaje);
 
             // Logo dentro del JAR
             URL logoResource = getClass().getClassLoader().getResource("static/img/logo.jpg");

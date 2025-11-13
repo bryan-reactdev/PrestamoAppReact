@@ -201,6 +201,11 @@ public class CreditoCuotaImpl implements CreditoCuotaService {
     }
 
     @Override
+    public List<CreditoCuotaEntity> findAllByEstadoAndFechaVencimiento(String estado, LocalDate fecha) {
+        return creditoCuotaRepository.findAllByEstadoAndFechaVencimiento(estado, fecha);
+    }
+
+    @Override
     public List<CreditoCuotaEntity> findAllOverdueCuotasByCreditoId(Long creditoId) {
         return creditoCuotaRepository.findAllOverdueCuotasByCreditoId(creditoId);
     }

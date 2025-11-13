@@ -49,13 +49,15 @@ export default function AdminCajaChica(){
             <i className='fas fa-rotate'/>
             IR A HOY
           </button>
-          <button 
-            className='btn-danger sm' 
-            onClick={() => descargarPDFDiario(selectedDate)}
-          >
-            <i className='fas fa-print'/>
-            GENERAR PDF
-          </button>
+          {selectedDate && (
+            <button 
+              className='btn-danger sm' 
+              onClick={() => descargarPDFDiario(selectedDate)}
+            >
+              <i className='fas fa-print'/>
+              GENERAR PDF
+            </button>
+          )}
         </div>
 
         <div className="stat-cards">

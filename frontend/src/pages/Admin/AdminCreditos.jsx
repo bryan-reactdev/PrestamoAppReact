@@ -11,7 +11,9 @@ import CreditoModalGenerarDocumentos from '../../components/Modal/Credito/Credit
 import CreditoModalRechazar from '../../components/Modal/Credito/CreditoModalRechazar'
 import { useParams } from 'react-router-dom'
 import ContentTitleWithInfo from '../../components/Content/ContentTitleWithInfo'
-import TotalCard from '../../components/Cards/TotalCard'
+import { Card, CardHeader, CardTitle, CardDescription } from '../../components/ui/card'
+import { Badge } from '../../components/ui/badge'
+import { formatCurrencySV } from '../../utils/currencyUtils'
 
 export default function AdminCreditos(){
   const { usuarioId } = useParams();
@@ -35,6 +37,19 @@ export default function AdminCreditos(){
   }, [currentTipo, filterCreditos])
 
   const centered = ['estado', 'calificacion', 'monto', 'montoDesembolsar', 'mora', 'frecuencia', 'fechaAceptado', 'fechaSolicitud', 'fechaRechazado', 'desembolsado', 'accion']
+
+  const getIconBgColor = (iconBgColor) => {
+    const colorMap = {
+      'success': 'var(--color-success)',
+      'success-light': 'var(--color-success-light)',
+      'warning': 'var(--color-warning)',
+      'danger': 'var(--color-danger)',
+      'accent': 'var(--color-accent)',
+      'accent-light': 'var(--color-accent-light)',
+      'primary': 'var(--color-primary)'
+    };
+    return colorMap[iconBgColor] || 'var(--color-warning)';
+  }
 
   // Main tipo tabs (higher level)
   const tipoTabs = [
@@ -70,25 +85,29 @@ export default function AdminCreditos(){
       label: 'Pendientes', 
       columnDefinitions: creditosPendientesColumns, 
       data: filteredCreditos.creditosPendientes,
-      card: CreditosPendientesCard
+      card: CreditosPendientesCard,
+      value: filteredCreditos.creditosPendientes?.length ?? 0
     },
     { 
       label: 'Aceptados', 
       columnDefinitions: creditosAceptadosColumns, 
       data: filteredCreditos.creditosAceptados,
-      card: CreditosAceptadosCard
+      card: CreditosAceptadosCard,
+      value: filteredCreditos.creditosAceptados?.length ?? 0
     },
     { 
       label: 'Rechazados', 
       columnDefinitions: creditosRechazadosColumns, 
       data: filteredCreditos.creditosRechazados,
-      card: CreditosDefaultCard
+      card: CreditosDefaultCard,
+      value: filteredCreditos.creditosRechazados?.length ?? 0
     },
     { 
       label: 'Finalizados', 
       columnDefinitions: creditosFinalizadosColumns, 
       data: filteredCreditos.creditosFinalizados,
-      card: CreditosDefaultCard
+      card: CreditosDefaultCard,
+      value: filteredCreditos.creditosFinalizados?.length ?? 0
     }
   ];
 
@@ -101,18 +120,55 @@ export default function AdminCreditos(){
 
       <div className="content">
         <ContentTitleWithInfo>
-          {tipoTabs.map((tab) => (
-            <TotalCard 
-              key={tab.label}
-              onClick={tab.onClick} 
-              className={`tab ${tab.isActive ? 'active' : ''} w-bg ${isFetchingCreditos ? 'disabled' : ''}`} 
-              icon={tab.icon} 
-              iconBgColor={tab.iconBgColor} 
-              title={tab.label}
-            >
-              <h3 className={`color-${tab.iconBgColor}`}>{tab.value}</h3>
-            </TotalCard>
-          ))}
+          <div className="w-full flex flex-row gap-2">
+            {tipoTabs.map((tab) => {
+              const hasValue = tab.value !== null && tab.value !== undefined;
+              const hasText = tab.text !== null && tab.text !== undefined;
+              const showBadge = hasValue && hasText;
+              const mainText = hasValue ? formatCurrencySV(tab.value) : (hasText ? tab.text : null);
+
+              return (
+                <Card
+                  key={tab.label}
+                  className={`@container/card tab ${tab.isActive ? 'active' : ''} cursor-pointer min-w-[150px] max-w-full flex-1 p-3 transition-all duration-150 relative ${
+                    tab.isActive 
+                      ? 'scale-[0.975] bg-[var(--color-accent-light)] border-[var(--border-width-sm)] border-[var(--color-accent)]' 
+                      : 'hover:brightness-90'
+                  } ${isFetchingCreditos ? 'opacity-50 pointer-events-none' : ''}`}
+                  onClick={tab.onClick}
+                >
+                  {showBadge && (
+                    <Badge variant="default" className={`absolute top-2 right-2 w-fit truncate ${tab.isActive ? 'text-white' : ''}`}>
+                      {tab.text}
+                    </Badge>
+                  )}
+                  <CardHeader className="flex flex-row p-0">
+                    <div className="flex items-center gap-2 w-full">
+                      <div 
+                        className='flex items-center justify-center p-3 px-4 rounded-md shrink-0'
+                        style={{ backgroundColor: getIconBgColor(tab.iconBgColor) }}
+                      >
+                        <i className={`${tab.icon} text-white !text-lg`} />
+                      </div>
+
+                      <div className="flex flex-col gap-1 min-w-0 flex-1">
+                        <CardDescription className={`whitespace-nowrap truncate ${tab.isActive ? 'text-white' : ''}`}>{tab.label}</CardDescription>
+                        {isFetchingCreditos ? (
+                          <div className="flex items-center gap-2">
+                            <div className="spinner w-3 h-3"></div>
+                          </div>
+                        ) : mainText ? (
+                          <CardTitle className={`text-2xl font-semibold tabular-nums @[250px]/card:text-xl m-0 p-0 whitespace-nowrap truncate ${tab.isActive ? 'text-white' : ''}`}>
+                            {hasValue ? `$${mainText}` : mainText}
+                          </CardTitle>
+                        ) : null}
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              );
+            })}
+          </div>
         </ContentTitleWithInfo>
         
         <BaseTable 
