@@ -15,17 +15,24 @@ import TotalCard from '../../components/Cards/TotalCard'
 
 export default function AdminCreditos(){
   const { usuarioId } = useParams();
-  const {filterCreditos, filteredCreditos, isFetchingCreditos, getCreditos } = useCreditoStore();
-  const [currentTipo, setCurrentTipo] = useState('rapi-cash');
+  const {filterCreditos, filteredCreditos, isFetchingCreditos, getCreditos, currentTipo: storeCurrentTipo } = useCreditoStore();
+  const [currentTipo, setCurrentTipo] = useState(storeCurrentTipo || 'rapi-cash');
   const [currentTab, setCurrentTab] = useState('Pendientes');
 
   useEffect(() => {
     getCreditos(usuarioId ?? null);
   }, [getCreditos, usuarioId]);
 
+  // Sync local state with store when store changes
+  useEffect(() => {
+    if (storeCurrentTipo && storeCurrentTipo !== currentTipo) {
+      setCurrentTipo(storeCurrentTipo);
+    }
+  }, [storeCurrentTipo]);
+
   useEffect(() =>{
     filterCreditos(currentTipo);
-  }, [currentTipo])
+  }, [currentTipo, filterCreditos])
 
   const centered = ['estado', 'calificacion', 'monto', 'montoDesembolsar', 'mora', 'frecuencia', 'fechaAceptado', 'fechaSolicitud', 'fechaRechazado', 'desembolsado', 'accion']
 

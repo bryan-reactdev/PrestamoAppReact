@@ -46,6 +46,7 @@ public class CreditoDTOs {
 
         private String estado;
         private String tipo;
+        private String documento;
     }
 
     @Data
@@ -108,7 +109,8 @@ public class CreditoDTOs {
             credito.getDesembolsable(),
 
             credito.getEstado(),
-            credito.getTipo()
+            credito.getTipo(),
+            credito.getDocumento()
         ); 
     }
 

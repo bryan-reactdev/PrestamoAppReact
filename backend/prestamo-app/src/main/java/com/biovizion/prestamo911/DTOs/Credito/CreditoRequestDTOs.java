@@ -13,6 +13,8 @@ import com.biovizion.prestamo911.entities.CreditoEntity;
 import com.biovizion.prestamo911.entities.UsuarioEntity;
 import com.biovizion.prestamo911.entities.UsuarioSolicitudEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.biovizion.prestamo911.entities.CreditoEntity.Calificacion;
 
 import lombok.AllArgsConstructor;
@@ -47,6 +49,8 @@ public class CreditoRequestDTOs{
     
     @Data
     public static class CreditoAceptarRequest {
+        private static final ObjectMapper objectMapper = new ObjectMapper();
+        
         private BigDecimal montoAprobado;
         private BigDecimal cuotaMensual;
         private BigDecimal mora;
@@ -55,6 +59,31 @@ public class CreditoRequestDTOs{
 
         private Long selectedCreditoId;
         private List<CuotaDTO> selectedCuotas;
+        
+        @Nullable
+        private MultipartFile document;
+        
+        // Custom setter to handle selectedCuotas as JSON string from FormData
+        @SuppressWarnings("unchecked")
+        public void setSelectedCuotas(Object selectedCuotas) {
+            if (selectedCuotas == null) {
+                this.selectedCuotas = null;
+                return;
+            }
+            
+            if (selectedCuotas instanceof List) {
+                this.selectedCuotas = (List<CuotaDTO>) selectedCuotas;
+            } else if (selectedCuotas instanceof String) {
+                try {
+                    String jsonString = (String) selectedCuotas;
+                    this.selectedCuotas = objectMapper.readValue(jsonString, new TypeReference<List<CuotaDTO>>() {});
+                } catch (Exception e) {
+                    this.selectedCuotas = null;
+                }
+            } else {
+                this.selectedCuotas = null;
+            }
+        }
     }
     
     @Data

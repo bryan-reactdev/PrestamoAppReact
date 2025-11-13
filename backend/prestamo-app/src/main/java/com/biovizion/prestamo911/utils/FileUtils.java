@@ -14,6 +14,7 @@ import com.biovizion.prestamo911.entities.UsuarioSolicitudEntity;
 import com.biovizion.prestamo911.entities.HistorialImageEntity;
 import com.biovizion.prestamo911.entities.HistorialSaldoEntity;
 import com.biovizion.prestamo911.entities.HistorialGastoEntity;
+import com.biovizion.prestamo911.entities.CreditoEntity;
 
 public class FileUtils {
 
@@ -166,5 +167,55 @@ public class FileUtils {
         
         String baseDir = getRutaHistorialImagenes();
         safeDeleteHistorialImage(image.getFilePath(), baseDir);
+    }
+
+    // --- Document Methods ---
+    
+    private static final String RUTA_DOCUMENTOS = "/opt/prestamo911/documentos/";
+
+    public static String getRutaDocumentos() {
+        return RUTA_DOCUMENTOS;
+    }
+
+    public static String getRelativePathDocumento(String fileName) {
+        return "/documentos/" + fileName;
+    }
+
+    public static void tryUploadDocumento(CreditoEntity credito, MultipartFile file) throws IOException {
+        if (file == null || file.isEmpty()) return;
+
+        String baseDir = getRutaDocumentos();
+        
+        // Ensure directory exists
+        File dir = new File(baseDir);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        // Delete old document if exists
+        if (credito.getDocumento() != null && !credito.getDocumento().isEmpty()) {
+            safeDeleteDocumento(credito.getDocumento(), baseDir);
+        }
+
+        // Save new file
+        String extension = FilenameUtils.getExtension(file.getOriginalFilename());
+        String nombreArchivo = UUID.randomUUID().toString() + "." + extension;
+        File targetFile = new File(baseDir + nombreArchivo);
+        file.transferTo(targetFile);
+
+        // Update entity
+        String relativePath = getRelativePathDocumento(nombreArchivo);
+        credito.setDocumento(relativePath);
+    }
+
+    public static void safeDeleteDocumento(String fullPath, String baseDir) {
+        if (fullPath == null || fullPath.isEmpty()) return;
+
+        // Normalize and ensure file is inside baseDir
+        Path filePath = Path.of(baseDir).resolve(fullPath.replace("/documentos/", "")).normalize();
+        if (!filePath.startsWith(Path.of(baseDir))) return; // prevent deleting outside directory
+
+        File file = filePath.toFile();
+        if (file.exists()) file.delete();
     }
 }

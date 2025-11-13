@@ -12,5 +12,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .addResourceLocations("file:/opt/prestamo911/fotos-usuarios/");
         registry.addResourceHandler("/historial-imagenes/**")
                 .addResourceLocations("file:/opt/prestamo911/historial-imagenes/");
+        registry.addResourceHandler("/documentos/**")
+                .addResourceLocations("file:/opt/prestamo911/documentos/");
     }
 }

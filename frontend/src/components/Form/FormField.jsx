@@ -26,6 +26,7 @@ export default function FormField({
   const [preview, setPreview] = useState(null);
   const [previews, setPreviews] = useState([]);
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [selectedFile, setSelectedFile] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const fileInputRef = useRef(null);
 
@@ -75,12 +76,18 @@ export default function FormField({
           input.setCustomValidity('');
         }
       } else {
-        // For single file, validate based on preview state
+        // For single file, validate based on preview state (images) or selectedFile (documents)
         if (required) {
-          if (preview) {
+          if (preview || selectedFile) {
             input.setCustomValidity('');
           } else {
-            input.setCustomValidity('Por favor, selecciona una imagen.');
+            // Check if accept prop suggests documents vs images
+            const acceptAttr = props.accept || '';
+            const isDocumentType = acceptAttr.includes('.pdf') || acceptAttr.includes('.doc') || acceptAttr.includes('.txt');
+            const errorMessage = isDocumentType 
+              ? 'Por favor, selecciona un documento.' 
+              : 'Por favor, selecciona una imagen.';
+            input.setCustomValidity(errorMessage);
           }
         } else {
           input.setCustomValidity('');
@@ -102,7 +109,7 @@ export default function FormField({
         };
       }
     }
-  }, [isFile, isMultipleFiles, required, preview, previews]);
+  }, [isFile, isMultipleFiles, required, preview, previews, selectedFile, props.accept]);
 
   // --- Handle file input change ---
   const handleChange = (e) => {
@@ -159,11 +166,19 @@ export default function FormField({
       } else {
         // Handle single file (existing behavior)
         const file = e.target.files?.[0];
-        if (file && file.type.startsWith('image/')) {
-          const url = URL.createObjectURL(file);
-          setPreview(url);
+        if (file) {
+          if (file.type.startsWith('image/')) {
+            const url = URL.createObjectURL(file);
+            setPreview(url);
+            setSelectedFile(null);
+          } else {
+            // For non-image files (documents), store file info for display
+            setPreview(null);
+            setSelectedFile(file);
+          }
         } else {
           setPreview(null);
+          setSelectedFile(null);
         }
         props.onChange?.(e);
       }
@@ -297,6 +312,41 @@ export default function FormField({
           src={preview}
           alt="preview"
         />
+      )}
+
+      {/* Document file name display */}
+      {selectedFile && !isMultipleFiles && !preview && (
+        <div style={{ marginTop: '8px', padding: '8px', backgroundColor: '#f3f4f6', borderRadius: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <i className="fas fa-file" style={{ color: '#6b7280' }}></i>
+          <span style={{ fontSize: '0.875rem', color: '#374151' }}>{selectedFile.name}</span>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedFile(null);
+              if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+              }
+              props.onChange?.({
+                target: {
+                  ...fileInputRef.current,
+                  files: new DataTransfer().files,
+                  value: ''
+                }
+              });
+            }}
+            style={{
+              marginLeft: 'auto',
+              background: 'transparent',
+              border: 'none',
+              cursor: 'pointer',
+              color: '#ef4444',
+              padding: '4px'
+            }}
+            title="Eliminar archivo"
+          >
+            <i className="fas fa-times"></i>
+          </button>
+        </div>
       )}
 
       {/* Multiple previews (multiple files) */}

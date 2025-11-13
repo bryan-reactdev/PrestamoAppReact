@@ -153,6 +153,9 @@ public class CreditoEntity {
     @Column(name = "cuotas_vencidas")
     private Integer cuotasVencidas;
 
+    @Column(name = "documento")
+    private String documento;
+
     @Column(name = "capacidad_pago")
     private String capacidadPago;
     @Column(name = "historial_crediticio")

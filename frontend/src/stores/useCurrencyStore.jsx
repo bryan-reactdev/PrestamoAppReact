@@ -210,6 +210,24 @@ export const useCurrencyStore = create((set, get) => ({
         }
     },
 
+    descargarPDFDiario: async (fecha) => {
+        try {
+            toast.loading('Generando PDF...', { id: 'pdf-toast' });
+
+            const res = await axiosData(`/currency/diario/${fecha}/pdf`, {
+                method: "POST",
+                responseType: "blob",
+            });
+
+            await descargarPDFConPrint(res);
+            
+            toast.success('PDF listo para imprimir', { id: 'pdf-toast' });
+        } catch (err) {
+            console.error("Error descargando PDF:", err);
+            toast.error('Error al generar el PDF completo', { id: 'pdf-toast' });
+        }
+    },
+
     setSelectedDate: (date) => {
         set({ selectedDate: date });
         get().getCurrencyForDate();

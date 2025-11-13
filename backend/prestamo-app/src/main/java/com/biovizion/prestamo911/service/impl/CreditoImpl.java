@@ -200,6 +200,10 @@ public class CreditoImpl implements CreditoService {
         return creditoRepository.findAllByEstadoAndFechaAceptado(estado, fecha);
     }
     @Override
+    public List<CreditoEntity> findAllByEstadoAndFechaRechazado(String estado, LocalDate fecha) {
+        return creditoRepository.findAllByEstadoAndFechaRechazado(estado, fecha);
+    }
+    @Override
     public List<CreditoEntity> findAllByDesembolsadoAndFechaDesembolsado(Boolean desembolsado, LocalDate fecha) {
         return creditoRepository.findAllByDesembolsadoAndFechaDesembolsado(desembolsado, fecha);
     }

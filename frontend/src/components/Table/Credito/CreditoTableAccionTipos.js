@@ -4,7 +4,8 @@ import {
   ButtonEditarCredito, 
   ButtonGenerarDocumentosCredito, 
   ButtonRechazarCredito, 
-  ButtonVerCuotasCredito
+  ButtonVerCuotasCredito,
+  ButtonVerDocumentoCredito
 } from "./CreditoTableButtons";
 
 const CreditoTableAccionTipos = {
@@ -14,6 +15,7 @@ const CreditoTableAccionTipos = {
   RECHAZAR: ButtonRechazarCredito,
   GENERAR_DOCUMENTOS: ButtonGenerarDocumentosCredito,
   EDITAR: ButtonEditarCredito,
+  VER_DOCUMENTO: ButtonVerDocumentoCredito,
 };
 
 export default CreditoTableAccionTipos;

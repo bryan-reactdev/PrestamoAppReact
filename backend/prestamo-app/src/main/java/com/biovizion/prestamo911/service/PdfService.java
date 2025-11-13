@@ -293,6 +293,121 @@ public class PdfService {
         }
     }
 
+    public void generarReporteDiarioCompleto(BigDecimal saldo, List<CreditoCuotaEntity> cuotas, List<AbonoCuotaEntity> abonos, List<HistorialSaldoEntity> ingresos, List<CreditoEntity> creditos, List<HistorialGastoEntity> gastos, List<CreditoEntity> creditosOtorgados, List<CreditoEntity> creditosDenegados, LocalDate fecha, HttpServletResponse response) {
+        try {
+            // 🔢 Calculate totals for ingresos
+            BigDecimal totalCuotas = cuotas.stream()
+                .map(CreditoCuotaEntity::getTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            BigDecimal totalAbonos = abonos.stream()
+                .map(AbonoCuotaEntity::getMonto)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal totalIngresos = ingresos.stream()
+                    .map(HistorialSaldoEntity::getMonto)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            List<HistorialSaldoEntity> ingresosCapitales = ingresos.stream()
+                                                                .filter(i -> "Capital".equals(i.getTipo()))
+                                                                .collect(Collectors.toList());
+
+            List<HistorialSaldoEntity> ingresosVarios = ingresos.stream()
+                                                                .filter(i -> "Varios".equals(i.getTipo()))
+                                                                .collect(Collectors.toList());
+
+            // 🔢 Calculate totals for egresos
+            BigDecimal totalCreditos = creditos.stream()
+                    .map(CreditoEntity::getMonto)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal totalGastos = gastos.stream()
+                    .map(HistorialGastoEntity::getMonto)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            List<HistorialGastoEntity> gastosEmpresa = gastos.stream()
+                                                            .filter(i -> "Empresa".equals(i.getTipo()))
+                                                            .collect(Collectors.toList());
+
+            List<HistorialGastoEntity> gastosVarios = gastos.stream()
+                                                            .filter(i -> "Varios".equals(i.getTipo()))
+                                                            .collect(Collectors.toList());
+
+            List<HistorialGastoEntity> retiros = gastos.stream()
+                                                        .filter(i -> "Retiro de Cuotas".equals(i.getTipo()))
+                                                        .collect(Collectors.toList());
+
+            BigDecimal totalIngresosVarios = ingresosVarios.stream()
+                    .map(HistorialSaldoEntity::getMonto)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal totalGastosVarios = gastosVarios.stream()
+                    .map(HistorialGastoEntity::getMonto)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal totalRetiros = retiros.stream()
+                    .map(HistorialGastoEntity::getMonto)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal totalIngresosGeneral = totalCuotas.add(totalAbonos).add(totalIngresos);
+            BigDecimal totalEgresosGeneral = totalCreditos.add(totalGastos);
+
+            Context context = new Context();
+            context.setVariable("saldo", saldo);
+            
+            // Ingresos
+            context.setVariable("cuotas", cuotas);
+            context.setVariable("abonos", abonos);
+            context.setVariable("ingresosCapitales", ingresosCapitales);
+            context.setVariable("ingresosVarios", ingresosVarios);
+            context.setVariable("totalCuotas", totalCuotas);
+            context.setVariable("totalAbonos", totalAbonos);
+            context.setVariable("totalIngresos", totalIngresos);
+            context.setVariable("totalIngresosVarios", totalIngresosVarios);
+            
+            // Egresos
+            context.setVariable("creditos", creditos);
+            context.setVariable("gastosEmpresa", gastosEmpresa);
+            context.setVariable("gastosVarios", gastosVarios);
+            context.setVariable("retiros", retiros);
+            context.setVariable("totalCreditos", totalCreditos);
+            context.setVariable("totalGastos", totalGastos);
+            context.setVariable("totalGastosVarios", totalGastosVarios);
+            context.setVariable("totalRetiros", totalRetiros);
+            
+            // Totals
+            context.setVariable("totalIngresosGeneral", totalIngresosGeneral);
+            context.setVariable("totalEgresosGeneral", totalEgresosGeneral);
+            context.setVariable("fecha", fecha);
+            
+            // Creditos Otorgados y Denegados
+            context.setVariable("creditosOtorgados", creditosOtorgados);
+            context.setVariable("creditosDenegados", creditosDenegados);
+
+            // Logo dentro del JAR
+            URL logoResource = getClass().getClassLoader().getResource("static/img/logo.jpg");
+            if (logoResource != null) {
+                context.setVariable("logoUrl", logoResource.toExternalForm());
+            }
+
+            String htmlContent = templateEngine.process("fragments/PDFReporteDiario", context);
+
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename=reporte-diario-completo-" + fecha.toString() + ".pdf");
+
+            try (OutputStream os = response.getOutputStream()) {
+                PdfRendererBuilder builder = new PdfRendererBuilder();
+                builder.useFastMode();
+                builder.withHtmlContent(htmlContent, null);
+                builder.toStream(os);
+                builder.run();
+            }
+
+        } catch (Exception e) {
+            throw new RuntimeException("Error al generar PDF de Reporte Diario Completo: " + e.getMessage(), e);
+        }
+    }
+
   public void generarCuotasPDF(List<CreditoCuotaEntity> cuotas, Boolean mostrarEstado, Boolean mostrarObservaciones, HttpServletResponse response) {
     try {
         if (cuotas == null || cuotas.isEmpty()) {

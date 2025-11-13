@@ -386,6 +386,22 @@ public class CurrencyController {
         pdfService.generarReporteDiarioEgreso(GetCurrentCurrency().getSaldo(), creditos, gastos, fecha, response);
     }
 
+    @PostMapping("/diario/{fecha}/pdf")
+    public void getPDFDiario(@PathVariable LocalDate fecha, Long usuarioId, HttpServletResponse response) {
+        List<CreditoCuotaEntity> cuotas = cuotaService.findAllByEstadoAndFechaPago("Pagado", fecha);
+        List<AbonoCuotaEntity> abonos = abonoService.findAllByFecha(fecha);
+        List<HistorialSaldoEntity> ingresos = historialSaldoService.findAllByFecha(fecha);
+        List<CreditoEntity> creditos = creditoService.findAllByDesembolsadoAndFechaDesembolsado(true, fecha);
+        List<HistorialGastoEntity> gastos = gastoService.findAllByFecha(fecha);
+        List<CreditoEntity> creditosOtorgados = creditoService.findAllByEstadoAndFechaAceptado("aceptado", fecha);
+        List<CreditoEntity> creditosDenegados = creditoService.findAllByEstadoAndFechaRechazado("rechazado", fecha);
+
+        // Log action
+        accionLogger.logAccion(AccionTipo.DESCARGADO_REPORTE_PDF_ADMIN, (UsuarioEntity) null);
+
+        pdfService.generarReporteDiarioCompleto(GetCurrentCurrency().getSaldo(), cuotas, abonos, ingresos, creditos, gastos, creditosOtorgados, creditosDenegados, fecha, response);
+    }
+
 
     public AllCurrencyDTO GetCurrentCurrency(){
         BalanceEntity balance = balanceService.get();

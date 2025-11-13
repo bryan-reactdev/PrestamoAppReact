@@ -26,6 +26,7 @@ public interface CreditoService {
     List<CreditoEntity> findFinalizadosByUsuarioId(Long id);
 
     List<CreditoEntity> findAllByEstadoAndFechaAceptado(String estado, LocalDate fecha);
+    List<CreditoEntity> findAllByEstadoAndFechaRechazado(String estado, LocalDate fecha);
     List<CreditoEntity> findAllByDesembolsadoAndFechaDesembolsado(Boolean desembolsado, LocalDate fecha);
     
     Optional<CreditoEntity> findMostRecentByUsuarioId(Long id);

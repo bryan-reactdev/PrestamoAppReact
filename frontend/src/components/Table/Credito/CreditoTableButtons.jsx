@@ -85,3 +85,30 @@ export const ButtonEditarCredito = ({row}) => {
 ButtonEditarCredito.visibleIf = (row, role) => { 
   return role.includes('ADMIN') || row.original.editable; 
 };
+
+export const ButtonVerDocumentoCredito = ({row}) => {
+  const { descargarDocumentoCredito } = useCreditoStore();
+
+  const handleDownloadDocument = () => {
+    if (row.original.documento) {
+      descargarDocumentoCredito(
+        row.original.documento,
+        row.original.nombres,
+        row.original.apellidos,
+        row.original.id
+      );
+    }
+  };
+
+  return (
+    <button className="btn-accion" onClick={handleDownloadDocument}>
+      <i className="fas fa-download"/>
+      Descargar Documento
+    </button>
+  )
+}
+ButtonVerDocumentoCredito.visibleIf = (row, role) => { 
+  const monto = Number(row.original.monto) || 0;
+  const hasDocument = row.original.documento && row.original.documento.trim() !== '';
+  return (role.includes('ADMIN') && monto >= 200 && hasDocument); 
+};

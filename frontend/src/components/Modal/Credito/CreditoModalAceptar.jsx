@@ -17,6 +17,7 @@ export default function CreditoModalAceptar() {
   const [selectedCredito, setSelectedCredito] = useState(null);
   const [selectedCuotas, setSelectedCuotas] = useState([]);
   const [refinanciados, setRefinanciados] = useState(false);
+  const [document, setDocument] = useState(null);
   const formRef = useRef(null);
 
   const handleDescargarPDF = (tipo) => {
@@ -29,7 +30,8 @@ export default function CreditoModalAceptar() {
     monto: '',
     mora: '',
     frecuencia: '',
-    cuotaCantidad: ''
+    cuotaCantidad: '',
+    document: null
   })
   const [usuario, setUsuario] = useState(null)
   
@@ -40,20 +42,34 @@ export default function CreditoModalAceptar() {
     ({...prev,
       montoAprobado: row?.original?.monto,
       frecuencia: row?.original?.frecuencia,
+      document: null
     }))
 
+    setDocument(null);
     setRefinanciados(false);
   }, [row])
 
   // -- Handler para el formData --
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, files } = e.target;
 
-    // Dynamically add/update the field
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value === 'true' ? true : value === 'false' ? false : value,
-    }));
+    if (type === 'file') {
+      // Handle file uploads
+      const file = files?.[0];
+      if (file) {
+        setDocument(file);
+        setFormData((prev) => ({
+          ...prev,
+          [name]: file,
+        }));
+      }
+    } else {
+      // Dynamically add/update the field
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value === 'true' ? true : value === 'false' ? false : value,
+      }));
+    }
   };
 
   const handleCuotaChange = (rowIndex, field, newValue) => {
@@ -103,9 +119,17 @@ export default function CreditoModalAceptar() {
       payload.selectedCuotas = selectedCuotas;
     }
 
+    // Include document file if present
+    if (document) {
+      payload.document = document;
+    }
+
     aceptarCredito(row?.original?.id, payload);
     closeModal('aceptar');
   };
+
+  const monto = Number(formData.montoAprobado) || Number(row?.original?.monto) || 0;
+  const showDocumentField = monto >= 201;
 
   return (
     <BaseModal
@@ -155,6 +179,17 @@ export default function CreditoModalAceptar() {
                   <label>Solicitante del Crédito</label>
                   <strong>{usuario}</strong>
               </div>
+
+              {showDocumentField && (
+                <FormField
+                  name='document'
+                  onChange={handleChange}
+                  label={'Documento'} 
+                  type={'file'}
+                  accept=".pdf,.doc,.docx,.txt"
+                  required
+                />
+              )}
 
             </div>
           </div>

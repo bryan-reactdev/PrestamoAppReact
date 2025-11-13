@@ -17,6 +17,9 @@ public interface CreditoRepository extends JpaRepository<CreditoEntity, Long> {
     @Query("SELECT c FROM CreditoEntity c WHERE LOWER(c.estado) = :estado AND DATE(c.fechaAceptado) = :fecha")
     List<CreditoEntity> findAllByEstadoAndFechaAceptado(@Param("estado") String estado, @Param("fecha") LocalDate fecha);
 
+    @Query("SELECT c FROM CreditoEntity c WHERE LOWER(c.estado) = :estado AND DATE(c.fechaRechazado) = :fecha")
+    List<CreditoEntity> findAllByEstadoAndFechaRechazado(@Param("estado") String estado, @Param("fecha") LocalDate fecha);
+
     List<CreditoEntity> findAllByDesembolsado(Boolean desembolsado);
 
     @Query("SELECT c FROM CreditoEntity c WHERE LOWER(c.estado) = 'pendiente' ORDER BY c.usuarioSolicitud.fechaSolicitud DESC")

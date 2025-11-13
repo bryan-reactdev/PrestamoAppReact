@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <style>
+        @page {
+            size: landscape;
+        }
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 12pt;
+            line-height: 1.5;
+            margin: 1cm;
+            text-align: justify;
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .logo {
+            width: 170px;
+            height: auto;
+            margin-right: 15px;
+        }
+        .company-header {
+            font-weight: bold;
+            font-size: 14pt;
+            text-align: center;
+            flex: 1;
+        }
+        .pdf-title {
+            text-align: center;
+            font-weight: bold;
+            text-decoration: underline;
+            font-size: 12pt;
+            margin: 15px 0;
+        }
+        .pdf-section {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 15px 0 10px;
+            text-align: left;
+        }
+        .pdf-section-main {
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 20px 0 15px;
+            text-align: left;
+            font-size: 16pt;
+        }
+        .pdf-subsection {
+            font-weight: 600;
+            text-transform: uppercase;
+            margin: 15px 0 10px;
+            text-align: left;
+            font-size: 12pt;
+        }
+        .pdf-field {
+            margin-bottom: 10px;
+            text-align: justify;
+        }
+        .underline {
+            display: inline-block;
+            border-bottom: 1px solid black;
+            min-width: 50px;
+            width: auto;
+            white-space: nowrap;
+            text-align: left;
+        }
+
+        .spacer {
+            margin-top: 25px;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border: 1.5px solid black;
+        }
+        table {
+            page-break-inside: auto;
+        }
+
+        tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+
+        thead {
+            display: table-header-group;
+        }
+
+        tfoot {
+            display: table-footer-group;
+        }
+
+
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header-container">
+<!--    <img th:src="${logoUrl}" alt="Logo" class="logo" />-->
+    <div class="company-header">MULTIPRÉSTAMOS ATLAS</div>
+</div>
+
+<div class="pdf-title" th:text="'REPORTE DIARIO COMPLETO EN LA FECHA: ' + ${fecha}"></div>
+
+<!-- INGRESOS SECTION -->
+<div class="pdf-section-main" style="margin-top: 20px;">INGRESOS</div>
+
+<div class="pdf-subsection">1. PAGOS DE CUOTAS</div>
+<div th:if="${#lists.isEmpty(cuotas)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+    No hubieron pagos de cuotas para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
+</div>
+<table th:if="${not #lists.isEmpty(cuotas)}">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>DUI</th>
+            <th>Fecha Pago</th>
+            <th>Monto</th>
+            <th>Mora</th>
+            <th>Total</th>
+            <th>Observaciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="cuota : ${cuotas}">
+            <td>
+                <span th:text="${(cuota.credito.usuario?.nombre != null ? cuota.credito.usuario.nombre : '') + ' ' + (cuota.credito.usuario?.apellido != null ? cuota.credito.usuario.apellido : '')}"></span>
+            </td>
+            <td th:text="${cuota.credito.usuario?.dui}"></td>
+            <td th:text="${cuota.fechaPago != null ? #temporals.format(cuota.fechaPago, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+            <td th:text="${'$' + #numbers.formatDecimal(cuota.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+            <td th:text="${'$' + #numbers.formatDecimal(cuota.pagoMora, 1, 'COMMA', 2, 'POINT')}">$100.00</td>                    
+            <td th:text="${'$' + #numbers.formatDecimal(cuota.total, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+            <td style="width: 200px;"></td>
+        </tr>
+    </tbody>    
+</table>
+
+<div style="page-break-inside: avoid;"></div>
+
+<div class="pdf-subsection">2. ABONOS</div>
+<div th:if="${#lists.isEmpty(abonos)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+    No hubieron abonos para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
+</div>
+<table th:if="${not #lists.isEmpty(abonos)}">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>Fecha Abono</th>
+            <th>Monto</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="abono : ${abonos}">
+            <td>
+                <span th:text="${(abono.creditoCuota.credito.usuario?.nombre != null ? abono.creditoCuota.credito.usuario.nombre : '') + ' ' + (abono.creditoCuota.credito.usuario?.apellido != null ? abono.creditoCuota.credito.usuario.apellido : '')}"></span>
+            </td>
+            <td th:text="${abono.fechaAbono != null ? #temporals.format(abono.fechaAbono, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+            <td th:text="${'$' + #numbers.formatDecimal(abono.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+        </tr>
+    </tbody>    
+</table>
+
+<div style="page-break-inside: avoid;"></div>
+
+<div class="pdf-subsection">3. INGRESOS A CAPITAL</div>
+<div th:if="${#lists.isEmpty(ingresosCapitales)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+    No hubieron ingresos a capital para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
+</div>
+<table th:if="${not #lists.isEmpty(ingresosCapitales)}">
+    <thead>
+        <tr>
+            <th>Monto</th>
+            <th>Motivo</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="ingreso : ${ingresosCapitales}">
+            <td th:text="${'$' + #numbers.formatDecimal(ingreso.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+            <td th:text="${ingreso.motivo}"></td>
+            <td th:text="${ingreso.fecha != null ? #temporals.format(ingreso.fecha, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+        </tr>
+    </tbody>    
+</table>
+
+<div style="page-break-inside: avoid;"></div>
+
+<div class="pdf-subsection">4. INGRESOS VARIOS</div>
+<div th:if="${#lists.isEmpty(ingresosVarios)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+    No hubieron ingresos varios para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
+</div>
+<table th:if="${not #lists.isEmpty(ingresosVarios)}">
+    <thead>
+        <tr>
+            <th>Monto</th>
+            <th>Motivo</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="ingreso : ${ingresosVarios}">
+            <td th:text="${'$' + #numbers.formatDecimal(ingreso.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+            <td th:text="${ingreso.motivo}"></td>
+            <td th:text="${ingreso.fecha != null ? #temporals.format(ingreso.fecha, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+        </tr>
+    </tbody>    
+</table>
+
+<div style="page-break-inside: avoid;"></div>
+
+<!-- EGRESOS SECTION -->
+<div class="pdf-section-main" style="margin-top: 20px;">EGRESOS</div>
+
+<div class="pdf-subsection">1. CREDITOS DESEMBOLSADOS</div>
+<div th:if="${#lists.isEmpty(creditos)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+    No hubieron créditos desembolsados para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
+</div>
+<table th:if="${not #lists.isEmpty(creditos)}">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>DUI</th>
+            <th>Monto</th>
+            <th>Monto A Dar</th>
+            <th>Frecuencia de Pago</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="credito : ${creditos}">
+            <td>
+                <span th:text="${(credito.usuario?.nombre != null ? credito.usuario.nombre : '') + ' ' + (credito.usuario?.apellido != null ? credito.usuario.apellido : '')}"></span>
+            </td>
+            <td th:text="${credito.usuario?.dui}"></td>
+            <td th:text="${'$' + #numbers.formatDecimal(credito.monto, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${credito.montoDado != null ? '$' + #numbers.formatDecimal(credito.montoDado, 1, 'COMMA', 2, 'POINT') : ''}"></td>
+            <td th:text="${credito.plazoFrecuencia}"></td>
+        </tr>
+    </tbody>    
+</table>
+
+<div style="page-break-inside: avoid;"></div>
+
+<div class="pdf-subsection">2. GASTOS DE LA EMPRESA</div>
+<div th:if="${#lists.isEmpty(gastosEmpresa)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+    No hubieron gastos de la empresa para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
+</div>
+<table th:if="${not #lists.isEmpty(gastosEmpresa)}">
+    <thead>
+        <tr>
+            <th>Monto</th>
+            <th>Motivo</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="gasto : ${gastosEmpresa}">
+            <td th:text="${'$' + #numbers.formatDecimal(gasto.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+            <td th:text="${gasto.motivo}"></td>
+            <td th:text="${gasto.fecha != null ? #temporals.format(gasto.fecha, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+        </tr>
+    </tbody>    
+</table>
+
+<div style="page-break-inside: avoid;"></div>
+
+<div class="pdf-subsection">3. GASTOS VARIOS</div>
+<div th:if="${#lists.isEmpty(gastosVarios)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+    No hubieron gastos varios para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
+</div>
+<table th:if="${not #lists.isEmpty(gastosVarios)}">
+    <thead>
+        <tr>
+            <th>Monto</th>
+            <th>Motivo</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="gastos : ${gastosVarios}">
+            <td th:text="${'$' + #numbers.formatDecimal(gastos.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+            <td th:text="${gastos.motivo}"></td>
+            <td th:text="${gastos.fecha != null ? #temporals.format(gastos.fecha, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+        </tr>
+    </tbody>    
+</table>
+
+<div style="page-break-inside: avoid;"></div>
+
+<div class="pdf-subsection">4. RETIROS DE CUOTAS</div>
+<div th:if="${#lists.isEmpty(retiros)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+    No hubieron retiros de cuotas para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
+</div>
+<table th:if="${not #lists.isEmpty(retiros)}">
+    <thead>
+        <tr>
+            <th>Monto</th>
+            <th>Motivo</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="gastos : ${retiros}">
+            <td th:text="${'$' + #numbers.formatDecimal(gastos.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+            <td th:text="${gastos.motivo}"></td>
+            <td th:text="${gastos.fecha != null ? #temporals.format(gastos.fecha, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+        </tr>
+    </tbody>    
+</table>
+
+<div style="page-break-inside: avoid;"></div>
+
+<div class="pdf-section-main" style="margin-top: 20px;">CREDITOS OTORGADOS</div>
+<div th:if="${#lists.isEmpty(creditosOtorgados)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+    No hubieron créditos otorgados para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
+</div>
+<table th:if="${not #lists.isEmpty(creditosOtorgados)}">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>DUI</th>
+            <th>Monto</th>
+            <th>Tipo</th>
+            <th>Fecha Aceptado</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="credito : ${creditosOtorgados}">
+            <td>
+                <span th:text="${(credito.usuario?.nombre != null ? credito.usuario.nombre : '') + ' ' + (credito.usuario?.apellido != null ? credito.usuario.apellido : '')}"></span>
+            </td>
+            <td th:text="${credito.usuario?.dui}"></td>
+            <td th:text="${'$' + #numbers.formatDecimal(credito.monto, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${credito.tipo}"></td>
+            <td th:text="${credito.fechaAceptado != null ? #temporals.format(credito.fechaAceptado, 'dd/MM/yyyy') : 'N/A'}"></td>
+        </tr>
+    </tbody>    
+</table>
+
+<div style="page-break-inside: avoid;"></div>
+
+<div class="pdf-section-main" style="margin-top: 20px;">CREDITOS DENEGADOS</div>
+<div th:if="${#lists.isEmpty(creditosDenegados)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+    No hubieron créditos denegados para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
+</div>
+<table th:if="${not #lists.isEmpty(creditosDenegados)}">
+    <thead>
+        <tr>
+            <th>Usuario</th>
+            <th>DUI</th>
+            <th>Monto</th>
+            <th>Tipo</th>
+            <th>Fecha Rechazado</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="credito : ${creditosDenegados}">
+            <td>
+                <span th:text="${(credito.usuario?.nombre != null ? credito.usuario.nombre : '') + ' ' + (credito.usuario?.apellido != null ? credito.usuario.apellido : '')}"></span>
+            </td>
+            <td th:text="${credito.usuario?.dui}"></td>
+            <td th:text="${'$' + #numbers.formatDecimal(credito.monto, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${credito.tipo}"></td>
+            <td th:text="${credito.fechaRechazado != null ? #temporals.format(credito.fechaRechazado, 'dd/MM/yyyy') : 'N/A'}"></td>
+        </tr>
+    </tbody>    
+</table>
+
+<!-- Contenedor que evita que se separen -->
+<div style="page-break-inside: avoid;">
+
+    <div class="pdf-section-main">TOTALES</div>
+    <table style="width: 100%;">
+        <thead>
+        <tr>
+            <th style="text-align: center; background-color: #f0f0f0; width: 50%;">INGRESOS</th>
+            <th style="text-align: center; background-color: #f0f0f0; width: 50%;">EGRESOS</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="text-align: left;">
+                Total en Cuotas Pagadas <span th:text="${'$' + #numbers.formatDecimal(totalCuotas, 1, 'COMMA', 2, 'POINT')}" style="float: right;"></span>
+            </td>
+            <td style="text-align: left;">
+                Total en Créditos Desembolsados <span th:text="${'$' + #numbers.formatDecimal(totalCreditos, 1, 'COMMA', 2, 'POINT')}" style="float: right;"></span>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">
+                Total en Abonos <span th:text="${'$' + #numbers.formatDecimal(totalAbonos, 1, 'COMMA', 2, 'POINT')}" style="float: right;"></span>
+            </td>
+            <td style="text-align: left;">
+                Total en Gastos de la Empresa <span th:text="${'$' + #numbers.formatDecimal(totalGastos, 1, 'COMMA', 2, 'POINT')}" style="float: right;"></span>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">
+                Total en Ingresos a Caja <span th:text="${'$' + #numbers.formatDecimal(totalIngresos, 1, 'COMMA', 2, 'POINT')}" style="float: right;"></span>
+            </td>
+            <td style="text-align: left;">
+                Total en Gastos Varios <span th:text="${'$' + #numbers.formatDecimal(totalGastosVarios, 1, 'COMMA', 2, 'POINT')}" style="float: right;"></span>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">
+                Total en Ingresos Varios <span th:text="${'$' + #numbers.formatDecimal(totalIngresosVarios, 1, 'COMMA', 2, 'POINT')}" style="float: right;"></span>
+            </td>
+            <td style="text-align: left;">
+                Total en Retiros de Cuotas <span th:text="${'$' + #numbers.formatDecimal(totalRetiros, 1, 'COMMA', 2, 'POINT')}" style="float: right;"></span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table style="width: 75%; margin-top: 20px;">
+        <thead>
+        <tr>
+            <th>Total Ingresos</th>
+            <th>Total Egresos</th>
+            <th>Balance General</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td th:text="${'$' + #numbers.formatDecimal(totalIngresosGeneral, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${'$' + #numbers.formatDecimal(totalEgresosGeneral, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${'$' + #numbers.formatDecimal(saldo, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+
+
+</body>
+</html>
+

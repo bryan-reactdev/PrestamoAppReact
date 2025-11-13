@@ -54,6 +54,7 @@ const estadoInicial = {
     isSettingCreditoDescargable: false,
 
     wasGlobalFetch: false,
+    currentTipo: 'rapi-cash',
 }
 
 // --- inside your Zustand store ---
@@ -177,7 +178,9 @@ export const useCreditoStore = create((set, get) => ({
             },
         }));
 
-        get().filterCreditos('rapi-cash');
+        // Reapply the current filter instead of always resetting to 'rapi-cash'
+        const currentTipo = get().currentTipo || 'rapi-cash';
+        get().filterCreditos(currentTipo);
 
         // Recalculate filtered arrays for selected date
         get().getCreditosForDate();
@@ -206,6 +209,7 @@ export const useCreditoStore = create((set, get) => ({
         const filteredFinalizados = filterByTipo(creditosFinalizados, tipo);
 
         set((state) => ({
+            currentTipo: tipo, // Save the current filter type
             filteredCreditos:{
                 ...state.filteredCreditos,
                 creditos: filteredAll,
@@ -446,7 +450,45 @@ export const useCreditoStore = create((set, get) => ({
         set({isAceptandoCredito: true})
         const toastId = toast.loading("Aceptando Crédito...");
         
-        const res = await axiosData(`/creditoTest/aceptar/${id}`, { method: "POST", data: formData});
+        // Check if we need to send as FormData (if document file is present)
+        const hasFile = formData.document instanceof File;
+        
+        let data;
+        let headers = {};
+        
+        if (hasFile) {
+            // Use FormData for file upload
+            data = new FormData();
+            data.append('montoAprobado', formData.montoAprobado || '');
+            data.append('cuotaMensual', formData.cuotaMensual || '');
+            data.append('mora', formData.mora || '');
+            data.append('frecuencia', formData.frecuencia || '');
+            data.append('cuotaCantidad', formData.cuotaCantidad || '');
+            
+            if (formData.selectedCreditoId) {
+                data.append('selectedCreditoId', formData.selectedCreditoId);
+            }
+            
+            if (formData.selectedCuotas) {
+                data.append('selectedCuotas', JSON.stringify(formData.selectedCuotas));
+            }
+            
+            // Append document file
+            if (formData.document instanceof File) {
+                data.append('document', formData.document);
+            }
+            
+            headers = { 'Content-Type': 'multipart/form-data' };
+        } else {
+            // Use regular JSON for non-file requests
+            data = formData;
+        }
+        
+        const res = await axiosData(`/creditoTest/aceptar/${id}`, { 
+            method: "POST", 
+            data: data,
+            headers: headers
+        });
 
         if (get().wasGlobalFetch === true){
             get().resetArrays();
@@ -561,6 +603,49 @@ export const useCreditoStore = create((set, get) => ({
         } catch (err) {
             console.error("Error descargando PDF:", err);
             toast.error('Error al generar el PDF del crédito', { id: 'pdf-toast' });
+        }
+    },
+
+    descargarDocumentoCredito: async (documentoPath, nombres, apellidos, creditoId) => {
+        try {
+            toast.loading('Descargando documento...', { id: 'documento-toast' });
+
+            const res = await axiosData(documentoPath, {
+                method: "GET",
+                responseType: "blob",
+            });
+
+            // Get file extension from original document path
+            const pathParts = documentoPath.split('/');
+            const originalFilename = pathParts[pathParts.length - 1] || '';
+            const extension = originalFilename.includes('.') 
+                ? '.' + originalFilename.split('.').pop() 
+                : '';
+            
+            // Get user names and sanitize them (remove special characters, normalize spaces)
+            const nombresSanitized = (nombres || '').trim().replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
+            const apellidosSanitized = (apellidos || '').trim().replace(/[^a-zA-Z0-9\s]/g, '').replace(/\s+/g, '_');
+            
+            // Construct filename: documento_de_[nombre]_[apellido].[extension]
+            const filename = `documento_de_${nombresSanitized}_${apellidosSanitized}${extension}`.toLowerCase();
+            
+            // Create download link
+            const url = window.URL.createObjectURL(res.data);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            
+            // Cleanup
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+            
+            toast.dismiss('documento-toast');
+            toast.success('Documento descargado', { id: 'documento-toast' });
+        } catch (err) {
+            console.error("Error descargando documento:", err);
+            toast.error('Error al descargar el documento', { id: 'documento-toast' });
         }
     },
 

@@ -290,7 +290,8 @@ export const creditosRefinanciarColumns = [
 export const creditosAceptadosAcciones = [
   CreditoTableAccionTipos.DESEMBOLSAR,
   CreditoTableAccionTipos.VER_CUOTAS,
-  CreditoTableAccionTipos.GENERAR_DOCUMENTOS, 
+  CreditoTableAccionTipos.GENERAR_DOCUMENTOS,
+  CreditoTableAccionTipos.VER_DOCUMENTO,
   CreditoTableAccionTipos.EDITAR,
 ]
 

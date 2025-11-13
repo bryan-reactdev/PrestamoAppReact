@@ -4,6 +4,7 @@ import static com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.mapearACreditoD
 import static com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.mapearACreditoTablaDTOs;
 import static com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.mapearACuotaTablaDTOs;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -20,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs;
@@ -28,6 +30,7 @@ import com.biovizion.prestamo911.DTOs.Credito.CreditoDTOs.CreditoTablaDTO;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoAceptarRequest;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoDescargableRequest;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoDesembolsableRequest;
+import com.biovizion.prestamo911.utils.FileUtils;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoDesembolsarRequest;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoFullDTO;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoEditableRequest;
@@ -261,8 +264,10 @@ public class CreditoControllerTest {
     }
 
     // -- Aceptar --
-    @PostMapping("/aceptar/{id}")
-    public ResponseEntity<ApiResponse> aceptarCredito(@PathVariable Long id, @RequestBody CreditoAceptarRequest request){
+    @PostMapping(value = "/aceptar/{id}", consumes = {"multipart/form-data", "application/json"})
+    public ResponseEntity<ApiResponse> aceptarCredito(
+            @PathVariable Long id, 
+            @ModelAttribute CreditoAceptarRequest request){
         try {
             if (request == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -280,6 +285,14 @@ public class CreditoControllerTest {
             // If you want to require montoAprobado to be non-zero, validate explicitly:
             // if (request.getMontoAprobado() == null) throw new IllegalArgumentException("Monto aprobado requerido");
 
+            // Validate document is required when monto >= 201
+            boolean requiresDocument = montoAprobado.compareTo(new BigDecimal("201")) >= 0;
+            MultipartFile document = request.getDocument();
+            if (requiresDocument && (document == null || document.isEmpty())) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new ApiResponse<>("Error: Documento es requerido para créditos de tipo prendario o hipotecario"));
+            }
+
             if (montoAprobado.compareTo(new BigDecimal("200")) < 0) {
                 credito.setTipo("rapi-cash");
             } else {
@@ -293,6 +306,16 @@ public class CreditoControllerTest {
             credito.setMora(safe.apply(request.getMora()));
             credito.setEstado("Aceptado");
             credito.setFechaAceptado(LocalDateTime.now());
+
+            // Handle document upload
+            if (document != null && !document.isEmpty()) {
+                try {
+                    FileUtils.tryUploadDocumento(credito, document);
+                } catch (IOException e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(new ApiResponse<>("Error al subir el documento: " + e.getMessage()));
+                }
+            }
 
             if (request.getSelectedCreditoId() != null) {
                 Optional<CreditoEntity> optionalCredito = creditoService.findById(request.getSelectedCreditoId());
