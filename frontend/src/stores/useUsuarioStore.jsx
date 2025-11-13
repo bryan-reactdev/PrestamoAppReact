@@ -13,7 +13,7 @@ const estadoInicial = {
 
     usuarios: [],
     isFetchingUsuarios: false,
-
+    
     usuariosConCuotas: [],
     isFetchingUsuariosConCuotas: false,
     usuariosConVencidas: [],
@@ -135,6 +135,16 @@ export const useUsuarioStore = create((set, get) => ({
         set({ usuarios: res?.data ?? [] });
         set({ isFetchingUsuarios: false });
     },
+
+    // ✅ FUNCIÓN AHORA INCLUIDA EN LA STORE
+    getUsuariosByEnabledStatus: (status) => {
+        const { usuarios } = get();
+        // Filtra los usuarios donde el atributo 'enabled' coincide con el estado booleano proporcionado
+        const usuariosFiltrados = usuarios.filter(usuario => usuario.enabled === status); 
+        
+        return usuariosFiltrados;
+    },
+    // ✅ FIN
 
     getUsuariosConCuotas: async () =>{
         set({isFetchingUsuariosConCuotas: true});

@@ -34,7 +34,7 @@ export const creditosTodosColumns = [
     header: "Frecuencia",
     size: 125,
     enableSorting: false,
-    cell: (props) => <p>{props.getValue()}</p>  
+    cell: (props) => <p>{props.getValue()}</p>
   },
   {
     accessorKey: 'fechaSolicitud',
@@ -78,7 +78,7 @@ export const creditosTodosMinimalColumns = [
     header: "Frecuencia",
     size: 125,
     enableSorting: false,
-    cell: (props) => <p>{props.getValue()}</p>  
+    cell: (props) => <p>{props.getValue()}</p>
   },
   {
     accessorKey: 'fechaSolicitud',
@@ -115,6 +115,20 @@ export const creditosAceptadosColumns = [
     header: "Usuario",
     cell: (props) => <p>{props.getValue()}</p>
   },
+  // ------------------------------------------------------------------
+  // 🔥 INICIO: NUEVAS COLUMNAS (Celular, Dirección, DUI)
+  // ------------------------------------------------------------------
+  {
+    accessorKey: 'celular',
+    header: "Celular",
+    size: 100,
+    enableSorting: false,
+    cell: (props) => <p>{props.getValue()}</p>
+  },
+
+  // ------------------------------------------------------------------
+  // 🔥 FIN: NUEVAS COLUMNAS
+  // ------------------------------------------------------------------
   {
     accessorKey: 'monto',
     header: "Monto",
@@ -134,8 +148,8 @@ export const creditosAceptadosColumns = [
     size: 115,
     enableSorting: false,
     cell: (props) => {
-      const value = (props.getValue() === 0 || props.getValue() === null)  ? props.row.original.monto : props.getValue();
-      
+      const value = (props.getValue() === 0 || props.getValue() === null) ? props.row.original.monto : props.getValue();
+
       return (
         <span>
           <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -161,7 +175,28 @@ export const creditosAceptadosColumns = [
     header: "Frecuencia",
     size: 115,
     enableSorting: false,
-    cell: (props) => <p>{props.getValue()}</p>  
+    cell: (props) => <p>{props.getValue()}</p>
+  },
+  {
+    accessorKey: 'totalCuotas',
+    header: "Total Cuotas",
+    size: 100,
+    enableSorting: false,
+    cell: (props) => <p>{props.getValue()}</p>
+  },
+  {
+    accessorKey: 'cuotasPendientes',
+    header: "Pendientes",
+    size: 100,
+    enableSorting: false,
+    cell: (props) => <p>{props.getValue()}</p>
+  },
+  {
+    accessorKey: 'cuotasVencidas',
+    header: "Vencidas",
+    size: 100,
+    enableSorting: false,
+    cell: (props) => <p>{props.getValue()}</p>
   },
   {
     accessorKey: 'fechaAceptado',
@@ -186,12 +221,12 @@ export const creditosAceptadosColumns = [
 
       if (value === null) return <p>???</p>;
 
-      if (value === true){
+      if (value === true) {
         return <p className="badge Realizado">{DateTimeToDate(props.row.original.fechaDesembolsado)}</p>;
       }
 
       return <p className={`badge Pendiente`}>Pendiente</p>
-    }  
+    }
   },
   {
     accessorKey: 'accion',
@@ -236,8 +271,8 @@ export const creditosRefinanciarColumns = [
     size: 115,
     enableSorting: false,
     cell: (props) => {
-      const value = (props.getValue() === 0 || props.getValue() === null)  ? props.row.original.monto : props.getValue();
-      
+      const value = (props.getValue() === 0 || props.getValue() === null) ? props.row.original.monto : props.getValue();
+
       return (
         <span>
           <small>$</small> {Number(value).toLocaleString('es-SV', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -278,12 +313,12 @@ export const creditosRefinanciarColumns = [
 
       if (value === null) return <p>???</p>;
 
-      if (value === true){
+      if (value === true) {
         return <p className="badge Realizado">{DateTimeToDate(props.row.original.fechaDesembolsado)}</p>;
       }
 
       return <p className={`badge Pendiente`}>Pendiente</p>
-    }  
+    }
   },
 ]
 
@@ -295,7 +330,6 @@ export const creditosAceptadosAcciones = [
   CreditoTableAccionTipos.EDITAR,
   CreditoTableAccionTipos.NOTAS,
 ]
-
 // --- Créditos Pendientes ---
 export const creditosPendientesColumns = [
   {
@@ -327,7 +361,7 @@ export const creditosPendientesColumns = [
     accessorKey: 'frecuencia',
     header: "Frecuencia",
     size: 125,
-    cell: (props) => <p>{props.getValue()}</p>  
+    cell: (props) => <p>{props.getValue()}</p>
   },
   {
     accessorKey: 'fechaSolicitud',
@@ -354,8 +388,8 @@ export const creditosPendientesColumns = [
 
 export const creditosPendientesAcciones = [
   CreditoTableAccionTipos.ACEPTAR,
-  CreditoTableAccionTipos.RECHAZAR, 
-  CreditoTableAccionTipos.GENERAR_DOCUMENTOS, 
+  CreditoTableAccionTipos.RECHAZAR,
+  CreditoTableAccionTipos.GENERAR_DOCUMENTOS,
   CreditoTableAccionTipos.EDITAR,
   CreditoTableAccionTipos.NOTAS,
 ]
@@ -391,7 +425,7 @@ export const creditosRechazadosColumns = [
     accessorKey: 'frecuencia',
     header: "Frecuencia",
     size: 125,
-    cell: (props) => <p>{props.getValue()}</p>  
+    cell: (props) => <p>{props.getValue()}</p>
   },
   {
     accessorKey: 'fechaSolicitud',
@@ -458,7 +492,7 @@ export const creditosFinalizadosColumns = [
     accessorKey: 'frecuencia',
     header: "Frecuencia",
     size: 125,
-    cell: (props) => <p>{props.getValue()}</p>  
+    cell: (props) => <p>{props.getValue()}</p>
   },
   {
     accessorKey: 'fechaSolicitud',
@@ -494,7 +528,7 @@ export const creditosFinalizadosColumns = [
 ]
 
 export const creditosDefaultAcciones = [
-  CreditoTableAccionTipos.GENERAR_DOCUMENTOS, 
+  CreditoTableAccionTipos.GENERAR_DOCUMENTOS,
   CreditoTableAccionTipos.EDITAR,
   CreditoTableAccionTipos.NOTAS,
 ]

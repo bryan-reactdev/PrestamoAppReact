@@ -18,6 +18,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 public class CreditoDTOs {
+
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -28,10 +29,15 @@ public class CreditoDTOs {
         private String nombres;
         private String apellidos;
 
+        // nuevos atributos
+        private String celular;
+        private String direccion;
+        private String dui;
+
         private BigDecimal monto;
         private BigDecimal montoDesembolsar;
         private BigDecimal mora;
-        
+
         private String frecuencia;
 
         private LocalDateTime fechaAceptado;
@@ -48,12 +54,23 @@ public class CreditoDTOs {
         private String tipo;
         private String documento;
         private String nota;
+
+        // ------------------------------------------------------
+        // 🔥 INICIO: NUEVOS CAMPOS PARA LAS CANTIDADES DE CUOTAS
+        // ------------------------------------------------------
+        private Integer totalCuotas;
+        private Integer cuotasPagadas;
+        private Integer cuotasVencidas;
+        private Integer cuotasPendientes;
+        // ------------------------------------------------------
+        // 🔥 FIN: NUEVOS CAMPOS PARA LAS CANTIDADES DE CUOTAS
+        // ------------------------------------------------------
     }
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class CreditoDTO{
+    public static class CreditoDTO {
         private Long id;
         private Calificacion calificacion;
         private String usuario;
@@ -80,12 +97,34 @@ public class CreditoDTOs {
         private String tipo;
         private String nota;
 
-        @JsonManagedReference  // parent → child
+        @JsonManagedReference
         private List<CuotaDTO> cuotas;
+
+        // ------------------------------------------------------
+        // 🔥 NUEVOS CAMPOS PARA LAS CANTIDADES DE CUOTAS
+        // ------------------------------------------------------
+        private Integer totalCuotas;
+        private Integer cuotasPagadas;
+        private Integer cuotasVencidas;
+        private Integer cuotasPendientes;
+        // ------------------------------------------------------
     }
 
     public static CreditoTablaDTO mapearACreditoTablaDTO(CreditoEntity credito){
         String usuarioNombre = credito.getUsuario().getNombre().trim() + " " + credito.getUsuario().getApellido().trim();
+
+        // ------------------------------------------------------
+        // 🔥 INICIO: CÁLCULO DE CUOTAS para CreditoTablaDTO
+        // ------------------------------------------------------
+        List<CuotaDTO> cuotas = mapearACuotaDTOs(credito.getCuotas());
+
+        int total = cuotas.size();
+        int pagadas = (int) cuotas.stream().filter(c -> "Pagado".equals(c.getEstado())).count();
+        int vencidas = (int) cuotas.stream().filter(c -> "Vencido".equals(c.getEstado())).count();
+        int pendientes = (int) cuotas.stream().filter(c -> "Pendiente".equals(c.getEstado())).count();
+        // ------------------------------------------------------
+        // 🔥 FIN: CÁLCULO DE CUOTAS
+        // ------------------------------------------------------
 
         return new CreditoTablaDTO(
             credito.getId(),
@@ -93,6 +132,11 @@ public class CreditoDTOs {
             usuarioNombre,
             credito.getUsuario().getNombre(),
             credito.getUsuario().getApellido(),
+
+            // nuevos atributos
+            credito.getUsuario().getCelular(),
+            credito.getUsuario().getDireccion(),
+            credito.getUsuario().getDui(),
 
             credito.getMonto(),
             credito.getMontoDado(),
@@ -105,7 +149,6 @@ public class CreditoDTOs {
             credito.getFechaRechazado() != null ? credito.getFechaRechazado().toLocalDate() : null,
 
             credito.getDesembolsado(),
-
             credito.getEditable(),
             credito.getDescargable(),
             credito.getDesembolsable(),
@@ -113,12 +156,34 @@ public class CreditoDTOs {
             credito.getEstado(),
             credito.getTipo(),
             credito.getDocumento(),
-            credito.getNota()
-        ); 
+            credito.getNota(),
+
+            // ------------------------------------------------------
+            // 🔥 INICIO: ASIGNACIÓN DE NUEVOS VALORES
+            // ------------------------------------------------------
+            total,
+            pagadas,
+            vencidas,
+            pendientes
+            // ------------------------------------------------------
+            // 🔥 FIN: ASIGNACIÓN DE NUEVOS VALORES
+            // ------------------------------------------------------
+        );
     }
 
     public static CreditoDTO mapearACreditoDTO(CreditoEntity credito){
         String usuarioNombre = credito.getUsuario().getNombre().trim() + " " + credito.getUsuario().getApellido().trim();
+
+        List<CuotaDTO> cuotas = mapearACuotaDTOs(credito.getCuotas());
+
+        // ------------------------------------------------------
+        // 🔥 CALCULOS DE CUOTAS
+        // ------------------------------------------------------
+        int total = cuotas.size();
+        int pagadas = (int) cuotas.stream().filter(c -> "Pagado".equals(c.getEstado())).count();
+        int vencidas = (int) cuotas.stream().filter(c -> "Vencido".equals(c.getEstado())).count();
+        int pendientes = (int) cuotas.stream().filter(c -> "Pendiente".equals(c.getEstado())).count();
+        // ------------------------------------------------------
 
         return new CreditoDTO(
             credito.getId(),
@@ -130,16 +195,14 @@ public class CreditoDTOs {
             credito.getMonto(),
             credito.getMontoDado(),
             credito.getMora(),
-            
             credito.getPlazoFrecuencia(),
-            
+
             credito.getUsuarioSolicitud().getFechaSolicitud(),
             credito.getFechaAceptado() != null ? credito.getFechaAceptado().toLocalDate() : null,
             credito.getFechaDesembolsado() != null ? credito.getFechaDesembolsado().toLocalDate() : null,
             credito.getFechaRechazado() != null ? credito.getFechaRechazado().toLocalDate() : null,
-            
-            credito.getDesembolsado(),
 
+            credito.getDesembolsado(),
             credito.getEditable(),
             credito.getDescargable(),
             credito.getDesembolsable(),
@@ -147,19 +210,26 @@ public class CreditoDTOs {
             credito.getEstado(),
             credito.getTipo(),
             credito.getNota(),
-            mapearACuotaDTOs(credito.getCuotas())
+
+            cuotas, 	// lista completa
+
+            // nuevos valores calculados
+            total,
+            pagadas,
+            vencidas,
+            pendientes
         );
     }
 
     public static List<CreditoDTO> mapearACreditoDTOs(List<CreditoEntity> creditos) {
-        return creditos.stream().map(credito -> {
-            return mapearACreditoDTO(credito);
-        }).collect(Collectors.toList());
+        return creditos.stream()
+            .map(CreditoDTOs::mapearACreditoDTO)
+            .collect(Collectors.toList());
     }
 
     public static List<CreditoTablaDTO> mapearACreditoTablaDTOs(List<CreditoEntity> creditos) {
-        return creditos.stream().map(credito -> {
-            return mapearACreditoTablaDTO(credito);
-        }).collect(Collectors.toList());
+        return creditos.stream()
+            .map(CreditoDTOs::mapearACreditoTablaDTO)
+            .collect(Collectors.toList());
     }
 }

@@ -92,7 +92,9 @@ public class SecurityConfig {
             "http://192.168.3.182:5173",
             "http://192.168.3.100:5173",
             "http://192.168.0.194:5173",
-            "http://localhost:4173",
+            "http://localhost:5173",
+            "http://192.168.0.210:5173/",
+            "http://192.168.3.13:5173/",
             "http://31.220.51.108:4173",
             "https://prestamo911.com"
         ));

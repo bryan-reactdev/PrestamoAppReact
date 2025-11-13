@@ -225,17 +225,17 @@ export default function AdminEstadisticasDashboard() {
 
 
 
-  // Configuración de colores para los gráficos
+  // Configuración de colores para los gráficos - TODOS EN AZUL OSCURO
   const chartConfig = useMemo(() => {
     return {
-      saldo: { label: "Balance", color: "#2563eb" },
-      value: { label: "Monto", color: "#22c55e" },
-      valueEgresos: { label: "Monto", color: "#ef4444" },
-      Aceptados: { label: "Aceptados", color: "#22c55e" },
-      Rechazados: { label: "Rechazados", color: "#ef4444" },
-      'rapi-cash': { label: "Rapi-Cash", color: "#22c55e" },
-      'prendario': { label: "Prendarios", color: "#f59e0b" },
-      'hipotecario': { label: "Hipotecarios", color: "#6366f1" },
+      saldo: { label: "Balance", color: "#1e3a8a" },
+      value: { label: "Monto", color: "#1e40af" },
+      valueEgresos: { label: "Monto", color: "#1e3a8a" },
+      Aceptados: { label: "Aceptados", color: "#1e40af" },
+      Rechazados: { label: "Rechazados", color: "#1e3a8a" },
+      'rapi-cash': { label: "Rapi-Cash", color: "#1e40af" },
+      'prendario': { label: "Prendarios", color: "#1e3a8a" },
+      'hipotecario': { label: "Hipotecarios", color: "#1d4ed8" },
     };
   }, []);
 
@@ -284,7 +284,7 @@ export default function AdminEstadisticasDashboard() {
       size: 100,
       cell: (props) => {
         const estado = props.getValue();
-        const colorClass = estado === 'Aceptado' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
+        const colorClass = estado === 'Aceptado' ? 'bg-blue-100 text-blue-700' : 'bg-blue-100 text-blue-700';
         return <span className={`px-2 py-1 rounded-full text-xs font-medium ${colorClass}`}>{estado}</span>;
       }
     },
@@ -337,12 +337,12 @@ export default function AdminEstadisticasDashboard() {
   const MetricCard = ({ title, value, subtitle, color = "blue", size = "md", children }) => {
     const colorClasses = {
       blue: "bg-blue-50 border-blue-200 text-blue-700",
-      green: "bg-green-50 border-green-200 text-green-700",
-      red: "bg-red-50 border-red-200 text-red-700",
-      amber: "bg-amber-50 border-amber-200 text-amber-700",
-      emerald: "bg-emerald-50 border-emerald-200 text-emerald-700",
-      purple: "bg-purple-50 border-purple-200 text-purple-700",
-      indigo: "bg-indigo-50 border-indigo-200 text-indigo-700",
+      green: "bg-blue-50 border-blue-200 text-blue-700",
+      red: "bg-blue-50 border-blue-200 text-blue-700",
+      amber: "bg-blue-50 border-blue-200 text-blue-700",
+      emerald: "bg-blue-50 border-blue-200 text-blue-700",
+      purple: "bg-blue-50 border-blue-200 text-blue-700",
+      indigo: "bg-blue-50 border-blue-200 text-blue-700",
     };
 
     return (
@@ -401,21 +401,21 @@ export default function AdminEstadisticasDashboard() {
 
             {/* Ingresos vs Egresos en grid 2x2 compacto */}
             <div className="grid grid-cols-2 gap-2">
-              <div className="bg-green-50 p-2 rounded border border-green-200">
-                <div className="text-xs font-semibold text-green-600 text-center">Ingresos</div>
-                <div className="text-sm font-bold text-green-600 text-center">
+              <div className="bg-blue-50 p-2 rounded border border-blue-200">
+                <div className="text-xs font-semibold text-blue-600 text-center">Ingresos</div>
+                <div className="text-sm font-bold text-blue-600 text-center">
                   {formatCurrencySVWithSymbol((currencyForDate?.ingresosCapitales?.total || 0) + (currencyForDate?.ingresosVarios?.total || 0))}
                 </div>
               </div>
-              <div className="bg-red-50 p-2 rounded border border-red-200">
-                <div className="text-xs font-semibold text-red-600 text-center">Egresos</div>
-                <div className="text-sm font-bold text-red-600 text-center">
+              <div className="bg-blue-50 p-2 rounded border border-blue-200">
+                <div className="text-xs font-semibold text-blue-600 text-center">Egresos</div>
+                <div className="text-sm font-bold text-blue-600 text-center">
                   {formatCurrencySVWithSymbol((currencyForDate?.gastosEmpresa?.total || 0) + (currencyForDate?.egresosVarios?.total || 0) + (currencyForDate?.egresosPagoPlanillas?.total || 0))}
                 </div>
               </div>
-              <div className="bg-purple-50 p-2 rounded border border-purple-200 col-span-2">
-                <div className="text-xs font-semibold text-purple-600 text-center">Neto del Día</div>
-                <div className="text-sm font-bold text-purple-600 text-center">
+              <div className="bg-blue-50 p-2 rounded border border-blue-200 col-span-2">
+                <div className="text-xs font-semibold text-blue-600 text-center">Indicador KPI</div>
+                <div className="text-sm font-bold text-blue-600 text-center">
                   {formatCurrencySVWithSymbol(
                     ((currencyForDate?.ingresosCapitales?.total || 0) + (currencyForDate?.ingresosVarios?.total || 0)) -
                     ((currencyForDate?.gastosEmpresa?.total || 0) + (currencyForDate?.egresosVarios?.total || 0) + (currencyForDate?.egresosPagoPlanillas?.total || 0))
@@ -427,35 +427,35 @@ export default function AdminEstadisticasDashboard() {
 
           {/* CARD 2: INVERSIONES */}
           <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-semibold mb-3 text-center text-amber-700">Inversiones</h3>
+            <h3 className="text-lg font-semibold mb-3 text-center text-blue-700">Inversiones</h3>
 
             {/* Grid 2x2 para métricas de inversión */}
             <div className="grid grid-cols-2 gap-3">
               <MetricCard
                 title="Capital Invertido"
                 value={Array.isArray(ingresosCapitales) && calcularTotal(ingresosCapitales) ? formatCurrencySVWithSymbol(calcularTotal(ingresosCapitales)) : '$0.00'}
-                color="amber"
+                color="blue"
                 size="sm"
               />
               <MetricCard
                 title="Retorno Obtenido"
                 value={formatCurrencySVWithSymbol(Array.isArray(cuotasPagadas) ? calcularTotal(cuotasPagadas) : 0)}
                 subtitle="Total cuotas pagadas"
-                color="green"
+                color="blue"
                 size="sm"
               />
               <MetricCard
                 title="Retorno Pendiente"
                 value={formatCurrencySVWithSymbol(recuperacionCalculada)}
                 subtitle="Capital pendiente"
-                color="red"
+                color="blue"
                 size="sm"
               />
               <MetricCard
                 title="Ganancia Proyectada"
                 value={formatCurrencySVWithSymbol(gananciaDespuesRecuperacion)}
                 subtitle="Proyectada"
-                color="emerald"
+                color="blue"
                 size="sm"
               />
             </div>
@@ -463,28 +463,28 @@ export default function AdminEstadisticasDashboard() {
 
           {/* CARD 3: ROI */}
           <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-semibold mb-3 text-center text-purple-700">ROI</h3>
+            <h3 className="text-lg font-semibold mb-3 text-center text-blue-700">ROI</h3>
 
             {/* Grid 2x2 para métricas de ROI */}
             <div className="grid grid-cols-1 gap-3">
               <MetricCard
                 title="Capital Invertido"
                 value={Array.isArray(ingresosCapitales) && calcularTotal(ingresosCapitales) ? formatCurrencySVWithSymbol(calcularTotal(ingresosCapitales)) : '$0.00'}
-                color="amber"
+                color="blue"
                 size="sm"
               />
               <MetricCard
                 title="Retorno Obtenido"
                 value={formatCurrencySVWithSymbol(Array.isArray(cuotasPagadas) ? calcularTotal(cuotasPagadas) : 0)}
                 subtitle="Total cuotas pagadas"
-                color="green"
+                color="blue"
                 size="sm"
               />
               <MetricCard
                 title="ROI"
                 value={`${Number(roiCalculado).toFixed(2)}%`}
                 subtitle="Retorno de inversión"
-                color="purple"
+                color="blue"
                 size="sm"
               />
             </div>
@@ -492,28 +492,28 @@ export default function AdminEstadisticasDashboard() {
 
           {/* CARD 4: PROYECCIÓN DE CUOTAS */}
           <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-semibold mb-3 text-center text-indigo-700">Proyección de Cuotas</h3>
+            <h3 className="text-lg font-semibold mb-3 text-center text-blue-700">Proyección de Cuotas</h3>
             {isFetchingProyeccion ? (
               <div className="text-center py-4">
                 <span className="text-sm text-gray-600">Cargando...</span>
               </div>
             ) : proyeccionData ? (
               <div className="space-y-3">
-                <div className="flex justify-between items-center p-2 bg-green-50 rounded border border-green-200">
+                <div className="flex justify-between items-center p-2 bg-blue-50 rounded border border-blue-200">
                   <div>
-                    <div className="text-sm font-semibold text-green-700">Cobradas</div>
+                    <div className="text-sm font-semibold text-blue-700">Cobradas</div>
                     <div className="text-xs text-gray-600">{proyeccionData.cuotasCobradas?.cantidad || 0} cuotas</div>
                   </div>
-                  <div className="text-green-700 font-bold">
+                  <div className="text-blue-700 font-bold">
                     {formatCurrencySVWithSymbol(proyeccionData.cuotasCobradas?.montoTotal || 0)}
                   </div>
                 </div>
-                <div className="flex justify-between items-center p-2 bg-amber-50 rounded border border-amber-200">
+                <div className="flex justify-between items-center p-2 bg-blue-50 rounded border border-blue-200">
                   <div>
-                    <div className="text-sm font-semibold text-amber-700">Por Cobrar</div>
+                    <div className="text-sm font-semibold text-blue-700">Por Cobrar</div>
                     <div className="text-xs text-gray-600">{proyeccionData.cuotasPorCobrar?.cantidad || 0} cuotas</div>
                   </div>
-                  <div className="text-amber-700 font-bold">
+                  <div className="text-blue-700 font-bold">
                     {formatCurrencySVWithSymbol(proyeccionData.cuotasPorCobrar?.montoTotal || 0)}
                   </div>
                 </div>
@@ -563,7 +563,7 @@ export default function AdminEstadisticasDashboard() {
 
           {/* Gráfico 2 de 3: Detalle de Ingresos */}
           <div className="bg-white p-4 rounded-lg shadow-sm border col-span-1">
-            <h3 className="text-lg font-semibold mb-3 text-center text-green-700">Detalle de Ingresos</h3>
+            <h3 className="text-lg font-semibold mb-3 text-center text-blue-700">Detalle de Ingresos</h3>
             <ChartContainer config={chartConfig} className="h-64 w-full">
               <BarChart
                 layout="vertical"
@@ -603,7 +603,7 @@ export default function AdminEstadisticasDashboard() {
 
           {/* Gráfico 3 de 3: Detalle de Egresos */}
           <div className="bg-white p-4 rounded-lg shadow-sm border col-span-1">
-            <h3 className="text-lg font-semibold mb-3 text-center text-red-700">Detalle de Egresos</h3>
+            <h3 className="text-lg font-semibold mb-3 text-center text-blue-700">Detalle de Egresos</h3>
             <ChartContainer config={chartConfig} className="h-64 w-full">
               <BarChart
                 layout="vertical"
@@ -789,7 +789,7 @@ export default function AdminEstadisticasDashboard() {
                     labelLine={false}
                   >
                     {chartDataPieEstado.map((entry) => (
-                      <Cell key={`cell-${entry.name}`} fill={chartConfig[entry.name]?.color || "#8884d8"} />
+                      <Cell key={`cell-${entry.name}`} fill={chartConfig[entry.name]?.color || "#1e3a8a"} />
                     ))}
                   </Pie>
                 </PieChart>
@@ -896,7 +896,7 @@ export default function AdminEstadisticasDashboard() {
                     labelLine={false}
                   >
                     {chartDataPieTipo.map((entry) => (
-                      <Cell key={`cell-${entry.name}`} fill={chartConfig[entry.name]?.color || "#8884d8"} />
+                      <Cell key={`cell-${entry.name}`} fill={chartConfig[entry.name]?.color || "#1e3a8a"} />
                     ))}
                   </Pie>
                 </PieChart>
