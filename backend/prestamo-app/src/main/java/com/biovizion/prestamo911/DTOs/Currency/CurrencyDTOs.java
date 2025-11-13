@@ -34,6 +34,7 @@ public class CurrencyDTOs {
         // Egresos
         private List<HistorialDTO> gastosEmpresa;
         private List<HistorialDTO> egresosVarios;
+        private List<HistorialDTO> egresosPagoPlanillas;
         private List<HistorialDTO> egresosCuotasRetiros;
         private List<CreditoDTO> creditosDesembolsados;
     }

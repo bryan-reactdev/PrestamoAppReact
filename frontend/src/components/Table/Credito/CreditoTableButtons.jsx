@@ -112,3 +112,17 @@ ButtonVerDocumentoCredito.visibleIf = (row, role) => {
   const hasDocument = row.original.documento && row.original.documento.trim() !== '';
   return (role.includes('ADMIN') && monto >= 200 && hasDocument); 
 };
+
+export const ButtonNotasCredito = ({row}) => {
+  const { openModal } = useCreditoModalStore();
+
+  return (
+    <button className="btn-accion" onClick={() => openModal('notas', row)}>
+      <i className="fas fa-note-sticky"/>
+      Notas
+    </button>
+  )
+}
+ButtonNotasCredito.visibleIf = (row, role) => { 
+  return !role.includes('USER'); 
+};

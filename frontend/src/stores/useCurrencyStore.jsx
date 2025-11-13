@@ -26,6 +26,7 @@ const estadoInicial = {
     // Egresos
     gastosEmpresa: null,
     gastosVarios: null,
+    egresosPagoPlanillas: null,
     egresosCuotasRetiros: null,
     creditosDesembolsados: null,
 
@@ -42,6 +43,7 @@ const estadoInicial = {
         // Egresos
         gastosEmpresa: null,
         egresosVarios: null,
+        egresosPagoPlanillas: null,
         egresosCuotasRetiros: null,
         creditosDesembolsados: null,
         totalEgresos: null,
@@ -60,6 +62,7 @@ const estadoInicial = {
         // Egresos
         gastosEmpresa: null,
         egresosVarios: null,
+        egresosPagoPlanillas: null,
         egresosCuotasRetiros: null,
         creditosDesembolsados: null,
         totalEgresos: null,
@@ -119,6 +122,7 @@ export const useCurrencyStore = create((set, get) => ({
             // Egresos
             gastosEmpresa: res?.data.gastosEmpresa,
             egresosVarios: res?.data.egresosVarios,
+            egresosPagoPlanillas: res?.data.egresosPagoPlanillas,
             egresosCuotasRetiros: res?.data.egresosCuotasRetiros,
             creditosDesembolsados: res?.data.creditosDesembolsados,
         });
@@ -235,7 +239,7 @@ export const useCurrencyStore = create((set, get) => ({
 
     // --- Totales Calculations ---
     getCurrencyForDate: () => {
-        const { filtrarPorFecha, selectedDate, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados, historialBalance, saldo } = get();
+        const { filtrarPorFecha, selectedDate, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosPagoPlanillas, egresosCuotasRetiros, creditosDesembolsados, historialBalance, saldo } = get();
 
         const isCurrentDate = selectedDate === getCurrentDate();
 
@@ -246,6 +250,7 @@ export const useCurrencyStore = create((set, get) => ({
 
         const gastosEmpresaForDate = filtrarPorFecha(gastosEmpresa, selectedDate);
         const egresosVariosForDate = filtrarPorFecha(egresosVarios, selectedDate);
+        const egresosPagoPlanillasForDate = filtrarPorFecha(egresosPagoPlanillas, selectedDate);
         const egresosCuotasRetirosForDate = filtrarPorFecha(egresosCuotasRetiros, selectedDate);
         const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, selectedDate);
 
@@ -261,6 +266,7 @@ export const useCurrencyStore = create((set, get) => ({
         const calculatedTotalEgresos = 
             gastosEmpresaForDate?.total +
             egresosVariosForDate?.total +
+            egresosPagoPlanillasForDate?.total +
             egresosCuotasRetirosForDate?.total +
             creditosDesembolsadosForDate?.total;
 
@@ -290,6 +296,7 @@ export const useCurrencyStore = create((set, get) => ({
 
                 gastosEmpresa: gastosEmpresaForDate,
                 egresosVarios: egresosVariosForDate,
+                egresosPagoPlanillas: egresosPagoPlanillasForDate,
                 egresosCuotasRetiros: egresosCuotasRetirosForDate,
                 creditosDesembolsados: creditosDesembolsadosForDate,
                 totalEgresos: calculatedTotalEgresos,
@@ -298,7 +305,7 @@ export const useCurrencyStore = create((set, get) => ({
     },
 
     getCurrencyForRange: () => {
-        const { filtrarPorRango, selectedDateRange, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados, historialBalance, saldo } = get();
+        const { filtrarPorRango, selectedDateRange, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosPagoPlanillas, egresosCuotasRetiros, creditosDesembolsados, historialBalance, saldo } = get();
 
         const { startDate, endDate } = selectedDateRange;
         const isCurrentDateInRange = endDate >= getCurrentDate() && startDate <= getCurrentDate();
@@ -310,6 +317,7 @@ export const useCurrencyStore = create((set, get) => ({
 
         const gastosEmpresaForRange = filtrarPorRango(gastosEmpresa, startDate, endDate);
         const egresosVariosForRange = filtrarPorRango(egresosVarios, startDate, endDate);
+        const egresosPagoPlanillasForRange = filtrarPorRango(egresosPagoPlanillas, startDate, endDate);
         const egresosCuotasRetirosForRange = filtrarPorRango(egresosCuotasRetiros, startDate, endDate);
         const creditosDesembolsadosForRange = filtrarPorRango(creditosDesembolsados, startDate, endDate);
 
@@ -325,6 +333,7 @@ export const useCurrencyStore = create((set, get) => ({
         const calculatedTotalEgresos = 
             gastosEmpresaForRange?.total +
             egresosVariosForRange?.total +
+            egresosPagoPlanillasForRange?.total +
             egresosCuotasRetirosForRange?.total +
             creditosDesembolsadosForRange?.total;
 
@@ -343,6 +352,7 @@ export const useCurrencyStore = create((set, get) => ({
 
                 gastosEmpresa: gastosEmpresaForRange,
                 egresosVarios: egresosVariosForRange,
+                egresosPagoPlanillas: egresosPagoPlanillasForRange,
                 egresosCuotasRetiros: egresosCuotasRetirosForRange,
                 creditosDesembolsados: creditosDesembolsadosForRange,
                 totalEgresos: calculatedTotalEgresos,
@@ -407,7 +417,7 @@ export const useCurrencyStore = create((set, get) => ({
 
     // --- Week Data Generation ---
     getWeekData: (weekOffset = 0) => {
-        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados, historialBalance } = get();
+        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosPagoPlanillas, egresosCuotasRetiros, creditosDesembolsados, historialBalance } = get();
         
         const today = new Date();
         const targetDate = new Date(today);
@@ -434,6 +444,7 @@ export const useCurrencyStore = create((set, get) => ({
             
             const gastosEmpresaForDate = filtrarPorFecha(gastosEmpresa, dateString);
             const egresosVariosForDate = filtrarPorFecha(egresosVarios, dateString);
+            const egresosPagoPlanillasForDate = filtrarPorFecha(egresosPagoPlanillas, dateString);
             const egresosCuotasRetirosForDate = filtrarPorFecha(egresosCuotasRetiros, dateString);
             const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, dateString);
             const historialBalanceForDate = filtrarPorFecha(historialBalance, dateString);
@@ -448,6 +459,7 @@ export const useCurrencyStore = create((set, get) => ({
             const totalEgresos = 
                 (gastosEmpresaForDate?.total || 0) +
                 (egresosVariosForDate?.total || 0) +
+                (egresosPagoPlanillasForDate?.total || 0) +
                 (egresosCuotasRetirosForDate?.total || 0) +
                 (creditosDesembolsadosForDate?.total || 0);
             
@@ -461,6 +473,7 @@ export const useCurrencyStore = create((set, get) => ({
                 cuotasPagadas: cuotasPagadasForDate?.total || 0,
                 gastosEmpresa: gastosEmpresaForDate?.total || 0,
                 egresosVarios: egresosVariosForDate?.total || 0,
+                egresosPagoPlanillas: egresosPagoPlanillasForDate?.total || 0,
                 egresosCuotasRetiros: egresosCuotasRetirosForDate?.total || 0,
                 creditosDesembolsados: creditosDesembolsadosForDate?.total || 0,
                 historialBalance: historialBalanceForDate?.data?.[0]?.monto || 0,
@@ -477,7 +490,7 @@ export const useCurrencyStore = create((set, get) => ({
 
     // --- Month Data Generation ---
     getMonthData: (monthOffset = 0) => {
-        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados, historialBalance } = get();
+        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosPagoPlanillas, egresosCuotasRetiros, creditosDesembolsados, historialBalance } = get();
         
         const today = new Date();
         const targetDate = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
@@ -505,6 +518,7 @@ export const useCurrencyStore = create((set, get) => ({
             
             const gastosEmpresaForDate = filtrarPorFecha(gastosEmpresa, dateString);
             const egresosVariosForDate = filtrarPorFecha(egresosVarios, dateString);
+            const egresosPagoPlanillasForDate = filtrarPorFecha(egresosPagoPlanillas, dateString);
             const egresosCuotasRetirosForDate = filtrarPorFecha(egresosCuotasRetiros, dateString);
             const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, dateString);
             const historialBalanceForDate = filtrarPorFecha(historialBalance, dateString);
@@ -519,6 +533,7 @@ export const useCurrencyStore = create((set, get) => ({
             const totalEgresos = 
                 (gastosEmpresaForDate?.total || 0) +
                 (egresosVariosForDate?.total || 0) +
+                (egresosPagoPlanillasForDate?.total || 0) +
                 (egresosCuotasRetirosForDate?.total || 0) +
                 (creditosDesembolsadosForDate?.total || 0);
             
@@ -538,6 +553,7 @@ export const useCurrencyStore = create((set, get) => ({
                 cuotasPagadas: cuotasPagadasForDate?.total || 0,
                 gastosEmpresa: gastosEmpresaForDate?.total || 0,
                 egresosVarios: egresosVariosForDate?.total || 0,
+                egresosPagoPlanillas: egresosPagoPlanillasForDate?.total || 0,
                 egresosCuotasRetiros: egresosCuotasRetirosForDate?.total || 0,
                 creditosDesembolsados: creditosDesembolsadosForDate?.total || 0,
                 historialBalance: historialBalanceValue,
@@ -554,7 +570,7 @@ export const useCurrencyStore = create((set, get) => ({
 
     // --- Multi-Month Data Generation (3, 6, 12 months) ---
     getMultiMonthData: (numberOfMonths = 3, monthOffset = 0, yearOffset = 0) => {
-        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosCuotasRetiros, creditosDesembolsados, historialBalance, saldo } = get();
+        const { filtrarPorFecha, ingresosCapitales, ingresosVarios, cuotasAbonos, cuotasPagadas, gastosEmpresa, egresosVarios, egresosPagoPlanillas, egresosCuotasRetiros, creditosDesembolsados, historialBalance, saldo } = get();
         
         const today = new Date();
         today.setUTCHours(0, 0, 0, 0);
@@ -580,6 +596,7 @@ export const useCurrencyStore = create((set, get) => ({
                 let monthCuotasPagadas = 0;
                 let monthGastosEmpresa = 0;
                 let monthEgresosVarios = 0;
+                let monthEgresosPagoPlanillas = 0;
                 let monthEgresosCuotasRetiros = 0;
                 let monthCreditosDesembolsados = 0;
                 let monthHistorialBalance = null;
@@ -602,6 +619,7 @@ export const useCurrencyStore = create((set, get) => ({
                     
                     const gastosEmpresaForDate = filtrarPorFecha(gastosEmpresa, dateString);
                     const egresosVariosForDate = filtrarPorFecha(egresosVarios, dateString);
+                    const egresosPagoPlanillasForDate = filtrarPorFecha(egresosPagoPlanillas, dateString);
                     const egresosCuotasRetirosForDate = filtrarPorFecha(egresosCuotasRetiros, dateString);
                     const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, dateString);
                     const historialBalanceForDate = filtrarPorFecha(historialBalance, dateString);
@@ -613,6 +631,7 @@ export const useCurrencyStore = create((set, get) => ({
                     monthCuotasPagadas += cuotasPagadasForDate?.total || 0;
                     monthGastosEmpresa += gastosEmpresaForDate?.total || 0;
                     monthEgresosVarios += egresosVariosForDate?.total || 0;
+                    monthEgresosPagoPlanillas += egresosPagoPlanillasForDate?.total || 0;
                     monthEgresosCuotasRetiros += egresosCuotasRetirosForDate?.total || 0;
                     monthCreditosDesembolsados += creditosDesembolsadosForDate?.total || 0;
                     
@@ -638,6 +657,7 @@ export const useCurrencyStore = create((set, get) => ({
                 const totalEgresos = 
                     monthGastosEmpresa +
                     monthEgresosVarios +
+                    monthEgresosPagoPlanillas +
                     monthEgresosCuotasRetiros +
                     monthCreditosDesembolsados;
                 
@@ -659,6 +679,7 @@ export const useCurrencyStore = create((set, get) => ({
                     cuotasPagadas: monthCuotasPagadas,
                     gastosEmpresa: monthGastosEmpresa,
                     egresosVarios: monthEgresosVarios,
+                    egresosPagoPlanillas: monthEgresosPagoPlanillas,
                     egresosCuotasRetiros: monthEgresosCuotasRetiros,
                     creditosDesembolsados: monthCreditosDesembolsados,
                     historialBalance: monthHistorialBalance,
@@ -685,6 +706,7 @@ export const useCurrencyStore = create((set, get) => ({
                 let monthCuotasPagadas = 0;
                 let monthGastosEmpresa = 0;
                 let monthEgresosVarios = 0;
+                let monthEgresosPagoPlanillas = 0;
                 let monthEgresosCuotasRetiros = 0;
                 let monthCreditosDesembolsados = 0;
                 let monthHistorialBalance = null;
@@ -707,6 +729,7 @@ export const useCurrencyStore = create((set, get) => ({
                     
                     const gastosEmpresaForDate = filtrarPorFecha(gastosEmpresa, dateString);
                     const egresosVariosForDate = filtrarPorFecha(egresosVarios, dateString);
+                    const egresosPagoPlanillasForDate = filtrarPorFecha(egresosPagoPlanillas, dateString);
                     const egresosCuotasRetirosForDate = filtrarPorFecha(egresosCuotasRetiros, dateString);
                     const creditosDesembolsadosForDate = filtrarPorFecha(creditosDesembolsados, dateString);
                     const historialBalanceForDate = filtrarPorFecha(historialBalance, dateString);
@@ -718,6 +741,7 @@ export const useCurrencyStore = create((set, get) => ({
                     monthCuotasPagadas += cuotasPagadasForDate?.total || 0;
                     monthGastosEmpresa += gastosEmpresaForDate?.total || 0;
                     monthEgresosVarios += egresosVariosForDate?.total || 0;
+                    monthEgresosPagoPlanillas += egresosPagoPlanillasForDate?.total || 0;
                     monthEgresosCuotasRetiros += egresosCuotasRetirosForDate?.total || 0;
                     monthCreditosDesembolsados += creditosDesembolsadosForDate?.total || 0;
                     
@@ -743,6 +767,7 @@ export const useCurrencyStore = create((set, get) => ({
                 const totalEgresos = 
                     monthGastosEmpresa +
                     monthEgresosVarios +
+                    monthEgresosPagoPlanillas +
                     monthEgresosCuotasRetiros +
                     monthCreditosDesembolsados;
                 
@@ -764,6 +789,7 @@ export const useCurrencyStore = create((set, get) => ({
                     cuotasPagadas: monthCuotasPagadas,
                     gastosEmpresa: monthGastosEmpresa,
                     egresosVarios: monthEgresosVarios,
+                    egresosPagoPlanillas: monthEgresosPagoPlanillas,
                     egresosCuotasRetiros: monthEgresosCuotasRetiros,
                     creditosDesembolsados: monthCreditosDesembolsados,
                     historialBalance: monthHistorialBalance,
@@ -854,6 +880,7 @@ export const useCurrencyStore = create((set, get) => ({
             // Egresos
             gastosEmpresa: null,
             egresosVarios: null,
+            egresosPagoPlanillas: null,
             egresosCuotasRetiros: null,
             creditosDesembolsados: null,
 
@@ -870,6 +897,7 @@ export const useCurrencyStore = create((set, get) => ({
                 // Egresos
                 gastosEmpresa: null,
                 egresosVarios: null,
+                egresosPagoPlanillas: null,
                 egresosCuotasRetiros: null,
                 creditosDesembolsados: null,
                 totalEgresos: null,
@@ -888,6 +916,7 @@ export const useCurrencyStore = create((set, get) => ({
                 // Egresos
                 gastosEmpresa: null,
                 egresosVarios: null,
+                egresosPagoPlanillas: null,
                 egresosCuotasRetiros: null,
                 creditosDesembolsados: null,
                 totalEgresos: null,

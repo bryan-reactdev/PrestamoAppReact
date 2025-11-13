@@ -9,6 +9,7 @@ import CreditoModalAceptar from '../../components/Modal/Credito/CreditoModalAcep
 import { CreditosAceptadosCard, CreditosDefaultCard, CreditosPendientesCard } from '../../components/Card/Credito/CreditoCardDefinitions'
 import CreditoModalGenerarDocumentos from '../../components/Modal/Credito/CreditoModalGenerarDocumentos'
 import CreditoModalRechazar from '../../components/Modal/Credito/CreditoModalRechazar'
+import CreditoModalNotas from '../../components/Modal/Credito/CreditoModalNotas'
 import { useParams } from 'react-router-dom'
 import ContentTitle from '../../components/Content/ContentTitle'
 import Layout from '../../Layout'
@@ -38,7 +39,8 @@ export default function UsuarioCreditos(){
       <CreditoModalGenerarDocumentos/>      
       <CreditoModalDesembolsar/>
       <CreditoModalAceptar/>      
-      <CreditoModalRechazar/>      
+      <CreditoModalRechazar/>
+      <CreditoModalNotas/>      
 
       {/* Mobile */}
 

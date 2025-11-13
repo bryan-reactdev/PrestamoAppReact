@@ -479,6 +479,7 @@ public class CurrencyController {
         // Egresos
         List<HistorialGastoEntity> gastosEmpresaEntities = gastoService.findAllByTipo("Empresa");
         List<HistorialGastoEntity> egresosVariosEntities = gastoService.findAllByTipo("Varios");
+        List<HistorialGastoEntity> egresosPagoPlanillasEntities = gastoService.findAllByTipo("Pago de Planillas");
         List<HistorialGastoEntity> egresosCuotasRetirosEntities = gastoService.findAllByTipo("Retiro de Cuotas");
         List<CreditoEntity> creditosDesembolsados = creditoService.findAllByDesembolsado(true);
 
@@ -491,6 +492,7 @@ public class CurrencyController {
             mapearACuotaDTOs(cuotasPagadas),
             mapearAHistorialDTOs(gastosEmpresaEntities),
             mapearAHistorialDTOs(egresosVariosEntities),
+            mapearAHistorialDTOs(egresosPagoPlanillasEntities),
             mapearAHistorialDTOs(egresosCuotasRetirosEntities),
             mapearACreditoDTOs(creditosDesembolsados)
         );

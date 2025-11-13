@@ -24,9 +24,9 @@ const estadoInicial = {
         creditosAceptados: [],
         creditosRechazados: [],
         creditosFinalizados: [],
-        totalRapicash: null,
-        totalPrendarios: null,
-        totalHipotecarios: null,
+        totalRapicash: { monto: 0, length: 0 },
+        totalPrendarios: { monto: 0, length: 0 },
+        totalHipotecarios: { monto: 0, length: 0 },
     },
 
     creditosForDate: {
@@ -35,9 +35,9 @@ const estadoInicial = {
         creditosAceptados: [],
         creditosRechazados: [],
         creditosFinalizados: [],
-        totalRapicash: null,
-        totalPrendarios: null,
-        totalHipotecarios: null,
+        totalRapicash: { monto: 0, length: 0 },
+        totalPrendarios: { monto: 0, length: 0 },
+        totalHipotecarios: { monto: 0, length: 0 },
     },
 
     selectedDate: getCurrentDate(),
@@ -45,6 +45,7 @@ const estadoInicial = {
     isDesembolsandoCredito: false,
     isAceptandoCredito: false,
     isRechazandoCredito: false,
+    isGuardandoNota: false,
 
     isSubmittingCredito: false,
 
@@ -503,13 +504,20 @@ export const useCreditoStore = create((set, get) => ({
         set({isAceptandoCredito: false})
     },
 
-    rechazarCredito: async (id, originalEstado) => {
+    rechazarCredito: async (id, originalEstado, nota = null) => {
         set({isRechazandoCredito: true})
         const toastId = toast.loading("Rechazando Crédito...");
         
-        const res = await axiosData(`/creditoTest/rechazar/${id}`, { method: "POST"});
+        const data = { nota: nota || '' };
+        const res = await axiosData(`/creditoTest/rechazar/${id}`, { 
+            method: "POST",
+            data: data
+        });
         // Update optimistica
         get().updateEstado(id, 'Rechazado');
+        
+        // Update nota (even if empty string to clear it)
+        get().updateKey(id, 'nota', nota || '');
         
         // En caso de error
         if (res === null) {
@@ -536,6 +544,30 @@ export const useCreditoStore = create((set, get) => ({
         }
 
         set({isDesembolsandoCredito: false})
+    },
+
+    guardarNota: async (id, nota) => {
+        set({ isGuardandoNota: true })
+
+        const res = await axiosData(`/creditoTest/nota/${id}`, { 
+            method: "POST", 
+            data: { nota } 
+        })
+
+        set({ isGuardandoNota: false })
+
+        if (res === null) return false
+
+        // Update the credito in store if it's currently loaded
+        const { credito } = get()
+        if (credito && credito.id === id) {
+            set({ credito: { ...credito, nota } })
+        }
+
+        // Update in all collections
+        get().updateKey(id, 'nota', nota)
+
+        return true
     },
 
     toggleCreditoEditable: async (id, editable) => {
@@ -663,9 +695,9 @@ export const useCreditoStore = create((set, get) => ({
                 creditosAceptados: [],
                 creditosRechazados: [],
                 creditosFinalizados: [],
-                totalRapicash: null,
-                totalPrendarios: null,
-                totalHipotecarios: null,
+                totalRapicash: { monto: 0, length: 0 },
+                totalPrendarios: { monto: 0, length: 0 },
+                totalHipotecarios: { monto: 0, length: 0 },
             },
 
             creditosForDate: {
@@ -674,9 +706,9 @@ export const useCreditoStore = create((set, get) => ({
                 creditosAceptados: [],
                 creditosRechazados: [],
                 creditosFinalizados: [],
-                totalRapicash: null,
-                totalPrendarios: null,
-                totalHipotecarios: null,
+                totalRapicash: { monto: 0, length: 0 },
+                totalPrendarios: { monto: 0, length: 0 },
+                totalHipotecarios: { monto: 0, length: 0 },
             },
         })
     },
@@ -693,15 +725,18 @@ export const useCreditoStore = create((set, get) => ({
         return filteredObjects;
     },
     getTotalesTipos: (objects, tipo) => {
-        if (!Array.isArray(objects)) return;
+        if (!Array.isArray(objects)) return { monto: 0, length: 0 };
 
-        return objects.reduce((sum, object) => {
+        return objects.reduce((acc, object) => {
             if (object.tipo == tipo){
-                return sum + 1;
+                return {
+                    monto: acc.monto + (object.monto || 0),
+                    length: acc.length + 1
+                };
             }
 
-            return sum;
-        }, 0)
+            return acc;
+        }, { monto: 0, length: 0 })
     },
 
     setSelectedDate: (date) => {

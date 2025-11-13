@@ -5,6 +5,7 @@ const estadoInicial = {
   aceptar: false,
   rechazar: false,
   generarDocumentos: false,
+  notas: false,
   
   row: null,
 };

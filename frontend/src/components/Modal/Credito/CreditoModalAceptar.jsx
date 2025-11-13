@@ -31,7 +31,8 @@ export default function CreditoModalAceptar() {
     mora: '',
     frecuencia: '',
     cuotaCantidad: '',
-    document: null
+    document: null,
+    nota: ''
   })
   const [usuario, setUsuario] = useState(null)
   
@@ -42,7 +43,8 @@ export default function CreditoModalAceptar() {
     ({...prev,
       montoAprobado: row?.original?.monto,
       frecuencia: row?.original?.frecuencia,
-      document: null
+      document: null,
+      nota: row?.original?.nota || ''
     }))
 
     setDocument(null);
@@ -179,17 +181,6 @@ export default function CreditoModalAceptar() {
                   <label>Solicitante del Crédito</label>
                   <strong>{usuario}</strong>
               </div>
-
-              {showDocumentField && (
-                <FormField
-                  name='document'
-                  onChange={handleChange}
-                  label={'Documento'} 
-                  type={'file'}
-                  accept=".pdf,.doc,.docx,.txt"
-                  required
-                />
-              )}
 
             </div>
           </div>
@@ -348,6 +339,29 @@ export default function CreditoModalAceptar() {
                 required
                 min={1}
                 max={60}
+              />
+
+              {showDocumentField && (
+                <FormField
+                  classNames={'full'}
+                  name='document'
+                  onChange={handleChange}
+                  label={'Documento'} 
+                  type={'file'}
+                  accept=".pdf,.doc,.docx,.txt"
+                  required
+                />
+              )}
+
+              <FormField
+                classNames={'full'}
+                name='nota'
+                value={formData.nota}
+                onChange={handleChange}
+                label={'Nota'} 
+                type={'textarea'}
+                placeholder='Notas adicionales sobre el crédito...'
+                maxLength={500}
               />
 
             </div>

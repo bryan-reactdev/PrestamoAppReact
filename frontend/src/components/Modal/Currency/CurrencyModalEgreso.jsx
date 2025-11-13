@@ -94,6 +94,7 @@ export default function CurrencyModalEgreso() {
               >
                 <option value={'Empresa'}>Empresa</option>
                 <option value={'Varios'}>Varios</option>
+                <option value={'Pago de Planillas'}>Pago de Planillas</option>
                 <option value={'Retiro de Cuotas'}>Retiro de Cuotas</option>
               </FormSelect>
 

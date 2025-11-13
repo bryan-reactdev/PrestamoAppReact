@@ -34,6 +34,7 @@ import com.biovizion.prestamo911.utils.FileUtils;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoDesembolsarRequest;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoFullDTO;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoEditableRequest;
+import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoNotaRequest;
 import com.biovizion.prestamo911.DTOs.Credito.CreditoRequestDTOs.CreditoSolicitudRequest;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaDTO;
 import com.biovizion.prestamo911.DTOs.Cuota.CuotaDTOs.CuotaTablaDTO;
@@ -391,13 +392,18 @@ public class CreditoControllerTest {
 
     // -- Rechazar --
     @PostMapping("/rechazar/{id}")
-    public ResponseEntity<ApiResponse> rechazarCredito(@PathVariable Long id){
+    public ResponseEntity<ApiResponse> rechazarCredito(@PathVariable Long id, @RequestBody CreditoNotaRequest request){
         try {
             CreditoEntity credito = creditoService.findById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Credito no encontrado"));            
 
             credito.setEstado("Rechazado");
             credito.setFechaRechazado(LocalDateTime.now());
+            
+            // Set nota (always set it, even if empty string or null)
+            String notaValue = (request.getNota() != null) ? request.getNota() : "";
+            credito.setNota(notaValue);
+            
             creditoService.save(credito);
 
             // Log action
@@ -486,6 +492,31 @@ public class CreditoControllerTest {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             ApiResponse<String> response = new ApiResponse<>("Error al marcar crédito como editable: " + e.getMessage());
+            return ResponseEntity.status(500).body(response);
+        }
+    }
+
+    // -- Nota --
+    @PostMapping("/nota/{id}")
+    public ResponseEntity<ApiResponse> guardarNotaCredito(@PathVariable Long id, @RequestBody CreditoNotaRequest request) {
+        try {
+            Optional<CreditoEntity> optionalCredito = creditoService.findById(id);
+            if (!optionalCredito.isPresent()) {
+                ApiResponse<String> response = new ApiResponse<>("Crédito no encontrado");
+                return ResponseEntity.status(404).body(response);
+            }
+            CreditoEntity credito = optionalCredito.get();
+            credito.setNota(request.getNota());
+            creditoService.save(credito);
+
+            // Log action
+            accionLogger.logAccion(AccionTipo.EDITADO_CREDITO_ADMIN, credito.getUsuario());
+
+            ApiResponse<String> response = new ApiResponse<>("Nota guardada exitosamente");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            ApiResponse<String> response = new ApiResponse<>("Error al guardar la nota: " + e.getMessage());
             return ResponseEntity.status(500).body(response);
         }
     }

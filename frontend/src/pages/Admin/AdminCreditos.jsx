@@ -9,6 +9,7 @@ import CreditoModalAceptar from '../../components/Modal/Credito/CreditoModalAcep
 import { CreditosAceptadosCard, CreditosDefaultCard, CreditosPendientesCard } from '../../components/Card/Credito/CreditoCardDefinitions'
 import CreditoModalGenerarDocumentos from '../../components/Modal/Credito/CreditoModalGenerarDocumentos'
 import CreditoModalRechazar from '../../components/Modal/Credito/CreditoModalRechazar'
+import CreditoModalNotas from '../../components/Modal/Credito/CreditoModalNotas'
 import { useParams } from 'react-router-dom'
 import ContentTitleWithInfo from '../../components/Content/ContentTitleWithInfo'
 import { Card, CardHeader, CardTitle, CardDescription } from '../../components/ui/card'
@@ -52,11 +53,14 @@ export default function AdminCreditos(){
   }
 
   // Main tipo tabs (higher level)
+
+  console.log(filteredCreditos);
   const tipoTabs = [
     { 
       icon: 'fas fa-money-bill', 
-      label: 'Rapi-Cash', 
-      value: filteredCreditos?.totalRapicash,
+      label: 'Rapi-Cash',
+      text: filteredCreditos?.totalRapicash?.length,
+      value: filteredCreditos?.totalRapicash?.monto,
       iconBgColor: 'success',
       onClick: () => setCurrentTipo('rapi-cash'),
       isActive: currentTipo === 'rapi-cash'
@@ -64,7 +68,8 @@ export default function AdminCreditos(){
     { 
       icon: 'fas fa-ring', 
       label: 'Prendarios', 
-      value: filteredCreditos?.totalPrendarios,
+      text: filteredCreditos?.totalPrendarios?.length,
+      value: filteredCreditos?.totalPrendarios?.monto,
       iconBgColor: 'warning',
       onClick: () => setCurrentTipo('prendario'),
       isActive: currentTipo === 'prendario'
@@ -72,7 +77,8 @@ export default function AdminCreditos(){
     { 
       icon: 'fas fa-landmark', 
       label: 'Hipotecarios', 
-      value: filteredCreditos?.totalHipotecarios,
+      text: filteredCreditos?.totalHipotecarios?.length,
+      value: filteredCreditos?.totalHipotecarios?.monto,
       iconBgColor: 'accent',
       onClick: () => setCurrentTipo('hipotecario'),
       isActive: currentTipo === 'hipotecario'
@@ -116,7 +122,8 @@ export default function AdminCreditos(){
       <CreditoModalGenerarDocumentos/>      
       <CreditoModalDesembolsar/>
       <CreditoModalAceptar/>      
-      <CreditoModalRechazar/>      
+      <CreditoModalRechazar/>
+      <CreditoModalNotas/>      
 
       <div className="content">
         <ContentTitleWithInfo>

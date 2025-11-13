@@ -5,7 +5,8 @@ import {
   ButtonGenerarDocumentosCredito, 
   ButtonRechazarCredito, 
   ButtonVerCuotasCredito,
-  ButtonVerDocumentoCredito
+  ButtonVerDocumentoCredito,
+  ButtonNotasCredito
 } from "./CreditoTableButtons";
 
 const CreditoTableAccionTipos = {
@@ -16,6 +17,7 @@ const CreditoTableAccionTipos = {
   GENERAR_DOCUMENTOS: ButtonGenerarDocumentosCredito,
   EDITAR: ButtonEditarCredito,
   VER_DOCUMENTO: ButtonVerDocumentoCredito,
+  NOTAS: ButtonNotasCredito,
 };
 
 export default CreditoTableAccionTipos;

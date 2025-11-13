@@ -46,6 +46,11 @@ public class CreditoRequestDTOs{
     public static class CreditoDesembolsableRequest {
         private boolean desembolsable;
     }
+
+    @Data
+    public static class CreditoNotaRequest {
+        private String nota;
+    }
     
     @Data
     public static class CreditoAceptarRequest {

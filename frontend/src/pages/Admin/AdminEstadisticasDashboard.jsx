@@ -1,7 +1,7 @@
 // frontend/src/pages/Admin/AdminEstadisticasDashboard.jsx
 import Layout from '../../Layout'
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from "@/components/ui/chart"
-import { Bar, BarChart, CartesianGrid, Line, LineChart, Cell, Pie, PieChart, XAxis, YAxis, ResponsiveContainer } from "recharts"
+import { Bar, BarChart, CartesianGrid, Line, LineChart, Cell, Pie, PieChart, XAxis, YAxis, ResponsiveContainer, LabelList } from "recharts"
 import { useEffect, useState, useMemo } from 'react'
 import { useCurrencyStore } from '../../stores/useCurrencyStore'
 import { getCurrentDate } from '../../utils/dateUtils'
@@ -13,7 +13,19 @@ import { formatCurrencySVWithSymbol } from '../../utils/currencyUtils'
 
 export default function AdminEstadisticasDashboard() {
   const { creditos, getCreditos, creditosForDate, setSelectedDate: setSelectedDateCredito } = useCreditoStore();
-  const { saldo, getBalance, currencyForDate, currencyForRange, getCurrencyForDate, getCurrencyForRange, selectedDate, setSelectedDate } = useCurrencyStore();
+  const { 
+    saldo, 
+    getBalance, 
+    currencyForDate, 
+    currencyForRange, 
+    getCurrencyForDate, 
+    getCurrencyForRange, 
+    selectedDate, 
+    setSelectedDate,
+    ingresosCapitales,
+    cuotasPagadas,
+    calcularTotal
+  } = useCurrencyStore();
   const { proyeccionData, getCuotas, calcularProyeccion, isFetchingProyeccion, setSelectedDate: setSelectedDateCuota } = useCuotaStore();
 
   const handleDateChange = (date) => {
@@ -51,6 +63,7 @@ export default function AdminEstadisticasDashboard() {
   const [chartDataEgresos, setChartDataEgresos] = useState([
     { category: "Gastos de Empresa", value: 0 },
     { category: "Egresos Varios", value: 0 },
+    { category: "Pago de Planillas", value: 0 },
     { category: "Retiro de Cuotas", value: 0 },
     { category: "Créditos Desembolsados", value: 0 },
   ])
@@ -75,6 +88,7 @@ export default function AdminEstadisticasDashboard() {
     setChartDataEgresos([
       { category: "Gastos de Empresa", value: currencyForDate?.gastosEmpresa?.total || 0 },
       { category: "Egresos Varios", value: currencyForDate?.egresosVarios?.total || 0 },
+      { category: "Pago de Planillas", value: currencyForDate?.egresosPagoPlanillas?.total || 0 },
       { category: "Retiro de Cuotas", value: currencyForDate?.egresosCuotasRetiros?.total || 0 },
       { category: "Créditos Desembolsados", value: currencyForDate?.creditosDesembolsados?.total || 0 },
     ])
@@ -109,122 +123,52 @@ export default function AdminEstadisticasDashboard() {
     ])
   }, [creditosForDate])
 
-  // NUEVO: Cálculo de datos para la gráfica de pastel por TIPO
-  const chartDataPieTipo = useMemo(() => {
+  const [chartDataPieTipo, setChartDataPieTipo] = useState([
+    { name: "rapi-cash", value: 0, totalMonto: 0 },
+    { name: "prendario", value: 0, totalMonto: 0 },
+    { name: "hipotecario", value: 0, totalMonto: 0 },
+  ])
+
+  useEffect(() => {
     const allCreditos = [
       ...(creditosForDate?.creditosAceptados || []),
       ...(creditosForDate?.creditosRechazados || [])
     ];
 
-    const groupedByType = allCreditos.reduce((acc, credito) => {
-      const tipo = credito.tipo || 'Desconocido';
+    const rapiCash = allCreditos.filter(c => c.tipo === 'rapi-cash');
+    const rapiCashCount = rapiCash.length;
+    const rapiCashTotal = rapiCash.reduce((sum, credito) => sum + (Number(credito.monto) || 0), 0);
 
-      if (!acc[tipo]) {
-        acc[tipo] = {
-          name: tipo,
-          value: 0,
-          totalMonto: 0,
-        };
-      }
+    const prendarios = allCreditos.filter(c => c.tipo === 'prendario');
+    const prendariosCount = prendarios.length;
+    const prendariosTotal = prendarios.reduce((sum, credito) => sum + (Number(credito.monto) || 0), 0);
 
-      acc[tipo].value += 1;
-      acc[tipo].totalMonto += (Number(credito.monto) || 0);
+    const hipotecarios = allCreditos.filter(c => c.tipo === 'hipotecario');
+    const hipotecariosCount = hipotecarios.length;
+    const hipotecariosTotal = hipotecarios.reduce((sum, credito) => sum + (Number(credito.monto) || 0), 0);
 
-      return acc;
-    }, {});
-
-    return Object.values(groupedByType);
-  }, [creditosForDate]);
+    setChartDataPieTipo([
+      { name: "rapi-cash", value: rapiCashCount, totalMonto: rapiCashTotal },
+      { name: "prendario", value: prendariosCount, totalMonto: prendariosTotal },
+      { name: "hipotecario", value: hipotecariosCount, totalMonto: hipotecariosTotal },
+    ])
+  }, [creditosForDate])
 
 
-  const RADIAN = Math.PI / 180;
 
-  // Función de renderizado de etiquetas para las gráficas de pastel
-  const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, payload }) => {
-    if (cx == null || cy == null || innerRadius == null || outerRadius == null) {
-      return null;
-    }
-    const radius = outerRadius + 5;
-    const ncx = Number(cx);
-    const ncy = Number(cy);
-    const angle = (midAngle ?? 0) * RADIAN;
-    const x = ncx + radius * Math.cos(angle);
-    const y = ncy + radius * Math.sin(angle);
-    const anchor = x > ncx ? 'start' : 'end';
-
-    if (percent * 100 < 5 && payload.value === 0) return null; // Ocultar etiquetas muy pequeñas o vacías
-
-    return (
-      <g>
-        <text
-          x={x}
-          y={y}
-          fill="#000"
-          textAnchor={anchor}
-          dominantBaseline="central"
-          fontSize={12}
-          fontWeight="bold"
-        >
-          {`${payload.value} crédito${payload.value !== 1 ? 's' : ''}`}
-        </text>
-        <text
-          x={x}
-          y={y + 14}
-          fill="#666"
-          textAnchor={anchor}
-          dominantBaseline="central"
-          fontSize={10}
-        >
-          {`(${Number(percent * 100).toFixed(1)}%) ${formatCurrencySVWithSymbol(payload.totalMonto)}`}
-        </text>
-      </g>
-    );
-  };
-
-  // Generador de colores para los tipos de crédito (para la nueva gráfica)
-  const getColorForType = (type) => {
-    switch (type) {
-      case 'Hipotecario':
-        return "#4c78a8";
-      case 'PrestamodeConsumo': // Asumiendo este es un tipo de la DB
-        return "#f58518";
-      case 'Automotriz':
-        return "#e45756";
-      case 'Personal':
-        return "#72b7b2";
-      case 'Consumo':
-        return "#54a24b";
-      case 'Comercial':
-        return "#eeca3b";
-      case 'Educativo':
-        return "#b279a2";
-      case 'Agropecuario':
-        return "#ff9da6";
-      case 'Microcrédito':
-        return "#9d755d";
-      case 'Desconocido':
-        return "#bab0ac";
-      default:
-        return "#bab0ac"; // Color gris por defecto
-    }
-  };
-
-  // Configuración de colores extendida para los dos gráficos
+  // Configuración de colores para los gráficos
   const chartConfig = useMemo(() => {
-    const typeColors = chartDataPieTipo.reduce((acc, item) => {
-      acc[item.name] = { label: item.name, color: getColorForType(item.name) };
-      return acc;
-    }, {});
-
     return {
       saldo: { label: "Balance", color: "#2563eb" },
       value: { label: "Monto", color: "#22c55e" },
       valueEgresos: { label: "Monto", color: "#ef4444" },
       Aceptados: { label: "Aceptados", color: "#22c55e" },
       Rechazados: { label: "Rechazados", color: "#ef4444" },
-      ...typeColors,
+      'rapi-cash': { label: "Rapi-Cash", color: "#22c55e" },
+      'prendario': { label: "Prendarios", color: "#f59e0b" },
+      'hipotecario': { label: "Hipotecarios", color: "#6366f1" },
     };
-  }, [chartDataPieTipo]);
+  }, []);
 
 
   // Procesar datos de créditos para la tabla AGRUPÁNDOLOS por tipo y estado.
@@ -296,31 +240,43 @@ export default function AdminEstadisticasDashboard() {
     },
   ], []);
 
-  // Métricas calculadas
+  // Métricas calculadas - usando valores globales en lugar de currencyForDate
   const recuperacionCalculada = useMemo(() => {
-    const totalCuotasPagadas = Number(currencyForDate?.cuotasPagadas?.total || 0);
-    const totalIngresoACapital = Number(currencyForDate?.ingresosCapitales?.total || 0);
+    const totalCuotasPagadas = (Array.isArray(cuotasPagadas) ? calcularTotal(cuotasPagadas) : 0) || 0;
+    const totalIngresoACapital = (Array.isArray(ingresosCapitales) ? calcularTotal(ingresosCapitales) : 0) || 0;
     const capitalPendiente = totalIngresoACapital - totalCuotasPagadas;
     return Math.max(0, capitalPendiente);
-  }, [currencyForDate]);
+  }, [cuotasPagadas, ingresosCapitales, calcularTotal]);
 
   const gananciaDespuesRecuperacion = useMemo(() => {
-    const totalCuotasPagadas = Number(currencyForDate?.cuotasPagadas?.total || 0);
-    const totalIngresoACapital = Number(currencyForDate?.ingresosCapitales?.total || 0);
+    const totalCuotasPagadas = (Array.isArray(cuotasPagadas) ? calcularTotal(cuotasPagadas) : 0) || 0;
+    const totalIngresoACapital = (Array.isArray(ingresosCapitales) ? calcularTotal(ingresosCapitales) : 0) || 0;
     const totalPorCobrar = Number(proyeccionData?.cuotasPorCobrar?.montoTotal || 0);
     const totalFlujoEsperado = totalCuotasPagadas + totalPorCobrar;
     const ganancia = totalFlujoEsperado - totalIngresoACapital;
+    
+    // Debug logging (can be removed later)
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Ganancia Neta Proyectada calculation:', {
+        totalCuotasPagadas,
+        totalIngresoACapital,
+        totalPorCobrar,
+        totalFlujoEsperado,
+        ganancia
+      });
+    }
+    
     return Math.max(0, ganancia);
-  }, [currencyForDate, proyeccionData]);
+  }, [cuotasPagadas, ingresosCapitales, calcularTotal, proyeccionData]);
 
   const roiCalculado = useMemo(() => {
-    const totalCuotasPagadas = Number(currencyForDate?.cuotasPagadas?.total || 0);
-    const totalIngresoACapital = Number(currencyForDate?.ingresosCapitales?.total || 0);
+    const totalCuotasPagadas = (Array.isArray(cuotasPagadas) ? calcularTotal(cuotasPagadas) : 0) || 0;
+    const totalIngresoACapital = (Array.isArray(ingresosCapitales) ? calcularTotal(ingresosCapitales) : 0) || 0;
     if (totalIngresoACapital > 0) {
       return ((totalCuotasPagadas - totalIngresoACapital) / totalIngresoACapital) * 100;
     }
     return 0;
-  }, [currencyForDate]);
+  }, [cuotasPagadas, ingresosCapitales, calcularTotal]);
 
   // Componente de tarjeta métrica reutilizable
   const MetricCard = ({ title, value, subtitle, color = "blue", size = "md", children }) => {
@@ -399,7 +355,7 @@ export default function AdminEstadisticasDashboard() {
               <div className="bg-red-50 p-2 rounded border border-red-200">
                 <div className="text-xs font-semibold text-red-600 text-center">Egresos</div>
                 <div className="text-sm font-bold text-red-600 text-center">
-                  {formatCurrencySVWithSymbol((currencyForDate?.gastosEmpresa?.total || 0) + (currencyForDate?.egresosVarios?.total || 0))}
+                  {formatCurrencySVWithSymbol((currencyForDate?.gastosEmpresa?.total || 0) + (currencyForDate?.egresosVarios?.total || 0) + (currencyForDate?.egresosPagoPlanillas?.total || 0))}
                 </div>
               </div>
               <div className="bg-purple-50 p-2 rounded border border-purple-200 col-span-2">
@@ -407,7 +363,7 @@ export default function AdminEstadisticasDashboard() {
                 <div className="text-sm font-bold text-purple-600 text-center">
                   {formatCurrencySVWithSymbol(
                     ((currencyForDate?.ingresosCapitales?.total || 0) + (currencyForDate?.ingresosVarios?.total || 0)) -
-                    ((currencyForDate?.gastosEmpresa?.total || 0) + (currencyForDate?.egresosVarios?.total || 0))
+                    ((currencyForDate?.gastosEmpresa?.total || 0) + (currencyForDate?.egresosVarios?.total || 0) + (currencyForDate?.egresosPagoPlanillas?.total || 0))
                   )}
                 </div>
               </div>
@@ -422,7 +378,7 @@ export default function AdminEstadisticasDashboard() {
             <div className="grid grid-cols-2 gap-3">
               <MetricCard
                 title="Capital Invertido"
-                value={currencyForDate?.ingresosCapitales?.total ? formatCurrencySVWithSymbol(currencyForDate.ingresosCapitales.total) : '$0.00'}
+                value={Array.isArray(ingresosCapitales) && calcularTotal(ingresosCapitales) ? formatCurrencySVWithSymbol(calcularTotal(ingresosCapitales)) : '$0.00'}
                 color="amber"
                 size="sm"
               />
@@ -495,7 +451,7 @@ export default function AdminEstadisticasDashboard() {
           </div>
         </div>
 
-        {/* ==================== SECCIÓN MEDIA: GRÁFICOS PRINCIPALES (2 Gráficas de Pastel) ==================== */}
+        {/* ==================== SECCIÓN MEDIA: GRÁFICOS PRINCIPALES (Evolución + Detalles) ==================== */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
 
           {/* Gráfico 1 de 3: Evolución del Balance */}
@@ -521,116 +477,8 @@ export default function AdminEstadisticasDashboard() {
             </ChartContainer>
           </div>
 
-          {/* Gráfico 2 de 3: Distribución por Estado (Existente) */}
+          {/* Gráfico 2 de 3: Detalle de Ingresos */}
           <div className="bg-white p-4 rounded-lg shadow-sm border col-span-1">
-            <h3 className="text-lg font-semibold mb-3 text-center">Distribución por Estado (Aceptados/Rechazados)</h3>
-            {chartDataPieEstado.every(entry => entry.value === 0) ? (
-              <div className="flex items-center justify-center h-64 text-muted-foreground">
-                <p className="text-lg">No hay datos de estado</p>
-              </div>
-            ) : (
-              <ChartContainer config={chartConfig} className="h-64 w-full">
-                <PieChart>
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        nameKey="name"
-                        formatter={(value, name, item) => {
-                          const totalMonto = item.payload?.totalMonto || 0;
-                          return [
-                            <div key="tooltip" className="w-full flex flex-col gap-1">
-                              <div className='w-full flex justify-between'>
-                                <span className="text-muted-foreground">Cantidad</span>
-                                <span className="font-medium">{value}</span>
-                              </div>
-                              <div className='w-full flex justify-between'>
-                                <span className="text-muted-foreground">Total</span>
-                                <span className="font-medium">{formatCurrencySVWithSymbol(totalMonto)}</span>
-                              </div>
-                            </div>,
-                          ];
-                        }}
-                      />
-                    }
-                  />
-                  <ChartLegend content={<ChartLegendContent nameKey="name" />} layout="horizontal" align="center" verticalAlign="bottom" />
-                  <Pie
-                    data={chartDataPieEstado}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="45%"
-                    outerRadius={100}
-                    label={renderCustomLabel}
-                    labelLine={false}
-                  >
-                    {chartDataPieEstado.map((entry) => (
-                      <Cell key={`cell-${entry.name}`} fill={chartConfig[entry.name]?.color || "#8884d8"} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ChartContainer>
-            )}
-          </div>
-
-          {/* Gráfico 3 de 3: Distribución por Tipo (NUEVO) */}
-          <div className="bg-white p-4 rounded-lg shadow-sm border col-span-1">
-            <h3 className="text-lg font-semibold mb-3 text-center">Distribución por Tipo de Crédito</h3>
-            {chartDataPieTipo.every(entry => entry.value === 0) ? (
-              <div className="flex items-center justify-center h-64 text-muted-foreground">
-                <p className="text-lg">No hay datos de tipos de crédito</p>
-              </div>
-            ) : (
-              <ChartContainer config={chartConfig} className="h-64 w-full">
-                <PieChart>
-                  <ChartTooltip
-                    content={
-                      <ChartTooltipContent
-                        nameKey="name"
-                        formatter={(value, name, item) => {
-                          const totalMonto = item.payload?.totalMonto || 0;
-                          return [
-                            <div key="tooltip" className="w-full flex flex-col gap-1">
-                              <div className='w-full flex justify-between'>
-                                <span className="text-muted-foreground">Cantidad</span>
-                                <span className="font-medium">{value}</span>
-                              </div>
-                              <div className='w-full flex justify-between'>
-                                <span className="text-muted-foreground">Total</span>
-                                <span className="font-medium">{formatCurrencySVWithSymbol(totalMonto)}</span>
-                              </div>
-                            </div>,
-                          ];
-                        }}
-                      />
-                    }
-                  />
-                  <ChartLegend content={<ChartLegendContent nameKey="name" />} layout="horizontal" align="center" verticalAlign="bottom" />
-                  <Pie
-                    data={chartDataPieTipo}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="45%"
-                    outerRadius={100}
-                    label={renderCustomLabel}
-                    labelLine={false}
-                  >
-                    {chartDataPieTipo.map((entry) => (
-                      <Cell key={`cell-${entry.name}`} fill={chartConfig[entry.name]?.color || "#bab0ac"} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ChartContainer>
-            )}
-          </div>
-        </div>
-
-        {/* ==================== SECCIÓN INFERIOR: DETALLES DE FLUJO HORIZONTAL ==================== */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-          {/* Gráfico de Ingresos Detallados - HORIZONTAL CON BARRAS DELGADAS */}
-          <div className="bg-white p-4 rounded-lg shadow-sm border">
             <h3 className="text-lg font-semibold mb-3 text-center text-green-700">Detalle de Ingresos</h3>
             <ChartContainer config={chartConfig} className="h-64 w-full">
               <BarChart
@@ -669,8 +517,8 @@ export default function AdminEstadisticasDashboard() {
             </ChartContainer>
           </div>
 
-          {/* Gráfico de Egresos Detallados - HORIZONTAL CON BARRAS DELGADAS */}
-          <div className="bg-white p-4 rounded-lg shadow-sm border">
+          {/* Gráfico 3 de 3: Detalle de Egresos */}
+          <div className="bg-white p-4 rounded-lg shadow-sm border col-span-1">
             <h3 className="text-lg font-semibold mb-3 text-center text-red-700">Detalle de Egresos</h3>
             <ChartContainer config={chartConfig} className="h-64 w-full">
               <BarChart
@@ -707,6 +555,224 @@ export default function AdminEstadisticasDashboard() {
                 />
               </BarChart>
             </ChartContainer>
+          </div>
+        </div>
+
+        {/* ==================== SECCIÓN INFERIOR: DISTRIBUCIONES POR ESTADO Y TIPO ==================== */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+          {/* Gráfico: Distribución por Estado */}
+          <div className="bg-white p-4 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold mb-3 text-center">Distribución por Estado (Aceptados/Rechazados)</h3>
+            {chartDataPieEstado.every(entry => entry.value === 0) ? (
+              <div className="flex items-center justify-center h-96 text-muted-foreground">
+                <p className="text-lg">No hay datos de estado</p>
+              </div>
+            ) : (
+              <ChartContainer config={chartConfig} className="h-96 w-full">
+                <PieChart>
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent
+                        nameKey="name"
+                        formatter={(value, name, item) => {
+                          const totalMonto = item.payload?.totalMonto || 0;
+                          return [
+                            <div key="tooltip" className="w-full flex flex-col gap-1">
+                              <div className='w-full flex justify-between'>
+                                <span className="text-muted-foreground">Cantidad</span>
+                                <span className="font-medium">{value}</span>
+                              </div>
+                              <div className='w-full flex justify-between'>
+                                <span className="text-muted-foreground">Total</span>
+                                <span className="font-medium">{formatCurrencySVWithSymbol(totalMonto)}</span>
+                              </div>
+                            </div>,
+                          ];
+                        }}
+                      />
+                    }
+                  />
+                  <ChartLegend content={<ChartLegendContent nameKey="name" />} layout="horizontal" align="center" verticalAlign="bottom" />
+                  <Pie
+                    data={chartDataPieEstado}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="45%"
+                    outerRadius={100}
+                    label={({ cx, cy, midAngle, innerRadius, outerRadius, name, value, payload }) => {
+                      if (value === 0) return null;
+                      
+                      const RADIAN = Math.PI / 180;
+                      const radius = outerRadius * 1.1;
+                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                      const anchor = x > cx ? 'start' : 'end';
+                      
+                      const label = chartConfig[name]?.label || name;
+                      const totalMonto = payload?.totalMonto || 0;
+                      
+                      // Calculate total for percentage
+                      const total = chartDataPieEstado.reduce((sum, entry) => sum + entry.value, 0);
+                      const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                      
+                      return (
+                        <g>
+                          <text
+                            x={x}
+                            y={y}
+                            fill="var(--color-secondary)"
+                            textAnchor={anchor}
+                            dominantBaseline="central"
+                            fontSize={12}
+                            fontWeight="bold"
+                          >
+                            {label}
+                          </text>
+                          <text
+                            x={x}
+                            y={y + 14}
+                            fill="hsl(var(--muted-foreground))"
+                            textAnchor={anchor}
+                            dominantBaseline="central"
+                            fontSize={10}
+                            stroke="hsl(var(--muted-foreground))"
+                            strokeWidth={0.5}
+                          >
+                            {value} crédito{value !== 1 ? 's' : ''} ({percentage}%)
+                          </text>
+                          <text
+                            x={x}
+                            y={y + 28}
+                            fill="hsl(var(--muted-foreground))"
+                            textAnchor={anchor}
+                            dominantBaseline="central"
+                            fontSize={10}
+                            stroke="hsl(var(--muted-foreground))"
+                            strokeWidth={0.5}
+                          >
+                            {formatCurrencySVWithSymbol(totalMonto)}
+                          </text>
+                        </g>
+                      );
+                    }}
+                    labelLine={false}
+                  >
+                    {chartDataPieEstado.map((entry) => (
+                      <Cell key={`cell-${entry.name}`} fill={chartConfig[entry.name]?.color || "#8884d8"} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ChartContainer>
+            )}
+          </div>
+
+          {/* Gráfico: Distribución por Tipo */}
+          <div className="bg-white p-4 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold mb-3 text-center">Distribución por Tipo de Crédito</h3>
+            {chartDataPieTipo.every(entry => entry.value === 0) ? (
+              <div className="flex items-center justify-center h-96 text-muted-foreground">
+                <p className="text-lg">No hay datos de tipos de crédito</p>
+              </div>
+            ) : (
+              <ChartContainer config={chartConfig} className="h-96 w-full">
+                <PieChart>
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent
+                        nameKey="name"
+                        formatter={(value, name, item) => {
+                          const totalMonto = item.payload?.totalMonto || 0;
+                          return [
+                            <div key="tooltip" className="w-full flex flex-col gap-1">
+                              <div className='w-full flex justify-between'>
+                                <span className="text-muted-foreground">Cantidad</span>
+                                <span className="font-medium">{value}</span>
+                              </div>
+                              <div className='w-full flex justify-between'>
+                                <span className="text-muted-foreground">Total</span>
+                                <span className="font-medium">{formatCurrencySVWithSymbol(totalMonto)}</span>
+                              </div>
+                            </div>,
+                          ];
+                        }}
+                      />
+                    }
+                  />
+                  <ChartLegend content={<ChartLegendContent nameKey="name" />} layout="horizontal" align="center" verticalAlign="bottom" />
+                  <Pie
+                    data={chartDataPieTipo}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="45%"
+                    outerRadius={100}
+                    label={({ cx, cy, midAngle, innerRadius, outerRadius, name, value, payload }) => {
+                      if (value === 0) return null;
+                      
+                      const RADIAN = Math.PI / 180;
+                      const radius = outerRadius * 1.1;
+                      const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                      const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                      const anchor = x > cx ? 'start' : 'end';
+                      
+                      const label = chartConfig[name]?.label || name;
+                      const totalMonto = payload?.totalMonto || 0;
+                      
+                      // Calculate total for percentage
+                      const total = chartDataPieTipo.reduce((sum, entry) => sum + entry.value, 0);
+                      const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                      
+                      return (
+                        <g>
+                          <text
+                            x={x}
+                            y={y}
+                            fill="var(--color-secondary)"
+                            textAnchor={anchor}
+                            dominantBaseline="central"
+                            fontSize={12}
+                            fontWeight="bold"
+                          >
+                            {label}
+                          </text>
+                          <text
+                            x={x}
+                            y={y + 14}
+                            fill="hsl(var(--muted-foreground))"
+                            textAnchor={anchor}
+                            dominantBaseline="central"
+                            fontSize={10}
+                            stroke="hsl(var(--muted-foreground))"
+                            strokeWidth={0.5}
+                          >
+                            {value} crédito{value !== 1 ? 's' : ''} ({percentage}%)
+                          </text>
+                          <text
+                            x={x}
+                            y={y + 28}
+                            fill="hsl(var(--muted-foreground))"
+                            textAnchor={anchor}
+                            dominantBaseline="central"
+                            fontSize={10}
+                            stroke="hsl(var(--muted-foreground))"
+                            strokeWidth={0.5}
+                          >
+                            {formatCurrencySVWithSymbol(totalMonto)}
+                          </text>
+                        </g>
+                      );
+                    }}
+                    labelLine={false}
+                  >
+                    {chartDataPieTipo.map((entry) => (
+                      <Cell key={`cell-${entry.name}`} fill={chartConfig[entry.name]?.color || "#8884d8"} />
+                    ))}
+                  </Pie>
+                </PieChart>
+              </ChartContainer>
+            )}
           </div>
         </div>
 

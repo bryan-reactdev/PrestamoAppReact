@@ -47,6 +47,7 @@ public class CreditoDTOs {
         private String estado;
         private String tipo;
         private String documento;
+        private String nota;
     }
 
     @Data
@@ -77,6 +78,7 @@ public class CreditoDTOs {
 
         private String estado;
         private String tipo;
+        private String nota;
 
         @JsonManagedReference  // parent → child
         private List<CuotaDTO> cuotas;
@@ -110,7 +112,8 @@ public class CreditoDTOs {
 
             credito.getEstado(),
             credito.getTipo(),
-            credito.getDocumento()
+            credito.getDocumento(),
+            credito.getNota()
         ); 
     }
 
@@ -143,6 +146,7 @@ public class CreditoDTOs {
 
             credito.getEstado(),
             credito.getTipo(),
+            credito.getNota(),
             mapearACuotaDTOs(credito.getCuotas())
         );
     }

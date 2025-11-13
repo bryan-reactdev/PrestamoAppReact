@@ -73,7 +73,7 @@ export default function CurrencyModalEditar() {
     isIngreso = true
   }
   // Definitely egreso
-  else if (tipo === 'Empresa' || tipo === 'Retiro de Cuotas') {
+  else if (tipo === 'Empresa' || tipo === 'Pago de Planillas' || tipo === 'Retiro de Cuotas') {
     isIngreso = false
   }
   // For "Varios", check which array contains this record

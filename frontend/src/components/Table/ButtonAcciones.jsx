@@ -2,6 +2,7 @@ import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useUsuarioStore } from "../../stores/useUsuarioStore";
 import { BaseModal } from "../Modal/ModalUtils";
+import { Button } from "../ui/button";
 
 export default function ButtonAcciones({ acciones, row, open: controlledOpen, setOpen: setControlledOpen, hideButton, containerRef, modalMode = false}) {
   const {currentUsuario} = useUsuarioStore();
@@ -164,14 +165,14 @@ export default function ButtonAcciones({ acciones, row, open: controlledOpen, se
   return (
     <div style={{ position: "relative", display: "inline-block" }}>
       {!hideButton && (
-        <button
+        <Button
           ref={buttonRef}
-          className="btn-acciones"
           onClick={toggleDropdown}
           aria-label="Más acciones"
+          variant="outline"
         >
           ACCIONES <i className="fas fa-sort-down"></i>
-        </button>
+        </Button>
       )}
 
       {dropdownContent && createPortal(dropdownContent, document.body)}
