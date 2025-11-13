@@ -1,7 +1,9 @@
 import ContentTitle from '../../components/Content/ContentTitle'
 import MenuButton from '../../components/Content/Layout/MenuButton'
 import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
+import CurrencyModalPDFDiario from '../../components/Modal/Currency/CurrencyModalPDFDiario'
 import { useUsuarioModalStore } from '../../stores/Modal/useUsuarioModalStore'
+import { useModalStore } from '../../stores/Modal/useModalStore'
 
 import { Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle } from "../../components/ui/card";
 import { Badge } from "../../components/ui/badge";
@@ -11,13 +13,25 @@ import Layout from '../../Layout'
 
 export default function AdminDashboard(){
   const { openModal } = useUsuarioModalStore();
+  const { openModal: openPDFModal } = useModalStore();
   
   return(
     <Layout>
       <UsuarioModalVerDetalles/>
+      <CurrencyModalPDFDiario/>
 
       <div className="content">
         <ContentTitle title={"Panel de Control"} />
+
+        <div className="w-full mb-5">
+          <button 
+            className='btn-primary w-full max-w-[300px] flex items-center justify-center gap-2' 
+            onClick={() => openPDFModal('pdfDiario')}
+          >
+            <i className='fas fa-print'/>
+            GENERAR REPORTE DIARIO PDF
+          </button>
+        </div>
 
         <div className="menu-container">
           <MenuButton 

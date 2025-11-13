@@ -13,7 +13,7 @@ import { getCurrentDate } from '../../utils/dateUtils'
 import Layout from '../../Layout'
 
 export default function AdminCajaChica(){
-  const { saldo, getBalance, currencyForDate, selectedDate, setSelectedDate, getCurrencyForDate, descargarPDFDiario } = useCurrencyStore();
+  const { saldo, getBalance, currencyForDate, selectedDate, setSelectedDate, getCurrencyForDate } = useCurrencyStore();
 
   useEffect(() => {
     if (!saldo){
@@ -49,15 +49,6 @@ export default function AdminCajaChica(){
             <i className='fas fa-rotate'/>
             IR A HOY
           </button>
-          {selectedDate && (
-            <button 
-              className='btn-danger sm' 
-              onClick={() => descargarPDFDiario(selectedDate)}
-            >
-              <i className='fas fa-print'/>
-              GENERAR PDF
-            </button>
-          )}
         </div>
 
         <div className="stat-cards">

@@ -269,6 +269,7 @@
     <thead>
         <tr>
             <th>Usuario</th>
+            <th>Tipo</th>
             <th>Monto</th>
             <th>Monto A Dar</th>
             <th>Frecuencia de Pago</th>
@@ -281,6 +282,7 @@
                 <span th:text="${(credito.usuario?.nombre != null ? credito.usuario.nombre : '') + ' ' + (credito.usuario?.apellido != null ? credito.usuario.apellido : '')}"></span>
             </td>
             <td th:text="${'$' + #numbers.formatDecimal(credito.monto, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td th:text="${credito.tipo}"></td>
             <td th:text="${credito.montoDado != null ? '$' + #numbers.formatDecimal(credito.montoDado, 1, 'COMMA', 2, 'POINT') : ''}"></td>
             <td th:text="${credito.plazoFrecuencia}"></td>
             <td th:text="${credito.nota != null ? credito.nota : ''}"></td>

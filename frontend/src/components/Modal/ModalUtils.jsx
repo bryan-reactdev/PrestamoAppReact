@@ -79,9 +79,9 @@ export function BaseModal({
     <div className='modal-backdrop' ref={modalRef} style={style}>
       <div className={`modal-container`} style={{width: customWidth}} ref={modalContainerRef}>
         {/* --- Titulo & Icono --- */}
-        <div className="modal-header">
+        <div className="modal-header mb-2">
           <i className={`${icon} modal-icon`}></i>
-          <h1>{title}</h1>
+          <h1 className='text-2xl font-bold'>{title}</h1>
         </div>
 
         {/* --- Custom Content --- */}

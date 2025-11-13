@@ -4,6 +4,7 @@ import { create } from 'zustand';
 const estadoInicial = {
   sidebar: isMobile ? false : true,
   registerInfo: false,
+  pdfDiario: false,
 };
 
 export const useModalStore = create((set) => ({
