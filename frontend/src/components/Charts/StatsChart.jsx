@@ -241,6 +241,7 @@ export default function StatsChart({
               return [
                 `  • Gastos Empresa: $${(clickedData.gastosEmpresa || 0).toLocaleString()}`,
                 `  • Egresos Varios: $${(clickedData.egresosVarios || 0).toLocaleString()}`,
+                `  • Pago de Planillas: $${(clickedData.egresosPagoPlanillas || 0).toLocaleString()}`,
                 `  • Retiros Cuotas: $${(clickedData.egresosCuotasRetiros || 0).toLocaleString()}`,
                 `  • Créditos Desembolsados: $${(clickedData.creditosDesembolsados || 0).toLocaleString()}`,
                 `  • Balance: ${balanceDisplay}`

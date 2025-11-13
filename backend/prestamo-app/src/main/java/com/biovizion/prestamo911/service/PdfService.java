@@ -258,6 +258,10 @@ public class PdfService {
                                                         .filter(i -> "Varios".equals(i.getTipo()))
                                                         .collect(Collectors.toList());
 
+            List<HistorialGastoEntity> pagoPlanillas = gastos.stream()
+                                                            .filter(i -> "Pago de Planillas".equals(i.getTipo()))
+                                                            .collect(Collectors.toList());
+
             List<HistorialGastoEntity> retiros = gastos.stream()
                                                         .filter(i -> "Retiro de Cuotas".equals(i.getTipo()))
                                                         .collect(Collectors.toList());
@@ -266,6 +270,7 @@ public class PdfService {
             context.setVariable("creditos", creditos);
             context.setVariable("gastosEmpresa", gastosEmpresa);
             context.setVariable("gastosVarios", gastosVarios);
+            context.setVariable("pagoPlanillas", pagoPlanillas);
             context.setVariable("retiros", retiros);
             context.setVariable("totalCreditos", totalCreditos);
             context.setVariable("totalGastos", totalGastos);
@@ -354,6 +359,10 @@ public class PdfService {
                                                             .filter(i -> "Varios".equals(i.getTipo()))
                                                             .collect(Collectors.toList());
 
+            List<HistorialGastoEntity> pagoPlanillas = gastos.stream()
+                                                            .filter(i -> "Pago de Planillas".equals(i.getTipo()))
+                                                            .collect(Collectors.toList());
+
             List<HistorialGastoEntity> retiros = gastos.stream()
                                                         .filter(i -> "Retiro de Cuotas".equals(i.getTipo()))
                                                         .collect(Collectors.toList());
@@ -363,6 +372,10 @@ public class PdfService {
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             BigDecimal totalGastosVarios = gastosVarios.stream()
+                    .map(HistorialGastoEntity::getMonto)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal totalPagoPlanillas = pagoPlanillas.stream()
                     .map(HistorialGastoEntity::getMonto)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
@@ -390,10 +403,12 @@ public class PdfService {
             context.setVariable("creditos", creditos);
             context.setVariable("gastosEmpresa", gastosEmpresa);
             context.setVariable("gastosVarios", gastosVarios);
+            context.setVariable("pagoPlanillas", pagoPlanillas);
             context.setVariable("retiros", retiros);
             context.setVariable("totalCreditos", totalCreditos);
             context.setVariable("totalGastos", totalGastos);
             context.setVariable("totalGastosVarios", totalGastosVarios);
+            context.setVariable("totalPagoPlanillas", totalPagoPlanillas);
             context.setVariable("totalRetiros", totalRetiros);
             
             // Totals
@@ -485,9 +500,10 @@ public class PdfService {
             BigDecimal totalACobrar = totalCuotasPendientesGlobal.add(totalCuotasVencidasGlobal);
             BigDecimal porRecuperar = totalIngresosCapitalesGlobal.subtract(totalCuotasPagadasGlobalValue);
             BigDecimal gananciaProyectada = totalACobrar.subtract(porRecuperar);
+            BigDecimal gananciaReal = totalCuotasPagadasGlobalValue.subtract(totalIngresosCapitalesGlobal);
             BigDecimal roiPorcentaje = null;
             if (totalIngresosCapitalesGlobal.compareTo(BigDecimal.ZERO) > 0) {
-                roiPorcentaje = totalCuotasPagadasGlobalValue.subtract(totalIngresosCapitalesGlobal)
+                roiPorcentaje = gananciaReal
                         .divide(totalIngresosCapitalesGlobal, 4, RoundingMode.HALF_UP)
                         .multiply(BigDecimal.valueOf(100));
             }
@@ -497,6 +513,7 @@ public class PdfService {
             context.setVariable("totalACobrar", totalACobrar);
             context.setVariable("porRecuperar", porRecuperar);
             context.setVariable("gananciaProyectada", gananciaProyectada);
+            context.setVariable("gananciaReal", gananciaReal);
             context.setVariable("roiPorcentaje", roiPorcentaje);
 
             // Logo dentro del JAR

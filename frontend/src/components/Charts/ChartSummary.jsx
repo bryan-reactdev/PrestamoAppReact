@@ -16,6 +16,7 @@ export default function ChartSummary({ data, saldo, viewType = 'Semanal' }) {
 
   const gastosEmpresa = data.reduce((sum, day) => sum + (day.gastosEmpresa || 0), 0);
   const egresosVarios = data.reduce((sum, day) => sum + (day.egresosVarios || 0), 0);
+  const egresosPagoPlanillas = data.reduce((sum, day) => sum + (day.egresosPagoPlanillas || 0), 0);
   const egresosCuotasRetiros = data.reduce((sum, day) => sum + (day.egresosCuotasRetiros || 0), 0);
   const creditosDesembolsados = data.reduce((sum, day) => sum + (day.creditosDesembolsados || 0), 0);
 
@@ -68,7 +69,7 @@ export default function ChartSummary({ data, saldo, viewType = 'Semanal' }) {
           ${formatCurrencySV(totalIngresos)}
         </span>
       </div>
-      <div className="summary-item" title={`💸 Gastos Empresa: $${gastosEmpresa.toLocaleString()}\n💸 Egresos Varios: $${egresosVarios.toLocaleString()}\n💸 Retiros Cuotas: $${egresosCuotasRetiros.toLocaleString()}\n💸 Créditos Desembolsados: $${creditosDesembolsados.toLocaleString()}`}>
+      <div className="summary-item" title={`💸 Gastos Empresa: $${gastosEmpresa.toLocaleString()}\n💸 Egresos Varios: $${egresosVarios.toLocaleString()}\n💸 Pago de Planillas: $${egresosPagoPlanillas.toLocaleString()}\n💸 Retiros Cuotas: $${egresosCuotasRetiros.toLocaleString()}\n💸 Créditos Desembolsados: $${creditosDesembolsados.toLocaleString()}`}>
         <h4>Total Egresos {viewType}</h4>
         <span className="color-danger">
           ${formatCurrencySV(totalEgresos)}

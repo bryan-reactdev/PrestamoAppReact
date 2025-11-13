@@ -177,94 +177,85 @@ export const useCuotaStore = create((set, get) => ({
 
     // stores/useCuotaStore.jsx (función corregida)
 
-calcularProyeccion: (fecha = null) => {
-    set({ isFetchingProyeccion: true });
-    
-    const fechaFiltro = fecha || get().selectedDate;
-    const { cuotas } = get(); // Usar solo el array principal de cuotas
+    calcularProyeccion: (fecha = null) => {
+        set({ isFetchingProyeccion: true });
+        
+        const fechaFiltro = fecha || get().selectedDate;
+        const { cuotas } = get(); // Usar solo el array principal de cuotas
 
-    console.log('=== INICIANDO CÁLCULO DE PROYECCIÓN ===');
-    console.log('Fecha filtro:', fechaFiltro);
-    console.log('Total cuotas disponibles:', cuotas.length);
-
-    // Filtrar por fecha usando fechaVencimiento - SOLO LAS CUOTAS PRINCIPALES
-    let cuotasFiltradas = cuotas;
-    if (fechaFiltro && cuotasFiltradas.length > 0) {
-        cuotasFiltradas = cuotas.filter((cuota) => {
-            const fechaVencimiento = cuota.fechaVencimiento;
-            if (!fechaVencimiento) {
-                console.log('Cuota sin fechaVencimiento:', cuota.id);
-                return false;
-            }
-            
-            const fechaStr = typeof fechaVencimiento === 'string' 
-                ? fechaVencimiento 
-                : fechaVencimiento.split('T')[0];
-            
-            const coincide = fechaStr.startsWith(fechaFiltro);
-            console.log(`Cuota ${cuota.id}: ${fechaStr} vs ${fechaFiltro} -> ${coincide ? 'COINCIDE' : 'NO COINCIDE'}`);
-            return coincide;
-        });
-    }
-
-    console.log('Cuotas después del filtro:', cuotasFiltradas.length);
-
-    // Mostrar las cuotas filtradas para debug
-    if (cuotasFiltradas.length > 0) {
-        console.log('Cuotas filtradas:');
-        cuotasFiltradas.forEach(cuota => {
-            console.log(`- ID: ${cuota.id}, Fecha: ${cuota.fechaVencimiento}, Estado: ${cuota.estado}, Total: $${cuota.total}`);
-        });
-    }
-
-    // Calcular cuotas cobradas (estado Pagado)
-    const cuotasCobradas = cuotasFiltradas.filter(cuota => 
-        cuota.estado === 'Pagado' || cuota.estado === 'pagado'
-    );
-
-    // Calcular cuotas por cobrar (otros estados)
-    const cuotasPorCobrar = cuotasFiltradas.filter(cuota => 
-        cuota.estado !== 'Pagado' && cuota.estado !== 'pagado'
-    );
-
-    // Calcular montos totales
-    const calcularMontoTotal = (cuotasArray) => {
-        return cuotasArray.reduce((total, cuota) => {
-            const montoTotal = Number(cuota.total) || 0;
-            return total + montoTotal;
-        }, 0);
-    };
-
-    const montoCobradas = calcularMontoTotal(cuotasCobradas);
-    const montoPorCobrar = calcularMontoTotal(cuotasPorCobrar);
-
-    console.log('=== RESUMEN PROYECCIÓN ===');
-    console.log('Cuotas cobradas:', cuotasCobradas.length, 'Monto total: $', montoCobradas);
-    console.log('Cuotas por cobrar:', cuotasPorCobrar.length, 'Monto total: $', montoPorCobrar);
-    console.log('Total general:', cuotasFiltradas.length, 'Monto total: $', montoCobradas + montoPorCobrar);
-
-    const proyeccionData = {
-        cuotasCobradas: {
-            cantidad: cuotasCobradas.length,
-            montoTotal: montoCobradas
-        },
-        cuotasPorCobrar: {
-            cantidad: cuotasPorCobrar.length,
-            montoTotal: montoPorCobrar
-        },
-        totalGeneral: {
-            cantidad: cuotasFiltradas.length,
-            montoTotal: montoCobradas + montoPorCobrar
+        // Filtrar por fecha usando fechaVencimiento - SOLO LAS CUOTAS PRINCIPALES
+        let cuotasFiltradas = cuotas;
+        if (fechaFiltro && cuotasFiltradas.length > 0) {
+            cuotasFiltradas = cuotas.filter((cuota) => {
+                const fechaVencimiento = cuota.fechaVencimiento;
+                if (!fechaVencimiento) {
+                    console.log('Cuota sin fechaVencimiento:', cuota.id);
+                    return false;
+                }
+                
+                const fechaStr = typeof fechaVencimiento === 'string' 
+                    ? fechaVencimiento 
+                    : fechaVencimiento.split('T')[0];
+                
+                const coincide = fechaStr.startsWith(fechaFiltro);
+                return coincide;
+            });
         }
-    };
 
-    set({ 
-        proyeccionData,
-        isFetchingProyeccion: false 
-    });
+        console.log('Cuotas después del filtro:', cuotasFiltradas.length);
 
-    return proyeccionData;
-},
+        // Mostrar las cuotas filtradas para debug
+        if (cuotasFiltradas.length > 0) {
+            console.log('Cuotas filtradas:');
+            cuotasFiltradas.forEach(cuota => {
+                console.log(`- ID: ${cuota.id}, Fecha: ${cuota.fechaVencimiento}, Estado: ${cuota.estado}, Total: $${cuota.total}`);
+            });
+        }
+
+        // Calcular cuotas cobradas (estado Pagado)
+        const cuotasCobradas = cuotasFiltradas.filter(cuota => 
+            cuota.estado === 'Pagado' || cuota.estado === 'pagado'
+        );
+
+        // Calcular cuotas por cobrar (otros estados)
+        const cuotasPorCobrar = cuotasFiltradas.filter(cuota => 
+            cuota.estado !== 'Pagado' && cuota.estado !== 'pagado'
+        );
+
+        // Calcular montos totales
+        const calcularMontoTotal = (cuotasArray) => {
+            return cuotasArray.reduce((total, cuota) => {
+                const montoTotal = Number(cuota.total) || 0;
+                return total + montoTotal;
+            }, 0);
+        };
+
+        const montoCobradas = calcularMontoTotal(cuotasCobradas);
+        const montoPorCobrar = calcularMontoTotal(cuotasPorCobrar);
+
+        console.log('=== RESUMEN PROYECCIÓN ===');
+        const proyeccionData = {
+            cuotasCobradas: {
+                cantidad: cuotasCobradas.length,
+                montoTotal: montoCobradas
+            },
+            cuotasPorCobrar: {
+                cantidad: cuotasPorCobrar.length,
+                montoTotal: montoPorCobrar
+            },
+            totalGeneral: {
+                cantidad: cuotasFiltradas.length,
+                montoTotal: montoCobradas + montoPorCobrar
+            }
+        };
+
+        set({ 
+            proyeccionData,
+            isFetchingProyeccion: false 
+        });
+
+        return proyeccionData;
+    },
 
     updateCuota: async (id, formData) => {
         set({ isUpdatingCuota: true });

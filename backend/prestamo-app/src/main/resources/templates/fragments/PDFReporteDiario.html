@@ -45,16 +45,37 @@
         .pdf-section-main {
             font-weight: bold;
             text-transform: uppercase;
-            margin: 20px 0 15px;
+            margin: 25px 0 15px;
             text-align: left;
             font-size: 16pt;
+            border-bottom: 2px solid #333;
+            padding-bottom: 8px;
         }
         .pdf-subsection {
             font-weight: 600;
             text-transform: uppercase;
-            margin: 15px 0 10px;
+            margin: 20px 0 12px;
             text-align: left;
             font-size: 12pt;
+        }
+        .section-container {
+            page-break-inside: avoid;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+        }
+        .section-container.new-page {
+            page-break-before: always;
+        }
+        .first-page-content {
+            page-break-after: avoid;
+            page-break-before: avoid;
+        }
+        .section-container.first-page-content {
+            page-break-inside: auto;
+        }
+        .table-container {
+            page-break-inside: avoid;
+            margin-bottom: 25px;
         }
         .pdf-field {
             margin-bottom: 10px;
@@ -87,20 +108,30 @@
             border: 1.5px solid black;
         }
         table {
-            page-break-inside: auto;
+            page-break-inside: avoid;
+            break-inside: avoid;
         }
 
         tr {
             page-break-inside: avoid;
+            break-inside: avoid;
             page-break-after: auto;
         }
 
         thead {
             display: table-header-group;
+            page-break-after: avoid;
+            page-break-inside: avoid;
         }
 
         tfoot {
             display: table-footer-group;
+            page-break-before: avoid;
+            page-break-inside: avoid;
+        }
+
+        tbody {
+            page-break-inside: avoid;
         }
 
 
@@ -108,7 +139,8 @@
 </head>
 <body>
 
-<!-- Header -->
+<!-- Header and INGRESOS on First Page -->
+<div class="first-page-content">
 <div class="header-container">
 <!--    <img th:src="${logoUrl}" alt="Logo" class="logo" />-->
     <div class="company-header">MULTIPRÉSTAMOS ATLAS</div>
@@ -117,8 +149,10 @@
 <div class="pdf-title" th:text="'REPORTE DIARIO COMPLETO EN LA FECHA: ' + ${fecha}"></div>
 
 <!-- INGRESOS SECTION -->
+<div class="section-container" style="page-break-inside: auto;">
 <div class="pdf-section-main" style="margin-top: 20px;">INGRESOS</div>
 
+<div class="table-container">
 <div class="pdf-subsection">1. PAGOS DE CUOTAS</div>
 <div th:if="${#lists.isEmpty(cuotas)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
     No hubieron pagos de cuotas para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
@@ -149,9 +183,9 @@
         </tr>
     </tbody>    
 </table>
+</div>
 
-<div style="page-break-inside: avoid;"></div>
-
+<div class="table-container">
 <div class="pdf-subsection">2. ABONOS</div>
 <div th:if="${#lists.isEmpty(abonos)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
     No hubieron abonos para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
@@ -174,9 +208,9 @@
         </tr>
     </tbody>    
 </table>
+</div>
 
-<div style="page-break-inside: avoid;"></div>
-
+<div class="table-container">
 <div class="pdf-subsection">3. INGRESOS A CAPITAL</div>
 <div th:if="${#lists.isEmpty(ingresosCapitales)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
     No hubieron ingresos a capital para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
@@ -197,9 +231,9 @@
         </tr>
     </tbody>    
 </table>
+</div>
 
-<div style="page-break-inside: avoid;"></div>
-
+<div class="table-container">
 <div class="pdf-subsection">4. INGRESOS VARIOS</div>
 <div th:if="${#lists.isEmpty(ingresosVarios)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
     No hubieron ingresos varios para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
@@ -220,12 +254,15 @@
         </tr>
     </tbody>    
 </table>
-
-<div style="page-break-inside: avoid;"></div>
+</div>
+</div>
+</div>
 
 <!-- EGRESOS SECTION -->
+<div class="section-container new-page">
 <div class="pdf-section-main" style="margin-top: 20px;">EGRESOS</div>
 
+<div class="table-container">
 <div class="pdf-subsection">1. CREDITOS DESEMBOLSADOS</div>
 <div th:if="${#lists.isEmpty(creditos)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
     No hubieron créditos desembolsados para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
@@ -252,9 +289,9 @@
         </tr>
     </tbody>    
 </table>
+</div>
 
-<div style="page-break-inside: avoid;"></div>
-
+<div class="table-container">
 <div class="pdf-subsection">2. GASTOS DE LA EMPRESA</div>
 <div th:if="${#lists.isEmpty(gastosEmpresa)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
     No hubieron gastos de la empresa para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
@@ -275,9 +312,9 @@
         </tr>
     </tbody>    
 </table>
+</div>
 
-<div style="page-break-inside: avoid;"></div>
-
+<div class="table-container">
 <div class="pdf-subsection">3. GASTOS VARIOS</div>
 <div th:if="${#lists.isEmpty(gastosVarios)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
     No hubieron gastos varios para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
@@ -298,10 +335,33 @@
         </tr>
     </tbody>    
 </table>
+</div>
 
-<div style="page-break-inside: avoid;"></div>
+<div class="table-container">
+<div class="pdf-subsection">4. PAGO DE PLANILLAS</div>
+<div th:if="${#lists.isEmpty(pagoPlanillas)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
+    No hubieron pagos de planillas para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
+</div>
+<table th:if="${not #lists.isEmpty(pagoPlanillas)}">
+    <thead>
+        <tr>
+            <th>Monto</th>
+            <th>Motivo</th>
+            <th>Fecha</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="gasto : ${pagoPlanillas}">
+            <td th:text="${'$' + #numbers.formatDecimal(gasto.monto, 1, 'COMMA', 2, 'POINT')}">$100.00</td>
+            <td th:text="${gasto.motivo}"></td>
+            <td th:text="${gasto.fecha != null ? #temporals.format(gasto.fecha, 'dd/MM/yyyy') : 'N/A'}">20/01/2024</td>
+        </tr>
+    </tbody>    
+</table>
+</div>
 
-<div class="pdf-subsection">4. RETIROS DE CUOTAS</div>
+<div class="table-container">
+<div class="pdf-subsection">5. RETIROS DE CUOTAS</div>
 <div th:if="${#lists.isEmpty(retiros)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
     No hubieron retiros de cuotas para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
 </div>
@@ -321,10 +381,12 @@
         </tr>
     </tbody>    
 </table>
+</div>
+</div>
 
-<div style="page-break-inside: avoid;"></div>
-
+<div class="section-container new-page">
 <div class="pdf-section-main" style="margin-top: 20px;">CREDITOS OTORGADOS</div>
+<div class="table-container">
 <div th:if="${#lists.isEmpty(creditosOtorgados)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
     No hubieron créditos otorgados para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
 </div>
@@ -350,10 +412,12 @@
         </tr>
     </tbody>    
 </table>
+</div>
+</div>
 
-<div style="page-break-inside: avoid;"></div>
-
+<div class="section-container new-page">
 <div class="pdf-section-main" style="margin-top: 20px;">CREDITOS DENEGADOS</div>
+<div class="table-container">
 <div th:if="${#lists.isEmpty(creditosDenegados)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
     No hubieron créditos denegados para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
 </div>
@@ -379,15 +443,17 @@
         </tr>
     </tbody>    
 </table>
-
-<div style="page-break-inside: avoid;"></div>
+</div>
+</div>
 
 <!-- COBROS SECTION -->
+<div class="section-container new-page">
 <div class="pdf-section-main" style="margin-top: 20px;">COBROS</div>
 
+<div class="table-container">
 <div class="pdf-subsection">1. CUOTAS PENDIENTES DEL DÍA</div>
 <div th:if="${#lists.isEmpty(cuotasPendientesDia)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
-    No hubieron cuotas pendientes para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
+    No quedaron cuotas pendientes para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
 </div>
 <table th:if="${not #lists.isEmpty(cuotasPendientesDia)}">
     <thead>
@@ -418,9 +484,9 @@
 <div th:if="${not #lists.isEmpty(cuotasPendientesDia)}" style="text-align: right; margin-top: 10px; font-weight: bold;">
     Total: <span th:text="${'$' + #numbers.formatDecimal(totalCuotasPendientesDia, 1, 'COMMA', 2, 'POINT')}"></span> | Cantidad: <span th:text="${cantidadCuotasPendientesDia}"></span>
 </div>
+</div>
 
-<div style="page-break-inside: avoid;"></div>
-
+<div class="table-container">
 <div class="pdf-subsection">2. CUOTAS PAGADAS DEL DÍA</div>
 <div th:if="${#lists.isEmpty(cuotasPagadasDia)}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
     No hubieron cuotas pagadas para la fecha: <span th:text="${#temporals.format(fecha, 'dd/MM/yyyy')}"></span>
@@ -454,14 +520,15 @@
 <div th:if="${not #lists.isEmpty(cuotasPagadasDia)}" style="text-align: right; margin-top: 10px; font-weight: bold;">
     Total: <span th:text="${'$' + #numbers.formatDecimal(totalCuotasPagadasDia, 1, 'COMMA', 2, 'POINT')}"></span> | Cantidad: <span th:text="${cantidadCuotasPagadasDia}"></span>
 </div>
+</div>
+</div>
 
-<div style="page-break-inside: avoid;"></div>
-
-<!-- Contenedor que evita que se separen -->
-<div style="page-break-inside: avoid;">
+<!-- RESUMEN SECTION -->
+<div class="section-container new-page" style="page-break-inside: avoid;">
 
     <div class="pdf-section-main">RESUMEN</div>
 
+    <div class="table-container">
     <div class="pdf-subsection">1. INGRESOS Y EGRESOS</div>
     <table style="width: 100%;">
         <thead>
@@ -500,12 +567,20 @@
                 Total en Ingresos Varios <span th:text="${'$' + #numbers.formatDecimal(totalIngresosVarios, 1, 'COMMA', 2, 'POINT')}" style="float: right;"></span>
             </td>
             <td style="text-align: left;">
+                Total en Pago de Planillas <span th:text="${'$' + #numbers.formatDecimal(totalPagoPlanillas, 1, 'COMMA', 2, 'POINT')}" style="float: right;"></span>
+            </td>
+        </tr>
+        <tr>
+            <td style="text-align: left;"></td>
+            <td style="text-align: left;">
                 Total en Retiros de Cuotas <span th:text="${'$' + #numbers.formatDecimal(totalRetiros, 1, 'COMMA', 2, 'POINT')}" style="float: right;"></span>
             </td>
         </tr>
         </tbody>
     </table>
+    </div>
 
+    <div class="table-container">
     <div class="pdf-subsection">2. CUOTAS DEL DÍA</div>
     <table style="width: 100%; margin-top: 20px;">
         <thead>
@@ -533,7 +608,9 @@
         </tr>
         </tbody>
     </table>
+    </div>
 
+    <div class="table-container">
     <div class="pdf-subsection">3. COBROS PENDIENTES</div>
     <div th:if="${fecha != #temporals.createToday() and not hasHistorialCobros}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
         El sistema no registró información de cobros para esta fecha.
@@ -574,26 +651,49 @@
         </tr>
         </tbody>
     </table>
+    </div>
 
+    <div class="table-container">
     <div class="pdf-subsection">4. CAPITAL</div>
     <table style="width: 100%; margin-top: 20px;">
         <thead>
         <tr>
             <th style="text-align: center; background-color: #f0f0f0;">Inversión en Capital</th>
+            <th style="text-align: center; background-color: #f0f0f0;">Retorno Obtenido de Inversión de Capital</th>
             <th style="text-align: center; background-color: #f0f0f0;">Retorno Pendiente de Inversión de Capital</th>
             <th style="text-align: center; background-color: #f0f0f0;">Ganancia Proyectada</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="text-align: center;" th:text="${'$' + #numbers.formatDecimal(totalIngresosCapitalesGlobal, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td style="text-align: center;" th:text="${'$' + #numbers.formatDecimal(totalCuotasPagadasGlobalValue, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td style="text-align: center;" th:text="${'$' + #numbers.formatDecimal(porRecuperar, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td style="text-align: center;" th:text="${'$' + #numbers.formatDecimal(gananciaProyectada, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        </tbody>
+    </table>
+    </div>
+
+    <div class="table-container">
+    <div class="pdf-subsection">5. ROI (RETORNO DE INVERSIÓN)</div>
+    <table style="width: 100%; margin-top: 20px;">
+        <thead>
+        <tr>
+            <th style="text-align: center; background-color: #f0f0f0;">Inversión en Capital</th>
+            <th style="text-align: center; background-color: #f0f0f0;">Retorno Obtenido (Cuotas Pagadas)</th>
             <th style="text-align: center; background-color: #f0f0f0;">ROI</th>
         </tr>
         </thead>
         <tbody>
         <tr>
             <td style="text-align: center;" th:text="${'$' + #numbers.formatDecimal(totalIngresosCapitalesGlobal, 1, 'COMMA', 2, 'POINT')}"></td>
-            <td style="text-align: center;" th:text="${'$' + #numbers.formatDecimal(porRecuperar, 1, 'COMMA', 2, 'POINT')}"></td>
-            <td style="text-align: center;" th:text="${'$' + #numbers.formatDecimal(gananciaProyectada, 1, 'COMMA', 2, 'POINT')}"></td>
+            <td style="text-align: center;" th:text="${'$' + #numbers.formatDecimal(totalCuotasPagadasGlobalValue, 1, 'COMMA', 2, 'POINT')}"></td>
             <td style="text-align: center;" th:text="${roiPorcentaje != null ? #numbers.formatDecimal(roiPorcentaje, 1, 'COMMA', 2, 'POINT') + '%' : 'N/A'}"></td>
         </tr>
         </tbody>
     </table>
+    </div>
 
 </div>
 

@@ -10,6 +10,8 @@ import { useCreditoStore } from '../../stores/useCreditoStore'
 import { useCuotaStore } from '../../stores/useCuotaStore'
 import BaseTable from '../../components/Table/BaseTable'
 import { formatCurrencySVWithSymbol } from '../../utils/currencyUtils'
+import StatsChart from '../../components/Charts/StatsChart'
+import ChartSummary from '../../components/Charts/ChartSummary'
 
 export default function AdminEstadisticasDashboard() {
   const { creditos, getCreditos, creditosForDate, setSelectedDate: setSelectedDateCredito } = useCreditoStore();
@@ -24,7 +26,13 @@ export default function AdminEstadisticasDashboard() {
     setSelectedDate,
     ingresosCapitales,
     cuotasPagadas,
-    calcularTotal
+    calcularTotal,
+    getWeekData,
+    getMonthData,
+    getMultiMonthData,
+    gastosEmpresa,
+    cuotasTotales,
+    getCuotasTotales
   } = useCurrencyStore();
   const { proyeccionData, getCuotas, calcularProyeccion, isFetchingProyeccion, setSelectedDate: setSelectedDateCuota } = useCuotaStore();
 
@@ -45,13 +53,74 @@ export default function AdminEstadisticasDashboard() {
       getBalance();
     }
     getCurrencyForDate();
-  }, [getBalance, saldo, getCurrencyForDate, selectedDate])
+    getCuotasTotales();
+  }, [getBalance, saldo, getCurrencyForDate, getCuotasTotales, selectedDate])
 
   useEffect(() => {
     getCuotas().then(() => {
       calcularProyeccion(selectedDate);
     });
   }, [getCuotas, calcularProyeccion, selectedDate, saldo])
+
+  // Helper function to calculate max value from data
+  const getMaxValue = (data) => {
+    if (!data || data.length === 0) return 5000;
+    let maxIngresosCapitales = Math.max(...data.map(day => day.totalIngresosCapitales || 0));
+    let maxIngresos = Math.max(...data.map(day => day.totalIngresos || 0));
+    let maxEgresos = Math.max(...data.map(day => day.totalEgresos || 0));
+    maxIngresosCapitales = maxIngresosCapitales * 1.1;
+    maxIngresos = maxIngresos * 1.1;
+    maxEgresos = maxEgresos * 1.1;
+    return Math.floor(Math.max(maxIngresosCapitales, maxIngresos, maxEgresos));
+  };
+
+  // Helper function to add IDs to data for table compatibility
+  const addIdsToData = (data) => {
+    return data.map((item, index) => ({
+      ...item,
+      id: item.id || `${item.date || index}-${index}`
+    }));
+  };
+
+  // StatsChart data states
+  const [currentWeekData, setCurrentWeekData] = useState([]);
+  const [currentMonthData, setCurrentMonthData] = useState([]);
+  const [currentMultiMonthData, setCurrentMultiMonthData] = useState([]);
+  const [statsChartView, setStatsChartView] = useState('Semanal'); // 'Semanal', 'Mensual', '3Meses', '6Meses', 'Anual'
+  const [minValue, setMinValue] = useState(0);
+  const [maxValue, setMaxValue] = useState(5000);
+
+  // Generate StatsChart data
+  useEffect(() => {
+    if (ingresosCapitales && gastosEmpresa) {
+      const weekData = getWeekData(0);
+      const monthData = getMonthData(0);
+      setCurrentWeekData(addIdsToData(weekData));
+      setCurrentMonthData(addIdsToData(monthData));
+      
+      // Generate multi-month data based on view
+      let multiMonthData = [];
+      if (statsChartView === '3Meses') {
+        multiMonthData = getMultiMonthData(3, 0, 0);
+      } else if (statsChartView === '6Meses') {
+        multiMonthData = getMultiMonthData(6, 0, 0);
+      } else if (statsChartView === 'Anual') {
+        multiMonthData = getMultiMonthData(12, 0, 0);
+      }
+      setCurrentMultiMonthData(addIdsToData(multiMonthData));
+      
+      // Auto-set max value based on current view
+      let currentData = [];
+      if (statsChartView === 'Semanal') {
+        currentData = weekData;
+      } else if (statsChartView === 'Mensual') {
+        currentData = monthData;
+      } else {
+        currentData = multiMonthData;
+      }
+      setMaxValue(getMaxValue(currentData));
+    }
+  }, [ingresosCapitales, gastosEmpresa, getWeekData, getMonthData, getMultiMonthData, statsChartView])
 
   const [chartData, setChartData] = useState([
     { category: "Ingresos Capitales", value: 0 },
@@ -249,25 +318,11 @@ export default function AdminEstadisticasDashboard() {
   }, [cuotasPagadas, ingresosCapitales, calcularTotal]);
 
   const gananciaDespuesRecuperacion = useMemo(() => {
-    const totalCuotasPagadas = (Array.isArray(cuotasPagadas) ? calcularTotal(cuotasPagadas) : 0) || 0;
-    const totalIngresoACapital = (Array.isArray(ingresosCapitales) ? calcularTotal(ingresosCapitales) : 0) || 0;
-    const totalPorCobrar = Number(proyeccionData?.cuotasPorCobrar?.montoTotal || 0);
-    const totalFlujoEsperado = totalCuotasPagadas + totalPorCobrar;
-    const ganancia = totalFlujoEsperado - totalIngresoACapital;
-    
-    // Debug logging (can be removed later)
-    if (process.env.NODE_ENV === 'development') {
-      console.log('Ganancia Neta Proyectada calculation:', {
-        totalCuotasPagadas,
-        totalIngresoACapital,
-        totalPorCobrar,
-        totalFlujoEsperado,
-        ganancia
-      });
-    }
+    const totalPorCobrar = (Number(cuotasTotales?.totalVencidas || 0) + Number(cuotasTotales?.totalPendientes || 0));
+    const ganancia = totalPorCobrar - recuperacionCalculada;
     
     return Math.max(0, ganancia);
-  }, [cuotasPagadas, ingresosCapitales, calcularTotal, proyeccionData]);
+  }, [cuotasTotales, recuperacionCalculada]);
 
   const roiCalculado = useMemo(() => {
     const totalCuotasPagadas = (Array.isArray(cuotasPagadas) ? calcularTotal(cuotasPagadas) : 0) || 0;
@@ -330,7 +385,7 @@ export default function AdminEstadisticasDashboard() {
         </div>
 
         {/* ==================== SECCIÓN SUPERIOR: MÉTRICAS PRINCIPALES ==================== */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
 
           {/* CARD 1: BALANCE CAJA CHICA */}
           <div className="bg-white p-4 rounded-lg shadow-sm border">
@@ -370,9 +425,9 @@ export default function AdminEstadisticasDashboard() {
             </div>
           </div>
 
-          {/* CARD 2: INVERSIONES & ROI */}
+          {/* CARD 2: INVERSIONES */}
           <div className="bg-white p-4 rounded-lg shadow-sm border">
-            <h3 className="text-lg font-semibold mb-3 text-center text-amber-700">Inversiones & ROI</h3>
+            <h3 className="text-lg font-semibold mb-3 text-center text-amber-700">Inversiones</h3>
 
             {/* Grid 2x2 para métricas de inversión */}
             <div className="grid grid-cols-2 gap-3">
@@ -383,21 +438,21 @@ export default function AdminEstadisticasDashboard() {
                 size="sm"
               />
               <MetricCard
-                title="ROI"
-                value={`${Number(roiCalculado).toFixed(2)}%`}
-                subtitle="Retorno de inversión"
-                color="purple"
+                title="Retorno Obtenido"
+                value={formatCurrencySVWithSymbol(Array.isArray(cuotasPagadas) ? calcularTotal(cuotasPagadas) : 0)}
+                subtitle="Total cuotas pagadas"
+                color="green"
                 size="sm"
               />
               <MetricCard
-                title="Por Recuperar"
+                title="Retorno Pendiente"
                 value={formatCurrencySVWithSymbol(recuperacionCalculada)}
                 subtitle="Capital pendiente"
                 color="red"
                 size="sm"
               />
               <MetricCard
-                title="Ganancia Neta"
+                title="Ganancia Proyectada"
                 value={formatCurrencySVWithSymbol(gananciaDespuesRecuperacion)}
                 subtitle="Proyectada"
                 color="emerald"
@@ -406,7 +461,36 @@ export default function AdminEstadisticasDashboard() {
             </div>
           </div>
 
-          {/* CARD 3: PROYECCIÓN DE CUOTAS */}
+          {/* CARD 3: ROI */}
+          <div className="bg-white p-4 rounded-lg shadow-sm border">
+            <h3 className="text-lg font-semibold mb-3 text-center text-purple-700">ROI</h3>
+
+            {/* Grid 2x2 para métricas de ROI */}
+            <div className="grid grid-cols-1 gap-3">
+              <MetricCard
+                title="Capital Invertido"
+                value={Array.isArray(ingresosCapitales) && calcularTotal(ingresosCapitales) ? formatCurrencySVWithSymbol(calcularTotal(ingresosCapitales)) : '$0.00'}
+                color="amber"
+                size="sm"
+              />
+              <MetricCard
+                title="Retorno Obtenido"
+                value={formatCurrencySVWithSymbol(Array.isArray(cuotasPagadas) ? calcularTotal(cuotasPagadas) : 0)}
+                subtitle="Total cuotas pagadas"
+                color="green"
+                size="sm"
+              />
+              <MetricCard
+                title="ROI"
+                value={`${Number(roiCalculado).toFixed(2)}%`}
+                subtitle="Retorno de inversión"
+                color="purple"
+                size="sm"
+              />
+            </div>
+          </div>
+
+          {/* CARD 4: PROYECCIÓN DE CUOTAS */}
           <div className="bg-white p-4 rounded-lg shadow-sm border">
             <h3 className="text-lg font-semibold mb-3 text-center text-indigo-700">Proyección de Cuotas</h3>
             {isFetchingProyeccion ? (
@@ -558,6 +642,51 @@ export default function AdminEstadisticasDashboard() {
           </div>
         </div>
 
+        {/* ==================== SECCIÓN MEDIA: GRÁFICO DE ESTADÍSTICAS ==================== */}
+        <div className="bg-white p-4 rounded-lg shadow-sm border">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-semibold">Estadísticas de Ingresos y Egresos</h3>
+            <div className="flex gap-2">
+              {['Semanal', 'Mensual', '3Meses', '6Meses', 'Anual'].map((view) => (
+                <button
+                  key={view}
+                  className={`px-3 py-1 rounded text-sm ${
+                    statsChartView === view
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                  onClick={() => setStatsChartView(view)}
+                >
+                  {view}
+                </button>
+              ))}
+            </div>
+          </div>
+          {(() => {
+            let currentData = [];
+            if (statsChartView === 'Semanal') {
+              currentData = currentWeekData;
+            } else if (statsChartView === 'Mensual') {
+              currentData = currentMonthData;
+            } else {
+              currentData = currentMultiMonthData;
+            }
+            return (
+              <>
+                <StatsChart
+                  data={currentData}
+                  minValue={minValue}
+                  maxValue={maxValue}
+                  type={statsChartView === 'Semanal' ? 'week' : (statsChartView === 'Mensual' ? 'month' : 'multiMonth')}
+                  className={statsChartView === 'Semanal' ? 'weekly-stats-chart' : (statsChartView === 'Mensual' ? 'monthly-stats-chart' : 'multimonth-stats-chart')}
+                  saldo={saldo}
+                />
+                <ChartSummary data={currentData} saldo={saldo} viewType={statsChartView} />
+              </>
+            );
+          })()}
+        </div>
+        
         {/* ==================== SECCIÓN INFERIOR: DISTRIBUCIONES POR ESTADO Y TIPO ==================== */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
 
