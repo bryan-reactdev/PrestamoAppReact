@@ -61,6 +61,7 @@ public class CreditoRequestDTOs{
         private BigDecimal mora;
         private String frecuencia;
         private int cuotaCantidad;
+        private String nota;
 
         private Long selectedCreditoId;
         private List<CuotaDTO> selectedCuotas;

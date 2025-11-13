@@ -367,8 +367,16 @@ public class PdfService {
                                                         .filter(i -> "Retiro de Cuotas".equals(i.getTipo()))
                                                         .collect(Collectors.toList());
 
+            BigDecimal totalIngresosCapitales = ingresosCapitales.stream()
+                    .map(HistorialSaldoEntity::getMonto)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
             BigDecimal totalIngresosVarios = ingresosVarios.stream()
                     .map(HistorialSaldoEntity::getMonto)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            BigDecimal totalGastosEmpresa = gastosEmpresa.stream()
+                    .map(HistorialGastoEntity::getMonto)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             BigDecimal totalGastosVarios = gastosVarios.stream()
@@ -397,6 +405,7 @@ public class PdfService {
             context.setVariable("totalCuotas", totalCuotas);
             context.setVariable("totalAbonos", totalAbonos);
             context.setVariable("totalIngresos", totalIngresos);
+            context.setVariable("totalIngresosCapitales", totalIngresosCapitales);
             context.setVariable("totalIngresosVarios", totalIngresosVarios);
             
             // Egresos
@@ -407,6 +416,7 @@ public class PdfService {
             context.setVariable("retiros", retiros);
             context.setVariable("totalCreditos", totalCreditos);
             context.setVariable("totalGastos", totalGastos);
+            context.setVariable("totalGastosEmpresa", totalGastosEmpresa);
             context.setVariable("totalGastosVarios", totalGastosVarios);
             context.setVariable("totalPagoPlanillas", totalPagoPlanillas);
             context.setVariable("totalRetiros", totalRetiros);

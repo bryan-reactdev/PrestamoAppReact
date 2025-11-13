@@ -451,39 +451,32 @@ export const useCreditoStore = create((set, get) => ({
         set({isAceptandoCredito: true})
         const toastId = toast.loading("Aceptando Crédito...");
         
-        // Check if we need to send as FormData (if document file is present)
-        const hasFile = formData.document instanceof File;
+        // Always use FormData to ensure proper binding with @ModelAttribute
+        const data = new FormData();
+        data.append('montoAprobado', formData.montoAprobado || '');
+        data.append('cuotaMensual', formData.cuotaMensual || '');
+        data.append('mora', formData.mora || '');
+        data.append('frecuencia', formData.frecuencia || '');
+        data.append('cuotaCantidad', formData.cuotaCantidad || '');
         
-        let data;
-        let headers = {};
-        
-        if (hasFile) {
-            // Use FormData for file upload
-            data = new FormData();
-            data.append('montoAprobado', formData.montoAprobado || '');
-            data.append('cuotaMensual', formData.cuotaMensual || '');
-            data.append('mora', formData.mora || '');
-            data.append('frecuencia', formData.frecuencia || '');
-            data.append('cuotaCantidad', formData.cuotaCantidad || '');
-            
-            if (formData.selectedCreditoId) {
-                data.append('selectedCreditoId', formData.selectedCreditoId);
-            }
-            
-            if (formData.selectedCuotas) {
-                data.append('selectedCuotas', JSON.stringify(formData.selectedCuotas));
-            }
-            
-            // Append document file
-            if (formData.document instanceof File) {
-                data.append('document', formData.document);
-            }
-            
-            headers = { 'Content-Type': 'multipart/form-data' };
-        } else {
-            // Use regular JSON for non-file requests
-            data = formData;
+        if (formData.nota !== undefined && formData.nota !== null) {
+            data.append('nota', formData.nota || '');
         }
+        
+        if (formData.selectedCreditoId) {
+            data.append('selectedCreditoId', formData.selectedCreditoId);
+        }
+        
+        if (formData.selectedCuotas) {
+            data.append('selectedCuotas', JSON.stringify(formData.selectedCuotas));
+        }
+        
+        // Append document file if present
+        if (formData.document instanceof File) {
+            data.append('document', formData.document);
+        }
+        
+        const headers = { 'Content-Type': 'multipart/form-data' };
         
         const res = await axiosData(`/creditoTest/aceptar/${id}`, { 
             method: "POST", 

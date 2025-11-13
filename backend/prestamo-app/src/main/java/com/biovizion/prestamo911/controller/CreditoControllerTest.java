@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
@@ -266,6 +267,7 @@ public class CreditoControllerTest {
 
     // -- Aceptar --
     @PostMapping(value = "/aceptar/{id}", consumes = {"multipart/form-data", "application/json"})
+    @Transactional
     public ResponseEntity<ApiResponse> aceptarCredito(
             @PathVariable Long id, 
             @ModelAttribute CreditoAceptarRequest request){
@@ -275,16 +277,15 @@ public class CreditoControllerTest {
                         .body(new ApiResponse<>("Error: request body is required"));
             }
 
+            System.out.println("request: " + request);
+
             CreditoEntity credito = creditoService.findById(id)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Credito no encontrado"));
 
-            // Null-safe helpers
             final Function<BigDecimal, BigDecimal> safe = (b) -> b == null ? BigDecimal.ZERO : b;
 
             // Validate montoAprobado before using compareTo
             BigDecimal montoAprobado = safe.apply(request.getMontoAprobado());
-            // If you want to require montoAprobado to be non-zero, validate explicitly:
-            // if (request.getMontoAprobado() == null) throw new IllegalArgumentException("Monto aprobado requerido");
 
             // Validate document is required when monto >= 201
             boolean requiresDocument = montoAprobado.compareTo(new BigDecimal("201")) >= 0;
@@ -305,9 +306,13 @@ public class CreditoControllerTest {
             credito.setCuotaCantidad(request.getCuotaCantidad());
             credito.setCuotaMensual(safe.apply(request.getCuotaMensual()));
             credito.setMora(safe.apply(request.getMora()));
+            
             credito.setEstado("Aceptado");
             credito.setFechaAceptado(LocalDateTime.now());
-
+            
+            if (request.getNota() != null && !request.getNota().trim().isEmpty()) {
+                credito.setNota(request.getNota());
+            }
             // Handle document upload
             if (document != null && !document.isEmpty()) {
                 try {
