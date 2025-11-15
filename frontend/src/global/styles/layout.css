@@ -337,6 +337,25 @@
   background-color: transparent;
   text-decoration: underline;
 }
+
+/* Glassmorphism Button */
+.btn-glass{
+  font-weight: 600;
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(12px);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: all 0.15s ease;
+}
+.btn-glass:hover{
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.25);
+}
+.btn-glass:active{
+  transform: scale(0.975);
+}
+
 .btn-homebar{
   display: flex;
 
@@ -487,6 +506,28 @@
   background-color: transparent;
 }
 
+/* Glassmorphism Input Container */
+.input-container.glass{
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: white;
+}
+.input-container.glass:focus-within{
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+}
+.input-container.glass i{
+  color: white;
+}
+.input-container.glass input{
+  color: white;
+}
+.input-container.glass input::placeholder{
+  color: rgba(255,255,255,0.7);
+}
+
 /* --- Form --- */
 .form-container{
   width: 80%;
@@ -570,6 +611,59 @@
 .form-field-input-container:focus-within{
   border: var(--border-width-xs) solid var(--color-accent);
 }
+
+/* Glassmorphism Form Field Input Container */
+.form-field-input-container.glass{
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  color: white;
+}
+.form-field-input-container.glass:focus-within{
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+}
+.form-field-input-container.glass i{
+  color: white;
+}
+.form-field-input-container.glass input,
+.form-field-input-container.glass textarea,
+.form-field-input-container.glass select{
+  color: white;
+}
+.form-field-input-container.glass input::placeholder,
+.form-field-input-container.glass textarea::placeholder{
+  color: rgba(255,255,255,0.7);
+}
+
+/* Glassmorphism Card */
+.glass-card{
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+/* Glassmorphism Inner Card (for nested cards) */
+.glass-card-inner{
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.25);
+}
+
+/* Glassmorphism Modal */
+.glass-modal{
+  background: rgba(255,255,255,0.1) !important;
+  backdrop-filter: blur(25px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  border: 1px solid rgba(255,255,255,0.15) !important;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37) !important;
+}
+
 .form-field input, .form-field select, .form-field textarea{
     resize: vertical;
     flex: 1;
@@ -1002,7 +1096,6 @@
 
 .empty{
   font-weight: 550;
-  color: var(--color-secondary);
 }
 
 /* --- Range Controls --- */
@@ -1051,10 +1144,8 @@
   justify-content: center;
   align-items: center;
 
-  background: var(--background-secondary);
   border-radius: var(--border-lg);
   padding: var(--space-lg);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .chart-header {
@@ -1142,7 +1233,6 @@
 .summary-item h4 {
   margin: 0 0 var(--space-sm) 0;
   font-size: var(--font-sm);
-  color: var(--color-secondary);
   font-weight: 500;
 }
 
@@ -1675,6 +1765,14 @@
   background-color: #ef4444;
 }
 
+/* Style tooltip cursor lines to be less white */
+[data-slot="chart"] .recharts-tooltip-cursor,
+[data-slot="chart"] .recharts-curve.recharts-tooltip-cursor,
+[data-slot="chart"] .recharts-rectangle.recharts-tooltip-cursor {
+  stroke: rgba(255, 255, 255, 0.35) !important;
+  fill: rgba(255, 255, 255, 0.125) !important;
+  opacity: 1 !important;
+}
 
 /* --- Mobile Cards (Hidden on Desktop) --- */
 .mobile-cards-container {

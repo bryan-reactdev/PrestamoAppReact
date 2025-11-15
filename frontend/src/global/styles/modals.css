@@ -28,7 +28,10 @@
 
     border-radius: var(--border-lg);
 
-    background-color: white;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.15);
     z-index: 200;
     
     animation: grow-in 100ms ease forwards;
@@ -71,16 +74,27 @@
     flex-direction: column;
 
     font-size: var(--font-md);
+    color: white;
 }
 .modal-header h1{
     margin-top: 0;
+    color: white;
 }
 .modal-icon{
     font-size: var(--font-6xl);
+    color: white;
 }
 .modal-content{
     margin-bottom: var(--space-md);
     overflow-y: scroll;
+    color: white;
+}
+
+/* Remove blur from form fields inside modals to prevent double blur */
+.modal-content .form-field-input-container.glass{
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(255,255,255,0.2);
 }
 
 .modal-footer{

@@ -258,7 +258,7 @@ function ChartLegendContent({
                     backgroundColor: item.color,
                   }} />
               )}
-              {itemConfig?.label}
+              <span className="text-primary">{itemConfig?.label}</span>
             </div>
           );
         })}

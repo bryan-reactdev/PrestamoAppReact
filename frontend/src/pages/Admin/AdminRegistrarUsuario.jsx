@@ -3,6 +3,7 @@ import FormField from "../../components/Form/FormField";
 import NavbarLanding from "../../components/Navbar/NavbarLanding";
 import { useUsuarioStore } from "../../stores/useUsuarioStore";
 import { useState } from "react";
+import { Button } from "../../components/ui/button";
 
 export default function AdminRegistrarUsuario() {
     const navigate = useNavigate();
@@ -43,13 +44,13 @@ export default function AdminRegistrarUsuario() {
 
             <div className="content">
                 <div className="landing-hero color-primary" style={{ width: '100%' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', backgroundColor: 'var(--landing-secondary)', padding: 'var(--space-lg)', justifyContent: 'center', alignItems: 'center', borderTop: 'var(--border-width-lg) solid var(--color-warning)', borderRadius: 'var(--border-lg)', borderTopLeftRadius: 0, borderTopRightRadius: 0, marginTop: 'var(--space-2xl)'}}>
+                    <div className="glass-card" style={{ display: 'flex', flexDirection: 'column', padding: 'var(--space-lg)', justifyContent: 'center', alignItems: 'center', borderTop: 'var(--border-width-lg) solid #fff', borderRadius: 'var(--border-lg)', borderTopLeftRadius: 0, borderTopRightRadius: 0, marginTop: 'var(--space-2xl)'}}>
                         <div style={{ display: 'flex', flexDirection: 'column', textAlign: 'center', marginBottom: 'var(--space-xl)' }}>
-                            <h1 style={{ fontSize: 'var(--font-3xl)', margin: 0, padding: 0 }}>Registrar Nuevo Usuario</h1>
+                            <h1 style={{ fontSize: 'var(--font-3xl)', margin: 0, padding: 0, color: 'white' }}>Registrar Nuevo Usuario</h1>
                         </div>
 
                         <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', width: '100%' }}>
-                            <div className="two-column-container" style={{gap: 'var(--space-md'}}>
+                            <div className="two-column-container" style={{gap: 'var(--space-md)'}}>
                             <FormField
                                 label="Nombres"
                                 classNames="simple one"
@@ -132,12 +133,12 @@ export default function AdminRegistrarUsuario() {
                             />
                             </div>
 
-                            <button type="submit" style={{ width: '100%', padding: 'var(--space-md)', cursor: isAuthenticating ? 'not-allowed' : '', pointerEvents: isAuthenticating ? 'none' : '' }} className="btn-primary" disabled={isAuthenticating}>
+                            <Button variant="default" size="lg" onClick={onSubmit} disabled={isAuthenticating}>
                                 {isAuthenticating
                                     ? <span className="spinner small"/>
                                     : <span>REGISTRAR</span>
                                 }
-                            </button>
+                            </Button>
                         </form>
                     </div>
 

@@ -413,6 +413,36 @@
     </tbody>    
 </table>
 </div>
+
+<div class="table-container" th:if="${not #lists.isEmpty(creditosOtorgados)}">
+<div class="pdf-subsection">DISTRIBUCIÓN POR TIPO (TODO EL TIEMPO)</div>
+<table style="width: 100%; margin-top: 20px;">
+    <thead>
+    <tr>
+        <th style="text-align: center; background-color: #f0f0f0; width: 40%;">Tipo</th>
+        <th style="text-align: center; background-color: #f0f0f0; width: 30%;">Cantidad</th>
+        <th style="text-align: center; background-color: #f0f0f0; width: 30%;">Total Monto</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td style="text-align: left;">Rapi-Cash</td>
+        <td style="text-align: center;" th:text="${cantidadRapiCashOtorgados}"></td>
+        <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoRapiCashOtorgados, 1, 'COMMA', 2, 'POINT')}"></td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Prendario</td>
+        <td style="text-align: center;" th:text="${cantidadPrendarioOtorgados}"></td>
+        <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoPrendarioOtorgados, 1, 'COMMA', 2, 'POINT')}"></td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Hipotecario</td>
+        <td style="text-align: center;" th:text="${cantidadHipotecarioOtorgados}"></td>
+        <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoHipotecarioOtorgados, 1, 'COMMA', 2, 'POINT')}"></td>
+    </tr>
+    </tbody>
+</table>
+</div>
 </div>
 
 <div class="section-container new-page">
@@ -442,6 +472,36 @@
             <td th:text="${credito.nota != null ? credito.nota : ''}"></td>
         </tr>
     </tbody>    
+</table>
+</div>
+
+<div class="table-container" th:if="${not #lists.isEmpty(creditosDenegados)}">
+<div class="pdf-subsection">DISTRIBUCIÓN POR TIPO</div>
+<table style="width: 100%; margin-top: 20px;">
+    <thead>
+    <tr>
+        <th style="text-align: center; background-color: #f0f0f0; width: 40%;">Tipo</th>
+        <th style="text-align: center; background-color: #f0f0f0; width: 30%;">Cantidad</th>
+        <th style="text-align: center; background-color: #f0f0f0; width: 30%;">Total Monto</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td style="text-align: left;">Rapi-Cash</td>
+        <td style="text-align: center;" th:text="${cantidadRapiCashDenegados}"></td>
+        <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoRapiCashDenegados, 1, 'COMMA', 2, 'POINT')}"></td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Prendario</td>
+        <td style="text-align: center;" th:text="${cantidadPrendarioDenegados}"></td>
+        <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoPrendarioDenegados, 1, 'COMMA', 2, 'POINT')}"></td>
+    </tr>
+    <tr>
+        <td style="text-align: left;">Hipotecario</td>
+        <td style="text-align: center;" th:text="${cantidadHipotecarioDenegados}"></td>
+        <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoHipotecarioDenegados, 1, 'COMMA', 2, 'POINT')}"></td>
+    </tr>
+    </tbody>
 </table>
 </div>
 </div>
@@ -577,7 +637,82 @@
     </div>
 
     <div class="table-container">
-    <div class="pdf-subsection">2. CUOTAS DEL DÍA</div>
+    <div class="pdf-subsection">2. DISTRIBUCIÓN DE CRÉDITOS POR ESTADO</div>
+    <table style="width: 100%; margin-top: 20px;">
+        <thead>
+        <tr>
+            <th style="text-align: center; background-color: #f0f0f0; width: 40%;">Estado</th>
+            <th style="text-align: center; background-color: #f0f0f0; width: 30%;">Cantidad</th>
+            <th style="text-align: center; background-color: #f0f0f0; width: 30%;">Total Monto</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="text-align: left;">Pendientes</td>
+            <td style="text-align: center;" th:text="${cantidadPendientes}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoPendientes, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Aceptados</td>
+            <td style="text-align: center;" th:text="${cantidadAceptados}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoAceptados, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Rechazados</td>
+            <td style="text-align: center;" th:text="${cantidadRechazados}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoRechazados, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Finalizados</td>
+            <td style="text-align: center;" th:text="${cantidadFinalizados}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoFinalizados, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        <tr style="font-weight: bold; background-color: #f0f0f0;">
+            <td style="text-align: left;">Total</td>
+            <td style="text-align: center;" th:text="${totalCreditosEstados}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoEstados, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        </tbody>
+    </table>
+    </div>
+    
+    <div class="table-container">
+    <div class="pdf-subsection">3. DISTRIBUCIÓN DE CRÉDITOS (TODO EL TIEMPO)</div>
+    <table style="width: 100%; margin-top: 20px;">
+        <thead>
+        <tr>
+            <th style="text-align: center; background-color: #f0f0f0; width: 40%;">Tipo</th>
+            <th style="text-align: center; background-color: #f0f0f0; width: 30%;">Cantidad</th>
+            <th style="text-align: center; background-color: #f0f0f0; width: 30%;">Total Monto</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="text-align: left;">Rapi-Cash</td>
+            <td style="text-align: center;" th:text="${cantidadRapiCashAllTime}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoRapiCashAllTime, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Prendario</td>
+            <td style="text-align: center;" th:text="${cantidadPrendarioAllTime}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoPrendarioAllTime, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        <tr>
+            <td style="text-align: left;">Hipotecario</td>
+            <td style="text-align: center;" th:text="${cantidadHipotecarioAllTime}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoHipotecarioAllTime, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        <tr style="font-weight: bold; background-color: #f0f0f0;">
+            <td style="text-align: left;">Total</td>
+            <td style="text-align: center;" th:text="${totalCreditosAllTime}"></td>
+            <td style="text-align: right;" th:text="${'$' + #numbers.formatDecimal(totalMontoAllTime, 1, 'COMMA', 2, 'POINT')}"></td>
+        </tr>
+        </tbody>
+    </table>
+    </div>
+
+    <div class="table-container">
+    <div class="pdf-subsection">4. CUOTAS DEL DÍA</div>
     <table style="width: 100%; margin-top: 20px;">
         <thead>
         <tr>
@@ -607,7 +742,7 @@
     </div>
 
     <div class="table-container">
-    <div class="pdf-subsection">3. COBROS PENDIENTES</div>
+    <div class="pdf-subsection">5. COBROS PENDIENTES</div>
     <div th:if="${fecha != #temporals.createToday() and not hasHistorialCobros}" style="text-align: center; padding: 30px; color: #666666; font-style: italic; font-weight: bold; font-size: 11pt; margin-bottom: 20px;">
         El sistema no registró información de cobros para esta fecha.
     </div>
@@ -650,7 +785,7 @@
     </div>
 
     <div class="table-container">
-    <div class="pdf-subsection">4. CAPITAL</div>
+    <div class="pdf-subsection">6. CAPITAL</div>
     <table style="width: 100%; margin-top: 20px;">
         <thead>
         <tr>
@@ -672,7 +807,7 @@
     </div>
 
     <div class="table-container">
-    <div class="pdf-subsection">5. ROI (RETORNO DE INVERSIÓN)</div>
+    <div class="pdf-subsection">7. ROI (RETORNO DE INVERSIÓN)</div>
     <table style="width: 100%; margin-top: 20px;">
         <thead>
         <tr>

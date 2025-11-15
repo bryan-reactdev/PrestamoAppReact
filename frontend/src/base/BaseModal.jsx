@@ -4,16 +4,18 @@ import { Button } from "@/components/ui/button";
 export default function BaseModal({ isOpen, onOpenChange, title, description }) {
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
-            <DialogContent>
+            <DialogContent className="glass-modal">
                 <DialogHeader>
-                    <DialogTitle>
+                    <DialogTitle className="text-white">
                         {title}
                     </DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="text-white/80">
                         {description}
                     </DialogDescription>
                 </DialogHeader>
-                Content here...
+                <div className="text-white">
+                    Content here...
+                </div>
                 <DialogFooter>
                     <DialogClose asChild>
                         <Button variant="outline">Cancel</Button>

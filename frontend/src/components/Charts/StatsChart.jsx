@@ -117,6 +117,7 @@ export default function StatsChart({
           usePointStyle: true,
           pointStyle: 'circle',
           padding: 20,
+          color: '#fff',
           font: {
             size: 14,
             weight: '500'
@@ -252,9 +253,23 @@ export default function StatsChart({
       }
     },
     scales: {
+      x: {
+        ticks: {
+          color: 'rgba(255, 255, 255, 0.85)'
+        },
+        grid: {
+          color: 'rgba(255, 255, 255, 0.15)'
+        }
+      },
       y: {
         min: minValue,
-        max: maxValue
+        max: maxValue,
+        ticks: {
+          color: 'rgba(255, 255, 255, 0.85)'
+        },
+        grid: {
+          color: 'rgba(255, 255, 255, 0.15)'
+        }
       }
     }
   }), [minValue, maxValue, data, onDateClick, saldo, type]);

@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react'
+import { Button } from '../ui/button';
 
 export const setupModalEventHandlers = (open, modalContainerRef, closeModal) => {
     if (!open) return;
@@ -90,13 +91,9 @@ export function BaseModal({
         {/* --- Footer & Botones --- */}
         <div className="modal-footer">
           {onConfirm &&
-          <button
-            className={`btn-${confirmColor}`}
-            onClick={handleConfirm}
-            autoFocus
-          >
+          <Button variant={"default"} onClick={handleConfirm} autoFocus>
             {confirmText}
-          </button>
+          </Button>
           }
           {onClose &&
           <button className={`btn-${cancelColor}`} onClick={handleCloseModal}>

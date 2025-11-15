@@ -57,33 +57,33 @@ export default function ChartSummary({ data, saldo, viewType = 'Semanal' }) {
 
   return (
     <div className="chart-summary">
-      <div className="summary-item" title={`Caja chica al inicio del rango\nFecha inicial: ${data?.[0]?.date || 'N/A'}\nSaldo: ${cajaChicaInicial !== null ? `$${cajaChicaInicial.toLocaleString()}` : 'N/A'}`}>
+      <div className="summary-item text-primary" title={`Caja chica al inicio del rango\nFecha inicial: ${data?.[0]?.date || 'N/A'}\nSaldo: ${cajaChicaInicial !== null ? `$${cajaChicaInicial.toLocaleString()}` : 'N/A'}`}>
         <h4>Caja Chica Inicial</h4>
-        <span>
+        <span className="text-primary">
           {cajaChicaInicial !== null ? `$${formatCurrencySV(cajaChicaInicial)}` : 'N/A'}
         </span>
       </div>
-      <div className="summary-item" title={`💰 Ingresos Capitales: $${ingresosCapitales.toLocaleString()}\n💰 Ingresos Varios: $${ingresosVarios.toLocaleString()}\n💰 Abonos a Cuotas: $${cuotasAbonos.toLocaleString()}\n💰 Cuotas Pagadas: $${cuotasPagadas.toLocaleString()}\n\nTotal: $${totalIngresos.toLocaleString()}`}>
+      <div className="summary-item text-primary" title={`💰 Ingresos Capitales: $${ingresosCapitales.toLocaleString()}\n💰 Ingresos Varios: $${ingresosVarios.toLocaleString()}\n💰 Abonos a Cuotas: $${cuotasAbonos.toLocaleString()}\n💰 Cuotas Pagadas: $${cuotasPagadas.toLocaleString()}\n\nTotal: $${totalIngresos.toLocaleString()}`}>
         <h4>Total Ingresos {viewType}</h4>
-        <span className="color-success">
+        <span className="text-primary">
           ${formatCurrencySV(totalIngresos)}
         </span>
       </div>
-      <div className="summary-item" title={`💸 Gastos Empresa: $${gastosEmpresa.toLocaleString()}\n💸 Egresos Varios: $${egresosVarios.toLocaleString()}\n💸 Pago de Planillas: $${egresosPagoPlanillas.toLocaleString()}\n💸 Retiros Cuotas: $${egresosCuotasRetiros.toLocaleString()}\n💸 Créditos Desembolsados: $${creditosDesembolsados.toLocaleString()}`}>
+      <div className="summary-item text-primary" title={`💸 Gastos Empresa: $${gastosEmpresa.toLocaleString()}\n💸 Egresos Varios: $${egresosVarios.toLocaleString()}\n💸 Pago de Planillas: $${egresosPagoPlanillas.toLocaleString()}\n💸 Retiros Cuotas: $${egresosCuotasRetiros.toLocaleString()}\n💸 Créditos Desembolsados: $${creditosDesembolsados.toLocaleString()}`}>
         <h4>Total Egresos {viewType}</h4>
-        <span className="color-danger">
+        <span className="text-primary">
           ${formatCurrencySV(totalEgresos)}
         </span>
       </div>
-      <div className="summary-item" title={`Balance Neto = Ingresos - Egresos\n💰 Ingresos: $${totalIngresos.toLocaleString()}\n💸 Egresos: $${totalEgresos.toLocaleString()}\n📊 Resultado: $${balanceNeto.toLocaleString()}`}>
-        <h4>Balance Neto {viewType}</h4>
-        <span className={`color-${balanceNeto >= 0 ? 'success' : 'danger'}`}>
+      <div className="summary-item text-primary" title={`Indicador KPI = Ingresos - Egresos\n💰 Ingresos: $${totalIngresos.toLocaleString()}\n💸 Egresos: $${totalEgresos.toLocaleString()}\n📊 Resultado: $${balanceNeto.toLocaleString()}`}>
+        <h4>Indicador KPI {viewType}</h4>
+        <span className={`text-${balanceNeto >= 0 ? 'success' : 'danger'}`}>
           ${formatCurrencySV(balanceNeto)}
         </span>
       </div>
-      <div className="summary-item" title={`Caja chica al final del rango\nFecha final: ${data?.[data.length-1]?.date || 'N/A'}\nSaldo: ${cajaChicaFinal !== null ? `$${cajaChicaFinal.toLocaleString()}` : 'N/A'}`}>
+      <div className="summary-item text-primary" title={`Caja chica al final del rango\nFecha final: ${data?.[data.length-1]?.date || 'N/A'}\nSaldo: ${cajaChicaFinal !== null ? `$${cajaChicaFinal.toLocaleString()}` : 'N/A'}`}>
         <h4>Caja Chica Final</h4>
-        <span>
+        <span className="text-primary">
           {cajaChicaFinal !== null ? `$${formatCurrencySV(cajaChicaFinal)}` : 'N/A'}
         </span>
       </div>

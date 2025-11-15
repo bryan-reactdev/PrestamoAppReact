@@ -5,10 +5,12 @@
   
   margin-inline: auto;
 
-  border: var(--border-width-xs) solid var(--border-strong);
+  border: var(--border-width-xs) solid rgba(255,255,255,0.3);
   border-radius: var(--border-md);
 
-  background-color: var(--table-background-primary);
+  background-color: rgba(17,52,109,0.6); /* azul oscuro con transparencia */
+  backdrop-filter: blur(8px); /* efecto blur */
+  color: rgb(255,255,255);
 
   box-sizing: border-box;
 }
@@ -17,34 +19,29 @@
 .tr {
   display: flex;
   width: 100%;
+  color: rgb(255,255,255);
 }
 .tr:hover{
-  box-shadow: inset 0 0 0 var(--border-width-sm) var(--color-accent-light);
+  box-shadow: inset 0 0 0 var(--border-width-sm) rgba(255,255,255,0.2);
+  background-color: rgba(255,255,255,0.05);
 }
 .tr.selected-row {
-  background-color: rgba(0, 150, 255, 0.1);
+  background-color: rgba(255,255,255,0.15);
 }
 .header{
-  background-color: var(--table-background-secondary);
+  background-color: rgba(17,52,109,0.7); /* más opaco */
   border-top-left-radius: var(--border-md);
-  border-top-right-radius: var(--border-md);
-}
-
-.header .th:first-child {
-  border-top-left-radius: var(--border-md);
-}
-.header .th:last-child {
   border-top-right-radius: var(--border-md);
 }
 
 /* --- Table Cells --- */
 .th,
 .td {
-  box-shadow: inset 0 0 0 0.5px var(--border-input);
+  box-shadow: inset 0 0 0 0.5px rgba(255,255,255,0.2);
+  color: rgb(255,255,255);
 }
 .column-centered{
   display: flex !important;
-
   text-align: center;
   justify-content: center !important;
 }
@@ -55,79 +52,63 @@
 
 /* --- Table Header Cells --- */
 .th span{
-  color: var(--color-primary);
+  color: rgb(255,255,255);
   font-weight: 500;
 }
 .th, .td {
   position: relative;
   display: flex;
-
   align-items: center;
-
   padding-inline: var(--space-md);
-
   font-size: var(--font-sm);
   font-family: 'Poppins', sans-serif;  
-  
   text-transform: uppercase;
-  
   box-sizing: border-box;
 }
 
 .th {
   display: flex;
   justify-content: left;
-
-  color: var(--color-primary);
-
+  color: rgb(255,255,255);
   padding-top: var(--space-xs);
   padding-bottom: var(--space-xs);
   gap: var(--space-xs);
-
   font-weight: 600;
 }
 .th i{
   font-size: var(--font-xs);
-
   cursor: pointer;
+  color: rgb(255,255,255);
 }
 
 /* --- Pagination --- */
 .pagination {
   display: flex;
-
   justify-content: center;
   align-items: center;
-
   padding: var(--space-sm);
   gap: var(--space-sm);
-  
   font-size: var(--font-sm);
-
-  color: var(--color-secondary);
+  color: rgb(255,255,255);
 }
 
 /* --- Tabs --- */
 .tabs-container{
   display: flex;
-
   gap: var(--space-xs);
 }
 .inactive-tab {
   font-weight: 500;
   min-width: 100px;
-
-  color: var(--color-primary);
-  border: var(--border-width-xs) solid var(--border-primary);
+  color: rgb(255,255,255);
+  border: var(--border-width-xs) solid rgba(255,255,255,0.3);
 }
 .active-tab{
   transform: scale(0.975);
   min-width: 100px;
-
   font-weight: 500;
-  
-  color: var(--color-contrast);
-  background-color: var(--color-accent-light);
+  color: rgb(255,255,255);
+  background-color: rgba(255,255,255,0.2);
 }
 
 /* --- General --- */
@@ -144,34 +125,22 @@
 .EnRevision,
 .Finalizado {
   font-weight: 600;
-}
-
-.A_PLUS {
-  color: var(--color-accent);
-}
-.A {
-  color: var(--color-success);
-}
-.B {
-  color: var(--color-warning);
-}
-.C {
-  color: var(--color-orange);
-}
-.D {
-  color: var(--color-danger);
+  color: rgb(255,255,255);
 }
 
 .badge.Pendiente {
-  background-color: var(--color-warning);
-  color: var(--color-primary);
+  background-color: rgba(255,255,255,0.15);
+  color: rgb(255,255,255);
 }
 .badge.Realizado, .badge.Pagado, .badge.Aceptado{
-  background-color: var(--color-success); 
+  background-color: rgba(255,255,255,0.2); 
+  color: rgb(255,255,255);
 }
 .badge.Vencido, .badge.Rechazado{
-  background-color: var(--color-danger); 
+  background-color: rgba(255,255,255,0.25); 
+  color: rgb(255,255,255);
 }
 .badge.EnRevision, .badge.Finalizado{
-  background-color: var(--color-accent);
+  background-color: rgba(255,255,255,0.2);
+  color: rgb(255,255,255);
 }

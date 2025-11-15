@@ -12,14 +12,18 @@ export default function Layout({ children }) {
         <AppSidebar/>
         <SidebarInset className="min-w-0">
           <main className="bg-navbar">
-            <div className="w-full flex items-center justify-between px-4 p-3 text-white bg-navbar">
+            <div className="w-full mt-10 flex items-center justify-between px-4 p-3 text-white bg-navbar">
               {!isMobile && <SidebarTrigger className="p-2"/>}
               
               <AppNavbar/>
             </div>
             
-            <div className="w-full p-4 py-8 rounded-xl bg-muted">
-              {children}
+            <div className='h-full w-full rounded-xl bg-cover bg-center bg-no-repeat' style={{ backgroundImage: 'url(/images/landing/hero-bg.png)' }}>
+            {/* <div className='h-full w-full rounded-xl bg-cover bg-center bg-no-repeat'> */}
+              <div className="h-full w-full p-4 py-8 rounded-xl">
+              {/* <div className="h-full w-full p-4 py-8 rounded-xl bg-muted"> */}
+                {children}
+              </div>
             </div>
           </main>
         </SidebarInset>

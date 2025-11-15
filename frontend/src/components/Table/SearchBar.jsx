@@ -1,6 +1,6 @@
 export default function SearchBar({placeholder, globalFilter, setGlobalFilter}) {
   return (
-    <div className="input-container">
+    <div className="input-container glass">
       <i className="fas fa-search"></i>
       <input 
         type="text" 

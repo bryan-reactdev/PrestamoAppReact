@@ -319,6 +319,7 @@ public class PdfService {
             HistorialCobrosEntity historialCobros,
             BigDecimal totalIngresosCapitalesGlobal,
             BigDecimal totalCuotasPagadasGlobalValue,
+            List<CreditoEntity> allCreditosAllTime,
             HttpServletResponse response) {
         try {
             // 🔢 Calculate totals for ingresos
@@ -429,6 +430,171 @@ public class PdfService {
             // Creditos Otorgados y Denegados
             context.setVariable("creditosOtorgados", creditosOtorgados);
             context.setVariable("creditosDenegados", creditosDenegados);
+            
+            // Breakdown by tipo for Otorgados
+            long cantidadRapiCashOtorgados = creditosOtorgados.stream()
+                    .filter(c -> "rapi-cash".equals(c.getTipo()))
+                    .count();
+            long cantidadPrendarioOtorgados = creditosOtorgados.stream()
+                    .filter(c -> "prendario".equals(c.getTipo()))
+                    .count();
+            long cantidadHipotecarioOtorgados = creditosOtorgados.stream()
+                    .filter(c -> "hipotecario".equals(c.getTipo()))
+                    .count();
+            
+            BigDecimal totalMontoRapiCashOtorgados = creditosOtorgados.stream()
+                    .filter(c -> "rapi-cash".equals(c.getTipo()))
+                    .map(CreditoEntity::getMonto)
+                    .filter(monto -> monto != null)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            BigDecimal totalMontoPrendarioOtorgados = creditosOtorgados.stream()
+                    .filter(c -> "prendario".equals(c.getTipo()))
+                    .map(CreditoEntity::getMonto)
+                    .filter(monto -> monto != null)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            BigDecimal totalMontoHipotecarioOtorgados = creditosOtorgados.stream()
+                    .filter(c -> "hipotecario".equals(c.getTipo()))
+                    .map(CreditoEntity::getMonto)
+                    .filter(monto -> monto != null)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            context.setVariable("cantidadRapiCashOtorgados", cantidadRapiCashOtorgados);
+            context.setVariable("cantidadPrendarioOtorgados", cantidadPrendarioOtorgados);
+            context.setVariable("cantidadHipotecarioOtorgados", cantidadHipotecarioOtorgados);
+            context.setVariable("totalMontoRapiCashOtorgados", totalMontoRapiCashOtorgados);
+            context.setVariable("totalMontoPrendarioOtorgados", totalMontoPrendarioOtorgados);
+            context.setVariable("totalMontoHipotecarioOtorgados", totalMontoHipotecarioOtorgados);
+            
+            // Breakdown by tipo for Denegados
+            long cantidadRapiCashDenegados = creditosDenegados.stream()
+                    .filter(c -> "rapi-cash".equals(c.getTipo()))
+                    .count();
+            long cantidadPrendarioDenegados = creditosDenegados.stream()
+                    .filter(c -> "prendario".equals(c.getTipo()))
+                    .count();
+            long cantidadHipotecarioDenegados = creditosDenegados.stream()
+                    .filter(c -> "hipotecario".equals(c.getTipo()))
+                    .count();
+            
+            BigDecimal totalMontoRapiCashDenegados = creditosDenegados.stream()
+                    .filter(c -> "rapi-cash".equals(c.getTipo()))
+                    .map(CreditoEntity::getMonto)
+                    .filter(monto -> monto != null)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            BigDecimal totalMontoPrendarioDenegados = creditosDenegados.stream()
+                    .filter(c -> "prendario".equals(c.getTipo()))
+                    .map(CreditoEntity::getMonto)
+                    .filter(monto -> monto != null)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            BigDecimal totalMontoHipotecarioDenegados = creditosDenegados.stream()
+                    .filter(c -> "hipotecario".equals(c.getTipo()))
+                    .map(CreditoEntity::getMonto)
+                    .filter(monto -> monto != null)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            context.setVariable("cantidadRapiCashDenegados", cantidadRapiCashDenegados);
+            context.setVariable("cantidadPrendarioDenegados", cantidadPrendarioDenegados);
+            context.setVariable("cantidadHipotecarioDenegados", cantidadHipotecarioDenegados);
+            context.setVariable("totalMontoRapiCashDenegados", totalMontoRapiCashDenegados);
+            context.setVariable("totalMontoPrendarioDenegados", totalMontoPrendarioDenegados);
+            context.setVariable("totalMontoHipotecarioDenegados", totalMontoHipotecarioDenegados);
+            
+            // All-time creditos distribution
+            long cantidadRapiCashAllTime = allCreditosAllTime.stream()
+                    .filter(c -> "rapi-cash".equals(c.getTipo()))
+                    .count();
+            long cantidadPrendarioAllTime = allCreditosAllTime.stream()
+                    .filter(c -> "prendario".equals(c.getTipo()))
+                    .count();
+            long cantidadHipotecarioAllTime = allCreditosAllTime.stream()
+                    .filter(c -> "hipotecario".equals(c.getTipo()))
+                    .count();
+            
+            BigDecimal totalMontoRapiCashAllTime = allCreditosAllTime.stream()
+                    .filter(c -> "rapi-cash".equals(c.getTipo()))
+                    .map(CreditoEntity::getMonto)
+                    .filter(monto -> monto != null)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            BigDecimal totalMontoPrendarioAllTime = allCreditosAllTime.stream()
+                    .filter(c -> "prendario".equals(c.getTipo()))
+                    .map(CreditoEntity::getMonto)
+                    .filter(monto -> monto != null)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            BigDecimal totalMontoHipotecarioAllTime = allCreditosAllTime.stream()
+                    .filter(c -> "hipotecario".equals(c.getTipo()))
+                    .map(CreditoEntity::getMonto)
+                    .filter(monto -> monto != null)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            long totalCreditosAllTime = allCreditosAllTime.size();
+            BigDecimal totalMontoAllTime = totalMontoRapiCashAllTime.add(totalMontoPrendarioAllTime).add(totalMontoHipotecarioAllTime);
+            
+            context.setVariable("cantidadRapiCashAllTime", cantidadRapiCashAllTime);
+            context.setVariable("cantidadPrendarioAllTime", cantidadPrendarioAllTime);
+            context.setVariable("cantidadHipotecarioAllTime", cantidadHipotecarioAllTime);
+            context.setVariable("totalMontoRapiCashAllTime", totalMontoRapiCashAllTime);
+            context.setVariable("totalMontoPrendarioAllTime", totalMontoPrendarioAllTime);
+            context.setVariable("totalMontoHipotecarioAllTime", totalMontoHipotecarioAllTime);
+            context.setVariable("totalCreditosAllTime", totalCreditosAllTime);
+            context.setVariable("totalMontoAllTime", totalMontoAllTime);
+            
+            // Distribution by estado (pendientes, aceptados, rechazados, finalizados)
+            long cantidadPendientes = allCreditosAllTime.stream()
+                    .filter(c -> "pendiente".equalsIgnoreCase(c.getEstado()))
+                    .count();
+            long cantidadAceptados = allCreditosAllTime.stream()
+                    .filter(c -> "aceptado".equalsIgnoreCase(c.getEstado()))
+                    .count();
+            long cantidadRechazados = allCreditosAllTime.stream()
+                    .filter(c -> "rechazado".equalsIgnoreCase(c.getEstado()))
+                    .count();
+            long cantidadFinalizados = allCreditosAllTime.stream()
+                    .filter(c -> "finalizado".equalsIgnoreCase(c.getEstado()))
+                    .count();
+            
+            BigDecimal totalMontoPendientes = allCreditosAllTime.stream()
+                    .filter(c -> "pendiente".equalsIgnoreCase(c.getEstado()))
+                    .map(CreditoEntity::getMonto)
+                    .filter(monto -> monto != null)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            BigDecimal totalMontoAceptados = allCreditosAllTime.stream()
+                    .filter(c -> "aceptado".equalsIgnoreCase(c.getEstado()))
+                    .map(CreditoEntity::getMonto)
+                    .filter(monto -> monto != null)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            BigDecimal totalMontoRechazados = allCreditosAllTime.stream()
+                    .filter(c -> "rechazado".equalsIgnoreCase(c.getEstado()))
+                    .map(CreditoEntity::getMonto)
+                    .filter(monto -> monto != null)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            BigDecimal totalMontoFinalizados = allCreditosAllTime.stream()
+                    .filter(c -> "finalizado".equalsIgnoreCase(c.getEstado()))
+                    .map(CreditoEntity::getMonto)
+                    .filter(monto -> monto != null)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+            
+            long totalCreditosEstados = cantidadPendientes + cantidadAceptados + cantidadRechazados + cantidadFinalizados;
+            BigDecimal totalMontoEstados = totalMontoPendientes.add(totalMontoAceptados).add(totalMontoRechazados).add(totalMontoFinalizados);
+            
+            context.setVariable("cantidadPendientes", cantidadPendientes);
+            context.setVariable("cantidadAceptados", cantidadAceptados);
+            context.setVariable("cantidadRechazados", cantidadRechazados);
+            context.setVariable("cantidadFinalizados", cantidadFinalizados);
+            context.setVariable("totalMontoPendientes", totalMontoPendientes);
+            context.setVariable("totalMontoAceptados", totalMontoAceptados);
+            context.setVariable("totalMontoRechazados", totalMontoRechazados);
+            context.setVariable("totalMontoFinalizados", totalMontoFinalizados);
+            context.setVariable("totalCreditosEstados", totalCreditosEstados);
+            context.setVariable("totalMontoEstados", totalMontoEstados);
 
             // Cuotas del día - calcular totals y cantidades
             BigDecimal totalCuotasPendientesDia = cuotasPendientesDia.stream()

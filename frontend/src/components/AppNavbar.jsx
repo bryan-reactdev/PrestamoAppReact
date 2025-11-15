@@ -7,10 +7,10 @@ export default function AppNavbar() {
 
     return (
         <div className="w-full border-none">
-            <ButtonGroup className="flex w-full justify-between px-4">
+            <ButtonGroup className="flex w-full justify-center px-4">
                 <ButtonGroup className="flex items-center">
                     <Button variant={"link"}>
-                        <h1 className="text-xl font-extrabold font-inter text-white">MULTIPRÉSTAMOS ATLAS</h1>
+                        <h1 className="text-2xl font-extrabold font-inter text-white underline">MULTIPRÉSTAMOS ATLAS</h1>
                     </Button>
                 </ButtonGroup>
 

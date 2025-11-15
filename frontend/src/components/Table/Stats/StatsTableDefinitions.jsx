@@ -63,7 +63,7 @@ export const weekStatsColumns = [
     cell: (props) => {
       const value = props.getValue() || 0;
       return (
-        <span className="color-success">
+        <span className="text-primary">
           <small>$</small> {formatCurrencySV(value)}
         </span>
       );
@@ -76,7 +76,7 @@ export const weekStatsColumns = [
     cell: (props) => {
       const value = props.getValue() || 0;
       return (
-        <span className="color-success">
+        <span className="text-primary">
           <small>$</small> {formatCurrencySV(value)}
         </span>
       );
@@ -89,7 +89,7 @@ export const weekStatsColumns = [
     cell: (props) => {
       const value = props.getValue() || 0;
       return (
-        <span className="color-danger">
+        <span className="text-primary">
           <small>$</small> {formatCurrencySV(value)}
         </span>
       );
@@ -97,12 +97,12 @@ export const weekStatsColumns = [
   },
   {
     accessorKey: 'balance',
-    header: "Balance Neto",
+    header: "Indicador KPI",
     size: 130,
     cell: (props) => {
       const value = props.getValue() || 0;
       return (
-        <span className={`color-${value >= 0 ? 'success' : 'danger'}`}>
+        <span className="text-primary">
           <small>$</small> {formatCurrencySV(value)}
         </span>
       );
@@ -155,7 +155,7 @@ export const monthStatsColumns = [
     cell: (props) => {
       const value = props.getValue() || 0;
       return (
-        <span className="color-success">
+        <span className="text-primary">
           <small>$</small> {formatCurrencySV(value)}
         </span>
       );
@@ -168,7 +168,7 @@ export const monthStatsColumns = [
     cell: (props) => {
       const value = props.getValue() || 0;
       return (
-        <span className="color-success">
+        <span className="text-primary">
           <small>$</small> {formatCurrencySV(value)}
         </span>
       );
@@ -181,7 +181,7 @@ export const monthStatsColumns = [
     cell: (props) => {
       const value = props.getValue() || 0;
       return (
-        <span className="color-danger">
+        <span className="text-primary">
           <small>$</small> {formatCurrencySV(value)}
         </span>
       );
@@ -189,12 +189,12 @@ export const monthStatsColumns = [
   },
   {
     accessorKey: 'balance',
-    header: "Balance Neto",
+    header: "Indicador KPI",
     size: 130,
     cell: (props) => {
       const value = props.getValue() || 0;
       return (
-        <span className={`color-${value >= 0 ? 'success' : 'danger'}`}>
+        <span className="text-primary">
           <small>$</small> {formatCurrencySV(value)}
         </span>
       );
@@ -250,7 +250,7 @@ export const multiMonthStatsColumns = [
     cell: (props) => {
       const value = props.getValue() || 0;
       return (
-        <span className="color-success">
+        <span className="text-primary">
           <small>$</small> {formatCurrencySV(value)}
         </span>
       );
@@ -263,7 +263,7 @@ export const multiMonthStatsColumns = [
     cell: (props) => {
       const value = props.getValue() || 0;
       return (
-        <span className="color-success">
+        <span className="text-primary">
           <small>$</small> {formatCurrencySV(value)}
         </span>
       );
@@ -276,7 +276,7 @@ export const multiMonthStatsColumns = [
     cell: (props) => {
       const value = props.getValue() || 0;
       return (
-        <span className="color-danger">
+        <span className="text-primary">
           <small>$</small> {formatCurrencySV(value)}
         </span>
       );
@@ -284,12 +284,12 @@ export const multiMonthStatsColumns = [
   },
   {
     accessorKey: 'balance',
-    header: "Balance Neto",
+    header: "Indicador KPI",
     size: 130,
     cell: (props) => {
       const value = props.getValue() || 0;
       return (
-        <span className={`color-${value >= 0 ? 'success' : 'danger'}`}>
+        <span className="text-primary">
           <small>$</small> {formatCurrencySV(value)}
         </span>
       );

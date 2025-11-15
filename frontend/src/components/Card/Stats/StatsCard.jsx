@@ -35,28 +35,28 @@ export default function StatsCard({ row, viewType = 'week' }) {
       <div className="card-body">
         <div className="stat-row">
           <span className="stat-label">Ingresos Capitales:</span>
-          <span className="color-success">
+          <span className="text-primary">
             ${formatCurrencySV(data.totalIngresosCapitales || 0)}
           </span>
         </div>
         
         <div className="stat-row">
           <span className="stat-label">Ingresos:</span>
-          <span className="color-success">
+          <span className="text-primary">
             ${formatCurrencySV(data.totalIngresos || 0)}
           </span>
         </div>
         
         <div className="stat-row">
           <span className="stat-label">Egresos:</span>
-          <span className="color-danger">
+          <span className="text-primary">
             ${formatCurrencySV(data.totalEgresos || 0)}
           </span>
         </div>
         
         <div className="stat-row">
-          <span className="stat-label">Balance Neto:</span>
-          <span className={`color-${(data.balance || 0) >= 0 ? 'success' : 'danger'}`}>
+          <span className="stat-label">Indicador KPI:</span>
+          <span className="text-primary">
             ${formatCurrencySV(data.balance || 0)}
           </span>
         </div>

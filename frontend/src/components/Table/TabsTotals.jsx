@@ -43,22 +43,31 @@ export default function TabsTotals({ tabs, currentTab, setCurrentTab, className 
         const hasText = tab.text !== null && tab.text !== undefined;
         const showBadge = hasValue && hasText;
         const mainText = hasValue ? formatCurrencySV(tab.value) : (hasText ? tab.text : null);
+        const isActive = typeof currentTab === 'object' ? currentTab?.label === tab.label : currentTab === tab.label;
 
         return (
           <Card
             key={tab.label}
-            className={`@container/card tab ${currentTab === tab.label && 'active'} cursor-pointer min-w-[150px] max-w-full flex-1 p-3 transition-all duration-150 relative ${
-              currentTab === tab.label 
-                ? 'scale-[0.975] bg-[var(--color-accent-light)] border-[var(--border-width-sm)] border-[var(--color-accent)]' 
-                : 'hover:brightness-90'
+            style={{
+              background: isActive ? "rgba(255,255,255,0.5)" : "rgba(255,255,255,0.08)",
+              backdropFilter: "blur(12px)",
+              WebkitBackdropFilter: "blur(12px)",
+              color: "white",
+              border: isActive ? "1px solid rgba(255,255,255,0.6)" : "1px solid rgba(255,255,255,0.25)"
+            }}
+            className={`@container/card tab ${isActive && 'active'} cursor-pointer min-w-[150px] max-w-full flex-1 p-3 transition-all duration-150 relative ${
+              isActive 
+                ? 'scale-[0.97] bg-[var(--color-accent-light)] border-white border' 
+                : 'hover:brightness-110'
             }`}
             onClick={() => handleEstadoChange(tab)}
           >
             {showBadge && (
-              <Badge variant="default" className={`absolute top-2 right-2 w-fit truncate ${currentTab === tab.label ? 'text-white' : ''}`}>
+              <Badge variant="default" className="absolute top-2 right-2 w-fit">
                 {tab.text}
               </Badge>
             )}
+
             <CardHeader className="flex flex-row p-0">
               <div className="flex items-center gap-2 w-full">
                 <div 
@@ -69,13 +78,13 @@ export default function TabsTotals({ tabs, currentTab, setCurrentTab, className 
                 </div>
 
                 <div className="flex flex-col gap-1 min-w-0 flex-1">
-                  <CardDescription className={`whitespace-nowrap truncate ${currentTab === tab.label ? 'text-white' : ''}`}>{tab.label}</CardDescription>
+                  <CardDescription className="whitespace-nowrap truncate text-white">{tab.label}</CardDescription>
                   {tab.isLoading ? (
                     <div className="flex items-center gap-2">
                       <div className="spinner w-3 h-3"></div>
                     </div>
                   ) : mainText ? (
-                    <CardTitle className={`text-2xl font-semibold tabular-nums @[250px]/card:text-xl m-0 p-0 whitespace-nowrap truncate ${currentTab === tab.label ? 'text-white' : ''}`}>
+                    <CardTitle className="text-2xl font-bold tabular-nums @[250px]/card:text-xl m-0 p-0 whitespace-nowrap truncate text-white">
                       {hasValue ? `$${mainText}` : mainText}
                     </CardTitle>
                   ) : null}

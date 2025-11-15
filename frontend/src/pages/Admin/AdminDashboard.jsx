@@ -1,18 +1,12 @@
-import ContentTitle from '../../components/Content/ContentTitle'
 import MenuButton from '../../components/Content/Layout/MenuButton'
 import UsuarioModalVerDetalles from '../../components/Modal/Usuario/UsuarioModalVerDetalles'
 import CurrencyModalPDFDiario from '../../components/Modal/Currency/CurrencyModalPDFDiario'
-import { useUsuarioModalStore } from '../../stores/Modal/useUsuarioModalStore'
 import { useModalStore } from '../../stores/Modal/useModalStore'
 
-import { Card, CardAction, CardDescription, CardFooter, CardHeader, CardTitle } from "../../components/ui/card";
-import { Badge } from "../../components/ui/badge";
-import { TrendingUp } from "lucide-react";
-
 import Layout from '../../Layout'
+import { Button } from '../../components/ui/button'
 
 export default function AdminDashboard(){
-  const { openModal } = useUsuarioModalStore();
   const { openModal: openPDFModal } = useModalStore();
   
   return(
@@ -21,22 +15,10 @@ export default function AdminDashboard(){
       <CurrencyModalPDFDiario/>
 
       <div className="content">
-        <ContentTitle title={"Panel de Control"} />
-
-        <div className="w-full mb-5">
-          <button 
-            className='btn-primary w-full max-w-[300px] flex items-center justify-center gap-2' 
-            onClick={() => openPDFModal('pdfDiario')}
-          >
-            <i className='fas fa-print'/>
-            GENERAR REPORTE DIARIO PDF
-          </button>
-        </div>
-
-        <div className="menu-container">
+        <div className="menu-container mt-10">
           <MenuButton 
             icon={'fas fa-credit-card'}
-            color={'danger'}
+            color={'accent-light'}
             title={'Créditos'} 
             subtitle={'Gestiona todos los créditos'} 
             footer={'Mostrar tabla de créditos'}
@@ -45,7 +27,7 @@ export default function AdminDashboard(){
 
           <MenuButton 
             icon={'fas fa-wallet'}
-            color={'danger'}
+            color={'accent-light'}
             title={'Cobros'} 
             subtitle={'Gestiona todos los cobros'} 
             footer={'Mostrar tabla de cobros'}
@@ -54,7 +36,7 @@ export default function AdminDashboard(){
 
           <MenuButton 
             icon={'fas fa-cash-register'}
-            color={'danger'}
+            color={'accent-light'}
             title={'Caja Chica'} 
             subtitle={'Gestiona la caja chica'} 
             footer={'Mostrar información de la caja chica'}
@@ -63,7 +45,7 @@ export default function AdminDashboard(){
 
           <MenuButton 
             icon={'fas fa-history'}
-            color={'success'}
+            color={'accent-light'}
             title={'Historial'} 
             subtitle={'Gestiona el historial'} 
             footer={'Mostrar tabla de historial'}
@@ -88,6 +70,13 @@ export default function AdminDashboard(){
             to={'./estadisticas'}
           />
 
+        </div>
+
+        <div className="w-full mt-20">
+          <Button className='w-full max-w-[300px] h-15 mx-auto flex items-center justify-center gap-2' onClick={() => openPDFModal('pdfDiario')}>
+            <i className='fas fa-print'/>
+            GENERAR REPORTE DIARIO PDF
+          </Button>
         </div>
       </div>
       

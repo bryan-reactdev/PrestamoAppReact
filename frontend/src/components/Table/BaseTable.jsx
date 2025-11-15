@@ -5,6 +5,7 @@ import Tabs from './Tabs';
 import { useSearchParams } from 'react-router-dom';
 import { isMobile } from 'react-device-detect';
 import TabsTotals from './TabsTotals';
+import BasePagination from '../../base/BasePagination';
  
 export default function BaseTable({
   searchBarPlaceholder = !isMobile ? 'Buscar en tabla...' : 'Buscar...', 
@@ -92,7 +93,7 @@ export default function BaseTable({
     const activeTab = tabs.find(tab => tab.label === currentTab) || {};
     const activeColumns = activeTab.columnDefinitions ?? columns;
     const activeData = activeTab.data ?? data;
-    
+
     // --- Inicialiazación de la tabla ---
     const table = useReactTable({
         data: activeData,
@@ -133,7 +134,7 @@ export default function BaseTable({
                 />
             )
         }
-        
+
         {!hideSearchbar &&
             <div className="search-tabs-container">
                 {children}
@@ -187,29 +188,7 @@ export default function BaseTable({
                 </div>
             )}
 
-            {!hidePagination &&
-            <div className="pagination">
-                <button
-                    className='btn-navigation'
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                    >
-                    &laquo; ANTERIOR
-                </button>
-
-                <span>
-                    {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
-                </span>
-                
-                <button
-                    className='btn-navigation'
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                    >
-                    SIGUIENTE &raquo;
-                </button>
-            </div>
-            }
+            <BasePagination table={table} hidePagination={hidePagination} />
         </div>
         :
         <div>
@@ -298,29 +277,7 @@ export default function BaseTable({
                 )}
 
             </div>      
-            {!hidePagination &&
-            <div className="pagination">
-                <button
-                    className='btn-navigation'
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                    >
-                    &laquo; ANTERIOR
-                </button>
-
-                <span>
-                    Página {table.getState().pagination.pageIndex + 1} de {table.getPageCount()}
-                </span>
-                
-                <button
-                    className='btn-navigation'
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                    >
-                    SIGUIENTE &raquo;
-                </button>
-            </div>
-            }
+            <BasePagination table={table} hidePagination={hidePagination} />
         </div>
         }
 

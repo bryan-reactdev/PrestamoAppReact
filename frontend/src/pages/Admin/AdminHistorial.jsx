@@ -48,7 +48,7 @@ export default function AdminHistorial(){
   return(
     <Layout>
       <div className="content">
-        <ContentTitle title={'Historial'} subtitle={'Gestión de Historial'}/>
+
         
         <BaseTable 
           data={historial}

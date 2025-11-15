@@ -166,10 +166,11 @@ export default function ButtonAcciones({ acciones, row, open: controlledOpen, se
     <div style={{ position: "relative", display: "inline-block" }}>
       {!hideButton && (
         <Button
+          className={"w-[90%] mx-auto btn-glass"}
           ref={buttonRef}
           onClick={toggleDropdown}
           aria-label="Más acciones"
-          variant="outline"
+          size={"sm"}
         >
           ACCIONES <i className="fas fa-sort-down"></i>
         </Button>

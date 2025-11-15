@@ -439,6 +439,9 @@ public class CurrencyController {
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
         }
 
+        // All-time creditos for distribution
+        List<CreditoEntity> allCreditosAllTime = creditoService.findAll();
+
         // Log action
         accionLogger.logAccion(AccionTipo.DESCARGADO_REPORTE_PDF_ADMIN, (UsuarioEntity) null);
 
@@ -461,6 +464,7 @@ public class CurrencyController {
                 historialCobros,
                 totalIngresosCapitalesGlobal,
                 totalCuotasPagadasGlobalValue,
+                allCreditosAllTime,
                 response
         );
     }

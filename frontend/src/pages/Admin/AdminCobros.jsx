@@ -20,6 +20,7 @@ import CuotaModalNotas from '../../components/Modal/Cuota/CuotaModalNotas'
 import CuotaModalEditar from '../../components/Modal/Cuota/CuotaModalEditar'
 import { formatCurrencySV } from '../../utils/currencyUtils'
 import Layout from '../../Layout'
+import { Button } from '../../components/ui/button'
 
 export default function AdminCobros(){
   const {usuariosConVencidas, isFetchingUsuariosConVencidas, getUsuariosConVencidas, usuariosConCuotas, isFetchingUsuariosConCuotas, getUsuariosConCuotas, descargarPDFCobros} = useUsuarioStore();
@@ -87,9 +88,9 @@ export default function AdminCobros(){
   ];
 
   const tabs = [
-    { icon: 'fas fa-users',  iconBgColor: 'warning', color: 'warning', label: 'Mapeo de Cuotas', value: cuotasTotales?.totalPendientes + cuotasTotales?.totalVencidas ?? 0, text: cuotasForMapeo?.length ?? 0, isLoading: isFetchingCuotas, data: cuotasForMapeo, card: CuotasCobrosCard, columnDefinitions: cuotasCobrosColumns},
-    { icon: 'fas fa-check', iconBgColor: 'warning', color: 'warning', label: 'Listado de Clientes Al Día', value: cuotasTotales?.totalPendientes ?? 0, text: usuariosConCuotas?.length ?? 0, isLoading: isFetchingUsuariosConCuotas, data: usuariosConCuotas, card: UsuariosCard, columnDefinitions: usuariosConVencidasColumns},
-    { icon: 'fas fa-warning', iconBgColor: 'danger', color: 'danger', label: 'Listado de Clientes Morosos', value: cuotasTotales?.totalVencidas ?? 0, text: usuariosConVencidas?.length ?? 0, isLoading: isFetchingUsuariosConVencidas, data: usuariosConVencidas, card: UsuariosCard, columnDefinitions: usuariosConVencidasMorososColumns},
+    { icon: 'fas fa-users',  iconBgColor: 'accent-light', color: 'warning', label: 'Mapeo de Cuotas', value: cuotasForMapeo?.reduce((sum, cuota) => sum + (cuota.cuotaTotal || 0), 0) ?? 0, text: cuotasForMapeo?.length ?? 0, isLoading: isFetchingCuotas, data: cuotasForMapeo, card: CuotasCobrosCard, columnDefinitions: cuotasCobrosColumns},
+    { icon: 'fas fa-check', iconBgColor: 'accent-light', color: 'warning', label: 'Listado de Clientes Al Día', value: cuotasTotales?.totalPendientes ?? 0, text: usuariosConCuotas?.length ?? 0, isLoading: isFetchingUsuariosConCuotas, data: usuariosConCuotas, card: UsuariosCard, columnDefinitions: usuariosConVencidasColumns},
+    { icon: 'fas fa-warning', iconBgColor: 'accent-light', color: 'danger', label: 'Listado de Clientes Morosos', value: cuotasTotales?.totalVencidas ?? 0, text: usuariosConVencidas?.length ?? 0, isLoading: isFetchingUsuariosConVencidas, data: usuariosConVencidas, card: UsuariosCard, columnDefinitions: usuariosConVencidasMorososColumns},
   ];
 
   return(
@@ -112,25 +113,24 @@ export default function AdminCobros(){
               return (
                 <Card
                   key={card.label}
-                  className="@container/card min-w-[150px] max-w-full flex-1 p-3 relative !bg-transparent !border-none !shadow-none"
+                  className="@container/card min-w-[150px] max-w-full flex-1 p-3 relative bg-transparent border-none"
                 >
                   <CardHeader className="flex flex-row p-0">
                     <div className="flex items-center gap-2 w-full">
                       <div 
-                        className='flex items-center justify-center p-3 px-4 rounded-md shrink-0'
-                        style={{ backgroundColor: getIconBgColor(card.iconBgColor) }}
+                        className='flex items-center justify-center p-3 px-4 rounded-md shrink-0 accent-light '
                       >
-                        <i className={`${card.icon} text-white !text-lg`} />
+                        <i className={`${card.icon} text-primary !text-lg`} />
                       </div>
 
                       <div className="flex flex-col gap-1 min-w-0 flex-1">
-                        <CardDescription className="whitespace-nowrap truncate">{card.label}</CardDescription>
+                        <CardDescription className="whitespace-nowrap truncate text-primary">{card.label}</CardDescription>
                         {card.isLoading ? (
                           <div className="flex items-center gap-2">
                             <div className="spinner w-3 h-3"></div>
                           </div>
                         ) : mainText ? (
-                          <CardTitle className={`text-2xl font-semibold tabular-nums @[250px]/card:text-xl m-0 p-0 whitespace-nowrap truncate color-${card.iconBgColor}`}>
+                          <CardTitle className={`text-2xl font-semibold tabular-nums @[250px]/card:text-xl m-0 p-0 whitespace-nowrap truncate text-primary`}>
                             ${mainText}
                           </CardTitle>
                         ) : null}
@@ -166,21 +166,15 @@ export default function AdminCobros(){
               value={selectedDate}
               onChange={(e) => setSelectedDate(e.target.value)}
             />
-            <button 
-              className='btn-primary' 
-              onClick={() => setSelectedDate(getCurrentDate())}
-            >
-              <i className='fas fa-rotate'/>
+            <Button className="btn-glass" onClick={() => setSelectedDate(getCurrentDate())}>
+              <i className="fas fa-rotate"/>
               IR A HOY
-            </button>
+            </Button>
 
-            <button 
-              className='btn-secondary' 
-              onClick={() => setSelectedDate(null)}
-            >
-              <i className='fas fa-times'/>
+            <Button className="btn-glass" onClick={() => setSelectedDate(null)}>
+              <i className="fas fa-times"/>
               LIMPIAR
-            </button>
+            </Button>
           </div>
         }
           {(currentTab === "Listado de Clientes Morosos" || currentTab === "Listado de Clientes Al Día") && (

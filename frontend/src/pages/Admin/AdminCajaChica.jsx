@@ -11,12 +11,13 @@ import CurrencyModalIngreso from '../../components/Modal/Currency/CurrencyModalI
 import CurrencyModalEgreso from '../../components/Modal/Currency/CurrencyModalEgreso'
 import { getCurrentDate } from '../../utils/dateUtils'
 import Layout from '../../Layout'
+import { Button } from '../../components/ui/button'
 
-export default function AdminCajaChica(){
+export default function AdminCajaChica() {
   const { saldo, getBalance, currencyForDate, selectedDate, setSelectedDate, getCurrencyForDate } = useCurrencyStore();
 
   useEffect(() => {
-    if (!saldo){
+    if (!saldo) {
       getBalance();
     }
   }, [getBalance])
@@ -26,91 +27,88 @@ export default function AdminCajaChica(){
     getCurrencyForDate();
   }, [saldo])
 
-  return(
+  return (
     <Layout>
-      <CurrencyModalIngreso/>
-      <CurrencyModalEgreso/>
+      <CurrencyModalIngreso />
+      <CurrencyModalEgreso />
 
       <div className="content">
-        <ContentTitle title={"Caja Chica"} subtitle={"Caja Chica de Multipréstamos Atlas"} />
-      
+
         <div className="date-controls">
-          <FormField 
+          <FormField
             classNames={'simple'}
-            label={'Fecha'} 
+            label={'Fecha'}
             type="date"
             value={selectedDate}
             onChange={(e) => setSelectedDate(e.target.value)}
           />
-          <button 
-            className='btn-primary sm' 
-            onClick={() => setSelectedDate(getCurrentDate())}
-          >
-            <i className='fas fa-rotate'/>
+          <Button className="btn-glass" onClick={() => setSelectedDate(getCurrentDate())}>
+            <i className="fas fa-rotate" />
             IR A HOY
-          </button>
+          </Button>
+
         </div>
 
         <div className="stat-cards">
           {/* Balance de Capital */}
           <StatCard title={'Balance de Capital'} titleIcon={'fas fa-money-bill-trend-up'} value={currencyForDate.balance?.saldo} to={'./balance'}>
-            <StatSummaryItem value={currencyForDate.totalIngresos} color={'success'}>
-              <i className={'fas fa-arrow-down'}/>
+            <StatSummaryItem value={currencyForDate.totalIngresos} color={'white'}>
+              <i className={'fas fa-arrow-down'} />
               Total de Ingresos
             </StatSummaryItem>
-            <StatSummaryItem value={currencyForDate.totalEgresos} color={'danger'}>
-              <i className={'fas fa-arrow-up'}/>
+            <StatSummaryItem value={currencyForDate.totalEgresos} color={'white'}>
+              <i className={'fas fa-arrow-up'} />
               Total de Egresos
             </StatSummaryItem>
           </StatCard>
 
           {/* Ingresos */}
-          <StatCard title={'Ingresos'} titleIcon={'fas fa-arrow-down'} actions={[<ButtonIngreso key={'ingreso'}/>]} value={currencyForDate.totalIngresos} color='success' to={'./ingresos'}>
+          <StatCard title={'Ingresos'} titleIcon={'fas fa-arrow-down'} actions={[<ButtonIngreso key={'ingreso'} />]} value={currencyForDate.totalIngresos} color='success' to={'./ingresos'}>
             <StatSummaryItem value={currencyForDate.ingresosCapitales?.total}>
-              <i className='fas fa-building'/>
+              <i className='fas fa-building' />
               Ingresos Capitales
             </StatSummaryItem>
             <StatSummaryItem value={currencyForDate.ingresosVarios?.total}>
-              <i className='fas fa-coins'/>
+              <i className='fas fa-coins' />
               Ingresos Varios
             </StatSummaryItem>
             <StatSummaryItem value={currencyForDate.cuotasAbonos?.total}>
-              <i className='fas fa-money-bill'/>
+              <i className='fas fa-money-bill' />
               Abonos a Cuotas
             </StatSummaryItem>
             <StatSummaryItem value={currencyForDate.cuotasPagadas?.total}>
-              <i className='fas fa-wallet'/>
+              <i className='fas fa-wallet' />
               Pagos de Cuotas
             </StatSummaryItem>
           </StatCard>
 
           {/* Egresos */}
-          <StatCard title={'Egresos'} titleIcon={'fas fa-arrow-up'} actions={[<ButtonEgreso key={'egreso'}/>]} value={currencyForDate.totalEgresos} color={'danger'} to={'./egresos'}>
+          <StatCard title={'Egresos'} titleIcon={'fas fa-arrow-up'} actions={[<ButtonEgreso key={'egreso'} />]} value={currencyForDate.totalEgresos} color={'danger'} to={'./egresos'}>
             <StatSummaryItem value={currencyForDate.gastosEmpresa?.total}>
-              <i className='fas fa-building'/>
+              <i className='fas fa-building' />
               Gastos de Empresa
             </StatSummaryItem>
             <StatSummaryItem value={currencyForDate.egresosVarios?.total}>
-              <i className='fas fa-coins'/>
+              <i className='fas fa-coins' />
               Egresos Varios
             </StatSummaryItem>
             <StatSummaryItem value={currencyForDate.egresosPagoPlanillas?.total}>
-              <i className='fas fa-file-invoice-dollar'/>
+              <i className='fas fa-file-invoice-dollar' />
               Pago de Planillas
             </StatSummaryItem>
             <StatSummaryItem value={currencyForDate.egresosCuotasRetiros?.total}>
-              <i className='fas fa-money-bill'/>
+              <i className='fas fa-money-bill' />
               Retiro de Cuotas
             </StatSummaryItem>
             <StatSummaryItem value={currencyForDate.creditosDesembolsados?.total}>
-              <i className='fas fa-credit-card'/>
+              <i className='fas fa-credit-card' />
               Créditos Desembolsados
             </StatSummaryItem>
           </StatCard>
         </div>
 
       </div>
-      
+
     </Layout>
   )
 }

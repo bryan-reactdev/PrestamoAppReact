@@ -227,9 +227,9 @@ export default function FormField({
 
   return (
     <div className={`form-field ${classNames || ''}`} style={style}>
-      {label && <label>{label}</label>}
+      {label && <label className='text-primary'>{label}</label>}
 
-      <div className="form-field-input-container" style={{ position: 'relative' }}>
+      <div className="form-field-input-container glass" style={{ position: 'relative' }}>
         {isMoney && <i className="fas fa-dollar-sign"></i>}
 
         {type === 'textarea' ? (
@@ -286,7 +286,7 @@ export default function FormField({
               top: '50%',
               transform: 'translateY(-50%)',
               cursor: 'pointer',
-              color: '#555',
+              color: 'white',
               fontSize: '0.95rem',
             }}
           />
